@@ -1,0 +1,120 @@
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  width: 100%;
+  height: 80px;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  padding: 22px 84px;
+  box-sizing: border-box;
+}
+
+.navbar-inner {
+  width: 100%;
+  max-width: 1240px;
+  margin: 0 auto;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.navbar-logo {
+  display: flex;
+  align-items: center;
+}
+
+.navbar-logo img {
+  display: block;
+  width: 174.86px;
+  height: 32px;
+  object-fit: contain;
+}
+
+.navbar-links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+}
+
+.navbar-links a {
+  font-family: "Space Grotesk", sans-serif;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 20px;
+  color: rgba(11, 18, 26, 0.5);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 0.2s ease;
+}
+
+.navbar-links a:hover {
+  color: #0b121a;
+}
+
+.navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  height: 36px;
+}
+
+.navbar-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 16px;
+  height: 36px;
+  background: #ffc107;
+  border-radius: 100px;
+  font-family: "Space Grotesk", sans-serif;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 20px;
+  text-align: center;
+  color: #0b121a;
+  text-decoration: none;
+  white-space: nowrap;
+  box-sizing: border-box;
+  transition: filter 0.2s ease;
+}
+
+.navbar-cta:hover {
+  filter: brightness(0.95);
+}
+
+.navbar-lang {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 4px 10px;
+  height: 36px;
+  box-sizing: border-box;
+  border: 1px solid rgba(11, 18, 26, 0.5);
+  border-radius: 20px;
+  background: transparent;
+  cursor: pointer;
+  font-family: "Space Grotesk", sans-serif;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 20px;
+  color: #0b121a;
+}
+
+@media (max-width: 1100px) {
+  .navbar {
+    padding: 16px 24px;
+  }
+
+  .navbar-links {
+    display: none; /* মোবাইল মেনু পরের ধাপে যোগ করবো */
+  }
+}
