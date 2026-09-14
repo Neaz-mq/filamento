@@ -15,17 +15,14 @@
   opacity: 0;
 }
 
-/* ১ + ২: Logo mark (dark সম্পূর্ণ fade-out, তারপরই color fade-in — sequential) */
-.loader-logo {
+.loader-mark {
   position: relative;
   width: 200px;
   height: 200px;
-  opacity: 1;
-  transform: scale(1);
-  transition: opacity 0.3s ease, transform 0.3s ease;
-  animation: logo-in 0.6s ease both;
+  animation: mark-in 0.6s ease both;
 }
 
+/* ---------- ১. dark logo (ring + chevron, একটাই টানা shape) ---------- */
 .loader-logo-img {
   position: absolute;
   inset: 0;
@@ -39,59 +36,72 @@
   transition: opacity 0.3s ease;
 }
 
-.loader-logo-img--color {
+/* ---------- rings (ring + chevron, gap সহ — accent বসার জায়গাটা ফাঁকা) ---------- */
+.loader-logo-img--rings {
   opacity: 0;
-  transition: opacity 0.3s ease 0.3s; /* dark পুরোপুরি মিলিয়ে যাওয়ার পরেই শুরু হবে */
+  /* dark পুরোপুরি মিলিয়ে যাওয়ার পরেই rings ফুটে ওঠা শুরু হবে */
+  transition: opacity 0.3s ease 0.3s;
 }
 
-.loader--color .loader-logo-img--dark {
+.loader--color .loader-logo-img--dark,
+.loader--bar .loader-logo-img--dark,
+.loader--rotate .loader-logo-img--dark,
+.loader--fill .loader-logo-img--dark,
+.loader--fade .loader-logo-img--dark {
   opacity: 0;
 }
 
-.loader--color .loader-logo-img--color {
+.loader--color .loader-logo-img--rings {
   opacity: 1;
 }
 
-/* ৩, ৪, ৫ এ পুরো logo (dark + color দুটোই) সম্পূর্ণ অদৃশ্য হয়ে যায় */
-.loader--bar .loader-logo,
-.loader--fill .loader-logo,
-.loader--fade .loader-logo {
+/* ৩. শুধু dark rings/chevron অংশটা fade out — accent এর জায়গা/অবস্থান অপরিবর্তিত থাকে */
+.loader--bar .loader-logo-img--rings,
+.loader--rotate .loader-logo-img--rings,
+.loader--fill .loader-logo-img--rings,
+.loader--fade .loader-logo-img--rings {
   opacity: 0;
-  transform: scale(0.85);
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  transition: opacity 0.35s ease;
 }
 
-/* ৩: ছোট yellow bar — logo পুরোপুরি মিলিয়ে যাওয়ার পরেই fade-in শুরু হবে (delay) */
-.loader-bar {
+/* ---------- ২. yellow accent — logo এর ভেতরে ঠিক যেখানে থাকে সেখানেই বসানো ---------- */
+.loader-accent {
   position: absolute;
-  width: 120px;
-  height: 8px;
-  border-radius: 999px;
-  background: #ffc107;
+  left: 30.9%;
+  top: 32.2%;
+  width: 32.2%;
+  height: 29.5%;
+  object-fit: contain;
   opacity: 0;
-  transition: opacity 0.3s ease 0.3s, width 0.7s cubic-bezier(0.65, 0, 0.35, 1),
-    height 0.7s cubic-bezier(0.65, 0, 0.35, 1),
-    border-radius 0.7s cubic-bezier(0.65, 0, 0.35, 1);
+  transform: rotate(0deg) scale(1);
+  transform-origin: 50% 50%;
+  transition: opacity 0.3s ease 0.3s;
 }
 
-.loader--bar .loader-bar,
-.loader--fill .loader-bar,
-.loader--fade .loader-bar {
+.loader--color .loader-accent,
+.loader--bar .loader-accent,
+.loader--rotate .loader-accent,
+.loader--fill .loader-accent,
+.loader--fade .loader-accent {
   opacity: 1;
 }
 
-/* ৪: bar পুরো স্ক্রিন জুড়ে বড় হয় */
-.loader--fill .loader-bar,
-.loader--fade .loader-bar {
-  width: 100vw;
-  height: 100vh;
-  border-radius: 0;
-  transition: width 0.7s cubic-bezier(0.65, 0, 0.35, 1),
-    height 0.7s cubic-bezier(0.65, 0, 0.35, 1),
-    border-radius 0.7s cubic-bezier(0.65, 0, 0.35, 1);
+/* ৪. dark rings চলে যাওয়ার পরেই accent ঘুরে horizontal হয় */
+.loader--rotate .loader-accent,
+.loader--fill .loader-accent,
+.loader--fade .loader-accent {
+  transform: rotate(40.9deg) scale(1);
+  transition: transform 0.55s cubic-bezier(0.65, 0, 0.35, 1);
 }
 
-@keyframes logo-in {
+/* ৫. horizontal bar টা বড় হয়ে পুরো স্ক্রিন ভরে ফেলে */
+.loader--fill .loader-accent,
+.loader--fade .loader-accent {
+  transform: rotate(40.9deg) scale(var(--fill-scale, 24));
+  transition: transform 0.7s cubic-bezier(0.55, 0, 0.45, 1);
+}
+
+@keyframes mark-in {
   from {
     opacity: 0;
     transform: scale(0.85);
