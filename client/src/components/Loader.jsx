@@ -1,17 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import logoDark from "../assets/logo/logo-dark.png";
 import logoRings from "../assets/logo/logo-rings.png";
 import logoAccent from "../assets/logo/logo-accent.png";
 import "./Loader.css";
 
-// ধাপগুলো (ঠিক এই order এ, ইউজারের চাওয়া অনুযায়ী):
-// ১. DARK   -> শুধু dark logo দেখা যায়
-// ২. COLOR  -> yellow accent (তীর্যক bar) logo এর ভেতরেই ফুটে ওঠে
-// ৩. BAR    -> শুধু dark rings/chevron অংশটা fade out হয়ে যায়, yellow bar
-//              ঠিক আগের জায়গাতেই (তীর্যক অবস্থায়) থেকে যায়
-// ৪. ROTATE -> সেই yellow bar ঘুরে horizontal হয়ে যায়
-// ৫. FILL   -> horizontal bar টা বড় হতে হতে পুরো স্ক্রিন ভরে ফেলে
-// ৬. FADE   -> home page content দেখা যায়, loader মিলিয়ে যায়
 const STAGE = {
   DARK: "dark",
   COLOR: "color",
@@ -23,16 +15,12 @@ const STAGE = {
 
 function Loader({ onRevealContent, onComplete }) {
   const [stage, setStage] = useState(STAGE.DARK);
-  const [fillScale, setFillScale] = useState(24);
 
+  // callback গুলো ref-এ রাখছি যাতে parent re-render হলেও effect restart না হয়
+  const callbacksRef = useRef({ onRevealContent, onComplete });
   useEffect(() => {
-    // viewport যত বড়, yellow bar টাকেও ঠিক ততটাই বড় হতে হবে যাতে
-    // পুরো স্ক্রিন কোনো ফাঁকা জায়গা ছাড়াই ঢেকে যায়
-    const vw = window.innerWidth || 1280;
-    const vh = window.innerHeight || 800;
-    const diagonal = Math.sqrt(vw * vw + vh * vh);
-    setFillScale(Math.max(20, (diagonal * 2.4) / 90));
-  }, []);
+    callbacksRef.current = { onRevealContent, onComplete };
+  }, [onRevealContent, onComplete]);
 
   useEffect(() => {
     const prefersReducedMotion = window.matchMedia(
@@ -40,64 +28,52 @@ function Loader({ onRevealContent, onComplete }) {
     ).matches;
 
     if (prefersReducedMotion) {
-      onRevealContent?.();
-      onComplete?.();
+      callbacksRef.current.onRevealContent?.();
+      callbacksRef.current.onComplete?.();
       return;
     }
 
     document.body.style.overflow = "hidden";
 
     const timers = [
-      // dark logo হোল্ড শেষে yellow accent ফুটে ওঠা শুরু
+      // dark logo hold শেষে color crossfade (rings + accent fade-in, 600ms) শুরু
       setTimeout(() => setStage(STAGE.COLOR), 800),
 
-      // accent সম্পূর্ণ ফুটে ওঠার পরে (+সামান্য hold) শুধু dark rings fade out
+      // crossfade শেষ হওয়ার পরে (+100ms buffer) rings fade-out (350ms) শুরু
       setTimeout(() => setStage(STAGE.BAR), 1500),
 
-      // dark rings পুরোপুরি অদৃশ্য হয়ে যাওয়ার পরেই bar horizontal হওয়া শুরু করবে
+      // rings পুরোপুরি হাইড হওয়ার পরে (+100ms buffer) accent rotate (550ms) শুরু
       setTimeout(() => setStage(STAGE.ROTATE), 1950),
 
-      // horizontal হওয়া শেষ হওয়ার পরেই grow শুরু
-      setTimeout(() => setStage(STAGE.FILL), 2500),
+      // rotate শেষ হওয়ার পরে (+100ms buffer) fill-bar grow (1100ms, smooth) শুরু
+      setTimeout(() => setStage(STAGE.FILL), 2600),
 
-      // পুরো স্ক্রিন yellow দিয়ে ভরে যাওয়ার পরেই content reveal + fade
+      // fill grow সম্পূর্ণ শেষ হওয়ার পরে (+100ms buffer) fade + content reveal
       setTimeout(() => {
-        onRevealContent?.();
+        callbacksRef.current.onRevealContent?.();
         setStage(STAGE.FADE);
-      }, 3300),
+      }, 3800),
 
-      // overlay fade শেষ হওয়ার পরেই loader remove
+      // overlay fade (500ms) সম্পূর্ণ শেষ হওয়ার পরে (+100ms buffer) loader remove
       setTimeout(() => {
         document.body.style.overflow = "";
-        onComplete?.();
-      }, 3750),
+        callbacksRef.current.onComplete?.();
+      }, 4400),
     ];
 
     return () => {
       timers.forEach(clearTimeout);
       document.body.style.overflow = "";
     };
-  }, [onRevealContent, onComplete]);
+  }, []); // খালি dependency — mount এ একবারই setup, StrictMode নিজে থেকেই handle করবে
 
   return (
     <div className={`loader loader--${stage}`} aria-hidden="true">
       <div className="loader-mark">
-        <img
-          src={logoDark}
-          alt=""
-          className="loader-logo-img loader-logo-img--dark"
-        />
-        <img
-          src={logoRings}
-          alt=""
-          className="loader-logo-img loader-logo-img--rings"
-        />
-        <img
-          src={logoAccent}
-          alt=""
-          className="loader-accent"
-          style={{ "--fill-scale": fillScale }}
-        />
+        <img src={logoDark} alt="" className="loader-logo-img loader-logo-img--dark" />
+        <img src={logoRings} alt="" className="loader-logo-img loader-logo-img--rings" />
+        <img src={logoAccent} alt="" className="loader-accent" />
+        <div className="loader-fill-bar" />
       </div>
     </div>
   );
