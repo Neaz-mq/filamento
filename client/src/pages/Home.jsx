@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState } from "react";
+import { useState } from "react";
 import Loader from "../components/Loader";
 
 const INTRO_KEY = "filamento_intro_played";
@@ -9,21 +9,8 @@ function Home() {
   const [loading, setLoading] = useState(!alreadyPlayed);
   const [contentVisible, setContentVisible] = useState(alreadyPlayed);
 
-  // ref দিয়ে track করছি flag টা এই component instance এ lock হয়েছে কিনা,
-  // যাতে StrictMode এর double-effect এও দ্বিতীয়বার re-lock না হয়
-  const hasLockedIntro = useRef(false);
-
-  // useLayoutEffect ব্যবহার করছি কারণ এটা render এর পর, কিন্তু browser
-  // কিছু paint করার আগেই synchronously চলে — তাই এটাই সবচেয়ে early,
-  // "pure" জায়গা এই flag write করার জন্য (render body এর ভেতরে নয়)
-  useLayoutEffect(() => {
-    if (!alreadyPlayed && !hasLockedIntro.current) {
-      hasLockedIntro.current = true;
-      sessionStorage.setItem(INTRO_KEY, "true");
-    }
-  }, [alreadyPlayed]);
-
   const handleComplete = () => {
+    sessionStorage.setItem(INTRO_KEY, "true");
     setLoading(false);
   };
 
@@ -36,13 +23,15 @@ function Home() {
         />
       )}
 
-      {/* আগে শুধু opacity বদলাত, কোনো transition ছিল না — তাই content
-          snap করে আসত। loader এর নিজের fade ও 0.5s, তাই দুইটা মিলে
-          এখন একসাথে নরমভাবে আসবে। */}
+      {/* পর্দা উপরে সরার সাথে সাথে content টা 32px নিচ থেকে উঠে আসে।
+          দুইটা layer আলাদা গতিতে চলায় গভীরতা তৈরি হয় — শুধু fade
+          করলে সব একই সমতলে আটকে থাকত */}
       <div
         style={{
           opacity: contentVisible ? 1 : 0,
-          transition: "opacity 0.6s ease",
+          transform: contentVisible ? "translateY(0)" : "translateY(32px)",
+          transition:
+            "opacity 0.9s ease 0.1s, transform 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.1s",
         }}
       >
         <h1 className="text-3xl font-bold text-center py-10">

@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import logoFull from "../assets/logo/logo-full.png";
+import filamentoLogo from "../assets/logo/filamento.png";
 import "./Navbar.css";
 
 const NAV_LINKS = [
@@ -12,7 +12,14 @@ const NAV_LINKS = [
 
 function GlobeIcon() {
   return (
-    <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
       <circle cx="8" cy="8" r="6.5" stroke="#0B121A" strokeWidth="1.5" />
       <ellipse
         cx="8"
@@ -42,6 +49,7 @@ function ChevronIcon() {
       viewBox="0 0 8 4"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
     >
       <path
         d="M1 1L4 3L7 1"
@@ -58,16 +66,11 @@ function Navbar() {
   return (
     <header className="navbar">
       <div className="navbar-inner">
-        {/* logo-full.png বর্গাকার (871x866) — শুধু mark, wordmark নেই।
-            তাই mark টা 32x32 এ রেখে পাশে text দিয়ে lockup বানানো হয়েছে।
-            পরে যদি horizontal lockup asset (mark + "Filamento" একসাথে)
-            পান, তাহলে span টা মুছে img এর মাপ সেই asset অনুযায়ী দিন। */}
         <Link to="/" className="navbar-logo" aria-label="Filamento home">
-          <img src={logoFull} alt="" />
-          <span>Filamento</span>
+          <img src={filamentoLogo} alt="Filamento" />
         </Link>
 
-        <nav className="navbar-links">
+        <nav className="navbar-links" aria-label="Main">
           {NAV_LINKS.map((link) => (
             <Link key={link.to} to={link.to}>
               {link.label}
@@ -79,6 +82,9 @@ function Navbar() {
           <Link to="/contact" className="navbar-cta">
             Contact
           </Link>
+
+          {/* language switcher এখনো dummy — পরে dropdown বসবে,
+              তাই aria-expanded/aria-haspopup এখনই দেওয়া হয়নি */}
           <button type="button" className="navbar-lang">
             <GlobeIcon />
             <span>EN</span>

@@ -1,17 +1,115 @@
 @import "tailwindcss";
 
-/* Space Grotesk index.html এ load হচ্ছে ঠিকই, কিন্তু কোথাও global করা ছিল না —
-   শুধু Navbar.css এ hardcode করা ছিল। Tailwind v4 এ @theme দিয়ে register
-   করলে font-sans utility আর body দুই জায়গাতেই কাজ করবে। */
 @theme {
   --font-sans: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+
   --color-ink: #0b121a;
+  --color-ink-muted: rgba(11, 18, 26, 0.5);
+  --color-cta: #ffc107;
   --color-accent: #efc135;
+  --color-surface: #ebebec; /* section card এর background */
+
+  --text-3xl: clamp(1.75rem, 1.45rem + 1.5vw, 2.25rem);
+  --text-4xl: clamp(2rem, 1.6rem + 2vw, 2.75rem);
+  --text-5xl: clamp(2.5rem, 1.9rem + 3vw, 3.75rem);
+  --text-6xl: clamp(3rem, 2.1rem + 4.5vw, 5rem);
+}
+
+/* ---------------------------------------------------------------
+   Layout tokens — তিনটা স্তর, Figma এর হিসাব ধরে:
+
+   1440 page → 1408 shell (16px inset) → 84px card padding → 1240 content
+
+   প্রতিটা clamp এর মাঝের মানটা Figma এর অনুপাত:
+   16/1440 = 1.11vw,  84/1408 = 5.97vw,  40/1408 = 2.84vw
+   --------------------------------------------------------------- */
+:root {
+  --page-gutter: clamp(8px, 1.11vw, 16px);
+  --section-pad-x: clamp(20px, 5.97vw, 84px);
+  --section-pad-y: clamp(40px, 4.5vw, 64px);
+  --section-radius: clamp(20px, 2.84vw, 40px);
+  --content-max: 1240px;
+
+  --header-h: 80px;
+  --section-gap: clamp(12px, 1.11vw, 16px);
+}
+
+/* 1920 এর উপরে content সামান্য বাড়ছে — 1240 বড় monitor এ সরু দেখায়।
+   বেশি বাড়ানো যাবে না: এক লাইনে ৭৫ অক্ষরের বেশি হলে চোখ পরের লাইনের
+   শুরু খুঁজে পেতে দেরি করে, পড়া কষ্টকর হয় */
+@media (min-width: 1920px) {
+  :root {
+    --content-max: 1360px;
+  }
+}
+
+@media (max-width: 1100px) {
+  :root {
+    --header-h: 64px;
+  }
 }
 
 body {
   margin: 0;
   font-family: var(--font-sans);
   color: var(--color-ink);
+  background: #ffffff;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden; /* একটা লম্বা model number যেন layout ঠেলে না দেয় */
+}
+
+img,
+svg,
+video {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+/* ---------------------------------------------------------------
+   স্তর ১ — shell. Figma এর 1408px. viewport থেকে 16px করে ভেতরে।
+   navbar আর সব section এর বাইরের সীমা এটাই
+
+   cap নেই ইচ্ছে করেই: card design এ card টা viewport hug করা উচিত,
+   নাহলে 4K তে card টা মাঝখানে ভেসে থাকে আর দুইপাশে বিশাল সাদা —
+   দেখতে ভাঙা লাগে। প্রস্থ সামলানোর কাজটা ভেতরের .container করছে
+   --------------------------------------------------------------- */
+.shell {
+  width: 100%;
+  padding-inline: var(--page-gutter);
+  padding-bottom: var(--page-gutter);
+  box-sizing: border-box;
+}
+
+/* ---------------------------------------------------------------
+   স্তর ২ — section card. radius 40, padding 64/84
+   --------------------------------------------------------------- */
+.section {
+  width: 100%;
+  padding: var(--section-pad-y) var(--section-pad-x);
+  border-radius: var(--section-radius);
+  box-sizing: border-box;
+  margin-bottom: var(--section-gap);
+}
+
+.section:last-child {
+  margin-bottom: 0;
+}
+
+.section--surface {
+  background: var(--color-surface);
+}
+
+/* ---------------------------------------------------------------
+   স্তর ৩ — content. 1240 এ আটকানো, card এর ভেতরে centered
+   --------------------------------------------------------------- */
+.container {
+  width: 100%;
+  max-width: var(--content-max);
+  margin-inline: auto;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 3px;
 }

@@ -3,12 +3,13 @@ import Navbar from "../components/Navbar";
 
 function MainLayout() {
   return (
-    <div className="min-h-screen flex flex-col">
+    /* 100vh মোবাইলে address bar কে হিসাবে ধরে, তাই scroll এ layout
+       লাফায় — dvh সেটা ঠিক করে */
+    <div className="shell flex flex-col" style={{ minHeight: "100dvh" }}>
       <Navbar />
       <main className="flex-1">
         <Outlet />
       </main>
-      {/* Footer পরে বসবে এখানে */}
     </div>
   );
 }

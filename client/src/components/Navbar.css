@@ -1,54 +1,59 @@
+/* ---------------------------------------------------------------
+   Figma spec (Header / Frame 189):
+   header  80px উঁচু, padding 22px 84px, bg #FFFFFF
+   inner   1240px চওড়া, 36px উঁচু, space-between
+   logo    174.86 x 32
+   links   gap 32px, 16/20 Space Grotesk 500, rgba(11,18,26,.5)
+   actions gap 16px
+   CTA     95 x 36, padding 8px 16px, #FFC107, radius 100px
+   lang    76 x 36, padding 4px 10px, gap 6px, border rgba(11,18,26,.5), radius 20px
+
+   fixed 84px / 1240px আর hardcode করা নেই — index.css এর
+   --gutter, --container-max, --header-h token থেকে আসছে, তাই
+   একবার বদলালে পুরো সাইটে বদলাবে
+   --------------------------------------------------------------- */
+
 .navbar {
   position: sticky;
   top: 0;
   z-index: 50;
   width: 100%;
-  height: 80px;
+  height: var(--header-h);
   background: #ffffff;
   display: flex;
   align-items: center;
-  padding: 22px 84px;
+  padding-inline: var(--section-pad-x);
   box-sizing: border-box;
 }
 
+
+/* section এর মতো একই padding আর একই content cap — তাই logo এর বাঁ
+   প্রান্ত hero এর "Brighter" এর সাথে ঠিক মিলবে */
 .navbar-inner {
   width: 100%;
-  max-width: 1240px;
-  margin: 0 auto;
+  max-width: var(--content-max);
+  margin-inline: auto;
   height: 36px;
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
-/* ---------- logo lockup ---------- */
+/* ---------- logo ---------- */
 .navbar-logo {
   display: flex;
   align-items: center;
-  gap: 10px;
-  text-decoration: none;
+  flex: none;
 }
 
-/* logo-full.png বর্গাকার, তাই square box — আগে 174.86x32 দেওয়া ছিল,
-   object-fit: contain এর কারণে mark টা 32px হয়ে বাঁয়ে বসত আর ডানে
-   ~143px ফাঁকা থাকত */
 .navbar-logo img {
   display: block;
-  width: 32px;
+  width: 174.86px;
   height: 32px;
   object-fit: contain;
 }
 
-.navbar-logo span {
-  font-family: "Space Grotesk", sans-serif;
-  font-weight: 700;
-  font-size: 22px;
-  line-height: 1;
-  letter-spacing: -0.01em;
-  color: #0b121a;
-  white-space: nowrap;
-}
-
+/* ---------- links ---------- */
 .navbar-links {
   display: flex;
   align-items: center;
@@ -72,11 +77,13 @@
   color: #0b121a;
 }
 
+/* ---------- actions ---------- */
 .navbar-actions {
   display: flex;
   align-items: center;
   gap: 16px;
   height: 36px;
+  flex: none;
 }
 
 .navbar-cta {
@@ -123,6 +130,12 @@
   font-size: 16px;
   line-height: 20px;
   color: #0b121a;
+  white-space: nowrap;
+  transition: border-color 0.2s ease;
+}
+
+.navbar-lang:hover {
+  border-color: #0b121a;
 }
 
 /* keyboard navigation এ কোথায় আছি বোঝা যাবে */
@@ -133,12 +146,20 @@
   border-radius: 4px;
 }
 
-@media (max-width: 1100px) {
-  .navbar {
-    padding: 16px 24px;
-  }
+/* ---------- responsive ----------
+   padding এর media query গুলো আর নেই — --gutter এর clamp() এখন
+   20px থেকে 84px পর্যন্ত নিজেই মসৃণভাবে বদলায়, তাই breakpoint এ
+   লাফ দেওয়ার ব্যাপারটাই থাকছে না */
 
+@media (max-width: 1100px) {
   .navbar-links {
     display: none; /* মোবাইল মেনু পরের ধাপে যোগ করবো */
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar-logo img {
+    width: 142px;
+    height: 26px;
   }
 }
