@@ -36,7 +36,15 @@ function Home() {
         />
       )}
 
-      <div style={{ opacity: contentVisible ? 1 : 0 }}>
+      {/* আগে শুধু opacity বদলাত, কোনো transition ছিল না — তাই content
+          snap করে আসত। loader এর নিজের fade ও 0.5s, তাই দুইটা মিলে
+          এখন একসাথে নরমভাবে আসবে। */}
+      <div
+        style={{
+          opacity: contentVisible ? 1 : 0,
+          transition: "opacity 0.6s ease",
+        }}
+      >
         <h1 className="text-3xl font-bold text-center py-10">
           Home Page (Filamento)
         </h1>

@@ -58,8 +58,13 @@ function Navbar() {
   return (
     <header className="navbar">
       <div className="navbar-inner">
-        <Link to="/" className="navbar-logo">
-          <img src={logoFull} alt="Filamento" />
+        {/* logo-full.png বর্গাকার (871x866) — শুধু mark, wordmark নেই।
+            তাই mark টা 32x32 এ রেখে পাশে text দিয়ে lockup বানানো হয়েছে।
+            পরে যদি horizontal lockup asset (mark + "Filamento" একসাথে)
+            পান, তাহলে span টা মুছে img এর মাপ সেই asset অনুযায়ী দিন। */}
+        <Link to="/" className="navbar-logo" aria-label="Filamento home">
+          <img src={logoFull} alt="" />
+          <span>Filamento</span>
         </Link>
 
         <nav className="navbar-links">

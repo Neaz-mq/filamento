@@ -9,6 +9,7 @@
   pointer-events: none;
   transition: opacity 0.5s ease;
   opacity: 1;
+  overflow: hidden; /* fill-bar viewport ছাড়িয়ে গেলে scrollbar না আসে */
 }
 
 .loader--fade {
@@ -63,7 +64,10 @@
   transition: opacity 0.35s ease;
 }
 
-/* ---------- ২. yellow accent image — শুধু DARK -> ROTATE পর্যন্ত visible ---------- */
+/* ---------- ২. yellow accent image — শুধু DARK -> ROTATE পর্যন্ত visible ----------
+   এই চারটা মান logo-full.png থেকে measure করা, একদম সঠিক আছে — বদলাবেন না।
+   accent PNG এর canvas (280x255) full logo এর ভেতরে ঠিক এখানেই বসে:
+   left 269/871 = 30.88%, top 279/866 = 32.22%, w 280/871 = 32.15%, h 255/866 = 29.45% */
 .loader-accent {
   position: absolute;
   left: 30.9%;
@@ -83,53 +87,67 @@
   opacity: 1;
 }
 
-/* ৪. dark rings চলে যাওয়ার পরেই accent ঘুরে horizontal হয় */
+/* ৪. dark rings চলে যাওয়ার পরেই accent ঘুরে horizontal হয়।
+   PNG এর bar টা মাপা angle -40.94deg, তাই +40.9deg এ ঠিক horizontal হয়।
+   transform-origin 50% 50% = box center = bar center (bar টা canvas এ centered), 
+   তাই ঘোরার পরেও center একই জায়গায় থাকে। */
 .loader--rotate .loader-accent {
   transform: rotate(40.9deg);
   transition: transform 0.55s cubic-bezier(0.65, 0, 0.35, 1);
 }
 
-/* rotate সম্পূর্ণ শেষ হওয়ার পরেই (FILL stage শুরুতে) accent দ্রুত fade out
-   হয়ে যায় — ঠিক তখনই নিচের fill-bar fade in হয়, তাই মনে হবে একটাই shape
-   morph করে গেল, দুটো আলাদা shape একসাথে দেখা যাবে না */
+/* FILL শুরু হলে accent টা নিচে ঢাকা পড়ে যায় (fill-bar হুবহু একই জায়গায়,
+   একই মাপে, একই রঙে instantly বসে) — তাই এখানে fade টা নিছক safety,
+   চোখে কিছুই ধরা পড়বে না। */
 .loader--fill .loader-accent,
 .loader--fade .loader-accent {
   opacity: 0;
   transform: rotate(40.9deg);
-  transition: opacity 0.15s ease;
+  transition: opacity 0.3s ease;
 }
 
-/* ---------- ৫. solid-color fill bar — এটাই আসল "full page cover" করবে ---------- */
+/* ---------- ৫. solid-color fill bar — এটাই আসল "full page cover" করবে ----------
+
+   ⚠️ এই তিনটাই আগে ভুল ছিল, measure করে ঠিক করা হয়েছে:
+
+   background : logo-accent.png এর sample করা exact রঙ = #EFC135
+                (আগে ছিল #f4b400 — তাই crossfade এ রঙ লাফ দিত)
+
+   left/top   : yellow bar এর center logo এর 46.96% / 46.96% এ,
+                50% / 50% এ নয় — তাই আগে ~6px লাফ দিত
+
+   width/height : rotate শেষে accent bar এর আসল মাপ 200px mark এ
+                  72px x 14px (আগে ছিল 130x30, প্রায় দ্বিগুণ — তাই pop করত)
+*/
 .loader-fill-bar {
   position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 130px;
-  height: 30px;
-  background: #f4b400; /* ⚠️ logo-accent.png থেকে exact hex sample করে বসান */
+  left: 46.96%;
+  top: 46.96%;
+  width: 72px;
+  height: 14px;
+  background: #efc135;
   opacity: 0;
   transform: translate(-50%, -50%);
   transform-origin: 50% 50%;
   transition: opacity 0.15s ease;
 }
 
-/* rotate stage এ fill-bar কে আর আগেভাগে দেখানো হচ্ছে না — এটা এখন শুধুই
-   FILL stage শুরু হওয়ার মুহূর্তে (accent fade-out এর সাথে synced) দেখা
-   দেয়, তাই rotate চলাকালীন কখনোই দুইটা shape একসাথে visible থাকবে না */
+/* accent থেকে fill-bar এ swap টা instant (opacity 0s) — দুইটা shape
+   এখন pixel-perfect একই, তাই crossfade করার দরকার নেই। crossfade করলে
+   বরং মাঝপথে রঙ হালকা হয়ে যেত (দুইটা semi-transparent layer overlap)।
+
+   grow এর target 100vw/100vh নয়, +40px overshoot — কারণ bar এর center
+   screen center থেকে ~6px offset এ আছে (logo এর ভেতরে bar টা ঠিক
+   মাঝখানে নয়)। exact 100vw দিলে ডান আর নিচ দিকে ~6px সাদা ফালি থেকে যেত। */
 .loader--fill .loader-fill-bar,
 .loader--fade .loader-fill-bar {
   opacity: 1;
-}
-
-/* সত্যিকারের width/height grow করে পুরো screen ঢেকে ফেলে */
-.loader--fill .loader-fill-bar,
-.loader--fade .loader-fill-bar {
-  width: 100vw;
-  height: 100vh;
+  width: calc(100vw + 40px);
+  height: calc(100vh + 40px);
   transition:
     width 1.1s cubic-bezier(0.16, 1, 0.3, 1),
     height 1.1s cubic-bezier(0.16, 1, 0.3, 1),
-    opacity 0.15s ease;
+    opacity 0s;
 }
 
 @keyframes mark-in {

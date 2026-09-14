@@ -1,1 +1,17 @@
 @import "tailwindcss";
+
+/* Space Grotesk index.html এ load হচ্ছে ঠিকই, কিন্তু কোথাও global করা ছিল না —
+   শুধু Navbar.css এ hardcode করা ছিল। Tailwind v4 এ @theme দিয়ে register
+   করলে font-sans utility আর body দুই জায়গাতেই কাজ করবে। */
+@theme {
+  --font-sans: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --color-ink: #0b121a;
+  --color-accent: #efc135;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  color: var(--color-ink);
+  -webkit-font-smoothing: antialiased;
+}
