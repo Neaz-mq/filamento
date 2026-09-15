@@ -10,19 +10,13 @@
       content="Filamento designs and manufactures industrial LED lighting for warehouses, factories and commercial spaces."
     />
 
-    <!-- favicon set. .ico টা 16/32/48 তিনটা size একসাথে ধরে রাখে,
-         পুরনো browser আর bookmark bar দুইটাই এটা পড়তে পারে -->
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
 
-    <!-- mobile browser এর address bar এর রঙ -->
     <meta name="theme-color" content="#FFFFFF" />
 
-    <!-- link share করলে (WhatsApp, LinkedIn, Facebook) যা দেখাবে.
-         og:image এর জন্য পরে 1200x630 একটা banner বানিয়ে
-         public/ এ og-image.jpg নামে রাখবেন, তারপর নিচের লাইন দুইটা খুলবেন -->
     <meta property="og:type" content="website" />
     <meta property="og:title" content="Filamento | Industrial LED Lighting" />
     <meta
@@ -34,8 +28,13 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <!-- Space Grotesk এ কোনো CJK glyph নেই, তাই Noto Sans TC আর JP যোগ করা।
+         CJK font কয়েক MB, কিন্তু Google Fonts unicode-range দিয়ে subset
+         করে পাঠায় — ইংরেজি পাতায় একটাও CJK subset download হয় না,
+         শুধু যেসব অক্ষর আসলে render হচ্ছে সেগুলোই আসে -->
     <link
-      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap"
       rel="stylesheet"
     />
   </head>

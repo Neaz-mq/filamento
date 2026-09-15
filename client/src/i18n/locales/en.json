@@ -1,0 +1,25 @@
+{
+  "nav": {
+    "products": "Products",
+    "projects": "Projects",
+    "application": "Application",
+    "company": "Company",
+    "shop": "Shop"
+  },
+  "actions": {
+    "contact": "Contact",
+    "requestQuote": "Request Quote"
+  },
+  "a11y": {
+    "home": "Filamento home",
+    "mainNav": "Main",
+    "changeLanguage": "Language",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu"
+  },
+  "home": {
+    "eyebrow": "Industrial LED · Made in the USA",
+    "headline": "Brighter Light. Half the Energy.",
+    "subhead": "Improve your lighting performance and cut operating costs up to 50% with the LA1, LS1 and RH1 Series."
+  }
+}

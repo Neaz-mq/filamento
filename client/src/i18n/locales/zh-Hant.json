@@ -1,0 +1,25 @@
+{
+  "nav": {
+    "products": "產品",
+    "projects": "專案",
+    "application": "應用類型",
+    "company": "關於我們",
+    "shop": "線上商店"
+  },
+  "actions": {
+    "contact": "聯絡我們",
+    "requestQuote": "索取報價"
+  },
+  "a11y": {
+    "home": "Filamento 首頁",
+    "mainNav": "主選單",
+    "changeLanguage": "語言",
+    "openMenu": "開啟選單",
+    "closeMenu": "關閉選單"
+  },
+  "home": {
+    "eyebrow": "工業級 LED · 美國製造",
+    "headline": "更明亮的空間，更少的能源消耗。",
+    "subhead": "LA1、LS1 和 RH1 系列產品可提高照明效能，並降低高達 50% 的營運成本。"
+  }
+}

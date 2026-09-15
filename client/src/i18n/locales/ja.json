@@ -1,0 +1,25 @@
+{
+  "nav": {
+    "products": "製品",
+    "projects": "導入事例",
+    "application": "用途",
+    "company": "会社概要",
+    "shop": "オンラインショップ"
+  },
+  "actions": {
+    "contact": "お問い合わせ",
+    "requestQuote": "見積もり依頼"
+  },
+  "a11y": {
+    "home": "Filamento ホーム",
+    "mainNav": "メインメニュー",
+    "changeLanguage": "言語",
+    "openMenu": "メニューを開く",
+    "closeMenu": "メニューを閉じる"
+  },
+  "home": {
+    "eyebrow": "産業用LED · アメリカ製",
+    "headline": "より明るく、消費電力は半分に。",
+    "subhead": "LA1、LS1、RH1 シリーズで照明性能を高め、運用コストを最大50%削減します。"
+  }
+}

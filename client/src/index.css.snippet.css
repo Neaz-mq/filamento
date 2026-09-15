@@ -1,0 +1,28 @@
+/* ---------------------------------------------------------------
+   index.css এর body block এর ঠিক নিচে এইটুকু যোগ করুন
+   --------------------------------------------------------------- */
+
+/* Space Grotesk ল্যাটিন অক্ষর সামলায়, CJK এর জন্য Noto fallback।
+
+   ভাষা অনুযায়ী ক্রম বদলানো জরুরি — অনেক কাঞ্জি চীনা আর জাপানি
+   দুই font এই আছে, কিন্তু আকৃতি আলাদা (直, 骨, 今 এরকম)। TC আগে
+   রাখলে জাপানি লেখায় চীনা আকৃতির অক্ষর চলে আসত, যেটা native
+   পাঠকের চোখে সঙ্গে সঙ্গে ধরা পড়ে।
+
+   html[lang] টা i18n/index.js এর languageChanged listener বসায় */
+html[lang="ja"] body {
+  font-family:
+    "Space Grotesk", "Noto Sans JP", ui-sans-serif, system-ui, sans-serif;
+}
+
+html[lang^="zh"] body {
+  font-family:
+    "Space Grotesk", "Noto Sans TC", ui-sans-serif, system-ui, sans-serif;
+}
+
+/* CJK লেখা একই font-size এ ল্যাটিনের চেয়ে ঘন দেখায়, তাই একটু বেশি
+   line-height না দিলে চাপা লাগে */
+html[lang="ja"] body,
+html[lang^="zh"] body {
+  line-height: 1.7;
+}

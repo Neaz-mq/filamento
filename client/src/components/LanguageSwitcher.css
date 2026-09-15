@@ -1,0 +1,181 @@
+/* ===============================================================
+   dropdown — desktop navbar এর pill
+   Figma: 76 x 36, padding 4px 10px, gap 6px,
+   border 1px rgba(11,18,26,.5), radius 20px
+
+   width fixed নয়, min-width — "日本語" বেছে নিলে লেখা তিন অক্ষর হয়ে
+   যায়, fixed 76px এ উপচে পড়ত
+   =============================================================== */
+.lang {
+  position: relative;
+  flex: none;
+}
+
+.lang-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 4px 10px;
+  min-width: 76px;
+  height: 36px;
+  box-sizing: border-box;
+  border: 1px solid rgba(11, 18, 26, 0.5);
+  border-radius: 20px;
+  background: transparent;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 20px;
+  color: #0b121a;
+  white-space: nowrap;
+  transition: border-color 0.2s ease;
+}
+
+.lang-button:hover {
+  border-color: #0b121a;
+}
+
+.lang-chevron {
+  display: flex;
+  transition: transform 0.2s ease;
+}
+
+.lang-chevron--open {
+  transform: rotate(180deg);
+}
+
+/* ডান প্রান্তে align, কারণ pill টা navbar এর একদম ডানে — বাঁ দিকে
+   align করলে চওড়া menu টা viewport ছাড়িয়ে যেত */
+.lang-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 60;
+  min-width: 168px;
+  margin: 0;
+  padding: 8px;
+  list-style: none;
+  background: #ffffff;
+  border: 1px solid #e1e5ea;
+  border-radius: 16px;
+  box-shadow: 0 12px 32px rgba(11, 18, 26, 0.12);
+  animation: lang-menu-in 0.16s ease both;
+}
+
+.lang-menu li + li {
+  margin-top: 2px;
+}
+
+/* CJK glyph গুলো ল্যাটিনের চেয়ে অনেক বেশি জায়গা ভরে — 繁體中文 একই
+   font-size এ "English" এর চেয়ে লম্বা আর চওড়া দেখায়। কম padding এ
+   hover এর ধূসর background লেখার গায়ে লেগে থাকত */
+.lang-option {
+  display: block;
+  width: 100%;
+  padding: 11px 14px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 500;
+  font-size: 15px;
+  line-height: 1.5;
+  text-align: left;
+  text-decoration: none;
+  color: rgba(11, 18, 26, 0.7);
+  white-space: nowrap;
+  box-sizing: border-box;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.lang-option:hover,
+.lang-option--active {
+  background: #f4f5f7;
+  color: #0b121a;
+}
+
+.lang-button:focus-visible,
+.lang-option:focus-visible {
+  outline: 2px solid #0b121a;
+  outline-offset: 2px;
+}
+
+@keyframes lang-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===============================================================
+   inline — মোবাইল panel এর ভেতরে
+   =============================================================== */
+.lang-inline {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.lang-inline-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: inherit;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 1.4;
+  color: rgba(11, 18, 26, 0.5);
+}
+
+/* wrap করছে, কারণ 繁體中文 আর 日本語 একসাথে সরু ফোনে এক লাইনে আঁটে না */
+.lang-inline-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.lang-inline-option {
+  display: flex;
+  align-items: center;
+  min-height: 44px; /* touch target এর সর্বনিম্ন মাপ */
+  padding: 10px 16px;
+  border: 1px solid #e1e5ea;
+  border-radius: 100px;
+  font-family: inherit;
+  font-weight: 500;
+  font-size: 15px;
+  line-height: 1.4;
+  color: rgba(11, 18, 26, 0.7);
+  text-decoration: none;
+  box-sizing: border-box;
+}
+
+.lang-inline-option.is-active {
+  border-color: #0b121a;
+  background: #0b121a;
+  color: #ffffff;
+}
+
+.lang-inline-option:focus-visible {
+  outline: 2px solid #0b121a;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lang-menu {
+    animation: none;
+  }
+
+  .lang-chevron {
+    transition: none;
+  }
+}

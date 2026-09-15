@@ -6,11 +6,11 @@
    links   gap 32px, 16/20 Space Grotesk 500, rgba(11,18,26,.5)
    actions gap 16px
    CTA     95 x 36, padding 8px 16px, #FFC107, radius 100px
-   lang    76 x 36, padding 4px 10px, gap 6px, border rgba(11,18,26,.5), radius 20px
 
-   fixed 84px / 1240px আর hardcode করা নেই — index.css এর
-   --gutter, --container-max, --header-h token থেকে আসছে, তাই
-   একবার বদলালে পুরো সাইটে বদলাবে
+   1100px breakpoint টা হিসাব করে বসানো: logo 175 + links 465 +
+   actions 187 = 827px, সাথে গ্রুপগুলোর মাঝে শ্বাস নেওয়ার জায়গা
+   ধরলে ~907px লাগে। section padding আর shell gutter যোগ করলে
+   দাঁড়ায় ~1062px — তাই 1100 এর নিচে hamburger
    --------------------------------------------------------------- */
 
 .navbar {
@@ -26,9 +26,8 @@
   box-sizing: border-box;
 }
 
-
-/* section এর মতো একই padding আর একই content cap — তাই logo এর বাঁ
-   প্রান্ত hero এর "Brighter" এর সাথে ঠিক মিলবে */
+/* section এর মতো একই padding আর content cap — তাই logo এর বাঁ প্রান্ত
+   hero এর প্রথম লাইনের সাথে ঠিক মিলবে */
 .navbar-inner {
   width: 100%;
   max-width: var(--content-max);
@@ -37,6 +36,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 16px;
 }
 
 /* ---------- logo ---------- */
@@ -53,17 +53,17 @@
   object-fit: contain;
 }
 
-/* ---------- links ---------- */
+/* ---------- desktop links ---------- */
 .navbar-links {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 32px;
+  min-width: 0; /* flex item ডিফল্টে সঙ্কুচিত হতে চায় না, এটা অনুমতি দেয় */
 }
 
 .navbar-links a {
   font-family: "Space Grotesk", sans-serif;
-  font-style: normal;
   font-weight: 500;
   font-size: 16px;
   line-height: 20px;
@@ -96,7 +96,6 @@
   background: #ffc107;
   border-radius: 100px;
   font-family: "Space Grotesk", sans-serif;
-  font-style: normal;
   font-weight: 500;
   font-size: 16px;
   line-height: 20px;
@@ -112,30 +111,161 @@
   filter: brightness(0.95);
 }
 
-.navbar-lang {
+/* ---------- hamburger ----------
+   44x44 — Apple আর Google দুই guideline এই touch target এর সর্বনিম্ন
+   মাপ 44px. আইকনটা ছোট, কিন্তু আঙুলের জন্য জায়গাটা পুরো লাগে */
+.navbar-burger {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  margin-right: -10px; /* optical alignment — padding এর সাথে প্রান্ত মেলাতে */
+  padding: 0;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  cursor: pointer;
+  color: #0b121a;
+}
+
+.navbar-burger-icon {
+  position: relative;
+  display: block;
+  width: 22px;
+  height: 14px;
+}
+
+.navbar-burger-icon span {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  border-radius: 2px;
+  background: currentColor;
+  transition:
+    transform 0.25s cubic-bezier(0.65, 0, 0.35, 1),
+    top 0.2s ease;
+}
+
+.navbar-burger-icon span:first-child {
+  top: 0;
+}
+
+.navbar-burger-icon span:last-child {
+  top: 12px;
+}
+
+/* দুইটা দাগ মাঝখানে এসে X হয় */
+.navbar-burger-icon.is-open span:first-child {
+  top: 6px;
+  transform: rotate(45deg);
+}
+
+.navbar-burger-icon.is-open span:last-child {
+  top: 6px;
+  transform: rotate(-45deg);
+}
+
+/* ---------- mobile panel ---------- */
+.navbar-panel {
+  position: fixed;
+  top: var(--header-h);
+  left: 0;
+  right: 0;
+  z-index: 45;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100dvh - var(--header-h));
+  overflow-y: auto;
+  padding: 8px var(--section-pad-x) 32px;
+  background: #ffffff;
+  box-sizing: border-box;
+  border-bottom: 1px solid #e1e5ea;
+  transform: translateY(-8px);
+  opacity: 0;
+  transition:
+    transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.2s ease;
+}
+
+.navbar-panel.is-open {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.navbar-panel[hidden] {
+  display: none;
+}
+
+.navbar-panel-links {
+  display: flex;
+  flex-direction: column;
+}
+
+/* প্রতিটা সারি 56px উঁচু — আঙুল দিয়ে ভুল না করে ছোঁয়ার মতো,
+   আর CJK লেখার জন্যও যথেষ্ট জায়গা */
+.navbar-panel-links a {
+  display: flex;
+  align-items: center;
+  min-height: 56px;
+  font-family: "Space Grotesk", sans-serif;
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 1.4;
+  color: #0b121a;
+  text-decoration: none;
+  border-bottom: 1px solid #f0f2f4;
+}
+
+.navbar-panel-links a:last-child {
+  border-bottom: 0;
+}
+
+.navbar-panel-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-top: 24px;
+}
+
+.navbar-panel-cta {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding: 4px 10px;
-  height: 36px;
-  box-sizing: border-box;
-  border: 1px solid rgba(11, 18, 26, 0.5);
-  border-radius: 20px;
-  background: transparent;
-  cursor: pointer;
+  height: 48px;
+  background: #ffc107;
+  border-radius: 100px;
   font-family: "Space Grotesk", sans-serif;
-  font-style: normal;
   font-weight: 500;
   font-size: 16px;
-  line-height: 20px;
   color: #0b121a;
-  white-space: nowrap;
-  transition: border-color 0.2s ease;
+  text-decoration: none;
 }
 
-.navbar-lang:hover {
-  border-color: #0b121a;
+/* panel এর পেছনের আবছা পর্দা। button element রাখা হয়েছে যাতে
+   pointer আর keyboard দুইভাবেই বন্ধ করা যায় */
+.navbar-scrim {
+  position: fixed;
+  top: var(--header-h);
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 40;
+  border: 0;
+  padding: 0;
+  background: rgba(11, 18, 26, 0.35);
+  cursor: default;
+  animation: navbar-scrim-in 0.2s ease both;
+}
+
+@keyframes navbar-scrim-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 /* keyboard navigation এ কোথায় আছি বোঝা যাবে */
@@ -146,14 +276,39 @@
   border-radius: 4px;
 }
 
-/* ---------- responsive ----------
-   padding এর media query গুলো আর নেই — --gutter এর clamp() এখন
-   20px থেকে 84px পর্যন্ত নিজেই মসৃণভাবে বদলায়, তাই breakpoint এ
-   লাফ দেওয়ার ব্যাপারটাই থাকছে না */
-
-@media (max-width: 1100px) {
+/* =============================================================
+   1100px এর নিচে — hamburger
+   ============================================================= */
+@media (max-width: 1099px) {
   .navbar-links {
-    display: none; /* মোবাইল মেনু পরের ধাপে যোগ করবো */
+    display: none;
+  }
+
+  .navbar-burger {
+    display: flex;
+  }
+
+  /* dropdown টা panel এ চলে যায়, header এ শুধু CTA আর burger */
+  .navbar-actions > .lang {
+    display: none;
+  }
+}
+
+@media (min-width: 1100px) {
+  .navbar-panel,
+  .navbar-scrim {
+    display: none;
+  }
+}
+
+/* =============================================================
+   640px এর নিচে — CTA ও panel এ
+   360px ফোনে logo(142) + CTA(95) + burger(44) + gap গুলো মিলে
+   জায়গা ছাড়িয়ে যেত
+   ============================================================= */
+@media (max-width: 639px) {
+  .navbar-actions > .navbar-cta {
+    display: none;
   }
 }
 
@@ -161,5 +316,21 @@
   .navbar-logo img {
     width: 142px;
     height: 26px;
+  }
+
+  .navbar-panel-links a {
+    font-size: 18px;
+    min-height: 52px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .navbar-panel,
+  .navbar-burger-icon span {
+    transition: none;
+  }
+
+  .navbar-scrim {
+    animation: none;
   }
 }
