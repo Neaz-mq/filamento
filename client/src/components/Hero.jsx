@@ -40,7 +40,7 @@ const CARDS = [
     id: "high-bay",
     to: "/products/high-bay",
     image:
-      "https://res.cloudinary.com/dzi3u164c/image/upload/v1789461035/card1_xfkfg6.webp",
+      "https://res.cloudinary.com/dzi3u164c/image/upload/v1789539354/image_7_ep6gnv.png",
   },
   {
     id: "build-fixture",
