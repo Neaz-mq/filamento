@@ -17,9 +17,107 @@
     "openMenu": "Open menu",
     "closeMenu": "Close menu"
   },
-  "home": {
+  "hero": {
     "eyebrow": "Industrial LED · Made in the USA",
-    "headline": "Brighter Light. Half the Energy.",
-    "subhead": "Improve your lighting performance and cut operating costs up to 50% with the LA1, LS1 and RH1 Series."
+    "titleAccent": "Brighter",
+    "titleRest": "Light. Half the Energy.",
+    "subhead": "Improve your lighting performance and cut operating costs up to 50% with the LA1, LS1 and RH1 Series.",
+    "imageAlt": "Filamento RH1 Series industrial high bay LED fixture",
+    "cardsLabel": "Product categories",
+    "prev": "Previous",
+    "next": "Next",
+    "badges": {
+      "energy": {
+        "value": "Up to 60%",
+        "label": "Energy Saving"
+      },
+      "warranty": {
+        "value": "5 Year",
+        "label": "Warranty"
+      },
+      "madeIn": {
+        "value": "Made in",
+        "label": "USA"
+      },
+      "certified": {
+        "value": "DLC Premium",
+        "label": "Certified"
+      },
+      "listed": {
+        "value": "DL",
+        "label": "Listed"
+      }
+    },
+    "cards": {
+      "high-bay": {
+        "titleTop": "High Bay",
+        "titleBottom": "Series",
+        "text": "Browse Professional High Bay Lighting Solutions"
+      },
+      "build-fixture": {
+        "titleTop": "Build",
+        "titleBottom": "Fixture",
+        "text": "Customize Your Fixture with Compatible Components"
+      },
+      "optional-parts": {
+        "titleTop": "Optional",
+        "titleBottom": "Parts",
+        "text": "Complete Your Setup with Essential Accessories"
+      }
+    }
+  },
+  "brands": {
+    "label": "Trusted by leading companies"
+  },
+  "fixtures": {
+    "watermark": "Fixtures",
+    "titleTop": "Three Fixtures.",
+    "titleBottom": "One Complete Solution.",
+    "subhead": "Modular lamps, reflectors, mounts, and control caps — configure the exact luminaire your ceiling height and layout demand.",
+    "moreInfo": "More info",
+    "seeAll": "See All Product",
+    "items": {
+      "la1": {
+        "title": "LA1 High Bay Series",
+        "scope": "High-Aisle Racking, Fabrication Bays, Process Lines",
+        "description": "Targeted Optimization: Patented, linear low-glare optics enable up to 50% fewer fixtures and a 50% reduction in energy use."
+      },
+      "ls1": {
+        "title": "LS1 High Bay Series",
+        "scope": "Staging Areas, Loading Docks, & Open Stacks",
+        "description": "Integrated High-Area Optimization: Uniform, high-output lighting designed for high-traffic, open floor plans."
+      },
+      "rh1": {
+        "title": "RH1 High Bay Series",
+        "scope": "High Occupancy, Industrial, Commercial & Retail",
+        "description": "Three-Pathway Optical Design: Downward, vertical, and uplight distribution brightens walls and racks, and reduces glare."
+      }
+    },
+    "benefits": {
+      "energy": {
+        "title": "Up to 50% Lower Energy",
+        "text": "Precision optics and non-relay dimming slash kWh without sacrificing output."
+      },
+      "maintenance": {
+        "title": "Less Maintenance",
+        "text": "Sealed housings and 100,000-hour LEDs remove ladders from your OpEx."
+      },
+      "visibility": {
+        "title": "Better Visibility",
+        "text": "Higher CRI and uniformity improve accuracy, safety, and worker comfort."
+      },
+      "glare": {
+        "title": "Reduced Glare",
+        "text": "Patented reflectors deliver crisp light where you need it — nowhere else."
+      },
+      "installation": {
+        "title": "Faster Installation",
+        "text": "Lightweight fixtures and pre-configured mounts cut labor hours in half."
+      },
+      "roi": {
+        "title": "Higher ROI",
+        "text": "Most facilities see payback in 18 months — often faster with rebates."
+      }
+    }
   }
 }

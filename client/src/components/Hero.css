@@ -1,0 +1,660 @@
+/* ===============================================================
+   HERO — Figma "Frame 298" থেকে হুবহু মাপ নেওয়া
+
+   Frame 298   1408 x 941.95, padding 64px 84px, #EBEBEC, radius 40
+   Frame 296   1240 x 588.95  (aspect 2.1054)
+     Frame 199   610 x 469  @ left 0,      top 51.98
+     Frame 297   776.57 x 588.95 @ left 563.43, top 0   ← লেখার উপর ওভারল্যাপ করে
+       image     610 x 430.2 @ left 8.57%, top -20.24
+       cone      776.57 / 593.75 চওড়া @ top 362 / 369.07
+   Frame 284   1240 x 225, তিনটা card 516 প্রতিটি, gap 16
+
+   ⚠️ রঙ নিয়ে একটা কথা: Figma তে navbar আর hero এর token আলাদা —
+   navbar এ লেখা #0B121A আর button #FFC107, hero তে লেখা #373A3C আর
+   button #F7BE00. দুইটাই যেমন আছে তেমন রাখা হয়েছে; designer কে
+   জিজ্ঞেস করে একটায় মেলানো ভালো
+   =============================================================== */
+
+.hero {
+  --hero-surface: #ebebec;
+  --hero-ink: #373a3c;
+  --hero-ink-75: rgba(55, 58, 60, 0.75);
+  --hero-ink-50: rgba(55, 58, 60, 0.5);
+  --hero-yellow: #f7be00;
+
+  width: 100%;
+  box-sizing: border-box;
+  padding: clamp(32px, 4.5vw, 64px) var(--section-pad-x);
+  background: var(--hero-surface);
+  border: 1px solid var(--hero-surface);
+  border-radius: var(--section-radius);
+
+  /* ছবির frame টা content কলাম ছাড়িয়ে ~98px ডানে যায় (Figma তেও তাই),
+     তাই গোল কোণার বাইরে যেন কিছু উঁকি না দেয় */
+  overflow: hidden;
+}
+
+.hero-inner {
+  width: 100%;
+  max-width: var(--content-max);
+  margin-inline: auto;
+}
+
+/* ---------------------------------------------------------------
+   উপরের অংশ
+   --------------------------------------------------------------- */
+.hero-top {
+  position: relative;
+  display: grid;
+  /* 610 / 1240 = 49.19% — বাকিটা ছবির */
+  grid-template-columns: 49.19% 1fr;
+  align-items: center;
+  min-height: 588.95px;
+}
+
+.hero-copy {
+  position: relative;
+  z-index: 2; /* ছবিটা ওভারল্যাপ করে, লেখা উপরে থাকতে হবে */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  max-width: 610px;
+}
+
+/* ---------- eyebrow pill ----------
+   Figma: 203x25, padding 6px 10px, rgba(255,255,255,.25),
+   backdrop-filter blur(2px), radius 20 */
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  margin: 0;
+  padding: 6px 10px;
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  border-radius: 20px;
+  font-weight: 500;
+  font-size: 10px;
+  line-height: 13px;
+  letter-spacing: 0.1em;
+  color: var(--hero-ink-75);
+  text-transform: uppercase;
+}
+
+/* ---------- headline ----------
+   Figma: Space Grotesk 700, 72px / 100%, eyebrow এর পর gap 8px */
+.hero-title {
+  margin: 8px 0 0;
+  max-width: 560px;
+  font-weight: 700;
+  font-size: clamp(38px, 5vw, 72px);
+  line-height: 1;
+  letter-spacing: -0.01em;
+  color: var(--hero-ink);
+}
+
+.hero-title-accent {
+  color: var(--hero-yellow);
+}
+
+/* Frame 107 → subhead এর gap 24px */
+.hero-subhead {
+  margin: 24px 0 0;
+  max-width: 582px;
+  font-weight: 400;
+  font-size: clamp(16px, 1.45vw, 20px);
+  line-height: 1.6;
+  color: var(--hero-ink-75);
+}
+
+/* ---------- CTA ----------
+   Figma: 172x44, padding 10px 20px, #F7BE00, radius 100,
+   লেখা 14.5px/19px, Frame 292 এর gap 32px */
+.hero-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 32px;
+  padding: 10px 20px;
+  min-height: 44px;
+  background: var(--hero-yellow);
+  border-radius: 100px;
+  font-weight: 500;
+  font-size: 14.5px;
+  line-height: 19px;
+  color: var(--hero-ink);
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    filter 0.2s ease,
+    transform 0.2s ease;
+}
+
+.hero-cta:hover {
+  filter: brightness(0.95);
+}
+
+.hero-cta:active {
+  transform: translateY(1px);
+}
+
+/* ---------- trust badges ----------
+   Figma: Frame 62 = 610x80, gap 16, পাঁচটা কলাম 96.4 করে,
+   মাঝে 28px লম্বা 1px divider */
+.hero-badges {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  max-width: 610px;
+  margin: 48px 0 0; /* Frame 199 এর gap */
+  padding: 0;
+  list-style: none;
+}
+
+.hero-badge {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+}
+
+/* divider গুলো ::before দিয়ে আঁকা, আলাদা element নয় — তাহলে
+   প্রথমটার আগে বাড়তি দাগ পড়ে না */
+.hero-badge + .hero-badge::before {
+  content: "";
+  position: absolute;
+  left: -8px;
+  top: 50%;
+  width: 1px;
+  height: 28px;
+  transform: translateY(-50%);
+  background: var(--hero-ink-50);
+}
+
+.hero-badge-icon {
+  display: flex;
+  color: var(--hero-ink-75);
+}
+
+.hero-badge-icon svg {
+  width: 32px;
+  height: 32px;
+}
+
+/* Figma এ badge এর লেখা Inter, বাকি সব Space Grotesk */
+.hero-badge-value {
+  font-family: "Inter", var(--font-sans), sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 17px;
+  color: var(--hero-ink);
+}
+
+.hero-badge-label {
+  font-family: "Inter", var(--font-sans), sans-serif;
+  font-weight: 600;
+  font-size: 9.5px;
+  line-height: 11px;
+  letter-spacing: 0.1em;
+  color: var(--hero-ink-50);
+  text-transform: uppercase;
+}
+
+/* ---------------------------------------------------------------
+   ছবি + আলোর শঙ্কু  (Frame 297)
+
+   aspect-ratio টাই এখানে মূল কৌশল: ভেতরের সবকিছু শতাংশে বসানো,
+   তাই frame ছোট-বড় হলে ছবি আর আলো একসাথে সমানুপাতে বদলায়
+   --------------------------------------------------------------- */
+.hero-visual {
+  position: relative;
+  /* Figma: frame 776.57 চওড়া, কিন্তু কলামটা 1240-610 = 630.
+     তাই বাঁয়ে টেনে ওভারল্যাপ করানো হচ্ছে — ঠিক Figma র মতো */
+  margin-left: -7.4%;
+  width: 123%;
+  aspect-ratio: 776.57 / 588.95;
+
+  /* ছবিটা এখনো Figma র চেয়ে ছোট/বড় লাগলে শুধু এই একটা সংখ্যা
+     বদলান — 1.06 মানে ৬% বড়, 0.94 মানে ৬% ছোট। বাকি কিছুতে হাত
+     দেওয়ার দরকার নেই, ছবিটা নিজের কেন্দ্র ধরে ছোট-বড় হয় */
+  --hero-image-zoom: 1;
+
+  /* ছবি আর আলোর শঙ্কু একসাথে কতটা নিচে নামবে।
+
+     দুইটাকে একই variable এ বাঁধা জরুরি — শুধু ছবি নামালে আভাটা
+     প্লেটের উপর থেকে শুরু হয়ে ফাঁক তৈরি করত।
+     আরও নামাতে 6%, উপরে তুলতে 2% বা 0% */
+  --hero-drop: 4%;
+}
+
+/* Figma: 610 x 430.2 @ left 8.57%, top -20.24
+   = frame এর 78.55% x 73.05%, top -3.44%
+
+   হিসাবটা মিলিয়ে নেওয়ার সহজ উপায়: 563.43 + 66.6 + 610 = 1240,
+   অর্থাৎ ছবির ডান প্রান্ত ঠিক content কলামের ডান প্রান্তে শেষ হয়।
+
+   left/top এর বদলে কেন্দ্র ধরে বসানো হয়েছে (47.85%, 33.08% — Figma র
+   ওই বাক্সটারই কেন্দ্র), যাতে zoom বদলালে ছবি নিজের জায়গাতেই
+   থেকে ছোট-বড় হয়, সরে না যায় */
+.hero-image {
+  position: absolute;
+  z-index: 1;
+  left: 47.85%;
+  top: calc(33.08% + var(--hero-drop));
+  width: calc(78.55% * var(--hero-image-zoom));
+  height: calc(73.05% * var(--hero-image-zoom));
+  transform: translate(-50%, -50%);
+  object-fit: contain;
+}
+
+/* ---------- আলোর শঙ্কু ----------
+   Figma তে এটা আয়তক্ষেত্র নয়, ট্রাপিজয়েড — উপরে ফিক্সচারের প্লেটের
+   সমান সরু, নিচে পুরো চওড়া। CSS export মুখোশ (mask) প্রকাশ করতে পারে
+   না, তাই শুধু মাপ দেখে বোঝা যায় না; shape টা clip-path দিয়ে বানানো।
+
+   ⚠️ blur আর clip আলাদা স্তরে রাখা জরুরি: একই element এ দিলে ব্রাউজার
+   আগে blur করে তারপর কাটে, ফলে কাটা দাগ ধারালো থেকে যায়। তাই blur
+   বাইরের element এ, clip ভেতরের ::before এ */
+.hero-glow {
+  position: absolute;
+  z-index: 0;
+  height: 37.34%; /* 219.89 / 588.95 */
+  pointer-events: none;
+  filter: blur(15px);
+
+  /* Figma র "Group 76" এর opacity — এটা না থাকলে আভাটা বেশি
+     উজ্জ্বল আর ভারী লাগে */
+  opacity: 0.75;
+}
+
+.hero-glow::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  /* Figma: radial-gradient(110.46% 142.41% at 50% 0%,
+     #FFFFFF 25%, rgba(255,255,255,0) 90%) — উপরে (ফিক্সচারের গায়ে)
+     সাদা, নিচে গিয়ে মিলিয়ে যায় */
+  background: radial-gradient(
+    110.46% 142.41% at 50% 0%,
+    #ffffff 25%,
+    rgba(255, 255, 255, 0) 90%
+  );
+}
+
+/* বাইরের শঙ্কু: 776.57 চওড়া @ left -16.71, top 362.
+   উপরের প্রান্ত 26.2%..71.7% — ফিক্সচারের নিচের প্লেট বরাবর।
+   আলোর শুরুটা প্লেটের সাথে না মিললে এই দুইটা সংখ্যা নাড়ান */
+.hero-glow--wide {
+  left: -2.15%;
+  top: calc(61.47% + var(--hero-drop));
+  width: 100%;
+}
+
+.hero-glow--wide::before {
+  clip-path: polygon(26.2% 0, 71.7% 0, 100% 100%, 0 100%);
+}
+
+/* ভেতরের উজ্জ্বল শঙ্কু: 593.75 চওড়া @ left 80.78, top 369.07 */
+.hero-glow--narrow {
+  left: 10.4%;
+  top: calc(62.67% + var(--hero-drop));
+  width: 76.46%;
+}
+
+.hero-glow--narrow::before {
+  clip-path: polygon(17.9% 0, 77.3% 0, 100% 100%, 0 100%);
+}
+
+/* hero webp এ আলোটা আগে থেকেই আঁকা থাকলে section এ
+   data-glow="off" বসাবেন। transparent ছবি হলে দরকার নেই */
+.hero[data-glow="off"] .hero-glow {
+  display: none;
+}
+
+/* ---------------------------------------------------------------
+   category slider
+   Figma: Frame 284 = 1240x225, তিনটা card 516 করে, gap 16.
+   3x516 + 2x16 = 1580 > 1240 — ইচ্ছাকৃত overflow
+   --------------------------------------------------------------- */
+.hero-slider {
+  position: relative;
+  margin-top: clamp(32px, 4vw, 64px);
+}
+
+.hero-cards {
+  display: flex;
+  align-items: stretch;
+  gap: 16px;
+  overflow-x: auto;
+  cursor: grab;
+
+  /* mandatory নয়, proximity — mandatory টানার সময় বাধা দেয়, হাত
+     ছাড়ার আগেই card টেনে ধরে। proximity কাছাকাছি গেলে বসায়,
+     মাঝপথে থামতে দেয় */
+  scroll-snap-type: x proximity;
+
+  /* scrollbar লুকানো — Figma তে নেই, আর আংশিক দেখা card টাই
+     বুঝিয়ে দেয় পাশে আরও আছে */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  /* card এর hover shadow যেন কাটা না পড়ে */
+  padding-block: 4px;
+
+  /* ধারে নরম fade. দুই প্রান্তের মান JS থেকে data-attribute দিয়ে
+     নিয়ন্ত্রিত — শুরুতে বাঁয়ে fade থাকে না, শেষে ডানে থাকে না।
+     এতে কাটা card টা ভাঙা নয়, "আরও আছে" মনে হয় */
+  --fade-left: 0px;
+  --fade-right: 0px;
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 var(--fade-left),
+    #000 calc(100% - var(--fade-right)),
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 var(--fade-left),
+    #000 calc(100% - var(--fade-right)),
+    transparent 100%
+  );
+  transition:
+    -webkit-mask-image 0.3s ease,
+    mask-image 0.3s ease;
+}
+
+.hero-slider[data-at-start="false"] .hero-cards {
+  --fade-left: 56px;
+}
+
+.hero-slider[data-at-end="false"] .hero-cards {
+  --fade-right: 72px;
+}
+
+.hero-cards::-webkit-scrollbar {
+  display: none;
+}
+
+.hero-cards.is-dragging {
+  cursor: grabbing;
+  /* টানার সময় লেখা নির্বাচিত হয়ে যাওয়া বন্ধ */
+  user-select: none;
+  scroll-snap-type: none;
+}
+
+.hero-cards:focus-visible {
+  outline: 2px solid var(--hero-ink);
+  outline-offset: 4px;
+  border-radius: 8px;
+}
+
+/* ---------- আগে / পরের তীর ----------
+   Figma তে এগুলো নেই — slider এর আচরণ বোঝানোর জন্য যোগ করা।
+   সাধারণত লুকানো, slider এর উপর mouse এলে বা keyboard focus এলে
+   ফুটে ওঠে, তাই Figma র চেহারা অক্ষত থাকে */
+.hero-slider-btn {
+  position: absolute;
+  top: 50%;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border: 1px solid #e6e6e7;
+  border-radius: 50%;
+  background: #ffffff;
+  color: var(--hero-ink);
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(55, 58, 60, 0.16);
+  opacity: 0;
+  transform: translateY(-50%) scale(0.92);
+  transition:
+    opacity 0.22s ease,
+    transform 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+    background 0.2s ease;
+}
+
+.hero-slider:hover .hero-slider-btn,
+.hero-slider-btn:focus-visible {
+  opacity: 1;
+  transform: translateY(-50%) scale(1);
+}
+
+.hero-slider-btn:hover {
+  background: #fafafa;
+}
+
+.hero-slider-btn:focus-visible {
+  outline: 2px solid var(--hero-ink);
+  outline-offset: 3px;
+}
+
+/* প্রান্তে পৌঁছে গেলে তীরটা একেবারে সরে যায় — নিষ্ক্রিয় অবস্থায়
+   ধূসর হয়ে ঝুলে থাকার চেয়ে এটা পরিষ্কার */
+.hero-slider-btn:disabled {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.hero-slider-btn--prev {
+  left: 10px;
+}
+
+.hero-slider-btn--next {
+  right: 10px;
+}
+
+/* touch device এ তীর অপ্রয়োজনীয় — আঙুল দিয়ে সরানোই স্বাভাবিক,
+   আর hover না থাকায় ওগুলো কখনো দেখাই যেত না */
+@media (hover: none) {
+  .hero-slider-btn {
+    display: none;
+  }
+}
+
+.hero-card {
+  position: relative;
+  flex: 0 0 auto;
+  scroll-snap-align: start;
+  box-sizing: border-box;
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  width: clamp(300px, 41.6vw, 516px);
+  min-height: 225px;
+  padding: 16px;
+  background: #ffffff;
+  border: 1px solid var(--hero-surface);
+  border-radius: 40px;
+  text-decoration: none;
+  transition:
+    transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.25s ease;
+}
+
+/* টানার সময় hover এর উঠে আসাটা বন্ধ — নাহলে কার্সারের নিচের card
+   লাফাতে থাকত */
+.hero-cards:not(.is-dragging) .hero-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(55, 58, 60, 0.1);
+}
+
+.hero-card:focus-visible {
+  outline: 2px solid var(--hero-ink);
+  outline-offset: 3px;
+}
+
+/* Figma: Frame 294 = 172x193, padding 16px 6px,
+   rgba(235,235,236,.5), radius 24 */
+.hero-card-media {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 172px;
+  max-width: 40%;
+  align-self: stretch;
+  padding: 16px 6px;
+  box-sizing: border-box;
+  background: rgba(235, 235, 236, 0.5);
+  border-radius: 24px;
+}
+
+.hero-card-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.hero-card-body {
+  flex: 1 1 auto;
+  min-width: 0;
+  /* Figma: লেখার block টা card এর উপর থেকে 26.5px নিচে, ডানে
+     arrow এর জন্য জায়গা ছাড়া */
+  padding: 10.5px 48px 0 0;
+}
+
+/* Figma: Space Grotesk 700, 38px / 100%, দুই লাইন — উপরেরটা গাঢ়,
+   নিচেরটা হালকা */
+.hero-card-title {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  font-weight: 700;
+  font-size: clamp(24px, 2.65vw, 38px);
+  line-height: 1;
+  color: var(--hero-ink);
+}
+
+.hero-card-title-muted {
+  color: var(--hero-ink-50);
+}
+
+/* Figma: Inter 500, 16px / 160%, title এর পর gap 12 */
+.hero-card-text {
+  margin: 12px 0 0;
+  font-family: "Inter", var(--font-sans), sans-serif;
+  font-weight: 500;
+  font-size: clamp(14px, 1.2vw, 16px);
+  line-height: 1.6;
+  color: var(--hero-ink-75);
+}
+
+/* Figma: 43.01px বৃত্ত, radius 40.
+   default — স্বচ্ছ background, গাঢ় তীর
+   hover   — গাঢ় background, সাদা তীর (Figma র "Variant2") */
+.hero-card-arrow {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 43px;
+  height: 43px;
+  border-radius: 40px;
+  background: transparent;
+  color: var(--hero-ink);
+  transition:
+    background 0.22s ease,
+    color 0.22s ease;
+}
+
+.hero-card:hover .hero-card-arrow,
+.hero-card:focus-visible .hero-card-arrow {
+  background: var(--hero-ink);
+  color: #ffffff;
+}
+
+/* ===============================================================
+   Responsive
+   =============================================================== */
+
+/* 1100 এর নিচে ছবি লেখার নিচে — পাশাপাশি রাখলে দুইটাই চেপে যেত।
+   aspect-ratio অক্ষত থাকে, তাই ছবি আর আলো একসাথে ছোট হয় */
+@media (max-width: 1099px) {
+  .hero-top {
+    grid-template-columns: 1fr;
+    min-height: 0;
+    gap: 40px;
+  }
+
+  .hero-copy {
+    max-width: 640px;
+  }
+
+  .hero-visual {
+    margin-left: 0;
+    width: 100%;
+    max-width: 620px;
+    margin-inline: auto;
+  }
+}
+
+@media (max-width: 767px) {
+  .hero-badges {
+    flex-wrap: wrap;
+    gap: 20px 16px;
+    justify-content: flex-start;
+  }
+
+  .hero-badge {
+    flex: 0 1 calc(33.333% - 11px);
+  }
+
+  /* wrap হলে দ্বিতীয় সারির প্রথম badge এর আগেও দাগ পড়ত, আর CSS এ
+     "wrap হয়েছে কিনা" জানার উপায় নেই — তাই মোবাইলে divider বাদ */
+  .hero-badge + .hero-badge::before {
+    display: none;
+  }
+
+  .hero-card {
+    width: clamp(280px, 86vw, 420px);
+    min-height: 0;
+  }
+
+  .hero-card-media {
+    width: 128px;
+  }
+
+  .hero-card-body {
+    padding-right: 44px;
+  }
+}
+
+@media (max-width: 479px) {
+  .hero-card {
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .hero-card-media {
+    width: 100%;
+    max-width: none;
+    height: 150px;
+    align-self: auto;
+  }
+
+  .hero-card-body {
+    padding: 0 44px 0 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-card,
+  .hero-card-arrow,
+  .hero-cta,
+  .hero-cards,
+  .hero-slider-btn {
+    transition: none;
+  }
+}

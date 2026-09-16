@@ -1,0 +1,521 @@
+/* ===============================================================
+   FIXTURES — Figma "Frame 507"
+
+   section   1408 x 1639, padding 100px 84px, gap 64, radius 40
+             background নেই — সাদা পাতায় সরাসরি বসে
+   Frame 259 1240 x 843, gap 48  (header + cards)
+     header  1240 x 195, padding 0 245px
+     cards   1240 x 600 — 360 + 32 + 456 + 32 + 360 = 1240 ✓
+   Frame 329 1040 x 424  (benefits, 3x2, gap 48)
+   CTA       164 x 44
+
+   100 + 843 + 64 + 424 + 64 + 44 + 100 = 1639 ✓
+   =============================================================== */
+
+.fixtures {
+  --fx-ink: #373a3c;
+  --fx-ink-75: rgba(55, 58, 60, 0.75);
+  --fx-ink-50: rgba(55, 58, 60, 0.5);
+  --fx-surface: 235, 235, 236; /* #EBEBEC, opacity আলাদা করে দেওয়ার জন্য */
+  --fx-yellow: #f7be00;
+  --fx-accent: #ffc107;
+
+  width: 100%;
+  box-sizing: border-box;
+  padding: clamp(56px, 7vw, 100px) var(--section-pad-x);
+  border-radius: var(--section-radius);
+}
+
+.fixtures-inner {
+  width: 100%;
+  max-width: var(--content-max);
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(40px, 4.5vw, 64px);
+
+  /* জলছাপের প্রস্থ এই box এর সাথে বাঁধার জন্য — নিচের cqw একক
+     এখান থেকেই মাপ নেয় */
+  container-type: inline-size;
+  container-name: fixtures;
+}
+
+/* Figma র Frame 259 — header আর cards এর মাঝে gap 48 */
+.fixtures-top {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(32px, 3.4vw, 48px);
+}
+
+/* ---------------------------------------------------------------
+   header + জলছাপ
+   --------------------------------------------------------------- */
+.fixtures-header {
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* Figma: padding 0 245px on 1240 → লেখার জায়গা 750px */
+  padding-inline: clamp(0px, 19.8vw, 245px);
+  box-sizing: border-box;
+  /* জলছাপটা যেন নিজের স্তরেই থাকে, পাশের কিছুর উপর না উঠে যায় */
+  isolation: isolate;
+}
+
+/* Figma: 284px, line-height 71%, প্রস্থ 1277px @ left -18.3 —
+   অর্থাৎ 1240px content এর দুই পাশে ~18px করে বেরিয়ে যায়, ঠিক
+   brand সারির সাথে মিলিয়ে।
+
+   font-size টা clamp() দিয়ে দিলে লেখার প্রস্থ font এর নিজের মাপের
+   উপর নির্ভর করত, container এর সাথে বাঁধা থাকত না — সেজন্যই
+   জলছাপটা brand সারির চেয়ে সরু দেখাচ্ছিল।
+
+   হিসাবটা: Figma তে 284px এ "FIXTURES" হয় 1277px চওড়া,
+   অনুপাত 1277 / 284 = 4.4965. container এর 102.98% চওড়া চাই,
+   তাই font-size = 102.98 / 4.4965 = container এর 22.9%
+
+   Space Grotesk এর মাপ সামান্য আলাদা হলে এই একটা সংখ্যা নাড়ালেই
+   হবে — বাড়ালে জলছাপ চওড়া, কমালে সরু */
+.fixtures {
+  --fx-watermark-scale: 22.9;
+}
+
+.fixtures-watermark {
+  position: absolute;
+  z-index: 0;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: max-content;
+  font-weight: 700;
+
+  /* container query সমর্থন না থাকলে এটা কাজে লাগে */
+  font-size: clamp(90px, 20vw, 284px);
+  font-size: calc(var(--fx-watermark-scale) * 1cqw);
+
+  line-height: 0.71;
+  text-align: center;
+  text-transform: uppercase;
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+
+  background: linear-gradient(
+    180deg,
+    rgba(11, 18, 26, 0.03) 0.21%,
+    rgba(250, 250, 248, 0.03) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+.fixtures-heading {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* Figma: title উপর থেকে 23px নিচে শুরু */
+  padding-top: clamp(8px, 1.9vw, 23px);
+}
+
+/* Figma: Space Grotesk 700, 46px / 100% */
+.fixtures-title {
+  margin: 0;
+  max-width: 560px;
+  font-weight: 700;
+  font-size: clamp(28px, 3.2vw, 46px);
+  line-height: 1;
+  text-align: center;
+  color: var(--fx-ink);
+}
+
+/* Figma: Inter 400, 20px / 160%, title এর পর 16px */
+.fixtures-subhead {
+  margin: 16px 0 0;
+  max-width: 750px;
+  font-family: "Inter", var(--font-sans), sans-serif;
+  font-weight: 400;
+  font-size: clamp(15px, 1.45vw, 20px);
+  line-height: 1.6;
+  text-align: center;
+  color: var(--fx-ink-75);
+}
+
+/* ---------------------------------------------------------------
+   তিনটা fixture card
+
+   flex-grow টা Figma র প্রস্থের অনুপাতে (360 : 456 : 360) দেওয়া,
+   basis 0 — তাই gap বাদ দিয়ে বাকি জায়গা ঠিক ওই অনুপাতেই ভাগ হয়
+   --------------------------------------------------------------- */
+.fixtures-cards {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+}
+
+.fixtures-card {
+  flex: 360 1 0;
+  min-width: 0;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  /* Figma: Frame 222 এ justify-content: center — card এর উচ্চতা
+     content এর চেয়ে বেশি হলে বাড়তি জায়গাটা উপরে-নিচে সমান ভাগ
+     হয়। পুরোটা উপরে ঠেলে দিলে মাঝের card এর লেখা বেশি নিচে
+     নেমে যেত */
+  justify-content: center;
+  min-height: 530px;
+  padding: 32px;
+  background: rgba(var(--fx-surface), 0.25);
+  border-radius: 40px;
+  /* সংখ্যাটা বড়, গোল কোণার বাইরে যেন না বেরোয় */
+  overflow: hidden;
+}
+
+.fixtures-card.is-featured {
+  flex: 456 1 0;
+  min-height: 600px;
+  background: rgba(var(--fx-surface), 0.75);
+}
+
+/* ---------- ছবি + ফিকে সংখ্যা ----------
+   দুইটা মাপ আলাদা রাখা হয়েছে, আর এটাই এখানে আসল কৌশল:
+
+   --fx-media-width / --fx-media-ratio  → বাক্সের মাপ. এটাই card এর
+       উচ্চতা ঠিক করে, তাই তিনটা card এ লেখা কোথায় শুরু হবে সেটাও
+   --fx-img-width                       → বাক্সের ভেতরে ছবিটা কত বড়
+
+   Figma তে LA1 আর RH1 দুইটারই Frame 63 = 300 x 230, একই। RH1 এর
+   ছবিটা ওই বাক্স ছাড়িয়ে যায়, কিন্তু বাক্সের উচ্চতা এক বলে দুইটা
+   card এ লেখা একই উচ্চতায় শুরু হয়। বাক্সটাই ছোট করে ফেললে RH1 এর
+   লেখা উপরে উঠে যেত */
+.fixtures-card-media {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--fx-media-width, 101.4%);
+  aspect-ratio: var(--fx-media-ratio, 300 / 230);
+  /* চওড়া বাক্সটা যেন দুই পাশে সমানভাবে বেরোয় */
+  margin-inline: auto;
+}
+
+/* Figma: image 300x230, Frame 63 300x230, card content 296 */
+.fixtures-card[data-fixture="la1"] {
+  --fx-media-width: 101.4%;
+  --fx-media-ratio: 300 / 230;
+}
+
+/* Figma: image 392x313.61, card content 392 */
+.fixtures-card[data-fixture="ls1"] {
+  --fx-media-width: 100%;
+  --fx-media-ratio: 392 / 313.61;
+}
+
+/* বাক্সটা LA1 এর মতোই 300x230 — তাই দুইটা card এ লেখা এক সারিতে।
+
+   ছবিটা e_trim করা, তাই --fx-img-width সরাসরি লাইটের মাপ বোঝায়।
+   Figma মেপে দেখা গেছে RH1 এর লাইট ~246px (LA1 এর ~300px এর
+   বিপরীতে), 300px বাক্সে সেটা 82%।
+
+   লাইটটা ছোট বা বড় লাগলে শুধু এই সংখ্যাটাই নাড়াবেন — বাক্সের
+   মাপে হাত দেবেন না, তাহলে লেখার সারি নড়ে যাবে */
+.fixtures-card[data-fixture="rh1"] {
+  --fx-media-width: 101.4%;
+  --fx-media-ratio: 300 / 230;
+  --fx-img-width: 82%;
+}
+
+.fixtures-card-media img {
+  position: relative;
+  z-index: 1;
+  width: var(--fx-img-width, 100%);
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Figma: Space Grotesk 700, 220px, gradient #C1C2C3 → স্বচ্ছ 75% */
+.fixtures-card-number {
+  position: absolute;
+  z-index: 0;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-weight: 700;
+  font-size: clamp(110px, 15vw, 220px);
+  line-height: 1.136; /* Figma: 250 / 220 */
+  text-align: center;
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+
+  background: linear-gradient(
+    180deg,
+    #c1c2c3 0%,
+    rgba(255, 255, 255, 0) 75%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* ---------- card এর লেখা ----------
+   Figma: Frame 208 — gap 24 (লেখা ↔ More info), Frame 209 gap 16,
+   Frame 207 gap 12.
+
+   ⚠️ ছবি আর লেখার মাঝে কোনো ফাঁক নেই — Figma র Frame 218 এ gap শূন্য।
+   এখানে padding-top দিলে card গুলো Figma র চেয়ে লম্বা হয়ে যেত
+   (530 এর বদলে 558) আর তিনটা card এ লেখার সারি মিলত না */
+.fixtures-card-body {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.fixtures-card-text {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Figma: Space Grotesk 700, 30px / 38px */
+.fixtures-card-title {
+  margin: 0;
+  font-weight: 700;
+  font-size: clamp(22px, 2.1vw, 30px);
+  line-height: 1.27;
+  color: var(--fx-ink-75);
+}
+
+/* Figma: Inter 500, 16px / 19px, title এর পর gap 12 */
+.fixtures-card-scope {
+  margin: 12px 0 0;
+  font-family: "Inter", var(--font-sans), sans-serif;
+  font-weight: 500;
+  font-size: clamp(14px, 1.15vw, 16px);
+  line-height: 1.2;
+  color: var(--fx-ink-75);
+}
+
+/* Figma: Space Grotesk 500, 16px / 20px, উপরের block এর পর gap 16.
+
+   ⚠️ রঙে অসঙ্গতি: Figma তে card ১ আর ৩ এ এই লেখাটা rgba(...,0.5),
+   কিন্তু মাঝের card এ rgba(...,0.75). ইচ্ছাকৃত মনে হয়নি, তাই তিনটাতেই
+   0.5 রাখা হয়েছে — নাহলে মাঝেরটার লেখা অকারণে গাঢ় দেখাত।
+   designer নিশ্চিত করলে .is-featured এ 0.75 ফিরিয়ে দেবেন */
+.fixtures-card-desc {
+  margin: 16px 0 0;
+  font-weight: 500;
+  font-size: clamp(14px, 1.15vw, 16px);
+  line-height: 1.25;
+  color: var(--fx-ink-50);
+}
+
+/* Figma: Frame 210 — row, space-between, 32px উঁচু */
+.fixtures-card-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 32px;
+  text-decoration: none;
+}
+
+.fixtures-card-link > span:first-child {
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 20px;
+  text-decoration: underline;
+  color: var(--fx-ink-75);
+}
+
+/* Figma: 32px বৃত্ত, rgba(255,193,7,.25), তীর #373A3C */
+.fixtures-card-arrow {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  flex: none;
+  border-radius: 40px;
+  background: rgba(255, 193, 7, 0.25);
+  color: var(--fx-ink);
+  transition:
+    background 0.22s ease,
+    transform 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.fixtures-card-link:hover .fixtures-card-arrow {
+  background: var(--fx-accent);
+  transform: translate(2px, -2px);
+}
+
+.fixtures-card-link:focus-visible {
+  outline: 2px solid var(--fx-ink);
+  outline-offset: 4px;
+  border-radius: 8px;
+}
+
+/* ---------------------------------------------------------------
+   benefits — Figma: 1040 x 424, তিন কলাম, gap 48 দুই দিকেই
+   --------------------------------------------------------------- */
+.fixtures-benefits {
+  width: 100%;
+  max-width: 1040px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 48px;
+}
+
+.fixtures-benefit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+  text-align: center;
+}
+
+/* Figma: 64px বৃত্ত, #373A3C, shadow 0 0 10px rgba(11,18,26,.1).
+   icon এর stroke সাদা নয়, #EBEBEC — সামান্য নরম */
+.fixtures-benefit-icon {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  flex: none;
+  border-radius: 999px;
+  background: var(--fx-ink);
+  color: #ebebec;
+  box-shadow: 0 0 10px rgba(11, 18, 26, 0.1);
+}
+
+/* Figma: Inter 600, 24px / 100% */
+.fixtures-benefit-title {
+  margin: 0;
+  font-family: "Inter", var(--font-sans), sans-serif;
+  font-weight: 600;
+  font-size: clamp(19px, 1.7vw, 24px);
+  line-height: 1;
+  color: var(--fx-ink-75);
+}
+
+/* Figma: Space Grotesk 400, 16px / 160%, title এর পর gap 16 */
+.fixtures-benefit-text {
+  margin: -16px 0 0; /* gap 32 থেকে 16 এ নামানো, আলাদা wrapper ছাড়াই */
+  font-weight: 400;
+  font-size: clamp(14px, 1.15vw, 16px);
+  line-height: 1.6;
+  color: var(--fx-ink-50);
+}
+
+/* ---------------------------------------------------------------
+   CTA — Figma: 164 x 44, padding 10px 20px, #F7BE00, radius 100
+   --------------------------------------------------------------- */
+.fixtures-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  min-height: 44px;
+  background: var(--fx-yellow);
+  border-radius: 100px;
+  font-weight: 500;
+  font-size: 14.5px;
+  line-height: 19px;
+  color: var(--fx-ink);
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    filter 0.2s ease,
+    transform 0.2s ease;
+}
+
+.fixtures-cta:hover {
+  filter: brightness(0.95);
+}
+
+.fixtures-cta:active {
+  transform: translateY(1px);
+}
+
+.fixtures-cta:focus-visible {
+  outline: 2px solid var(--fx-ink);
+  outline-offset: 3px;
+}
+
+/* ===============================================================
+   Responsive
+   =============================================================== */
+
+/* তিনটা card পাশাপাশি রাখার মতো জায়গা আর নেই — মাঝেরটা বড় বলে
+   সবচেয়ে আগে ওটাই চেপে যেত */
+@media (max-width: 1099px) {
+  .fixtures-cards {
+    flex-wrap: wrap;
+  }
+
+  .fixtures-card,
+  .fixtures-card.is-featured {
+    flex: 1 1 320px;
+    min-height: 0;
+  }
+
+  .fixtures-benefits {
+    gap: 40px 32px;
+  }
+}
+
+@media (max-width: 767px) {
+  .fixtures-cards {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .fixtures-card,
+  .fixtures-card.is-featured {
+    flex: 1 1 auto;
+  }
+
+  .fixtures-benefits {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 40px 24px;
+  }
+
+  .fixtures-benefit {
+    gap: 20px;
+  }
+
+  .fixtures-benefit-text {
+    margin-top: -6px;
+  }
+}
+
+@media (max-width: 479px) {
+  .fixtures-benefits {
+    grid-template-columns: 1fr;
+  }
+
+  .fixtures-card {
+    padding: 24px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fixtures-card-arrow,
+  .fixtures-cta {
+    transition: none;
+  }
+}

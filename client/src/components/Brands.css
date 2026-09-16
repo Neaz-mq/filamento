@@ -1,0 +1,82 @@
+/* ===============================================================
+   BRANDS — Figma "Frame 204"
+
+   row, space-between, padding 100px 84px, gap 64px
+   1408 x 264, opacity 0.75
+   প্রতিটা লোগো 128 x 64
+
+   264 = 100 + 64 + 100 ✓
+   এই section এ কোনো background, border বা radius নেই — hero এর
+   ধূসর card এর পরে সরাসরি সাদা পাতায় বসে
+   =============================================================== */
+
+.brands {
+  width: 100%;
+  box-sizing: border-box;
+  padding: clamp(48px, 7vw, 100px) var(--section-pad-x);
+
+  /* Figma র Frame 204 এর opacity. লোগোগুলো হালকা থাকাই উদ্দেশ্য —
+     এগুলো প্রমাণ, মূল বিষয় নয় */
+  opacity: 0.75;
+}
+
+.brands-inner {
+  width: 100%;
+  max-width: var(--content-max);
+  margin-inline: auto;
+}
+
+/* gap 64px হলো সর্বনিম্ন — 1240px container এ ছয়টা 128px লোগো
+   (মোট 768px) space-between এ ছড়ালে ফাঁক দাঁড়ায় ~94px, ঠিক
+   Figma র মতোই */
+.brands-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 40px 64px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.brands-item {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 128px;
+  height: 64px;
+}
+
+.brands-item img {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
+/* ---------------------------------------------------------------
+   Responsive
+
+   space-between wrap হলে শেষ সারিতে ফাঁক অদ্ভুত দেখায় (দুইটা লোগো
+   দুই প্রান্তে ছিটকে যায়), তাই ছোট পর্দায় center
+   --------------------------------------------------------------- */
+@media (max-width: 1099px) {
+  .brands-list {
+    justify-content: center;
+    gap: 36px 48px;
+  }
+}
+
+@media (max-width: 639px) {
+  .brands-list {
+    gap: 28px 32px;
+  }
+
+  .brands-item {
+    width: 104px;
+    height: 52px;
+  }
+}

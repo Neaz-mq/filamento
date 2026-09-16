@@ -17,9 +17,107 @@
     "openMenu": "メニューを開く",
     "closeMenu": "メニューを閉じる"
   },
-  "home": {
+  "hero": {
     "eyebrow": "産業用LED · アメリカ製",
-    "headline": "より明るく、消費電力は半分に。",
-    "subhead": "LA1、LS1、RH1 シリーズで照明性能を高め、運用コストを最大50%削減します。"
+    "titleAccent": "より明るく、",
+    "titleRest": "消費電力は半分に。",
+    "subhead": "LA1、LS1、RH1 シリーズで照明性能を高め、運用コストを最大50%削減します。",
+    "imageAlt": "Filamento RH1 シリーズ 産業用高天井LED照明器具",
+    "cardsLabel": "製品カテゴリー",
+    "prev": "前へ",
+    "next": "次へ",
+    "badges": {
+      "energy": {
+        "value": "最大60%",
+        "label": "省エネ"
+      },
+      "warranty": {
+        "value": "5年",
+        "label": "保証"
+      },
+      "madeIn": {
+        "value": "アメリカ",
+        "label": "製造"
+      },
+      "certified": {
+        "value": "DLC Premium",
+        "label": "認証"
+      },
+      "listed": {
+        "value": "DL",
+        "label": "認定"
+      }
+    },
+    "cards": {
+      "high-bay": {
+        "titleTop": "高天井",
+        "titleBottom": "シリーズ",
+        "text": "業務用高天井照明ソリューションを見る"
+      },
+      "build-fixture": {
+        "titleTop": "器具を",
+        "titleBottom": "組み立てる",
+        "text": "対応コンポーネントで器具をカスタマイズ"
+      },
+      "optional-parts": {
+        "titleTop": "オプション",
+        "titleBottom": "パーツ",
+        "text": "必要なアクセサリーで設置を仕上げる"
+      }
+    }
+  },
+  "brands": {
+    "label": "多くの企業に選ばれています"
+  },
+  "fixtures": {
+    "watermark": "Fixtures",
+    "titleTop": "3つの器具で、",
+    "titleBottom": "ひとつの完全なソリューション。",
+    "subhead": "モジュール式のランプ、リフレクター、マウント、コントロールキャップ — 天井高とレイアウトに合わせて最適な器具を構成できます。",
+    "moreInfo": "詳しく見る",
+    "seeAll": "すべての製品を見る",
+    "items": {
+      "la1": {
+        "title": "LA1 高天井シリーズ",
+        "scope": "高層ラック、製造エリア、生産ライン",
+        "description": "ターゲット最適化：特許取得のリニア低グレア光学設計により、器具数を最大50%、消費電力を50%削減します。"
+      },
+      "ls1": {
+        "title": "LS1 高天井シリーズ",
+        "scope": "仕分けエリア、荷積み場、オープンスタック",
+        "description": "統合型広域最適化：人の動きが多いオープンな空間向けに設計された、均一で高出力の照明です。"
+      },
+      "rh1": {
+        "title": "RH1 高天井シリーズ",
+        "scope": "高稼働の工業・商業・小売施設",
+        "description": "3方向光学設計：下方・垂直・上方への配光で壁面やラックを明るくし、グレアを抑えます。"
+      }
+    },
+    "benefits": {
+      "energy": {
+        "title": "消費電力を最大50%削減",
+        "text": "精密光学とリレーレス調光で、明るさを保ったまま電力量を削減します。"
+      },
+      "maintenance": {
+        "title": "メンテナンスの軽減",
+        "text": "密閉筐体と10万時間のLEDにより、脚立作業が運用コストから消えます。"
+      },
+      "visibility": {
+        "title": "視認性の向上",
+        "text": "高い演色性と均一性が、作業精度・安全性・快適さを高めます。"
+      },
+      "glare": {
+        "title": "グレアの低減",
+        "text": "特許リフレクターが必要な場所にだけ、くっきりとした光を届けます。"
+      },
+      "installation": {
+        "title": "設置がより速く",
+        "text": "軽量な器具と設定済みマウントで、施工時間が半分になります。"
+      },
+      "roi": {
+        "title": "投資回収が早い",
+        "text": "多くの施設で18か月以内に回収 — 補助金があればさらに短縮されます。"
+      }
+    }
   }
 }

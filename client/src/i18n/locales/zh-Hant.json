@@ -17,9 +17,107 @@
     "openMenu": "開啟選單",
     "closeMenu": "關閉選單"
   },
-  "home": {
+  "hero": {
     "eyebrow": "工業級 LED · 美國製造",
-    "headline": "更明亮的空間，更少的能源消耗。",
-    "subhead": "LA1、LS1 和 RH1 系列產品可提高照明效能，並降低高達 50% 的營運成本。"
+    "titleAccent": "更明亮的空間，",
+    "titleRest": "更少的能源消耗。",
+    "subhead": "LA1、LS1 和 RH1 系列產品可提高照明效能，並降低高達 50% 的營運成本。",
+    "imageAlt": "Filamento RH1 系列工業高棚 LED 燈具",
+    "cardsLabel": "產品分類",
+    "prev": "上一個",
+    "next": "下一個",
+    "badges": {
+      "energy": {
+        "value": "最高 60%",
+        "label": "節能"
+      },
+      "warranty": {
+        "value": "5 年",
+        "label": "保固"
+      },
+      "madeIn": {
+        "value": "美國",
+        "label": "製造"
+      },
+      "certified": {
+        "value": "DLC Premium",
+        "label": "認證"
+      },
+      "listed": {
+        "value": "DL",
+        "label": "認可"
+      }
+    },
+    "cards": {
+      "high-bay": {
+        "titleTop": "高棚燈",
+        "titleBottom": "系列",
+        "text": "瀏覽專業高棚照明解決方案"
+      },
+      "build-fixture": {
+        "titleTop": "自訂",
+        "titleBottom": "燈具",
+        "text": "以相容元件打造專屬燈具"
+      },
+      "optional-parts": {
+        "titleTop": "選購",
+        "titleBottom": "配件",
+        "text": "以必備配件完善您的照明系統"
+      }
+    }
+  },
+  "brands": {
+    "label": "眾多知名企業的選擇"
+  },
+  "fixtures": {
+    "watermark": "Fixtures",
+    "titleTop": "三款燈具，",
+    "titleBottom": "一套完整解決方案。",
+    "subhead": "模組化燈具、反射罩、支架與控制端蓋 — 依照天花板高度與空間配置，組出最合適的燈具。",
+    "moreInfo": "了解更多",
+    "seeAll": "查看所有產品",
+    "items": {
+      "la1": {
+        "title": "LA1 高棚燈系列",
+        "scope": "高層貨架、製造區、生產線",
+        "description": "針對性優化：專利線性低眩光光學設計，可減少高達 50% 的燈具數量與 50% 的能源消耗。"
+      },
+      "ls1": {
+        "title": "LS1 高棚燈系列",
+        "scope": "理貨區、裝卸碼頭與開放式堆放區",
+        "description": "整合式大面積優化：均勻且高輸出的照明，專為人流密集的開放空間設計。"
+      },
+      "rh1": {
+        "title": "RH1 高棚燈系列",
+        "scope": "高人流、工業、商業與零售場所",
+        "description": "三向光學設計：向下、垂直與向上的配光讓牆面與貨架更明亮，同時降低眩光。"
+      }
+    },
+    "benefits": {
+      "energy": {
+        "title": "能耗最高降低 50%",
+        "text": "精密光學與非繼電器調光大幅降低用電，輸出不打折。"
+      },
+      "maintenance": {
+        "title": "維護更少",
+        "text": "密閉燈體與 100,000 小時 LED，讓維修梯子退出您的營運支出。"
+      },
+      "visibility": {
+        "title": "視覺更清晰",
+        "text": "更高的演色性與均勻度，提升準確度、安全性與工作舒適度。"
+      },
+      "glare": {
+        "title": "眩光更低",
+        "text": "專利反射罩把光線精準送到需要的地方，不浪費一分。"
+      },
+      "installation": {
+        "title": "安裝更快",
+        "text": "輕量燈具與預先配置的支架，讓施工工時減半。"
+      },
+      "roi": {
+        "title": "投資回報更高",
+        "text": "多數廠區在 18 個月內回本 — 若有補助往往更快。"
+      }
+    }
   }
 }

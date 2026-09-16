@@ -29,14 +29,20 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
-    <!-- Space Grotesk এ কোনো CJK glyph নেই, তাই Noto Sans TC আর JP যোগ করা।
-         CJK font কয়েক MB, কিন্তু Google Fonts unicode-range দিয়ে subset
-         করে পাঠায় — ইংরেজি পাতায় একটাও CJK subset download হয় না,
-         শুধু যেসব অক্ষর আসলে render হচ্ছে সেগুলোই আসে -->
+    <!-- Inter যোগ করা হয়েছে — Figma তে hero এর badge আর card এর
+         description Inter, বাকি সব Space Grotesk।
+
+         Noto TC/JP CJK এর জন্য। CJK font কয়েক MB, কিন্তু Google Fonts
+         unicode-range দিয়ে subset পাঠায় — ইংরেজি পাতায় একটাও CJK
+         ফাইল download হয় না -->
     <link
-      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap"
       rel="stylesheet"
     />
+
+    <!-- hero এর ছবিটা পাতার প্রথম বড় জিনিস (LCP). আগেভাগে
+         connection খুলে রাখলে দেখা যেতে কয়েকশো ms কম লাগে -->
+    <link rel="preconnect" href="https://res.cloudinary.com" crossorigin />
   </head>
   <body>
     <div id="root"></div>
