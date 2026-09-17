@@ -3,6 +3,7 @@ import express from "express";
 import cors from "cors";
 import { connectDB } from "./config/db.js";
 import productRoutes from "./routes/productRoutes.js";
+import videoViewRoutes from "./routes/videoViewRoutes.js";
 
 const app = express();
 
@@ -57,6 +58,9 @@ app.get("/health", (req, res) => {
 });
 
 app.use("/api/products", productRoutes);
+
+// Technologies section এর video কতবার চালানো হয়েছে
+app.use("/api/video-views", videoViewRoutes);
 
 // 404 — না থাকলে Express এর default HTML page আসত, JSON না
 app.use((req, res) => {

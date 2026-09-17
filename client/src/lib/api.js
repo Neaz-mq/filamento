@@ -39,4 +39,13 @@ export const api = {
     }),
   deleteProduct: (id) =>
     request(`/api/products/${id}`, { method: "DELETE" }),
+
+  /* Technologies section এর video view.
+     GET  → { views: { thermal: 12, optical: 40, driver: 3 } }
+     POST → { id, count, counted } — counted false মানে server এই
+            বারটা গোনেনি (একই জায়গা থেকে খুব ঘন ঘন), count তবু
+            সর্বশেষ সংখ্যা */
+  getVideoViews: () => request("/api/video-views"),
+  addVideoView: (id) =>
+    request(`/api/video-views/${encodeURIComponent(id)}`, { method: "POST" }),
 };

@@ -1,0 +1,487 @@
+/* ===============================================================
+   CONTACT — Figma "Frame 508"
+
+   section   1408 x 619, padding 100px 84px, #EBEBEC, radius 40
+   content   1240 x 419, দুই কলাম 588 + gap 64 + 588
+     বাঁয়ে   Frame 334 — উপরে লেখা (160), নিচে তথ্য (36),
+             মাঝে space-between, নিচে padding 64
+     ডানে    Frame 327 — padding 64px 0, ভেতরে:
+             ঘরগুলো 204 (৪ সারি × 27 + ৩ × gap 32) + gap 64 + Submit 23
+
+   64 + 204 + 64 + 23 + 64 = 419 ✓
+   100 + 419 + 100 = 619 ✓
+   =============================================================== */
+
+.contact {
+  --ct-ink: #373a3c;
+  --ct-ink-75: rgba(55, 58, 60, 0.75);
+  --ct-ink-50: rgba(55, 58, 60, 0.5);
+  --ct-arrow: #0b121a;
+  --ct-error: #b42318;
+  --ct-success: #3f6212;
+
+  width: 100%;
+  box-sizing: border-box;
+  padding: clamp(56px, 7vw, 100px) var(--section-pad-x);
+  /* Figma র মতো ধূসর (#EBEBEC). উপরের Testimonials এখন সাদা
+     পটভূমিতে, তাই দুটো আলাদা block হিসেবেই চোখে পড়ে */
+  background: var(--color-surface);
+  border-radius: var(--section-radius);
+  color: var(--ct-ink);
+}
+
+/* Contact পাতার শেষ section হলে footer এর আগে শ্বাস নেওয়ার জায়গা.
+
+   দুইটা রঙিন card (ধূসর Contact, গাঢ় footer) মাত্র 16px ফাঁকে গায়ে
+   গায়ে লাগছিল. Figma তে footer এর আগে ~100px সাদা — পাতার বাকি
+   section এর উপর-নিচের ফাঁকের সমান (clamp 56–100).
+
+   footer নিজেই 16px (--section-gap) উপরে রাখে, তাই এখানে বাকিটুকু:
+   মোট = (100 − 16) + 16 = 100px (1440 এ), ফোনে 56px.
+
+   :last-child — শুধু পাতার শেষে থাকলেই; অন্য কোনো পাতায় Contact
+   মাঝখানে বসালে এই বাড়তি ফাঁক লাগবে না */
+.contact:last-child {
+  margin-bottom: calc(clamp(56px, 7vw, 100px) - var(--section-gap));
+}
+
+.contact-inner {
+  width: 100%;
+  max-width: var(--content-max);
+  margin-inline: auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  column-gap: clamp(40px, 4.44vw, 64px); /* 64 / 1440 */
+  /* দুই কলাম সমান উঁচু — বাঁয়ের তথ্য form এর তলার সাথে মেলে */
+  align-items: stretch;
+}
+
+/* ---------------------------------------------------------------
+   বাঁয়ের অংশ
+   --------------------------------------------------------------- */
+.contact-intro {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 40px;
+  padding-bottom: 64px;
+}
+
+/* Figma: Space Grotesk 700, 46px / 100% */
+.contact-title {
+  margin: 0;
+  font-weight: 700;
+  font-size: clamp(32px, 3.2vw, 46px);
+  line-height: 1;
+  color: var(--ct-ink);
+}
+
+/* Figma: Inter 400, 16px / 26px, .75, শিরোনামের পর 16 */
+.contact-text {
+  margin: 16px 0 0;
+  font-family: "Inter", var(--font-sans), sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 26px;
+  color: var(--ct-ink-75);
+}
+
+/* Figma: দুই কলাম 272 + gap 44 */
+.contact-info {
+  display: flex;
+  gap: 44px;
+}
+
+/* Figma বলছে gap 12, কিন্তু লেখার বাক্স 12px ধরা (14px লেখা) —
+   screenshot মেপে দুই লাইনের কেন্দ্রের দূরত্ব 24, তাই 14px লাইনে
+   gap 10 */
+.contact-info-item {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-family: "Inter", var(--font-sans), sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 14px;
+}
+
+.contact-info-label {
+  color: var(--ct-ink-75);
+}
+
+.contact-info-value {
+  width: fit-content;
+  color: var(--ct-ink-50);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.contact-info-value:hover {
+  color: var(--ct-ink);
+  text-decoration: underline;
+}
+
+.contact-info-value:focus-visible {
+  outline: 2px solid var(--ct-ink);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* ---------------------------------------------------------------
+   form
+   --------------------------------------------------------------- */
+.contact-form {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 64px;
+  padding: 64px 0;
+  min-width: 0;
+}
+
+/* Figma: সারির মাঝে 32, কলামের মাঝে 44 */
+.contact-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 32px 44px;
+}
+
+.contact-field {
+  position: relative;
+  min-width: 0;
+}
+
+/* Figma: Inter 500 14/14, নিচে 12px ফাঁক, তারপর 1px রেখা .5
+   মোট 14 + 12 + 1 = 27 ✓ */
+.contact-input {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0;
+  padding: 0 0 12px;
+  border: 0;
+  border-bottom: 1px solid var(--ct-ink-50);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  font-family: "Inter", var(--font-sans), sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 14px;
+  color: var(--ct-ink-75);
+  appearance: none;
+  outline: none;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.contact-input::placeholder {
+  color: var(--ct-ink-50);
+  opacity: 1; /* Firefox নিজে থেকে placeholder আবছা করে */
+}
+
+/* focus — নিচের রেখা গাঢ় আর দ্বিগুণ মোটা. আলাদা outline দিলে
+   Figma র পরিষ্কার চেহারা নষ্ট হতো, আর এটুকুই স্পষ্ট চোখে পড়ে */
+.contact-input:focus-visible,
+.contact-select[data-open] .contact-select-button {
+  border-bottom-color: var(--ct-ink);
+  box-shadow: 0 1px 0 var(--ct-ink);
+}
+
+/* ব্রাউজারের autofill এর হলুদ/নীল পটভূমি সরানো */
+.contact-input:-webkit-autofill {
+  -webkit-text-fill-color: var(--ct-ink-75);
+  transition: background-color 9999s ease-out;
+}
+
+/* Project details — এক লাইনে শুরু, লিখতে লিখতে বড় হয়
+   (field-sizing: নতুন ব্রাউজারে; পুরনোতে এক লাইন থাকে আর scroll হয়) */
+textarea.contact-input {
+  resize: none;
+  min-height: 27px;
+  max-height: 120px;
+  overflow-y: auto;
+  field-sizing: content;
+}
+
+/* ---------- ভুলের অবস্থা ----------
+   বার্তাটা নিচের ফাঁকে (32px) বসে — layout নড়ে না */
+.contact-field[data-invalid] .contact-input {
+  border-bottom-color: var(--ct-error);
+  box-shadow: 0 1px 0 var(--ct-error);
+}
+
+.contact-error {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  margin: 0;
+  font-family: "Inter", var(--font-sans), sans-serif;
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 14px;
+  color: var(--ct-error);
+}
+
+/* ---------- dropdown ---------- */
+.contact-select-button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.contact-select-button[data-empty] {
+  color: var(--ct-ink-50);
+}
+
+.contact-select-value {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.contact-select-button svg {
+  flex: none;
+  color: var(--ct-ink-50);
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.contact-select[data-open] .contact-select-button svg {
+  transform: rotate(180deg);
+}
+
+/* Figma: Dropdown List — সাদা, border #E1E1E2, radius 10,
+   shadow 0 4px 10px rgba(55,58,60,.02), ঘরের 8px নিচে.
+   নিচের ঘরগুলোর উপর ভেসে থাকে, সেগুলো সরায় না */
+.contact-select-list {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background: #ffffff;
+  border: 1px solid #e1e1e2;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(55, 58, 60, 0.02);
+}
+
+/* Figma: padding 10px 12px, Inter 500 14/160%, .75, radius 10.
+   চিহ্নিত বিকল্প: rgba(225,225,226,.25), লেখা গাঢ় */
+.contact-select-option {
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-family: "Inter", var(--font-sans), sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--ct-ink-75);
+  cursor: pointer;
+  user-select: none;
+}
+
+.contact-select-option[data-highlight] {
+  background: rgba(225, 225, 226, 0.25);
+  color: var(--ct-ink);
+}
+
+/* বাছা বিকল্প — পাশে ছোট একটা বিন্দু, যাতে খোলার পর বোঝা যায় */
+.contact-select-option[aria-selected="true"] {
+  color: var(--ct-ink);
+}
+
+.contact-select-option[aria-selected="true"]::after {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-left: 8px;
+  vertical-align: middle;
+  border-radius: 50%;
+  background: #f7be00;
+}
+
+/* ---------- ফাঁদ (bot এর জন্য) — পর্দার বাইরে ---------- */
+.contact-trap {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* ---------- Submit ----------
+   Figma: Space Grotesk 500, 18/23, underline, #373A3C,
+   পাশে তীর 18px, gap 10 */
+.contact-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+}
+
+.contact-submit {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 23px;
+  color: var(--ct-ink);
+  cursor: pointer;
+}
+
+.contact-submit span {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.contact-submit svg {
+  flex: none;
+  color: var(--ct-arrow);
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.contact-submit:hover svg {
+  transform: translateX(4px);
+}
+
+.contact-submit:disabled {
+  cursor: progress;
+  opacity: 0.6;
+}
+
+.contact-submit:focus-visible {
+  outline: 2px solid var(--ct-ink);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+.contact-status {
+  margin: 0;
+  font-family: "Inter", var(--font-sans), sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.contact-status:empty {
+  display: none;
+}
+
+.contact-status[data-status="success"] {
+  color: var(--ct-success);
+}
+
+.contact-status[data-status="error"] {
+  color: var(--ct-error);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .contact-select-list {
+    animation: contact-list-in 0.18s ease-out both;
+  }
+
+  .contact-status {
+    animation: contact-fade 0.3s ease both;
+  }
+}
+
+@keyframes contact-list-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes contact-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ===============================================================
+   Responsive
+   =============================================================== */
+
+/* লেখা আর তথ্য উপরে, form নিচে */
+@media (max-width: 1099px) {
+  .contact-inner {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 48px;
+  }
+
+  .contact-intro {
+    justify-content: flex-start;
+    padding-bottom: 0;
+  }
+
+  .contact-text {
+    max-width: 588px;
+  }
+
+  .contact-form {
+    padding: 0;
+    gap: 48px;
+  }
+}
+
+/* ফোনে প্রতি সারিতে একটা ঘর */
+@media (max-width: 639px) {
+  .contact-title {
+    font-size: 32px;
+    line-height: 1.0625;
+  }
+
+  .contact-text {
+    font-size: 15px;
+    line-height: 24px;
+  }
+
+  .contact-info {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .contact-grid {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 32px;
+  }
+
+  /* আঙুলে চাপার জন্য ঘর একটু উঁচু; ফোনে 16px এর কম লেখা হলে
+     iPhone নিজে থেকে zoom করে ফেলে — তাই 16px */
+  .contact-input {
+    padding-top: 6px;
+    font-size: 16px;
+    line-height: 18px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .contact-input,
+  .contact-info-value,
+  .contact-select-button svg,
+  .contact-submit svg {
+    transition: none;
+  }
+}

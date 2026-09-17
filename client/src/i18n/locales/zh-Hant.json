@@ -119,5 +119,200 @@
         "text": "多數廠區在 18 個月內回本 — 若有補助往往更快。"
       }
     }
+  },
+  "comparison": {
+    "title": "與眾不同的工業級 LED。",
+    "text": "光學、驅動器、調光系統——我們的燈具全部自行研發製造。成果是明顯優於市售一般商用 LED、且能以數據證明的效能。",
+    "caption": "Filamento 與傳統 LED 的比較",
+    "columns": {
+      "metric": "項目",
+      "traditional": "傳統 LED",
+      "filamento": "Filamento"
+    },
+    "rows": {
+      "energy": {
+        "label": "相較 HID 的節能幅度",
+        "traditional": "20-30%",
+        "filamento": "最高 50%"
+      },
+      "dimming": {
+        "label": "調光技術",
+        "traditional": "繼電器式（有聲響、易磨損）",
+        "filamento": "無繼電器靜音調光"
+      },
+      "glare": {
+        "label": "眩光值（UGR）",
+        "traditional": "> 25",
+        "filamento": "< 19"
+      },
+      "lifetime": {
+        "label": "使用壽命",
+        "traditional": "50,000 小時",
+        "filamento": "100,000 小時以上"
+      },
+      "warranty": {
+        "label": "保固",
+        "traditional": "2-3 年",
+        "filamento": "5 年"
+      },
+      "design": {
+        "label": "客製化照明設計",
+        "traditional": "不含",
+        "filamento": "報價即免費提供"
+      }
+    }
+  },
+  "technologies": {
+    "title": "每一款燈具，都是一項研究成果",
+    "text": "探索成就卓越照明、高能源效率與持久可靠性的技術。",
+    "listLabel": "Filamento 技術",
+    "goTo": "查看{{title}}",
+    "play": "播放影片：{{title}}",
+    "duration": "影片長度：",
+    "views": "{{value}} 次觀看",
+    "items": {
+      "thermal": {
+        "title": "散熱管理",
+        "text": "低溫運作設計，保護 LED 並延長燈具壽命。"
+      },
+      "optical": {
+        "title": "卓越光學配光",
+        "text": "潔淨、均衡的照明，表現優於傳統燈具。"
+      },
+      "driver": {
+        "title": "驅動技術",
+        "text": "無繼電器靜音調光，輸出穩定、無閃爍。"
+      }
+    }
+  },
+  "contact": {
+    "title": "為您的空間打造理想照明。",
+    "text": "提供您的設施資訊，Filamento 工程師將免費為您提供光度配置圖、燈具排程與預估節能效益。",
+    "mailUs": "電子郵件聯絡",
+    "fields": {
+      "name": "姓名",
+      "company": "公司名稱",
+      "phone": "電話",
+      "email": "電子郵件",
+      "facilityType": "設施類型",
+      "projectSize": "專案規模",
+      "details": "專案詳情"
+    },
+    "facilityTypes": {
+      "warehouse": "倉庫",
+      "manufacturing": "製造廠",
+      "commercial": "商業空間",
+      "other": "其他"
+    },
+    "projectSizes": {
+      "under50": "50 盞以下",
+      "from50to250": "50-250 盞",
+      "from250to1000": "250-1,000 盞",
+      "over1000": "1,000 盞以上"
+    },
+    "submit": "送出",
+    "sending": "傳送中...",
+    "success": "感謝您的填寫，我們將盡快與您聯繫。",
+    "error": "發生錯誤，請直接發送電子郵件至 {{email}}。",
+    "errors": {
+      "required": "此欄位為必填。",
+      "email": "請輸入有效的電子郵件地址。"
+    }
+  },
+  "testimonials": {
+    "title": "客戶怎麼說",
+    "text": "來自真實客戶的真實故事，他們每天都信賴我們的照明解決方案。",
+    "prev": "上一則客戶見證",
+    "next": "下一則客戶見證",
+    "project": "專案",
+    "ratingLabel": "五顆星中的 {{value}} 顆",
+    "items": {
+      "marcus": {
+        "quote": "光是客製化配置流程就替我們省下數千美元。燈具送達前，我們就已經清楚知道每一盞該裝在哪裡。",
+        "name": "Marcus L.",
+        "role": "設施經理，冷藏倉儲"
+      },
+      "frank": {
+        "quote": "換成 RH1 系列後，照明能耗幾乎減半，而現場照度完全沒有打折扣。",
+        "name": "Frank S.",
+        "role": "設施經理，冷藏倉儲"
+      },
+      "david": {
+        "quote": "報價之前，Filamento 的團隊先走訪了整個廠區。最後交付的燈具排程，和實際安裝的內容完全一致。",
+        "name": "David R.",
+        "role": "廠長，製造業"
+      },
+      "elena": {
+        "quote": "使用五年了，保固支援的回應速度和當初銷售時一樣快。",
+        "name": "Elena M.",
+        "role": "營運總監，倉儲物流"
+      }
+    }
+  },
+  "footer": {
+    "tagline": "專利工業級 LED 照明，專為全天候運轉的設施而設計。",
+    "navLabel": "頁尾",
+    "newTab": "（在新分頁開啟）",
+    "copyright": "© {{year}} Filamento. 版權所有。",
+    "privacy": "隱私權政策",
+    "columns": {
+      "products": "產品",
+      "projects": "專案",
+      "company": "公司",
+      "resources": "資源",
+      "social": "社群"
+    },
+    "links": {
+      "allProducts": "所有產品",
+      "lampFixture": "燈泡／燈具",
+      "luminaireConfigurator": "燈具配置工具",
+      "reflector": "反射罩",
+      "controlCap": "控制蓋",
+      "lampAccessory": "燈具配件",
+      "reflectorAccessory": "反射罩配件",
+      "other": "其他",
+      "gymnasium": "體育館",
+      "manufacturing": "製造業",
+      "findRep": "尋找業務代表",
+      "warehouse": "倉庫",
+      "conferenceCenter": "會議中心",
+      "automotiveDealership": "汽車經銷商",
+      "retail": "零售",
+      "streetLights": "路燈",
+      "aboutUs": "關於我們",
+      "applications": "應用類型",
+      "contactUs": "聯絡我們",
+      "videos": "影片",
+      "specSheets": "規格表",
+      "iesFiles": "IES 檔案",
+      "installationGuides": "安裝指南"
+    }
+  },
+  "comingSoon": {
+    "eyebrow": "即將推出",
+    "titleRest": "即將點亮登場。",
+    "text": "我們正以打造每一款燈具的用心，精心製作這個頁面，很快就會上線。在此之前，歡迎直接與我們的團隊聯繫。",
+    "status": "準備中",
+    "home": "返回首頁",
+    "talk": "聯絡我們的團隊",
+    "reach": "想直接與我們聯繫？",
+    "docTitle": "{{page}} — 即將推出",
+    "notFound": {
+      "eyebrow": "404 · 找不到頁面",
+      "titleAccent": "迷失",
+      "titleRest": "在黑暗中。",
+      "text": "您要找的頁面不存在，或可能已經移動。讓我們帶您回到光明之中。",
+      "status": "燈已關閉",
+      "docTitle": "找不到頁面"
+    },
+    "error": {
+      "eyebrow": "發生錯誤",
+      "titleAccent": "出了點",
+      "titleRest": "問題。",
+      "text": "發生未預期的問題，導致此頁面無法載入。請重新整理，或返回首頁。",
+      "status": "燈已關閉",
+      "docTitle": "發生錯誤",
+      "refresh": "重新整理"
+    }
   }
 }

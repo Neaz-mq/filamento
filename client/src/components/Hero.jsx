@@ -154,9 +154,29 @@ function Chevron({ direction }) {
   );
 }
 
-function Hero() {
+/* lightsOn — Home থেকে আসে: intro loader পুরো শেষ হলে true.
+   আলাদা কোনো পাতায় Hero ব্যবহার করলে prop না দিলেও চলবে —
+   তখন পাতা খুলতেই জ্বলবে */
+function Hero({ lightsOn = true }) {
   const { t } = useTranslation();
   const localeLink = useLocaleLink();
+
+  /* লাইটের ছবি এখনো নামেনি অথচ আলো জ্বলে উঠল — ধীর internet এ
+     এমন হলে ফাঁকা জায়গায় আলো ঝিলিক দিত. তাই ছবি আসা পর্যন্ত অপেক্ষা.
+
+     React নিজে img তৈরি করে src বসায়, তাই cache থেকে এলেও onLoad
+     ঘটেই. তবু খুব ধীর connection এ অনন্তকাল অন্ধকার যেন না থাকে —
+     2.5 সেকেন্ড পরে ছবি ছাড়াই জ্বলে যায় */
+  const [imageReady, setImageReady] = useState(false);
+  const markImageReady = () => setImageReady(true);
+
+  useEffect(() => {
+    if (!lightsOn) return undefined;
+    const fallback = setTimeout(() => setImageReady(true), 2500);
+    return () => clearTimeout(fallback);
+  }, [lightsOn]);
+
+  const lit = lightsOn && imageReady;
 
   const trackRef = useRef(null);
 
@@ -276,7 +296,8 @@ function Hero() {
   };
 
   return (
-    <section className="hero">
+    /* data-light দিয়েই পুরো "জ্বলে ওঠা" animation চলে — বাকি সব CSS এ */
+    <section className="hero" data-light={lit ? "on" : "off"}>
       <div className="hero-inner">
         {/* ---------- উপরের অংশ: লেখা + ছবি ---------- */}
         <div className="hero-top">
@@ -327,7 +348,13 @@ function Hero() {
               loading="eager"
               fetchPriority="high"
               decoding="async"
+              onLoad={markImageReady}
+              onError={markImageReady}
             />
+
+            {/* ফিক্সচারের নিচের LED প্লেট — জ্বলে ওঠার সময় এখানেই
+                সবচেয়ে উজ্জ্বল. ছবির উপরে বসে, তাই img এর পরে */}
+            <span className="hero-led" aria-hidden="true" />
           </div>
         </div>
 

@@ -70,10 +70,6 @@
    অর্থাৎ 1240px content এর দুই পাশে ~18px করে বেরিয়ে যায়, ঠিক
    brand সারির সাথে মিলিয়ে।
 
-   font-size টা clamp() দিয়ে দিলে লেখার প্রস্থ font এর নিজের মাপের
-   উপর নির্ভর করত, container এর সাথে বাঁধা থাকত না — সেজন্যই
-   জলছাপটা brand সারির চেয়ে সরু দেখাচ্ছিল।
-
    হিসাবটা: Figma তে 284px এ "FIXTURES" হয় 1277px চওড়া,
    অনুপাত 1277 / 284 = 4.4965. container এর 102.98% চওড়া চাই,
    তাই font-size = 102.98 / 4.4965 = container এর 22.9%
@@ -151,118 +147,157 @@
 /* ---------------------------------------------------------------
    তিনটা fixture card
 
-   flex-grow টা Figma র প্রস্থের অনুপাতে (360 : 456 : 360) দেওয়া,
-   basis 0 — তাই gap বাদ দিয়ে বাকি জায়গা ঠিক ওই অনুপাতেই ভাগ হয়
+   ⚠️ "More info" সারি মেলানোর আসল কৌশল এখানে।
+
+   আগে card গুলো align-items: center এ ছিল, আর প্রতিটা card এর
+   ভেতরের content ও মাঝখানে বসত। ফলে "More info" কোথায় পড়বে সেটা
+   নির্ভর করত ছবির উচ্চতা আর লেখা কয় লাইনে ভাঙছে তার উপর — তিনটা
+   card এ তিন রকম। মাঝের card এ ছবির বাক্স 313.61px ধরা ছিল, কিন্তু
+   Figma তে ওটা 281.44px (বাকিটা ছবি নিচে উপচে পড়ে) — তাই ওর লেখা
+   ~32px নিচে নেমে যাচ্ছিল।
+
+   এখন নিয়মটা এরকম:
+   ১. সব card stretch — এক সারির উচ্চতা সবার জন্য এক
+   ২. পাশের দুইটা card এ উপরে-নিচে 35px margin — Figma তে
+      (600 − 530) / 2 = 35, তাই ওরা মাঝেরটার চেয়ে 70px ছোট থাকে
+   ৩. "More info" সারি card এর নিচে আটকানো:
+        পাশের card  → নিচ থেকে 24px
+        মাঝের card  → নিচ থেকে 58.8px (32 padding + 26.8 centering)
+      35 + 24 = 58.8 (প্রায়) — তাই তিনটা সারি সবসময় এক লাইনে
+
+   লেখা ছোট-বড় হলে বা ভাষা বদলালে সারির উচ্চতা বাড়তে পারে, কিন্তু
+   মিলটা ভাঙে না — কারণ তিনটাই একই সারির নিচ থেকে মাপা
    --------------------------------------------------------------- */
 .fixtures-cards {
   width: 100%;
   display: flex;
-  align-items: center;
+  align-items: stretch;
   justify-content: center;
   gap: 32px;
 }
 
+/* প্রস্থ: basis = Figma র মাপ (360 / 456), তাই 1240 এ হুবহু মেলে।
+   grow অনুপাতে (360 : 456) — চওড়া পর্দায় বাড়তি জায়গা একই অনুপাতে
+   ভাগ হয়। shrink 1 — ব্রাউজার shrink কে basis দিয়ে গুণ করে, তাই
+   সরু পর্দাতেও অনুপাত ঠিক থাকে।
+
+   আগে basis 0 ছিল — তাতে padding আগে বাদ গিয়ে বাকিটা ভাগ হতো, ফলে
+   1240 এ card গুলো 365 / 446 / 365 হয়ে যাচ্ছিল, 360 / 456 / 360 নয় */
 .fixtures-card {
-  flex: 360 1 0;
+  flex: 360 1 360px;
   min-width: 0;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  /* Figma: Frame 222 এ justify-content: center — card এর উচ্চতা
-     content এর চেয়ে বেশি হলে বাড়তি জায়গাটা উপরে-নিচে সমান ভাগ
-     হয়। পুরোটা উপরে ঠেলে দিলে মাঝের card এর লেখা বেশি নিচে
-     নেমে যেত */
-  justify-content: center;
-  min-height: 530px;
-  padding: 32px;
+  margin-block: 35px;
+  padding: 32px 32px 24px;
   background: rgba(var(--fx-surface), 0.25);
   border-radius: 40px;
   /* সংখ্যাটা বড়, গোল কোণার বাইরে যেন না বেরোয় */
   overflow: hidden;
 }
 
+/* Figma: 456 x 600. content 392 x 482.44, 536 এর ভেতরে মাঝখানে —
+   তাই উপরে-নিচে 32 + (536 − 482.44) / 2 = 58.8px */
 .fixtures-card.is-featured {
-  flex: 456 1 0;
+  flex: 456 1 456px;
+  margin-block: 0;
   min-height: 600px;
+  padding: 58.8px 32px;
   background: rgba(var(--fx-surface), 0.75);
 }
 
 /* ---------- ছবি + ফিকে সংখ্যা ----------
-   দুইটা মাপ আলাদা রাখা হয়েছে, আর এটাই এখানে আসল কৌশল:
+   দুইটা মাপ আলাদা:
 
-   --fx-media-width / --fx-media-ratio  → বাক্সের মাপ. এটাই card এর
-       উচ্চতা ঠিক করে, তাই তিনটা card এ লেখা কোথায় শুরু হবে সেটাও
-   --fx-img-width                       → বাক্সের ভেতরে ছবিটা কত বড়
+   --fx-media-width / --fx-media-ratio → বাক্সের মাপ. এটাই ঠিক করে
+       লেখা কোথায় শুরু হবে
+   --fx-img-*                          → বাক্সের ভেতরে ছবি কত বড় আর
+       কোথায় বসবে. ছবি বাক্স ছাড়িয়ে গেলেও লেখা নড়ে না
 
-   Figma তে LA1 আর RH1 দুইটারই Frame 63 = 300 x 230, একই। RH1 এর
-   ছবিটা ওই বাক্স ছাড়িয়ে যায়, কিন্তু বাক্সের উচ্চতা এক বলে দুইটা
-   card এ লেখা একই উচ্চতায় শুরু হয়। বাক্সটাই ছোট করে ফেললে RH1 এর
-   লেখা উপরে উঠে যেত */
+   ছবিটা absolute, তাই বাক্সের বাইরে উপচে পড়লেও layout এ কোনো
+   প্রভাব ফেলে না — Figma তেও ঠিক এটাই হয় */
 .fixtures-card-media {
   position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  flex: none;
   width: var(--fx-media-width, 101.4%);
   aspect-ratio: var(--fx-media-ratio, 300 / 230);
   /* চওড়া বাক্সটা যেন দুই পাশে সমানভাবে বেরোয় */
   margin-inline: auto;
 }
 
-/* Figma: image 300x230, Frame 63 300x230, card content 296 */
+/* Figma: Frame 63 = 300 x 236, image 300 x 230, card content 296 */
 .fixtures-card[data-fixture="la1"] {
   --fx-media-width: 101.4%;
-  --fx-media-ratio: 300 / 230;
+  --fx-media-ratio: 300 / 236;
 }
 
-/* Figma: image 392x313.61, card content 392 */
+/* Figma: Frame 221 = 281.44 উঁচু, কিন্তু ছবি 392 x 313.61 —
+   ছবিটা বাক্সের উপরে আটকানো, নিচের 32px লেখার এলাকায় উপচে পড়ে
+   (ওই অংশটা ছবির স্বচ্ছ অংশ, তাই লেখা ঢাকা পড়ে না).
+   313.61 / 281.44 = 111.43% */
 .fixtures-card[data-fixture="ls1"] {
   --fx-media-width: 100%;
-  --fx-media-ratio: 392 / 313.61;
+  --fx-media-ratio: 392 / 281.44;
+  --fx-img-height: 111.43%;
+  --fx-img-top: 0;
+  --fx-img-shift: 0;
 }
 
-/* বাক্সটা LA1 এর মতোই 300x230 — তাই দুইটা card এ লেখা এক সারিতে।
+/* Figma: Frame 63 = 300 x 230.
 
    ছবিটা e_trim করা, তাই --fx-img-width সরাসরি লাইটের মাপ বোঝায়।
-   Figma মেপে দেখা গেছে RH1 এর লাইট ~246px (LA1 এর ~300px এর
-   বিপরীতে), 300px বাক্সে সেটা 82%।
+   Figma তে লাইটটা ~252px চওড়া, 300px বাক্সে সেটা 84%।
+   লাইট ছোট বা বড় লাগলে শুধু এই সংখ্যাটাই নাড়াবেন।
 
-   লাইটটা ছোট বা বড় লাগলে শুধু এই সংখ্যাটাই নাড়াবেন — বাক্সের
-   মাপে হাত দেবেন না, তাহলে লেখার সারি নড়ে যাবে */
+   উচ্চতা: Figma তে লাইটটা বাক্সের প্রায় ঠিক মাঝখানে — হুকের মাথা
+   বাক্সের 12.6% এ, প্লেটের নিচ 84.6% এ। কিন্তু ছবির নিচে কিছু ফাঁকা
+   অংশ থেকে যাওয়ায় (e_trim সেটা কাটেনি) মাঝখানে বসালে লাইটটা ~11.5%
+   উপরে দেখাচ্ছিল। তাই -50% এর বদলে -38.5% — বাক্সের উচ্চতার 11.5%
+   নিচে নামানো। শতাংশে রাখায় সব পর্দার মাপেই একই অনুপাতে নামে।
+
+   আরও নামাতে চাইলে সংখ্যাটা বাড়ান (যেমন -36%), উপরে তুলতে কমান
+   (যেমন -41%) */
 .fixtures-card[data-fixture="rh1"] {
   --fx-media-width: 101.4%;
   --fx-media-ratio: 300 / 230;
-  --fx-img-width: 82%;
+  --fx-img-width: 84%;
+  --fx-img-shift: -38.5%;
 }
 
 .fixtures-card-media img {
-  position: relative;
+  position: absolute;
   z-index: 1;
+  top: var(--fx-img-top, 50%);
+  left: 50%;
   width: var(--fx-img-width, 100%);
-  height: 100%;
+  height: var(--fx-img-height, 100%);
+  max-width: none;
+  transform: translate(-50%, var(--fx-img-shift, -50%));
   object-fit: contain;
+  object-position: top center;
+  pointer-events: none;
 }
 
-/* Figma: Space Grotesk 700, 220px, gradient #C1C2C3 → স্বচ্ছ 75% */
+/* Figma: Space Grotesk 700, 220px / 250px, gradient #C1C2C3 → স্বচ্ছ 75%.
+
+   সংখ্যাটা বাক্সের মাঝে নয়, উপরে আটকানো — Figma তে তিনটা card এই
+   সংখ্যার অঙ্কের মাথা ছবির বাক্সের উপর থেকে একই দূরত্বে (~43px) */
 .fixtures-card-number {
   position: absolute;
   z-index: 0;
-  top: 50%;
+  top: 0;
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translateX(-50%);
   font-weight: 700;
-  font-size: clamp(110px, 15vw, 220px);
+  font-size: clamp(110px, 15.28vw, 220px); /* 220 / 1440 = 15.28vw */
   line-height: 1.136; /* Figma: 250 / 220 */
   text-align: center;
   white-space: nowrap;
   pointer-events: none;
   user-select: none;
 
-  background: linear-gradient(
-    180deg,
-    #c1c2c3 0%,
-    rgba(255, 255, 255, 0) 75%
-  );
+  background: linear-gradient(180deg, #c1c2c3 0%, rgba(255, 255, 255, 0) 75%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -271,16 +306,22 @@
 
 /* ---------- card এর লেখা ----------
    Figma: Frame 208 — gap 24 (লেখা ↔ More info), Frame 209 gap 16,
-   Frame 207 gap 12.
+   Frame 207 gap 12. ছবি আর লেখার মাঝে কোনো ফাঁক নেই.
 
-   ⚠️ ছবি আর লেখার মাঝে কোনো ফাঁক নেই — Figma র Frame 218 এ gap শূন্য।
-   এখানে padding-top দিলে card গুলো Figma র চেয়ে লম্বা হয়ে যেত
-   (530 এর বদলে 558) আর তিনটা card এ লেখার সারি মিলত না */
+   body বাকি সব জায়গা নেয়, আর space-between দিয়ে "More info" নিচে
+   ঠেলে দেয়। gap 16 হলো সর্বনিম্ন — Figma র মাপে মাঝের card এ এটা
+   নিজে থেকেই ঠিক 24 হয়ে যায়।
+
+   position + z-index: মাঝের card এর ছবি লেখার উপর দিয়ে উপচে পড়ে,
+   লেখা যেন সবসময় উপরে থাকে আর select করা যায় */
 .fixtures-card-body {
-  flex: 0 0 auto;
+  position: relative;
+  z-index: 2;
+  flex: 1 1 auto;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  justify-content: space-between;
+  gap: 16px;
 }
 
 .fixtures-card-text {
@@ -293,7 +334,7 @@
   margin: 0;
   font-weight: 700;
   font-size: clamp(22px, 2.1vw, 30px);
-  line-height: 1.27;
+  line-height: 1.2667;
   color: var(--fx-ink-75);
 }
 
@@ -303,22 +344,22 @@
   font-family: "Inter", var(--font-sans), sans-serif;
   font-weight: 500;
   font-size: clamp(14px, 1.15vw, 16px);
-  line-height: 1.2;
+  line-height: 1.1875;
   color: var(--fx-ink-75);
 }
 
 /* Figma: Space Grotesk 500, 16px / 20px, উপরের block এর পর gap 16.
-
-   ⚠️ রঙে অসঙ্গতি: Figma তে card ১ আর ৩ এ এই লেখাটা rgba(...,0.5),
-   কিন্তু মাঝের card এ rgba(...,0.75). ইচ্ছাকৃত মনে হয়নি, তাই তিনটাতেই
-   0.5 রাখা হয়েছে — নাহলে মাঝেরটার লেখা অকারণে গাঢ় দেখাত।
-   designer নিশ্চিত করলে .is-featured এ 0.75 ফিরিয়ে দেবেন */
+   রঙ: পাশের দুইটা card এ 0.5, মাঝেরটায় 0.75 — Figma যেমন */
 .fixtures-card-desc {
   margin: 16px 0 0;
   font-weight: 500;
   font-size: clamp(14px, 1.15vw, 16px);
   line-height: 1.25;
   color: var(--fx-ink-50);
+}
+
+.fixtures-card.is-featured .fixtures-card-desc {
+  color: var(--fx-ink-75);
 }
 
 /* Figma: Frame 210 — row, space-between, 32px উঁচু */
@@ -461,7 +502,11 @@
    =============================================================== */
 
 /* তিনটা card পাশাপাশি রাখার মতো জায়গা আর নেই — মাঝেরটা বড় বলে
-   সবচেয়ে আগে ওটাই চেপে যেত */
+   সবচেয়ে আগে ওটাই চেপে যেত।
+
+   এখানে আর উঁচু-নিচু card নেই: margin আর বাড়তি padding বাদ।
+   stretch থাকায় এক সারির দুইটা card সমান উঁচু, আর "More info"
+   নিচে আটকানো বলে ওরাও এক লাইনে থাকে */
 @media (max-width: 1099px) {
   .fixtures-cards {
     flex-wrap: wrap;
@@ -470,7 +515,15 @@
   .fixtures-card,
   .fixtures-card.is-featured {
     flex: 1 1 320px;
+    margin-block: 0;
     min-height: 0;
+    padding: 32px;
+  }
+
+  /* একা পুরো চওড়া হয়ে গেলে ছবির বাক্স aspect-ratio ধরে বিশাল উঁচু
+     হয়ে যেত (1000px পর্দায় ~600px) — তাই প্রস্থে সীমা */
+  .fixtures-card-media {
+    max-width: 400px;
   }
 
   .fixtures-benefits {
@@ -481,7 +534,6 @@
 @media (max-width: 767px) {
   .fixtures-cards {
     flex-direction: column;
-    align-items: stretch;
   }
 
   .fixtures-card,
@@ -508,7 +560,8 @@
     grid-template-columns: 1fr;
   }
 
-  .fixtures-card {
+  .fixtures-card,
+  .fixtures-card.is-featured {
     padding: 24px;
   }
 }

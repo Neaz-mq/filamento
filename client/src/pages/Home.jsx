@@ -2,7 +2,11 @@ import { useState } from "react";
 import Loader from "../components/Loader";
 import Hero from "../components/Hero";
 import Brands from "../components/Brands";
-// import Fixtures from "../components/Fixtures";
+import Fixtures from "../components/Fixtures";
+import Comparison from "../components/Comparison";
+import Technologies from "../components/Technologies";
+import Testimonial from "../components/Testimonial";
+import Contact from "../components/Contact";
 
 const INTRO_KEY = "filamento_intro_played";
 
@@ -37,9 +41,16 @@ function Home() {
             "opacity 0.9s ease 0.1s, transform 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.1s",
         }}
       >
-        <Hero />
+        {/* পর্দা পুরো উঠে যাওয়ার পরে লাইট জ্বলে — পর্দা সরার মাঝপথে
+            জ্বললে ঝিলিকটা চোখেই পড়ত না. intro আগে চলে গেলে loading
+            শুরু থেকেই false, তখন পাতা খুলতেই জ্বলে */}
+        <Hero lightsOn={!loading} />
         <Brands />
-        {/* <Fixtures /> */}
+        <Fixtures />
+        <Comparison />
+        <Technologies />
+        <Testimonial />
+        <Contact />
       </div>
     </>
   );

@@ -1,0 +1,318 @@
+/* ===============================================================
+   COMPARISON — Figma "Frame 509"
+
+   section   1408 x 700, padding 100px 84px, #EBEBEC, radius 40
+   content   1240 x 500
+     বাঁয়ে   Frame 192 — 320 x 388, উপর থেকে 19.1px নিচে,
+             ভেতরে padding 64px 0, gap 12
+     ডানে    Frame 257 — 819 x 500, left 421
+             অর্থাৎ দুই কলামের মাঝে 421 − 320 = 101px
+
+   320 + 101 + 819 = 1240 ✓
+   100 + 500 + 100 = 700 ✓
+   =============================================================== */
+
+.comparison {
+  --cmp-ink: #373a3c;
+  --cmp-ink-75: rgba(55, 58, 60, 0.75);
+  --cmp-yellow: #f7be00;
+
+  /* Figma তে সারির রঙ #373A3C এর উপর opacity (.1 / .02 / .05),
+     নিচে সাদা. সেই মিশ্রণের আসল রঙ এখানে বসানো — দেখতে হুবহু একই,
+     কিন্তু ফোনের block layout এ রঙ ঘর থেকে সারিতে সরালেও বদলায় না */
+  --cmp-row-head: #ebebec; /* .10 */
+  --cmp-row-odd: #fbfbfb; /* .02 */
+  --cmp-row-even: #f5f5f5; /* .05 */
+
+  /* Figma র border rgba(55,58,60,.15) — কিন্তু Figma সেটা section এর
+     ধূসর (#EBEBEC) এর উপর মেশায়, তাই পর্দায় দাঁড়ায় #D0D0D1 (Figma
+     screenshot থেকে মাপা). CSS এ একই স্বচ্ছ রঙ দিলে সেটা table এর
+     সাদার উপর মিশে #E1E1E2 হয়ে যেত — প্রায় অদৃশ্য. তাই মেশানো আসল
+     রঙটাই সরাসরি বসানো */
+  --cmp-border: #d0d0d1;
+
+  /* Figma: 7 সারি মিলে 500px, border 1px করে দুই পাশে →
+     (500 − 2) / 7 = 71.14 */
+  --cmp-row-h: 71.14px;
+
+  /* Figma: সারির padding 24px 32px, কলামের gap 64.
+     table এ gap হয় না, তাই প্রতিটা ঘরে দুই পাশে 32 — মাঝখানে
+     32 + 32 = 64 হয়ে যায়. 32 / 1440 = 2.23vw */
+  --cmp-cell-x: clamp(16px, 2.23vw, 32px);
+
+  width: 100%;
+  box-sizing: border-box;
+  padding: clamp(56px, 7vw, 100px) var(--section-pad-x);
+  background: var(--color-surface);
+  border-radius: var(--section-radius);
+  color: var(--cmp-ink);
+}
+
+.comparison-inner {
+  width: 100%;
+  max-width: var(--content-max);
+  margin-inline: auto;
+  display: grid;
+  /* fr দিয়ে Figma র অনুপাত (320 : 819) রাখা — 1240 এ হুবহু মেলে,
+     চওড়া বা সরু পর্দায় একই অনুপাতে বাড়ে-কমে */
+  grid-template-columns: minmax(0, 320fr) minmax(0, 819fr);
+  column-gap: clamp(40px, 7.01vw, 101px); /* 101 / 1440 */
+  align-items: start;
+}
+
+/* ---------------------------------------------------------------
+   বাঁয়ের লেখা
+
+   Figma তে block টা table এর মাঝ বরাবর নয়, একটু উপরে:
+   frame top 19.1 + ভেতরের padding 64 = শিরোনাম শুরু 83.1px এ
+   --------------------------------------------------------------- */
+.comparison-intro {
+  padding-top: 83.1px;
+}
+
+/* Figma: Space Grotesk 700, 46px / 48px */
+.comparison-title {
+  margin: 0;
+  font-weight: 700;
+  font-size: clamp(32px, 3.2vw, 46px);
+  line-height: 1.0435;
+  color: var(--cmp-ink);
+}
+
+/* Figma: Inter 400, 16px / 160% — Figma নিজে এটাকে 26px ধরে
+   (4 লাইন = 104px), তাই 1.625. শিরোনামের পর gap 12 */
+.comparison-text {
+  margin: 12px 0 0;
+  font-family: "Inter", var(--font-sans), sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.625;
+  color: var(--cmp-ink);
+}
+
+/* ---------------------------------------------------------------
+   table
+
+   wrapper = Figma র Frame 257 (সাদা, radius 20) আর Frame 253
+   (border) একসাথে. overflow: hidden দিয়ে গোল কোণার বাইরে সারির
+   রঙ কাটা পড়ে — তাই আলাদা করে প্রথম/শেষ সারিতে radius লাগে না
+   --------------------------------------------------------------- */
+.comparison-table-wrap {
+  box-sizing: border-box;
+  min-width: 0;
+  background: #ffffff;
+  /* সাদা যেন border এর নিচে না ঢোকে */
+  background-clip: padding-box;
+  border: 1px solid var(--cmp-border);
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.comparison-table-wrap:focus-visible {
+  outline: 2px solid var(--cmp-ink);
+  outline-offset: 3px;
+}
+
+.comparison-table {
+  width: 100%;
+  /* fixed — তিনটা কলাম সবসময় সমান (Figma: 209 করে), লেখার
+     দৈর্ঘ্য অনুযায়ী কলাম চওড়া-সরু হয় না */
+  table-layout: fixed;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-family: "Inter", var(--font-sans), sans-serif;
+}
+
+.comparison-table th,
+.comparison-table td {
+  box-sizing: border-box;
+  height: var(--cmp-row-h); /* table এর ঘরে height = সর্বনিম্ন উচ্চতা */
+  padding: 12px var(--cmp-cell-x);
+  vertical-align: middle;
+  text-align: left;
+  font-size: clamp(14px, 1.12vw, 16px);
+  line-height: 1.1875; /* Figma: 19 / 16 */
+  overflow-wrap: anywhere;
+}
+
+/* ---------- শিরোনামের সারি ----------
+   Figma: Inter 600, 16/19, বড় হাতের অক্ষর, #373A3C */
+/* রঙ ঘরে নয়, সারিতে (tr) — ঘরের প্রস্থ ভগ্নাংশে (272.33px) হওয়ায়
+   প্রতিটা ঘরে আলাদা রঙ দিলে retina পর্দায় কলামের মাঝে হালকা খাড়া
+   দাগ পড়ত */
+.comparison-table thead tr {
+  background: var(--cmp-row-head);
+}
+
+.comparison-table thead th {
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--cmp-ink);
+}
+
+/* Figma: CTA Button — padding 8px 12px, #F7BE00, radius 100,
+   ভেতরে icon 20 + gap 8 + লেখা. 12 + 20 + 8 + 94 + 12 = 146 ✓ */
+.comparison-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--cmp-yellow);
+  border-radius: 100px;
+  font-weight: 600;
+  line-height: 19px;
+  white-space: nowrap;
+  color: var(--cmp-ink);
+}
+
+.comparison-badge svg {
+  flex: none;
+}
+
+/* ---------- বাকি ছয়টা সারি ----------
+   Figma: পালাক্রমে .02 আর .05 */
+.comparison-table tbody tr:nth-child(odd) {
+  background: var(--cmp-row-odd);
+}
+
+.comparison-table tbody tr:nth-child(even) {
+  background: var(--cmp-row-even);
+}
+
+/* Figma: Inter 500, 16/19. প্রথম আর তৃতীয় কলাম পুরো গাঢ়,
+   মাঝেরটা .75 */
+.comparison-table tbody th,
+.comparison-table tbody td {
+  font-weight: 500;
+  color: var(--cmp-ink);
+}
+
+.comparison-table .comparison-traditional {
+  color: var(--cmp-ink-75);
+}
+
+/* Figma: Frame 61 — icon 24 + gap 12 + লেখা */
+.comparison-ours {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.comparison-check {
+  flex: none;
+  color: var(--cmp-yellow);
+}
+
+/* ===============================================================
+   Responsive
+   =============================================================== */
+
+/* দুই কলাম পাশাপাশি রাখলে table এর লেখা খুব চেপে যায় — তাই
+   লেখা উপরে, table নিচে */
+@media (max-width: 1099px) {
+  .comparison-inner {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 40px;
+  }
+
+  .comparison-intro {
+    padding-top: 0;
+    max-width: 560px;
+  }
+}
+
+/* চওড়া পর্দায় Figma র মতো এক লাইনে রাখা। Figma তে "Silent non-relay
+   control" (icon সহ 215px) 209px কলাম থেকে 6px বেরিয়ে ডানের 32px
+   padding এ ঢুকে যায় — দেখতে ঠিকই লাগে।
+   1360 এর নিচে কলাম সরু, তখন ভাঙতে দেওয়া হয় — নাহলে লেখা table
+   এর বাইরে কাটা পড়ত */
+@media (min-width: 1360px) {
+  .comparison-ours {
+    white-space: nowrap;
+  }
+}
+
+/* 640–767: তিন কলামই থাকে, শুধু লেখা একটু ছোট */
+@media (max-width: 767px) {
+  .comparison-title {
+    font-size: 32px;
+    line-height: 1.0625;
+  }
+
+  .comparison-text {
+    font-size: 15px;
+  }
+}
+
+/* ---------------------------------------------------------------
+   ফোন (< 640) — তিনটা কলাম পাশাপাশি ধরে না, আর পাশে scroll করালে
+   সবচেয়ে জরুরি Filamento কলামটাই চোখের বাইরে চলে যেত।
+
+   তাই প্রতিটা সারি একটা ছোট block:
+
+     Energy savings vs HID
+     TRADITIONAL LED       FILAMENTO
+     20-30%                ✓ Up to 50%
+
+   কলামের নাম আসে data-label থেকে (::before). উপরের শিরোনামের
+   সারি চোখ থেকে লুকানো, কিন্তু screen reader এর জন্য থাকে।
+
+   display বদলালে কিছু ব্রাউজার (Safari) table এর অর্থ হারিয়ে
+   ফেলে — সেজন্যই JSX এ প্রতিটা অংশে role বসানো আছে
+   --------------------------------------------------------------- */
+@media (max-width: 639px) {
+  .comparison-table,
+  .comparison-table tbody,
+  .comparison-table tr,
+  .comparison-table th,
+  .comparison-table td {
+    display: block;
+  }
+
+  .comparison-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .comparison-table tbody tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: 16px;
+    row-gap: 12px;
+    padding: 16px 20px;
+  }
+
+  .comparison-table tbody tr > * {
+    height: auto;
+    padding: 0;
+  }
+
+  .comparison-table tbody th {
+    grid-column: 1 / -1;
+    font-weight: 600;
+  }
+
+  .comparison-table td::before {
+    content: attr(data-label);
+    display: block;
+    margin-bottom: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.2;
+    text-transform: uppercase;
+    color: var(--cmp-ink-75);
+  }
+
+  .comparison-ours {
+    gap: 8px;
+  }
+
+  .comparison-check {
+    width: 20px;
+    height: 20px;
+  }
+}

@@ -1,0 +1,309 @@
+/* ===============================================================
+   FOOTER — Figma "Frame 506"
+
+   footer    1408 x 478, padding 60px 84px, #373A3C, radius 40
+   content   1240 — উপরের অংশ 252 + gap 64 + নিচের অংশ 42
+     উপরে    লোগো কলাম 252 + gap 96 + link অংশ 892
+             link অংশ: ৫ কলাম, gap 24 → প্রতিটা 159.2
+     নিচে    রেখা 1px, gap 16, তারপর copyright আর Privacy.
+             Privacy ঠিক "Social" কলামের শুরুর সাথে এক লাইনে
+
+   60 + 252 + 64 + 42 + 60 = 478 ✓
+   =============================================================== */
+
+.footer {
+  --ft-bg: #373a3c;
+  --ft-text: #ebebec;
+  --ft-text-75: rgba(235, 235, 236, 0.75);
+  --ft-line: rgba(235, 235, 236, 0.25);
+
+  width: 100%;
+  box-sizing: border-box;
+  /* উপরের section (Contact, ধূসর) থেকে আলাদা — পাতার অন্য card
+     গুলোর মতোই 16px ফাঁক */
+  margin-top: var(--section-gap);
+  padding: clamp(40px, 4.17vw, 60px) var(--section-pad-x); /* 60 / 1440 */
+  background: var(--ft-bg);
+  border-radius: var(--section-radius);
+  color: var(--ft-text);
+}
+
+.footer-inner {
+  width: 100%;
+  max-width: var(--content-max);
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(40px, 4.44vw, 64px); /* 64 / 1440 */
+}
+
+/* ---------------------------------------------------------------
+   উপরের অংশ
+   --------------------------------------------------------------- */
+/* Figma তে link কলামের নিচে একটা অদৃশ্য 1px frame (gap 16 সহ)
+   আছে, তাই এই অংশ 252 উঁচু — লেখার চেয়ে ~15px বেশি. min-height
+   দিয়ে সেটাই রাখা, যাতে নিচের রেখা Figma র জায়গায় বসে */
+.footer-top {
+  display: flex;
+  align-items: flex-start;
+  gap: clamp(40px, 6.67vw, 96px); /* 96 / 1440 */
+  min-height: 252px;
+}
+
+/* Figma: 252 চওড়া, লোগো আর লেখার মাঝে 16 */
+.footer-brand {
+  flex: 0 0 252px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.footer-logo {
+  display: block;
+  width: 252px;
+  max-width: 100%;
+  border-radius: 4px;
+}
+
+.footer-logo img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.footer-logo:focus-visible {
+  outline: 2px solid var(--ft-text);
+  outline-offset: 4px;
+}
+
+/* Figma: Inter 400, 14px / 26px, .75 */
+.footer-tagline {
+  margin: 0;
+  font-family: "Inter", var(--font-sans), sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 26px;
+  color: var(--ft-text-75);
+}
+
+/* Figma: ৫ কলাম সমান (flex-grow 1), gap 24 */
+.footer-nav {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  column-gap: 24px;
+  row-gap: 40px;
+}
+
+/* Figma: শিরোনাম থেকে তালিকা 16 */
+.footer-col {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+/* Figma: Inter 400, 12px / 15px, বড় হাতের অক্ষর, letter-spacing
+   .01em, .75. h2 — পাতার শিরোনামের ক্রম ঠিক রাখতে, কিন্তু দেখতে
+   ছোট লেবেল */
+.footer-col-title {
+  margin: 0;
+  font-family: "Inter", var(--font-sans), sans-serif;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 15px;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  color: var(--ft-text-75);
+}
+
+/* Figma: প্রতিটা link এর বাক্স 15px, gap 12 → এক লাইন থেকে পরের
+   লাইন 27px. এখানে লাইন 17px আর gap 10 — ছন্দ একই (27), কিন্তু
+   সরু পর্দায় কোনো নাম দুই লাইনে ভাঙলে লাইন গায়ে গায়ে লাগে না */
+.footer-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* li নিজে body র বড় line-height নিত (এক ঘর ~24px) — flex দিলে
+   ঘরটা ঠিক link এর মাপের (17px) হয় */
+.footer-list > li {
+  display: flex;
+}
+
+/* Figma: Inter 500, 14px, #EBEBEC */
+.footer-link {
+  display: inline-block;
+  font-family: "Inter", var(--font-sans), sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 17px;
+  color: var(--ft-text);
+  text-decoration: none;
+  text-underline-offset: 3px;
+  transition: color 0.2s ease;
+}
+
+a.footer-link:hover {
+  color: #ffffff;
+  text-decoration: underline;
+}
+
+a.footer-link:focus-visible {
+  outline: 2px solid var(--ft-text);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* link এখনো আসেনি (Instagram, X) — দেখতে বাকিগুলোর মতোই (Figma),
+   শুধু চাপা যায় না, তাই hover এ underline হয় না (উপরের hover
+   নিয়ম শুধু a এর জন্য) */
+.footer-link.is-pending {
+  cursor: default;
+}
+
+/* ---------------------------------------------------------------
+   নিচের অংশ — Figma: রেখা, gap 16, তারপর সারি 26px
+   --------------------------------------------------------------- */
+/* Privacy কে Social কলামের নিচে বসাতে নিচের সারিও উপরের মতো একই
+   কলামে ভাগ করা:
+
+     উপরে:  লোগো 252 | ফাঁক 96 | ৫ কলাম (মাঝে 24)
+     নিচে:  252 | 48 | ৫ কলাম — সব ঘরের মাঝে 24
+
+   252 + 24 + 48 + 24 = 348 = 252 + 96 → প্রথম কলাম একই জায়গায়,
+   আর বাকি প্রস্থও সমান ভাগ হয়, তাই পাঁচ কলাম হুবহু উপরের মতো.
+   copyright প্রথম থেকে শেষের আগের ঘর পর্যন্ত, Privacy শেষ ঘরে
+   (নিচের responsive অংশে কলাম কমলেও এই নিয়মই কাজ করে) */
+.footer-bottom {
+  display: grid;
+  grid-template-columns: 252px 48px repeat(5, minmax(0, 1fr));
+  column-gap: 24px;
+  align-items: center;
+  /* Figma: রেখা + 16 + সারি 26 = 42. রেখার 1px ধরে padding 15 */
+  padding-top: 15px;
+  border-top: 1px solid var(--ft-line);
+}
+
+/* Figma: Inter 400, 12px / 26px, .75 */
+.footer-copy {
+  margin: 0;
+  font-family: "Inter", var(--font-sans), sans-serif;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 26px;
+  color: var(--ft-text-75);
+}
+
+.footer-bottom > p.footer-copy {
+  grid-column: 1 / -2;
+}
+
+.footer-privacy {
+  grid-column: -2 / -1;
+  justify-self: start;
+  text-decoration: none;
+  text-underline-offset: 3px;
+  transition: color 0.2s ease;
+}
+
+.footer-privacy:hover {
+  color: var(--ft-text);
+  text-decoration: underline;
+}
+
+.footer-privacy:focus-visible {
+  outline: 2px solid var(--ft-text);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* ===============================================================
+   Responsive
+   =============================================================== */
+
+/* পাশাপাশি রাখতে পাঁচ কলামের প্রতিটা অন্তত ~157px লাগে
+   ("Luminaire Configurator" একাই ~155px). হিসাব:
+   252 + 96 + 5 × 157 + 4 × 24 = 1229px content → পর্দা ~1432px.
+   তার চেয়ে সরু হলে নাম দুই লাইনে ভাঙত — তাই 1440 এর নিচে লোগো
+   উপরে, নিচে পুরো প্রস্থ জুড়ে পাঁচ কলাম */
+@media (max-width: 1439px) {
+  .footer-top {
+    flex-direction: column;
+    gap: 40px;
+    min-height: 0;
+  }
+
+  .footer-brand {
+    flex: none;
+    max-width: 360px;
+  }
+
+  .footer-nav {
+    width: 100%;
+  }
+
+  /* লোগো উপরে চলে গেছে — নিচের সারি এখন শুধু link এর পাঁচ কলাম */
+  .footer-bottom {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+/* tablet — তিন কলাম */
+@media (max-width: 1023px) {
+  .footer-logo {
+    width: 220px;
+  }
+
+  .footer-nav {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  /* তিন কলাম — এখানে Social নিচের সারিতে চলে যায়, তাই Privacy
+     শেষ কলামে (copyright দুই কলাম জুড়ে, এক কলামে ধরত না) */
+  .footer-bottom {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* ফোন — দুই কলাম, নিচের সারি একটার নিচে আরেকটা.
+   খুব সরু ফোনেও দুই কলাম — এক কলামে footer অনেক লম্বা হয়ে যেত,
+   বড় নাম দুই লাইনে ভাঙলেও সেটা ভালো */
+@media (max-width: 639px) {
+  .footer-logo {
+    width: 180px;
+  }
+
+  .footer-nav {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 16px;
+    row-gap: 32px;
+  }
+
+  /* আঙুলে চাপার জন্য link এর মাঝে একটু বেশি জায়গা */
+  .footer-list {
+    gap: 14px;
+  }
+
+  .footer-bottom {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 4px;
+  }
+
+  .footer-bottom > p.footer-copy,
+  .footer-privacy {
+    grid-column: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .footer-link,
+  .footer-privacy {
+    transition: none;
+  }
+}

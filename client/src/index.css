@@ -49,6 +49,33 @@
   }
 }
 
+/* ---------------------------------------------------------------
+   Scroll
+
+   mouse wheel বা trackpad এর scroll ইচ্ছে করে বদলানো হয়নি — ব্রাউজারের
+   নিজের scroll ই সবচেয়ে মসৃণ আর মানুষের হাতে অভ্যস্ত. Lenis এর মতো
+   library scroll কে "ভাসমান" করে, কিন্তু একটু দেরিতে সাড়া দেয়, আর
+   hero slider এর টানা (drag) scroll এর সাথে ঝামেলা করে.
+
+   smooth শুধু পাতার ভেতরের link এ (#contact এর মতো) ক্লিক করলে।
+   :focus-within কৌশল — link এ ক্লিক করলে সেটা focus পায়, তখনই smooth.
+   ফলে পাতা reload বা Ctrl+F এর সময় লাফটা আগের মতোই সঙ্গে সঙ্গে হয়,
+   ধীরে গড়িয়ে যায় না.
+
+   যারা কম্পিউটারে motion বন্ধ রেখেছেন তাদের জন্য smooth বন্ধ
+   --------------------------------------------------------------- */
+html {
+  /* navbar sticky (80px) — link এ ক্লিক করলে section এর মাথা যেন
+     navbar এর নিচে ঢাকা না পড়ে. বাড়তি 16px শ্বাস নেওয়ার জায়গা */
+  scroll-padding-top: calc(var(--header-h) + 16px);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html:focus-within {
+    scroll-behavior: smooth;
+  }
+}
+
 body {
   margin: 0;
   font-family: var(--font-sans);

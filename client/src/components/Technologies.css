@@ -1,0 +1,525 @@
+/* ===============================================================
+   TECHNOLOGIES — Figma "Frame 514"
+
+   section   1408 x 702.15, padding 100px 84px, সাদা, radius 40
+   content   1240 x 502.15, space-between, মাঝখানে খাড়া কেন্দ্র
+     বাঁয়ে   Frame 596 — 320 x 234 (শিরোনাম 144 + gap 12 + লেখা 78)
+     ডানে    Frame 594 — 820 চওড়া, ভেতরে stack 646 + gap 48 + dot 10
+             (মোট 704, 820 এর মাঝে বসানো — দুই পাশে 58)
+     stack   pill 60 + 16 + card 350.15 + 16 + pill 60 = 502.15 ✓
+
+   320 + 100 + 820 = 1240 ✓
+   100 + 502.15 + 100 = 702.15 ✓
+   =============================================================== */
+
+.technologies {
+  --tech-ink: #373a3c;
+  --tech-yellow: #f7be00;
+  --tech-play-ink: #111827;
+
+  width: 100%;
+  box-sizing: border-box;
+  padding: clamp(56px, 7vw, 100px) var(--section-pad-x);
+  background: #ffffff;
+  border-radius: var(--section-radius);
+  color: var(--tech-ink);
+}
+
+.technologies-inner {
+  width: 100%;
+  max-width: var(--content-max);
+  margin-inline: auto;
+  display: grid;
+  /* Figma র অনুপাত 320 : 820, মাঝে 100 (1240 − 1140) */
+  grid-template-columns: minmax(0, 320fr) minmax(0, 820fr);
+  column-gap: clamp(40px, 6.94vw, 100px); /* 100 / 1440 */
+  align-items: center;
+}
+
+/* ---------------------------------------------------------------
+   বাঁয়ের লেখা — Comparison section এর সাথে একই মাপ
+   --------------------------------------------------------------- */
+
+/* Figma: Space Grotesk 700, 46px / 48px */
+.tech-title {
+  margin: 0;
+  font-weight: 700;
+  font-size: clamp(32px, 3.2vw, 46px);
+  line-height: 1.0435;
+  color: var(--tech-ink);
+}
+
+/* Figma: Inter 400, 16px / 26px, শিরোনামের পর gap 12 */
+.tech-text {
+  margin: 12px 0 0;
+  font-family: "Inter", var(--font-sans), sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.625;
+  color: var(--tech-ink);
+}
+
+/* ---------------------------------------------------------------
+   ডানের অংশ
+
+   dot এর বোতাম চোখে দেখা বিন্দুর (10px) চেয়ে চওড়া (24px) — আঙুলে
+   চাপা সহজ হয়. বাড়তি 7px পুষিয়ে নিতে gap 48 এর বদলে 41, চোখে
+   ফাঁকটা Figma র মতোই 48 থাকে
+   --------------------------------------------------------------- */
+.tech-stage {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 41px;
+}
+
+.tech-stack {
+  flex: 0 1 646px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+/* ---------- pill ----------
+   Figma: 458 x 60 (খাড়া frame 90° ঘোরানো), rgba(55,58,60,.5),
+   radius 40, Inter 400 16/26, বড় হাতের অক্ষর, #EBEBEC.
+   প্রস্থ card এর অনুপাতে: 458 / 646 = 70.9% */
+.tech-pill {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 70.9%;
+  height: 60px;
+  padding: 0 24px;
+  border: 0;
+  border-radius: 40px;
+  background: rgba(55, 58, 60, 0.5);
+  color: #ebebec;
+  font-family: "Inter", var(--font-sans), sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 26px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.tech-pill:hover {
+  background: rgba(55, 58, 60, 0.62);
+}
+
+.tech-pill:focus-visible {
+  outline: 2px solid var(--tech-ink);
+  outline-offset: 3px;
+}
+
+/* লম্বা নাম হলে এক লাইনে থেকে "…" হয়, pill এর উচ্চতা বদলায় না */
+.tech-pill-label {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* তালিকা ছোট হলে ফাঁকা জায়গা — card মাঝেই থাকে */
+.tech-pill--empty {
+  visibility: hidden;
+  cursor: default;
+}
+
+/* ---------- video card ----------
+   Figma: 646 x 350.15, radius 40 */
+.tech-card-slot {
+  width: 100%;
+}
+
+.tech-card {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 646 / 350.15;
+  border-radius: 40px;
+  overflow: hidden;
+  background: #ffffff;
+  isolation: isolate;
+}
+
+/* Figma: video-bg — cover ছবির উপর উপর থেকে নিচে কালো আভা
+   (স্বচ্ছ → 70%) */
+.tech-cover {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.tech-cover::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(0, 0, 0, 0.702) 100%
+  );
+}
+
+/* আসল cover ছবি — পুরো card ঢেকে */
+.tech-card[data-fit="photo"] .tech-cover img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* অস্থায়ী cover — হালকা ধূসর পটভূমি, ডান দিকে হলুদ বৃত্ত
+   (Figma র cover এর মতো), মাঝে পণ্যের ছবি. লাইটটা একটু উপরে,
+   কারণ নিচের এক-তৃতীয়াংশ লেখার আভায় ঢাকা */
+.tech-card[data-fit="product"] .tech-cover {
+  background: linear-gradient(180deg, #f4f4f5 0%, #dedfe0 100%);
+}
+
+.tech-card[data-fit="product"] .tech-cover::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  right: -12%;
+  top: -30%;
+  width: 52%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--tech-yellow);
+  opacity: 0.85;
+}
+
+.tech-card[data-fit="product"] .tech-cover img {
+  position: absolute;
+  z-index: 1;
+  left: 50%;
+  top: 40%;
+  width: 62%;
+  height: 68%;
+  transform: translate(-50%, -50%);
+  object-fit: contain;
+}
+
+/* ---------- play বোতাম ----------
+   Figma: 72px বৃত্ত, #F7BE00, shadow 0 10px 24px -8px rgba(0,0,0,.15),
+   কেন্দ্র থেকে 0.35px উপরে (চোখে পড়ে না, বাদ) */
+.tech-play {
+  position: absolute;
+  z-index: 3;
+  left: 50%;
+  top: 50%;
+  display: grid;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  padding: 0;
+  border: 0;
+  border-radius: 36px;
+  background: var(--tech-yellow);
+  box-shadow: 0 10px 24px -8px rgba(0, 0, 0, 0.149);
+  color: var(--tech-play-ink);
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+  transition:
+    transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.25s ease;
+}
+
+/* play এর ত্রিভুজ চোখে সামান্য বাঁয়ে ভারী লাগে — 1px ডানে */
+.tech-play svg {
+  transform: translateX(1px);
+}
+
+button.tech-play:hover {
+  transform: translate(-50%, -50%) scale(1.06);
+  box-shadow: 0 14px 28px -8px rgba(0, 0, 0, 0.2);
+}
+
+button.tech-play:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 3px;
+}
+
+/* video এখনো আসেনি — দেখতে একই, কিন্তু চাপা যায় না */
+.tech-play.is-idle {
+  cursor: default;
+}
+
+/* ---------- নিচের লেখা ----------
+   Figma: video-overlay — padding 16px 24px 24px, gap 16,
+   কালো আভা স্বচ্ছ → 80%. উচ্চতা 118 = 16 + 46 + 16 + 16 + 24 */
+.tech-overlay {
+  position: absolute;
+  z-index: 3;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px 24px 24px;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(0, 0, 0, 0.8) 100%
+  );
+  color: #ffffff;
+}
+
+/* Figma: Frame 593 — gap 8 */
+.tech-overlay-text {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Figma: Space Grotesk 700, 24px / 100% */
+.tech-card-title {
+  margin: 0;
+  font-weight: 700;
+  font-size: clamp(18px, 1.67vw, 24px);
+  line-height: 1;
+  color: #ffffff;
+}
+
+/* Figma: Inter 400, 14px / 100%, সাদা .8 */
+.tech-card-text {
+  margin: 0;
+  font-family: "Inter", var(--font-sans), sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Figma: video-meta — দুই প্রান্তে, icon 16 + gap 8,
+   Inter 400 13/16, সাদা .8 */
+.tech-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: "Inter", var(--font-sans), sans-serif;
+  font-weight: 400;
+  font-size: 13px;
+  line-height: 16px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.tech-meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tech-meta-item svg {
+  flex: none;
+}
+
+/* চলমান video — পুরো card জুড়ে */
+.tech-video {
+  position: absolute;
+  z-index: 4;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: #000000;
+}
+
+/* ---------- dot ----------
+   Figma: 10px বিন্দু, gap 8, rgba(55,58,60,.25). চালু টা 10 x 20,
+   .75. বোতাম 18px উঁচু (10 + 8), চালু টা 28 (20 + 8) — তাই চোখে
+   বিন্দুগুলোর মাঝে ফাঁক সবসময় 8 */
+.tech-dots {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* বোতাম 24px, বিন্দু মাঝে 10px — দুই পাশে 7px করে বাড়তি।
+     বাঁয়ের 7 উপরের gap (48 → 41) এ পোষানো, ডানের 7 এখানে বাদ.
+     ফলে পুরো অংশটা Figma র মতোই 704px চওড়া হিসাবে মাঝে বসে —
+     নাহলে card টা 3.5px বাঁয়ে সরে যেত */
+  margin-right: -7px;
+}
+
+.tech-dot {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 18px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  transition: height 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.tech-dot::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(55, 58, 60, 0.25);
+  transition:
+    height 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+    background 0.2s ease;
+}
+
+.tech-dot:hover::before {
+  background: rgba(55, 58, 60, 0.45);
+}
+
+.tech-dot[aria-current="true"] {
+  height: 28px;
+  cursor: default;
+}
+
+.tech-dot[aria-current="true"]::before {
+  height: 20px;
+  background: rgba(55, 58, 60, 0.75);
+}
+
+.tech-dot:focus-visible {
+  outline: 2px solid var(--tech-ink);
+  outline-offset: 1px;
+  border-radius: 8px;
+}
+
+/* ---------------------------------------------------------------
+   বদলানোর animation
+
+   নতুন card যেদিকের pill চাপা হয়েছে সেদিক থেকে নরমভাবে আসে —
+   মনে হয় তালিকাটা সত্যিই উপরে বা নিচে সরল. pill এর লেখা শুধু
+   আবছা থেকে ফুটে ওঠে
+   --------------------------------------------------------------- */
+@media (prefers-reduced-motion: no-preference) {
+  .tech-card[data-enter="top"] {
+    animation: tech-in-top 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .tech-card[data-enter="bottom"] {
+    animation: tech-in-bottom 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .tech-pill-label {
+    animation: tech-fade 0.4s ease both;
+  }
+}
+
+@keyframes tech-in-top {
+  from {
+    opacity: 0;
+    transform: translateY(-24px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes tech-in-bottom {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes tech-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ===============================================================
+   Responsive
+   =============================================================== */
+
+/* লেখা উপরে, carousel নিচে */
+@media (max-width: 1099px) {
+  .technologies-inner {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 48px;
+  }
+
+  .tech-intro {
+    max-width: 560px;
+  }
+}
+
+@media (max-width: 767px) {
+  .tech-title {
+    font-size: 32px;
+    line-height: 1.0625;
+  }
+
+  .tech-text {
+    font-size: 15px;
+  }
+
+  .tech-stage {
+    gap: 8px;
+  }
+
+  .tech-stack {
+    gap: 12px;
+  }
+
+  .tech-pill {
+    width: 86%;
+    height: 48px;
+    padding: 0 18px;
+    font-size: 14px;
+  }
+
+  /* ফোনে card খুব চ্যাপ্টা হয়ে যেত, লেখা ছবি ঢেকে ফেলত */
+  .tech-card {
+    aspect-ratio: auto;
+    min-height: 260px;
+    border-radius: 28px;
+  }
+
+  .tech-play {
+    width: 56px;
+    height: 56px;
+    top: 42%;
+  }
+
+  .tech-play svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .tech-overlay {
+    padding: 16px 20px 20px;
+    gap: 12px;
+  }
+
+  /* দুই লাইনে ভাঙলে 100% line-height এ লাইন গায়ে গায়ে লাগত */
+  .tech-card-text {
+    line-height: 1.35;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tech-pill,
+  .tech-play,
+  .tech-dot,
+  .tech-dot::before {
+    transition: none;
+  }
+}

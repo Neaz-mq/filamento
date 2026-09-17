@@ -25,12 +25,12 @@ const srcSetFor = (fixture) =>
     .map((w) => `${cloudinary(fixture, w)} ${w}w`)
     .join(", ");
 
-/* তিনটা ছবির মাপ Figma তে আলাদা — card এর ভেতরের জায়গার সাথে
-   অনুপাতটা CSS এ data-fixture দিয়ে বসানো:
+/* তিনটা ছবির মাপ Figma তে আলাদা — বাক্স আর ছবির মাপ CSS এ
+   data-fixture দিয়ে বসানো (Fixtures.css দেখুন):
 
-     la1  300 x 230     card content 296  → 101.4%
-     ls1  392 x 313.61  card content 392  → 100%
-     rh1  339.27x271.41 card content 296  → 114.6%  (padding এ ঢোকে) */
+     la1  বাক্স 300 x 236     ছবি 300 x 230
+     ls1  বাক্স 392 x 281.44  ছবি 392 x 313.61  (নিচে উপচে পড়ে)
+     rh1  বাক্স 300 x 230     ছবি e_trim করে 84% চওড়া */
 const FIXTURES = [
   {
     id: "la1",
@@ -38,13 +38,13 @@ const FIXTURES = [
     to: "/products/la1-high-bay",
     /* PNG আপলোড, কিন্তু f_auto থাকায় ব্রাউজারে WebP/AVIF হয়েই
        যাবে — তাই বড় PNG রাখায় ফাইলের ওজন বাড়ছে না */
-    path: "v1789539354/image_7_ep6gnv.png",
+    path: "v1789621178/image_7_wqtldv.png",
   },
   {
     id: "ls1",
     number: "02",
     to: "/products/ls1-high-bay",
-    path: "v1789539436/Additional_0001_1779697023_1_tbvyy6.png",
+    path: "v1789621338/Additional_0001_1779697023_1_taubuk.png",
     /* Figma তে মাঝের card টা বড় — 456x600, আর background গাঢ়
        (রঙ এক, opacity .75 বনাম .25) */
     featured: true,

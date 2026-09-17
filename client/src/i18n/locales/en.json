@@ -119,5 +119,200 @@
         "text": "Most facilities see payback in 18 months — often faster with rebates."
       }
     }
+  },
+  "comparison": {
+    "title": "A different class of industrial LED.",
+    "text": "We build our fixtures — optics, driver, dimming — in-house. The result is measurably better performance than off-the-shelf commercial LED.",
+    "caption": "How Filamento compares with traditional LED",
+    "columns": {
+      "metric": "Metric",
+      "traditional": "Traditional LED",
+      "filamento": "Filamento"
+    },
+    "rows": {
+      "energy": {
+        "label": "Energy savings vs HID",
+        "traditional": "20-30%",
+        "filamento": "Up to 50%"
+      },
+      "dimming": {
+        "label": "Dimming technology",
+        "traditional": "Relay-based (click, wear)",
+        "filamento": "Silent non-relay control"
+      },
+      "glare": {
+        "label": "Glare (UGR)",
+        "traditional": "> 25",
+        "filamento": "< 19"
+      },
+      "lifetime": {
+        "label": "Lifetime",
+        "traditional": "50,000 hrs",
+        "filamento": "100,000+ hrs"
+      },
+      "warranty": {
+        "label": "Warranty",
+        "traditional": "2-3 years",
+        "filamento": "5 years"
+      },
+      "design": {
+        "label": "Custom lighting design",
+        "traditional": "Not included",
+        "filamento": "Free with quote"
+      }
+    }
+  },
+  "technologies": {
+    "title": "Every fixture is a research project",
+    "text": "Explore the technologies behind superior illumination, energy efficiency, and long-lasting reliability.",
+    "listLabel": "Filamento technologies",
+    "goTo": "Show {{title}}",
+    "play": "Play video: {{title}}",
+    "duration": "Video length:",
+    "views": "{{value}} views",
+    "items": {
+      "thermal": {
+        "title": "Thermal Management",
+        "text": "Cooler-running design that protects the LEDs and extends fixture life."
+      },
+      "optical": {
+        "title": "Superior Optical Distribution",
+        "text": "Clean, balanced lighting that outperforms conventional fixtures."
+      },
+      "driver": {
+        "title": "Driver Technology",
+        "text": "Silent, non-relay dimming with steady, flicker-free output."
+      }
+    }
+  },
+  "contact": {
+    "title": "Let's design the lighting for your space.",
+    "text": "Share your facility details and a Filamento engineer returns a photometric layout, fixture schedule, and projected energy savings — at no cost.",
+    "mailUs": "Mail us",
+    "fields": {
+      "name": "Full name",
+      "company": "Company name",
+      "phone": "Phone",
+      "email": "Work email",
+      "facilityType": "Facility type",
+      "projectSize": "Project size",
+      "details": "Project details"
+    },
+    "facilityTypes": {
+      "warehouse": "Warehouse",
+      "manufacturing": "Manufacturing",
+      "commercial": "Commercial",
+      "other": "Other"
+    },
+    "projectSizes": {
+      "under50": "Under 50 fixtures",
+      "from50to250": "50-250 fixtures",
+      "from250to1000": "250-1,000 fixtures",
+      "over1000": "1,000+ fixtures"
+    },
+    "submit": "Submit",
+    "sending": "Sending...",
+    "success": "Thanks — we'll be in touch shortly.",
+    "error": "Something went wrong. Please email us at {{email}}.",
+    "errors": {
+      "required": "This field is required.",
+      "email": "Enter a valid email address."
+    }
+  },
+  "testimonials": {
+    "title": "What Our Clients Say",
+    "text": "Real stories from real customers who trust our lighting solutions for their spaces every day.",
+    "prev": "Previous testimonial",
+    "next": "Next testimonial",
+    "project": "Project",
+    "ratingLabel": "Rated {{value}} out of 5",
+    "items": {
+      "marcus": {
+        "quote": "The custom layout process alone saved us thousands. We knew exactly what we were installing before a single fixture arrived.",
+        "name": "Marcus L.",
+        "role": "Facility Manager, Cold Storage"
+      },
+      "frank": {
+        "quote": "Switching to the RH1 series cut our lighting energy use almost in half without losing a single lux on the floor.",
+        "name": "Frank S.",
+        "role": "Facility Manager, Cold Storage"
+      },
+      "david": {
+        "quote": "Filamento's team walked our whole facility before quoting anything. The fixture schedule they handed back matched exactly what got installed.",
+        "name": "David R.",
+        "role": "Plant Manager, Manufacturing"
+      },
+      "elena": {
+        "quote": "Five years in and the warranty support has been just as responsive as the sales process was.",
+        "name": "Elena M.",
+        "role": "Operations Director, Warehousing"
+      }
+    }
+  },
+  "footer": {
+    "tagline": "Patented industrial LED lighting engineered for the facilities that run around the clock.",
+    "navLabel": "Footer",
+    "newTab": "(opens in a new tab)",
+    "copyright": "© {{year}} Filamento. All rights reserved.",
+    "privacy": "Privacy Policy",
+    "columns": {
+      "products": "Products",
+      "projects": "Projects",
+      "company": "Company",
+      "resources": "Resources",
+      "social": "Social"
+    },
+    "links": {
+      "allProducts": "All Products",
+      "lampFixture": "Lamp/Fixture",
+      "luminaireConfigurator": "Luminaire Configurator",
+      "reflector": "Reflector",
+      "controlCap": "Control Cap",
+      "lampAccessory": "Lamp Accessory",
+      "reflectorAccessory": "Reflector Accessory",
+      "other": "Other",
+      "gymnasium": "Gymnasium",
+      "manufacturing": "Manufacturing",
+      "findRep": "Find a Representative",
+      "warehouse": "Warehouse",
+      "conferenceCenter": "Conference Center",
+      "automotiveDealership": "Automotive Dealership",
+      "retail": "Retail",
+      "streetLights": "Street Lights",
+      "aboutUs": "About Us",
+      "applications": "Applications",
+      "contactUs": "Contact Us",
+      "videos": "Videos",
+      "specSheets": "Spec Sheets",
+      "iesFiles": "IES Files",
+      "installationGuides": "Installation Guides"
+    }
+  },
+  "comingSoon": {
+    "eyebrow": "Coming soon",
+    "titleRest": "Coming to light soon.",
+    "text": "We're engineering this page with the same care we put into every fixture. It will be ready soon — until then, our team is one message away.",
+    "status": "Warming up",
+    "home": "Back to Home",
+    "talk": "Talk to our team",
+    "reach": "Prefer to reach us directly?",
+    "docTitle": "{{page}} — Coming soon",
+    "notFound": {
+      "eyebrow": "404 · Page not found",
+      "titleAccent": "Lost",
+      "titleRest": " in the dark.",
+      "text": "The page you're looking for doesn't exist or may have moved. Let's get you back into the light.",
+      "status": "Light off",
+      "docTitle": "Page not found"
+    },
+    "error": {
+      "eyebrow": "Unexpected error",
+      "titleAccent": "Something",
+      "titleRest": " went wrong.",
+      "text": "An unexpected problem stopped this page from loading. Try refreshing, or head back home.",
+      "status": "Light off",
+      "docTitle": "Something went wrong",
+      "refresh": "Refresh page"
+    }
   }
 }

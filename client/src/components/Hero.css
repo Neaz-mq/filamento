@@ -32,9 +32,15 @@
   /* ছবির frame টা content কলাম ছাড়িয়ে ~98px ডানে যায় (Figma তেও তাই),
      তাই গোল কোণার বাইরে যেন কিছু উঁকি না দেয় */
   overflow: hidden;
+
+  /* নিচের "ঘর অন্ধকার" স্তরটা (::before) এর ভেতরেই আটকে রাখার জন্য */
+  position: relative;
+  isolation: isolate;
 }
 
 .hero-inner {
+  position: relative;
+  z-index: 1; /* অন্ধকার স্তরের উপরে — লেখা কখনো ঝাপসা হয় না */
   width: 100%;
   max-width: var(--content-max);
   margin-inline: auto;
@@ -315,6 +321,241 @@
    data-glow="off" বসাবেন। transparent ছবি হলে দরকার নেই */
 .hero[data-glow="off"] .hero-glow {
   display: none;
+}
+
+/* ===============================================================
+   লাইট জ্বলে ওঠা (power-on)
+
+   intro এর পর্দা পুরো উঠে গেলে (আর লাইটের ছবি নামলে) একবার —
+   প্রায় আড়াই সেকেন্ডের একটা শান্ত মুহূর্ত:
+
+     ০.০ – ০.৪s  ঘর হালকা আবছা, লাইট বন্ধ — পাতা স্থির
+     ০.৪ – ১.২s  LED প্লেট ধীরে জ্বলে ওঠে
+     ০.৭ – ২.৬s  আলোর শঙ্কু নরমভাবে নিচে ছড়ায়, ঘর আলোকিত হয়
+     ২.৬s এর পর আলো খুব ধীরে "শ্বাস নেয়"
+
+   ⚠️ ইচ্ছে করে কোনো ঝিলিক (flicker) নেই। ঝিলিক দেওয়া লাইট মানুষের
+   মনে ভয়ের সিনেমা বা নষ্ট বাল্ব মনে করায় — একটা LED কোম্পানির জন্য
+   ঠিক উল্টো বার্তা। বরং মসৃণভাবে উজ্জ্বল হওয়া (soft-start) Filamento
+   র নিজের "silent non-relay dimming" এর মতোই — আলো নিজেই পণ্যের গুণ
+   দেখায়।
+
+   পর্দা সরার মাঝপথে জ্বালানো হয় না — চোখ তখন পর্দার দিকে থাকে
+
+   শেষ অবস্থাটা হুবহু Figma — শঙ্কুর opacity .75 ইত্যাদি।
+
+   গঠনটা ইচ্ছে করে উল্টো: সাধারণ (media query র বাইরের) নিয়মগুলো
+   জ্বলন্ত অবস্থা. বন্ধ অবস্থা আর animation শুধু
+   prefers-reduced-motion: no-preference এর ভেতরে. ফলে কেউ motion
+   বন্ধ রাখলে, বা কোনো কারণে animation না চললে, লাইট সরাসরি
+   জ্বলন্তই দেখায় — কখনো অন্ধকার আটকে থাকে না.
+
+   সময় বদলাতে চাইলে: --light-delay (কখন শুরু), --light-duration
+   (জ্বলে ওঠা + ছড়ানো মিলিয়ে কতক্ষণ)
+   =============================================================== */
+.hero {
+  --light-delay: 0.4s;
+  --light-duration: 2.2s;
+  --light-settled: calc(var(--light-delay) + var(--light-duration));
+}
+
+/* ঘর অন্ধকার করার স্তর — শুধু পেছনের ধূসর রঙের উপর, লেখা আর
+   card এর নিচে. সাধারণ অবস্থায় পুরো স্বচ্ছ */
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: #0b121a;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* লাইটের চারপাশের দেয়ালে ছড়ানো নরম আভা — জ্বলন্ত লাইটের আশেপাশে
+   বাতাসটাও একটু উজ্জ্বল লাগে. প্লেটের ঠিক নিচে কেন্দ্র */
+.hero-visual::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  left: 8%;
+  top: calc(40% + var(--hero-drop));
+  width: 78%;
+  height: 60%;
+  background: radial-gradient(
+    50% 50% at 50% 42%,
+    rgba(255, 255, 255, 0.55) 0%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  pointer-events: none;
+}
+
+/* LED প্লেট — শঙ্কুর উপরের প্রান্ত বরাবর (24.05% থেকে 69.55%).
+   একটা সরু উজ্জ্বল রেখা + ঠিক নিচে নরম ঝলক */
+.hero-led {
+  position: absolute;
+  z-index: 2;
+  left: 25%;
+  top: calc(61.47% + var(--hero-drop));
+  width: 43.5%;
+  height: 1.1%;
+  transform: translateY(-60%);
+  border-radius: 50%;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    #ffffff 18%,
+    #ffffff 82%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  filter: blur(3px);
+  pointer-events: none;
+}
+
+.hero-led::after {
+  content: "";
+  position: absolute;
+  left: 4%;
+  right: 4%;
+  top: 50%;
+  height: 900%;
+  border-radius: 50%;
+  background: radial-gradient(
+    50% 50% at 50% 30%,
+    rgba(255, 255, 255, 0.9) 0%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  filter: blur(10px);
+}
+
+/* শঙ্কু নিচের দিকে ছড়ায়, তাই উপরের প্রান্ত থেকে বড় হয় */
+.hero-glow {
+  transform-origin: 50% 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* ---------- বন্ধ অবস্থা (loader চলার সময়) ---------- */
+  /* আগে 0.07 ছিল — বেশি অন্ধকার ভারী আর থমথমে লাগত */
+  .hero[data-light="off"]::before {
+    opacity: 0.045;
+  }
+
+  .hero[data-light="off"] .hero-glow,
+  .hero[data-light="off"] .hero-led,
+  .hero[data-light="off"] .hero-visual::before {
+    opacity: 0;
+  }
+
+  .hero[data-light="off"] .hero-image {
+    filter: brightness(0.94);
+  }
+
+  /* ---------- জ্বলে ওঠা ----------
+     প্রতিটা animation এ fill-mode "both": শুরুর আগের দেরিতে প্রথম
+     frame, শেষে শেষ frame ধরে রাখে — তাই মাঝখানে কিছু লাফায় না */
+  .hero[data-light="on"]::before {
+    animation: hero-room var(--light-duration) linear var(--light-delay) both;
+  }
+
+  .hero[data-light="on"] .hero-glow {
+    animation: hero-cone var(--light-duration) linear var(--light-delay) both;
+  }
+
+  /* ভেতরের শঙ্কু সামান্য পরে — আলো ভেতর থেকে বাইরে ছড়ানোর অনুভূতি */
+  .hero[data-light="on"] .hero-glow--narrow {
+    animation-delay: calc(var(--light-delay) + 0.12s);
+  }
+
+  .hero[data-light="on"] .hero-led {
+    animation: hero-led var(--light-duration) linear var(--light-delay) both;
+  }
+
+  .hero[data-light="on"] .hero-visual::before {
+    animation: hero-spill var(--light-duration) linear var(--light-delay) both;
+  }
+
+  .hero[data-light="on"] .hero-image {
+    animation: hero-lamp var(--light-duration) ease-out var(--light-delay) both;
+  }
+
+  /* জ্বলে ওঠার পর: আলো খুব ধীরে ওঠানামা করে (১০% এর মধ্যে).
+     ::before এ রাখা — বাইরের element এর animation এর সাথে ঝগড়া
+     করে না */
+  .hero[data-light="on"] .hero-glow::before {
+    animation: hero-breathe 7s ease-in-out var(--light-settled) infinite;
+  }
+}
+
+/* সব স্তর একই সময়রেখায় (--light-duration), শুধু শুরুর বিন্দু আলাদা:
+   আগে LED, তারপর শঙ্কু আর ঘর. প্রতিটা ধাপ নরম easing এ —
+   কোথাও হঠাৎ জ্বলা-নেভা নেই */
+@keyframes hero-led {
+  0% {
+    opacity: 0;
+    animation-timing-function: cubic-bezier(0.33, 0, 0.2, 1);
+  }
+  35% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* LED একটু জ্বলার পর (১৪%) শঙ্কু নামতে শুরু করে — উপর থেকে নিচে
+   ছড়ানোর অনুভূতি */
+@keyframes hero-cone {
+  0%,
+  14% {
+    opacity: 0;
+    transform: scaleY(0.6);
+    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  100% {
+    opacity: 0.75;
+    transform: scaleY(1);
+  }
+}
+
+/* ঘরের আবছা ভাব — শঙ্কুর সাথে সাথেই ধীরে কেটে যায় */
+@keyframes hero-room {
+  0%,
+  14% {
+    opacity: 0.045;
+    animation-timing-function: cubic-bezier(0.45, 0, 0.25, 1);
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes hero-spill {
+  0%,
+  20% {
+    opacity: 0;
+    animation-timing-function: cubic-bezier(0.33, 0, 0.2, 1);
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes hero-lamp {
+  from {
+    filter: brightness(0.94);
+  }
+  to {
+    filter: brightness(1);
+  }
+}
+
+@keyframes hero-breathe {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.9;
+  }
 }
 
 /* ---------------------------------------------------------------

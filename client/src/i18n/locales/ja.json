@@ -119,5 +119,200 @@
         "text": "多くの施設で18か月以内に回収 — 補助金があればさらに短縮されます。"
       }
     }
+  },
+  "comparison": {
+    "title": "一線を画す産業用LED。",
+    "text": "光学系、ドライバー、調光まで、照明器具はすべて自社で開発・製造しています。その結果、市販の一般的な商業用LEDを数値で上回る性能を実現しました。",
+    "caption": "Filamentoと従来型LEDの比較",
+    "columns": {
+      "metric": "項目",
+      "traditional": "従来型LED",
+      "filamento": "Filamento"
+    },
+    "rows": {
+      "energy": {
+        "label": "HID比の省エネ率",
+        "traditional": "20〜30%",
+        "filamento": "最大50%"
+      },
+      "dimming": {
+        "label": "調光方式",
+        "traditional": "リレー式（作動音・摩耗あり）",
+        "filamento": "リレーレスの静音制御"
+      },
+      "glare": {
+        "label": "グレア（UGR）",
+        "traditional": "> 25",
+        "filamento": "< 19"
+      },
+      "lifetime": {
+        "label": "寿命",
+        "traditional": "50,000時間",
+        "filamento": "100,000時間以上"
+      },
+      "warranty": {
+        "label": "保証期間",
+        "traditional": "2〜3年",
+        "filamento": "5年"
+      },
+      "design": {
+        "label": "照明設計のカスタマイズ",
+        "traditional": "対象外",
+        "filamento": "お見積りで無料"
+      }
+    }
+  },
+  "technologies": {
+    "title": "すべての照明器具は、研究の結晶",
+    "text": "優れた照明、高いエネルギー効率、長期にわたる信頼性を支える技術をご覧ください。",
+    "listLabel": "Filamentoの技術",
+    "goTo": "{{title}}を表示",
+    "play": "動画を再生：{{title}}",
+    "duration": "動画の長さ：",
+    "views": "{{value}}回視聴",
+    "items": {
+      "thermal": {
+        "title": "熱管理",
+        "text": "低温で動作する設計がLEDを保護し、器具の寿命を延ばします。"
+      },
+      "optical": {
+        "title": "優れた配光設計",
+        "text": "従来の照明器具を上回る、クリーンでバランスの取れた光。"
+      },
+      "driver": {
+        "title": "ドライバー技術",
+        "text": "リレーレスの静音調光で、ちらつきのない安定した出力を実現。"
+      }
+    }
+  },
+  "contact": {
+    "title": "あなたの空間に最適な照明をご提案します。",
+    "text": "施設の詳細をお知らせいただければ、Filamentoのエンジニアが測光レイアウト、器具スケジュール、想定される省エネ効果を無料でご提案します。",
+    "mailUs": "メールでのお問い合わせ",
+    "fields": {
+      "name": "お名前",
+      "company": "会社名",
+      "phone": "電話番号",
+      "email": "メールアドレス",
+      "facilityType": "施設の種類",
+      "projectSize": "プロジェクト規模",
+      "details": "プロジェクトの詳細"
+    },
+    "facilityTypes": {
+      "warehouse": "倉庫",
+      "manufacturing": "製造施設",
+      "commercial": "商業施設",
+      "other": "その他"
+    },
+    "projectSizes": {
+      "under50": "50台未満",
+      "from50to250": "50〜250台",
+      "from250to1000": "250〜1,000台",
+      "over1000": "1,000台以上"
+    },
+    "submit": "送信",
+    "sending": "送信中...",
+    "success": "ありがとうございます。担当者より折り返しご連絡いたします。",
+    "error": "エラーが発生しました。{{email}} までメールでご連絡ください。",
+    "errors": {
+      "required": "この項目は必須です。",
+      "email": "正しいメールアドレスを入力してください。"
+    }
+  },
+  "testimonials": {
+    "title": "お客様の声",
+    "text": "私たちの照明ソリューションを日々信頼してくださっている、実際のお客様の声です。",
+    "prev": "前のお客様の声",
+    "next": "次のお客様の声",
+    "project": "プロジェクト",
+    "ratingLabel": "5段階中{{value}}の評価",
+    "items": {
+      "marcus": {
+        "quote": "カスタムレイアウトのプロセスだけで、数千ドルの節約になりました。器具が届く前から、何をどこに設置するかが正確にわかっていました。",
+        "name": "Marcus L.",
+        "role": "施設マネージャー、コールドストレージ"
+      },
+      "frank": {
+        "quote": "RH1シリーズに切り替えたことで、照度を落とすことなく照明の電力消費をほぼ半分に削減できました。",
+        "name": "Frank S.",
+        "role": "施設マネージャー、コールドストレージ"
+      },
+      "david": {
+        "quote": "見積もりの前に、Filamentoのチームが施設全体を確認してくれました。渡された器具スケジュールは実際の設置内容と完全に一致していました。",
+        "name": "David R.",
+        "role": "工場長、製造施設"
+      },
+      "elena": {
+        "quote": "導入から5年経ちますが、保証サポートは販売時と変わらず迅速に対応してくれています。",
+        "name": "Elena M.",
+        "role": "業務ディレクター、倉庫管理"
+      }
+    }
+  },
+  "footer": {
+    "tagline": "24時間稼働する施設のために設計された、特許取得の産業用LED照明。",
+    "navLabel": "フッター",
+    "newTab": "（新しいタブで開きます）",
+    "copyright": "© {{year}} Filamento. All rights reserved.",
+    "privacy": "プライバシーポリシー",
+    "columns": {
+      "products": "製品",
+      "projects": "導入事例",
+      "company": "企業情報",
+      "resources": "資料",
+      "social": "ソーシャル"
+    },
+    "links": {
+      "allProducts": "すべての製品",
+      "lampFixture": "ランプ／器具",
+      "luminaireConfigurator": "照明器具コンフィギュレーター",
+      "reflector": "リフレクター",
+      "controlCap": "コントロールキャップ",
+      "lampAccessory": "ランプアクセサリー",
+      "reflectorAccessory": "リフレクターアクセサリー",
+      "other": "その他",
+      "gymnasium": "体育館",
+      "manufacturing": "製造業",
+      "findRep": "販売代理店を探す",
+      "warehouse": "倉庫",
+      "conferenceCenter": "会議場",
+      "automotiveDealership": "自動車販売店",
+      "retail": "小売",
+      "streetLights": "街路灯",
+      "aboutUs": "会社概要",
+      "applications": "用途",
+      "contactUs": "お問い合わせ",
+      "videos": "動画",
+      "specSheets": "仕様書",
+      "iesFiles": "IESファイル",
+      "installationGuides": "設置ガイド"
+    }
+  },
+  "comingSoon": {
+    "eyebrow": "近日公開",
+    "titleRest": "まもなく点灯します。",
+    "text": "すべての照明器具と同じこだわりで、このページを制作しています。まもなく公開予定です。それまでは、お気軽にチームまでお問い合わせください。",
+    "status": "準備中",
+    "home": "ホームに戻る",
+    "talk": "チームに相談する",
+    "reach": "直接のご連絡をご希望ですか？",
+    "docTitle": "{{page}} — 近日公開",
+    "notFound": {
+      "eyebrow": "404 · ページが見つかりません",
+      "titleAccent": "暗闇で",
+      "titleRest": "迷子になりました。",
+      "text": "お探しのページは存在しないか、移動した可能性があります。明るい場所へご案内します。",
+      "status": "消灯中",
+      "docTitle": "ページが見つかりません"
+    },
+    "error": {
+      "eyebrow": "予期しないエラー",
+      "titleAccent": "問題が",
+      "titleRest": "発生しました。",
+      "text": "予期しない問題により、このページを読み込めませんでした。再読み込みするか、ホームに戻ってください。",
+      "status": "消灯中",
+      "docTitle": "エラーが発生しました",
+      "refresh": "再読み込み"
+    }
   }
 }

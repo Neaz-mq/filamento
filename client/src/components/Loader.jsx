@@ -45,7 +45,25 @@ function Loader({ onRevealContent, onComplete }) {
       return;
     }
 
+    /* scroll বন্ধ করলে scrollbar টাও চলে যায়, পাতা ~15px চওড়া হয়।
+       loader শেষে scrollbar ফিরে এলে পুরো পাতা বাঁয়ে লাফ দিত।
+
+       তাই যতটুকু scrollbar ছিল, ঠিক ততটুকু padding দিয়ে জায়গাটা
+       ধরে রাখা হচ্ছে — নিচের পাতা শুরু থেকেই শেষ প্রস্থে সাজানো থাকে.
+       Mac এ scrollbar ভাসমান (প্রস্থ 0), তখন কিছুই বদলায় না */
+    const scrollbarWidth =
+      window.innerWidth - document.documentElement.clientWidth;
+
     document.body.style.overflow = "hidden";
+    if (scrollbarWidth > 0) {
+      document.body.style.paddingRight = `${scrollbarWidth}px`;
+    }
+
+    // দুইটা একসাথে ফেরত — scrollbar যে মুহূর্তে আসে, padding সেই মুহূর্তেই যায়
+    const unlockScroll = () => {
+      document.body.style.overflow = "";
+      document.body.style.paddingRight = "";
+    };
 
     const timers = [
       // 0-600     mark-in (scale + fade), তারপর 200ms dark logo hold
@@ -72,14 +90,14 @@ function Loader({ onRevealContent, onComplete }) {
 
       // 4050      slide শেষ (3950) + 100ms buffer
       setTimeout(() => {
-        document.body.style.overflow = "";
+        unlockScroll();
         callbacksRef.current.onComplete?.();
       }, 4050),
     ];
 
     return () => {
       timers.forEach(clearTimeout);
-      document.body.style.overflow = "";
+      unlockScroll();
     };
   }, []);
 

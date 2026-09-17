@@ -1,0 +1,653 @@
+/* ===============================================================
+   TESTIMONIALS — Figma "Frame 282"
+
+   section     1408 x 829, padding 100px (উপর-নিচ), সাদা পটভূমি
+   content     1240 x 629 — head 126 + gap 48 + row 455
+     head        750 চওড়া, মাঝে: শিরোনাম 46 + gap 16 + লেখা 64
+     row         বড় card 810 + gap 16 + ছোট card 199 + 16 + 199
+     বড় card    810 x 455, padding 64, লেখা উপর থেকে শুরু,
+                 পেছনে আবছা quote (300 x 237, উপর-ডানে 64 দূরে)
+     ছোট card   199 x 455, padding 32 16, সব কিছু মাঝ বরাবর:
+                 ছবি 100 + 16 + নাম/পদবি 82 + 48 + rating 40
+                 + 48 + Project 32
+     তীর        48px বৃত্ত, row এর দুই কিনারায় অর্ধেক বাইরে,
+                 মাঝ বরাবর থেকে 16.5px উপরে
+
+   100 + 126 + 48 + 455 + 100 = 829 ✓
+   =============================================================== */
+
+.testimonials {
+  --tm-ink: #373a3c;
+  --tm-ink-75: rgba(55, 58, 60, 0.75);
+  --tm-ink-50: rgba(55, 58, 60, 0.5);
+  --tm-ink-25: rgba(55, 58, 60, 0.25);
+  /* card: Figma তে rgba(235,235,236,.5) — সাদা পটভূমিতে মিশে
+     দাঁড়ায় #F5F5F6. স্বচ্ছ রঙ না দিয়ে মেশানো রঙটাই বসানো, কারণ
+     স্বচ্ছ পটভূমির উপর quote এর overlay blend ঠিক মেশে না —
+     আবছা না হয়ে গাঢ় ধূসর দেখায় */
+  --tm-card-bg: #f5f5f6;
+  --tm-card-bg-hover: #eeeeef;
+  /* Figma র তারা. অর্ধেক তারার খালি দিকটা Figma তে তারার উপর
+     50% সাদা — মিশে দাঁড়ায় #FBDF80 */
+  --tm-star: #f7be00;
+  --tm-star-empty: #fbdf80;
+
+  width: 100%;
+  box-sizing: border-box;
+  padding: clamp(56px, 7vw, 100px) var(--section-pad-x);
+  /* সাদা পটভূমি, ধূসর card — Figma র নকশা. পাতার ছন্দও তাই মেলে:
+     Technologies (সাদা) → Testimonials (সাদা, ধূসর card) →
+     Contact (ধূসর), আর সবার শেষে footer */
+  background: #ffffff;
+  border-radius: var(--section-radius);
+  color: var(--tm-ink);
+}
+
+.testimonials-inner {
+  width: 100%;
+  max-width: var(--content-max);
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 48px;
+}
+
+/* ---------------------------------------------------------------
+   শিরোনাম — Figma: Frame 192, 750 চওড়া, gap 16
+   --------------------------------------------------------------- */
+.testimonials-head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  max-width: 750px;
+  text-align: center;
+}
+
+/* Figma: Space Grotesk 700, 46px / 100% */
+.testimonials-title {
+  margin: 0;
+  font-weight: 700;
+  font-size: clamp(30px, 3.2vw, 46px);
+  line-height: 1;
+  color: var(--tm-ink);
+}
+
+/* Figma: Inter 400, 20px / 32px, .75 */
+.testimonials-text {
+  margin: 0;
+  font-family: "Inter", var(--font-sans), sans-serif;
+  font-weight: 400;
+  font-size: clamp(15px, 1.39vw, 20px);
+  line-height: 1.6;
+  color: var(--tm-ink-75);
+}
+
+/* ---------------------------------------------------------------
+   card এর সারি — Figma: 810 : 414, gap 16
+   --------------------------------------------------------------- */
+.testimonials-row {
+  position: relative;
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 810fr) minmax(0, 414fr);
+  gap: 16px;
+  align-items: stretch;
+}
+
+/* ---------- বড় (featured) card ----------
+   Figma: padding 64, gap 16, লেখা উপর থেকে. লেখার মোট উচ্চতা
+   = rating 40 + 16 + quote 135 + 32 + রেখা 1 + 32 + ব্যক্তি 100
+   = 356. Figma তে এটা নিচের padding এ 29px ঢুকে যায়, তাই নিচে
+   ফাঁক 64 নয়, 35: উপরে 64 + লেখা 356 + নিচে 35 = 455 */
+.testimonials-featured {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate; /* quote এর blend শুধু card এর সাথে মেশে */
+  box-sizing: border-box;
+  min-height: 455px;
+  padding: 64px 64px 35px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  border-radius: 40px;
+  background: var(--tm-card-bg);
+}
+
+/* Figma: “ — 300 x 237.19, rgba(55,58,60,.25), mix-blend-mode:
+   overlay, card এর ভেতরে উপর-ডানে (padding 64 এর ভেতরে).
+   overlay blend এ হালকা পটভূমির উপর প্রায় জলছাপের মতো আবছা —
+   Figma তেও ঠিক এমনই, তাই চোখে প্রায় পড়ে না */
+.testimonials-quote-mark {
+  position: absolute;
+  z-index: -1;
+  top: 64px;
+  right: 64px;
+  width: clamp(180px, 20.83vw, 300px); /* 300 / 1440 */
+  height: auto;
+  aspect-ratio: 406 / 321;
+  max-width: none;
+  color: var(--tm-ink-25);
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}
+
+/* card এর বাকি সব জায়গা নেয় — লেখা ছোট হলেও রেখা আর ব্যক্তির
+   সারি নিচেই থাকে */
+.testimonials-body {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+/* সব quote এক grid ঘরে (grid-area 1/1) — ঘরটা সবচেয়ে লম্বা quote
+   এর সমান উঁচু হয়. বাড়তি জায়গাও এটাই নেয় (flex-grow) */
+.testimonial-quotes {
+  flex: 1 0 auto;
+  display: grid;
+}
+
+/* Figma: Space Grotesk 700, 30px / 45px, .75 */
+.testimonial-quote {
+  grid-area: 1 / 1;
+  margin: 0;
+  font-weight: 700;
+  font-size: clamp(19px, 2.08vw, 30px);
+  line-height: 1.5;
+  color: var(--tm-ink-75);
+  visibility: hidden;
+}
+
+.testimonial-quote[data-active] {
+  visibility: visible;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .testimonial-quote[data-active] {
+    animation: testimonial-quote-in 0.4s ease both;
+  }
+}
+
+@keyframes testimonial-quote-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Figma: Line 5 — 1px, .25 */
+.testimonial-divider {
+  margin: 0;
+  border: 0;
+  border-top: 1px solid var(--tm-ink-25);
+}
+
+/* Figma: Frame 268 — ছবি 100 + gap 20 + নাম, Project ডান প্রান্তে */
+.testimonial-person {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+/* Figma: gap 4 */
+.testimonial-person-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+/* Figma: Space Grotesk 700, 20px / 30px, .75 */
+.testimonial-name {
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 1.5;
+  color: var(--tm-ink-75);
+}
+
+/* Figma: Space Grotesk 400, 16px / 24px, .5 */
+.testimonial-role {
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--tm-ink-50);
+}
+
+/* ---------- avatar ----------
+   Figma: 100 x 100, border 1px #EBEBEC, shadow 0 4px 10px .15 —
+   বড় আর ছোট দুই card এই একই মাপ */
+.testimonial-avatar {
+  flex: none;
+  box-sizing: border-box;
+  width: 100px;
+  height: 100px;
+  max-width: none;
+  border-radius: 50%;
+  border: 1px solid #ebebec;
+  box-shadow: 0 4px 10px rgba(11, 18, 26, 0.15);
+  object-fit: cover;
+}
+
+.testimonial-avatar-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 28px;
+  color: var(--tm-ink-75);
+}
+
+/* ---------- rating ----------
+   Figma: সংখ্যা + তারা, gap 12, সারির উচ্চতা 40 */
+.testimonial-rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 40px;
+}
+
+/* Figma: Space Grotesk 700, 30px / 38px, .75 */
+.testimonial-rating-value {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 30px;
+  line-height: 38px;
+  color: var(--tm-ink-75);
+}
+
+/* Figma: তারার মাঝে gap 8 */
+.testimonial-stars {
+  --star-size: 40px; /* বড় card */
+
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Figma: ছোট card এ একটা তারা, 30px */
+.testimonial-mini-star {
+  --star-size: 30px;
+
+  display: inline-flex;
+}
+
+/* অর্ধেক তারা দেখানোর কৌশল: একই তারা দুইবার — নিচেরটা ফিকে
+   হলুদ, উপরেরটা পুরো হলুদ কিন্তু overflow:hidden width% দিয়ে
+   কাটা, তাই 0 / 0.5 / 1 — যেকোনো fill দেখানো যায়.
+
+   Figma র তারা 34 x 33 — উচ্চতা প্রস্থের 33/34 */
+.testimonial-star {
+  --star-h: calc(var(--star-size, 30px) * 33 / 34);
+
+  position: relative;
+  display: inline-block;
+  flex: none;
+  width: var(--star-size, 30px);
+  height: var(--star-h);
+}
+
+.testimonial-star svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.testimonial-star-bg {
+  color: var(--tm-star-empty);
+}
+
+.testimonial-star-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+.testimonial-star-fill svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--star-size, 30px);
+  height: var(--star-h);
+  /* index.css এ সব svg তে max-width: 100% আছে — সেটা থাকলে
+     অর্ধেক-চওড়া wrapper এ svg চেপে ছোট হয়ে যেত (কাটা না হয়ে) */
+  max-width: none;
+  color: var(--tm-star);
+}
+
+/* ---------- Project link ----------
+   Figma: Space Grotesk 500, 18/23, underline, .75, gap 8,
+   পাশে 32px বৃত্ত rgba(11,18,26,.15) */
+.testimonial-project {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 23px;
+  color: var(--tm-ink-75);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.testimonial-project span:first-child {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.testimonial-project-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 40px;
+  background: rgba(11, 18, 26, 0.15);
+  color: #0b121a;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+.testimonial-project:hover .testimonial-project-icon,
+.testimonial-project:focus-visible .testimonial-project-icon {
+  background: var(--tm-ink);
+  color: #ebebec;
+}
+
+.testimonial-project:focus-visible {
+  outline: 2px solid var(--tm-ink);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* ---------- ছোট দুইটা card ---------- */
+.testimonials-side {
+  display: flex;
+  gap: 16px;
+  min-width: 0;
+}
+
+/* Figma: padding 32 16, ভেতরের সব কিছু খাড়াভাবে মাঝে
+   (Frame 280: justify-content center, gap 48) */
+.testimonials-mini {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 455px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 48px;
+  padding: 32px 16px;
+  border-radius: 40px;
+  background: var(--tm-card-bg);
+  text-align: center;
+  transition: background 0.2s ease;
+}
+
+.testimonials-mini:hover {
+  background: var(--tm-card-bg-hover);
+}
+
+/* বাছাই বোতাম — চোখে card এর উপরের অংশ (ছবি, নাম, rating).
+   ফাঁক আলাদা আলাদা (ছবি→নাম 16, নাম→rating 48), তাই gap নয়,
+   margin দিয়ে */
+.testimonials-mini-select {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  align-self: stretch;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: center;
+  cursor: pointer;
+}
+
+/* Figma: Frame 266 — নাম আর পদবি, gap 4, মাঝে বসানো */
+.testimonial-mini-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  align-self: stretch;
+  gap: 4px;
+  margin-top: 16px;
+  text-align: center;
+}
+
+.testimonials-mini-select .testimonial-rating {
+  margin-top: 48px;
+}
+
+/* অদৃশ্য স্তর পুরো card ঢেকে রাখে — card এর যেকোনো জায়গায়
+   ক্লিক করলে বাছাই হয়. keyboard focus এর রেখাও এটাতেই আঁকা হয়,
+   তাই রেখাটা পুরো card ঘিরে দেখায় */
+.testimonials-mini-select::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 40px;
+}
+
+.testimonials-mini-select:focus-visible {
+  outline: none;
+}
+
+.testimonials-mini-select:focus-visible::after {
+  outline: 2px solid var(--tm-ink);
+  outline-offset: 2px;
+}
+
+/* Project link অদৃশ্য স্তরের উপরে — আলাদাভাবে চাপা যায় */
+.testimonials-mini .testimonial-project {
+  position: relative;
+  z-index: 1;
+}
+
+/* ---------- prev/next তীর ----------
+   Figma: 48px বৃত্ত, rgba(55,58,60,.75), shadow 0 0 10px .1,
+   তীর #EBEBEC. প্রথম অবস্থায় বাঁয়েরটা আবছা (opacity .25) —
+   তালিকার শুরুতে আর পেছনে যাওয়ার কিছু নেই */
+
+/* mobile-first: নিচে সাধারণ centered বোতাম জোড়া */
+.testimonials-nav {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+}
+
+.testimonials-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: var(--tm-ink-75);
+  color: #ebebec;
+  box-shadow: 0 0 10px rgba(11, 18, 26, 0.1);
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.testimonials-arrow:hover:not(:disabled) {
+  background: var(--tm-ink);
+}
+
+.testimonials-arrow:disabled {
+  background: var(--tm-ink);
+  opacity: 0.25;
+  cursor: default;
+}
+
+.testimonials-arrow:focus-visible {
+  outline: 2px solid var(--tm-ink);
+  outline-offset: 3px;
+}
+
+/* ≥1100px: Figma র মতো row এর দুই কিনারায় ভাসমান, অর্ধেক বাইরে.
+   Figma তে তীরের কেন্দ্র row এর মাঝ থেকে 16.5px উপরে —
+   margin-top −33px এ flex এর মাঝ বরাবর বসানো ঠিক ততটাই সরে */
+@media (min-width: 1100px) {
+  .testimonials-nav {
+    position: absolute;
+    inset: 0;
+    grid-column: unset;
+    justify-content: space-between;
+    align-items: center;
+    pointer-events: none;
+  }
+
+  .testimonials-arrow {
+    margin-top: -33px;
+    pointer-events: auto;
+  }
+
+  .testimonials-arrow-prev {
+    transform: translateX(-50%);
+  }
+
+  .testimonials-arrow-next {
+    transform: translateX(50%);
+  }
+}
+
+/* ===============================================================
+   Responsive
+   =============================================================== */
+
+/* বড় card উপরে, ছোট দুইটা পাশাপাশি নিচে */
+@media (max-width: 1099px) {
+  .testimonials-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .testimonials-featured {
+    min-height: 0;
+    padding: 48px;
+  }
+
+  /* 455 বাদ, কিন্তু 0 নয় — 0 দিলে ফোনে card চ্যাপ্টা হয়ে ভেতরের
+     লেখা একে অপরের উপর উঠে যেত */
+  .testimonials-mini {
+    min-height: auto;
+  }
+
+  /* ক্রম: বড় card → ছোট card → তীর */
+  .testimonials-side {
+    order: 1;
+  }
+
+  .testimonials-nav {
+    order: 2;
+  }
+}
+
+@media (max-width: 639px) {
+  .testimonials-side {
+    flex-direction: column;
+  }
+
+  /* ---------- বড় card: ফোনে সব কিছু মাঝ বরাবর ----------
+     নিচের ছোট card গুলোর মতোই — ছবি, নাম, পদবি, Project এক
+     কলামে মাঝে. rating আর quote ও মাঝে, নাহলে উপরের অংশ বাঁয়ে
+     আর নিচের অংশ মাঝে হয়ে card টা এলোমেলো লাগত */
+  .testimonials-featured {
+    padding: 32px 24px;
+    border-radius: 28px;
+    text-align: center;
+  }
+
+  .testimonials-featured .testimonial-rating {
+    align-self: center;
+  }
+
+  .testimonial-quote {
+    font-size: 19px;
+  }
+
+  .testimonial-person {
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .testimonial-person-info {
+    flex: none;
+    align-items: center;
+  }
+
+  /* নাম-পদবি থেকে Project সামান্য আলাদা, ছোট card এর মতো */
+  .testimonial-person .testimonial-project {
+    margin-top: 4px;
+  }
+
+  /* quote চিহ্ন ফোনে ছোট, আর মাঝের লেখার পেছনে না পড়ে ডান কোণে */
+  .testimonials-quote-mark {
+    top: 24px;
+    right: 20px;
+    width: 120px;
+  }
+
+  /* পাঁচটা 40px তারা ফোনের card এ ধরে না */
+  .testimonial-stars {
+    --star-size: 26px;
+
+    gap: 6px;
+  }
+
+  .testimonial-rating-value {
+    font-size: 26px;
+  }
+
+  /* ---------- ছোট card ---------- */
+  .testimonials-mini {
+    flex: 1 1 auto;
+    gap: 28px;
+    border-radius: 28px;
+  }
+
+  .testimonials-mini-select .testimonial-rating {
+    margin-top: 28px;
+  }
+
+  /* বড় আর ছোট দুই card এ একই মাপের ছবি */
+  .testimonial-avatar {
+    width: 88px;
+    height: 88px;
+  }
+
+  .testimonial-avatar-fallback {
+    font-size: 24px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .testimonials-arrow,
+  .testimonials-mini,
+  .testimonial-project-icon {
+    transition: none;
+  }
+}

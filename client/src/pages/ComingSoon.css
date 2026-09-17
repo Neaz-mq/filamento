@@ -1,0 +1,607 @@
+/* ===============================================================
+   COMING SOON / 404 / ERROR
+
+   Hero এর ধারায়: #EBEBEC card, radius 40, 84px পাশের padding,
+   1240 content. বাঁয়ে লেখা, ডানে ঝুলন্ত লাইট আর আলোর শঙ্কু.
+   card টা অন্তত পর্দার উচ্চতা জুড়ে থাকে, যাতে footer সরাসরি উপরে
+   উঠে না আসে আর পাতাটা পূর্ণ লাগে
+   =============================================================== */
+
+.coming-soon {
+  --cs-surface: #ebebec;
+  --cs-ink: #373a3c;
+  --cs-ink-75: rgba(55, 58, 60, 0.75);
+  --cs-ink-50: rgba(55, 58, 60, 0.5);
+  --cs-yellow: #f7be00;
+  --cs-yellow-hover: #ffc107;
+
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  width: 100%;
+  box-sizing: border-box;
+  min-height: min(
+    760px,
+    calc(100dvh - var(--header-h) - var(--page-gutter) * 2)
+  );
+  display: flex;
+  align-items: center;
+  padding: clamp(56px, 7vw, 100px) var(--section-pad-x);
+  background: var(--cs-surface);
+  border: 1px solid var(--cs-surface);
+  border-radius: var(--section-radius);
+  color: var(--cs-ink);
+}
+
+/* পাতার একমাত্র section — footer এর আগে Contact এর মতোই শ্বাস
+   নেওয়ার জায়গা (মোট 100px, ফোনে 56px) */
+.coming-soon:last-child {
+  margin-bottom: calc(clamp(56px, 7vw, 100px) - var(--section-gap));
+}
+
+.coming-soon-inner {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: var(--content-max);
+  margin-inline: auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  align-items: center;
+  gap: clamp(40px, 5vw, 80px);
+}
+
+/* পেছনের বড় লেখা — Fixtures এর জলছাপের মতো, নিচ-ডানে কাটা */
+.coming-soon-watermark {
+  position: absolute;
+  z-index: 0;
+  right: -0.04em;
+  bottom: -0.22em;
+  font-weight: 700;
+  font-size: clamp(140px, 22vw, 340px);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+  background: linear-gradient(
+    180deg,
+    rgba(11, 18, 26, 0.05) 0%,
+    rgba(11, 18, 26, 0) 80%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* ---------------------------------------------------------------
+   বাঁয়ের লেখা
+   --------------------------------------------------------------- */
+.coming-soon-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+/* Hero এর eyebrow pill এর মতো, সাথে ছোট হলুদ বিন্দু */
+.coming-soon-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 6px 12px;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 999px;
+  font-weight: 500;
+  font-size: 11px;
+  line-height: 14px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--cs-ink-75);
+}
+
+.coming-soon-eyebrow-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--cs-yellow);
+  box-shadow: 0 0 0 3px rgba(247, 190, 0, 0.2);
+}
+
+/* Hero এর শিরোনামের মাপ */
+.coming-soon-title {
+  margin: 20px 0 0;
+  max-width: 600px;
+  font-weight: 700;
+  font-size: clamp(40px, 5vw, 72px);
+  line-height: 1;
+  letter-spacing: -0.01em;
+  color: var(--cs-ink);
+}
+
+.coming-soon-title-accent {
+  color: var(--cs-yellow);
+}
+
+/* "Products" হলুদে এক লাইনে, নিচে "Coming to light soon." —
+   পাতার নাম যাই হোক, বাক্যের ব্যাকরণ ঠিক থাকে */
+.coming-soon[data-variant="soon"] .coming-soon-title-accent {
+  display: block;
+}
+
+.coming-soon-text {
+  margin: 24px 0 0;
+  max-width: 520px;
+  font-weight: 400;
+  font-size: clamp(16px, 1.39vw, 20px);
+  line-height: 1.6;
+  color: var(--cs-ink-75);
+}
+
+.coming-soon-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 36px;
+}
+
+/* Hero এর CTA এর মাপ — 44px উঁচু, radius 100 */
+.coming-soon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 20px;
+  box-sizing: border-box;
+  border-radius: 100px;
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 14.5px;
+  line-height: 19px;
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.coming-soon-btn.is-primary {
+  border: 1px solid var(--cs-yellow);
+  background: var(--cs-yellow);
+  color: var(--cs-ink);
+}
+
+.coming-soon-btn.is-primary:hover {
+  background: var(--cs-yellow-hover);
+  border-color: var(--cs-yellow-hover);
+}
+
+.coming-soon-btn.is-primary svg {
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.coming-soon-btn.is-primary:hover svg {
+  transform: translateX(3px);
+}
+
+.coming-soon-btn.is-secondary {
+  border: 1px solid rgba(55, 58, 60, 0.25);
+  background: rgba(255, 255, 255, 0.4);
+  color: var(--cs-ink);
+}
+
+.coming-soon-btn.is-secondary:hover {
+  border-color: var(--cs-ink);
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.coming-soon-btn:active {
+  transform: translateY(1px);
+}
+
+.coming-soon-btn:focus-visible {
+  outline: 2px solid var(--cs-ink);
+  outline-offset: 3px;
+}
+
+/* সরাসরি যোগাযোগ — ছোট এক লাইন */
+.coming-soon-reach {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  margin: 28px 0 0;
+  font-family: "Inter", var(--font-sans), sans-serif;
+  font-weight: 500;
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--cs-ink-50);
+}
+
+.coming-soon-reach a {
+  color: var(--cs-ink-75);
+  text-decoration: underline;
+  text-decoration-color: rgba(55, 58, 60, 0.3);
+  text-underline-offset: 3px;
+  transition:
+    color 0.2s ease,
+    text-decoration-color 0.2s ease;
+}
+
+.coming-soon-reach a:hover {
+  color: var(--cs-ink);
+  text-decoration-color: currentColor;
+}
+
+.coming-soon-reach a:focus-visible {
+  outline: 2px solid var(--cs-ink);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* ---------------------------------------------------------------
+   ডানের ছবি — ঝুলন্ত লাইট
+
+   pendant = তার + লাইট + আলোর শঙ্কু, একটার নিচে আরেকটা (flex).
+   তাই শঙ্কু সবসময় লাইটের ঠিক নিচ থেকে শুরু হয় — ছবির অনুপাত
+   যাই হোক. তিনটা এক সাথে উপরের বিন্দু থেকে ধীরে দোলে (শঙ্কুও
+   লাইটের সাথে দোলে, তাই আলোটা "আসল" লাগে)
+   --------------------------------------------------------------- */
+.coming-soon-visual {
+  position: relative;
+  width: 100%;
+  max-width: 520px;
+  aspect-ratio: 1 / 1.02;
+  justify-self: center;
+}
+
+.coming-soon-pendant {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform-origin: 50% 0;
+}
+
+/* ছাদ থেকে নামা তার */
+.coming-soon-cable {
+  flex: none;
+  width: 1.5px;
+  height: 12%;
+  background: linear-gradient(
+    180deg,
+    rgba(55, 58, 60, 0) 0%,
+    rgba(55, 58, 60, 0.45) 100%
+  );
+}
+
+.coming-soon-lamp {
+  position: relative;
+  z-index: 2;
+  flex: none;
+  width: 60%;
+  height: auto;
+  max-width: none;
+  transition: filter 0.4s ease;
+}
+
+/* আলোর শঙ্কু — Hero র মতো সাদা, নরম ধার */
+/* বাকি উচ্চতা পুরোটা নেয়.
+
+   দুই স্তর — Hero র মতো:
+     বাইরে (এই element) → blur, তাই ধার নরম
+     ভেতরে (::before)   → clip-path, শঙ্কুর আকৃতি
+   একই element এ দুটো দিলে ব্রাউজার আগে ঝাপসা করে তারপর কাটে —
+   ধার আবার ধারালো হয়ে যেত.
+
+   উপরের প্রান্ত প্লেটের সমান: RH1 এর প্লেট ছবির প্রায় পুরো প্রস্থ
+   (লাইট 60%), শঙ্কু 96% → 60 / 96 = 62.5% → 18.75% থেকে 81.25%.
+   −4% উপরে উঠে প্লেটের পেছনে ঢোকে — blur এ ফিকে হওয়া উপরের অংশটা
+   লাইটের আড়ালে থাকে, প্লেটের ঠিক নিচ থেকেই পূর্ণ আলো */
+.coming-soon-cone {
+  position: relative;
+  z-index: 1;
+  flex: 1 1 auto;
+  width: 96%;
+  margin-top: -4%;
+  filter: blur(12px);
+  opacity: 0.85;
+}
+
+.coming-soon-cone::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  clip-path: polygon(18.75% 0, 81.25% 0, 100% 100%, 0 100%);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.95) 0%,
+    rgba(255, 255, 255, 0.55) 45%,
+    rgba(255, 255, 255, 0) 100%
+  );
+}
+
+/* মেঝেতে পড়া আলো */
+.coming-soon-floor {
+  position: absolute;
+  z-index: 0;
+  left: 8%;
+  right: 8%;
+  bottom: 2%;
+  height: 14%;
+  border-radius: 50%;
+  background: radial-gradient(
+    50% 50% at 50% 50%,
+    rgba(255, 255, 255, 0.9) 0%,
+    rgba(255, 255, 255, 0) 100%
+  );
+}
+
+/* ---------- অবস্থার ছোট কাচের chip ---------- */
+.coming-soon-status {
+  position: absolute;
+  z-index: 3;
+  left: 50%;
+  bottom: 6%;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  border-radius: 999px;
+  box-shadow: 0 8px 24px -12px rgba(11, 18, 26, 0.25);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  font-family: "Inter", var(--font-sans), sans-serif;
+  font-weight: 500;
+  font-size: 13px;
+  line-height: 16px;
+  color: var(--cs-ink);
+  white-space: nowrap;
+}
+
+.coming-soon-status-dot {
+  position: relative;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--cs-yellow);
+}
+
+/* কাজ চলছে বোঝাতে ছোট, অনির্দিষ্ট অগ্রগতির রেখা — কোনো ভুয়া
+   শতাংশ নয় */
+.coming-soon-status-bar {
+  position: relative;
+  width: 56px;
+  height: 4px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(55, 58, 60, 0.12);
+}
+
+.coming-soon-status-bar span {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 40%;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--cs-yellow);
+}
+
+/* ---------------------------------------------------------------
+   404 আর error — লাইট নিভে আছে
+   --------------------------------------------------------------- */
+.coming-soon:not([data-variant="soon"]) .coming-soon-cone {
+  opacity: 0.12;
+}
+
+.coming-soon:not([data-variant="soon"]) .coming-soon-floor {
+  opacity: 0.3;
+}
+
+.coming-soon:not([data-variant="soon"]) .coming-soon-lamp {
+  filter: brightness(0.92) saturate(0.8);
+}
+
+.coming-soon:not([data-variant="soon"]) .coming-soon-status-dot {
+  background: rgba(55, 58, 60, 0.35);
+}
+
+.coming-soon:not([data-variant="soon"]) .coming-soon-eyebrow-dot {
+  background: rgba(55, 58, 60, 0.4);
+  box-shadow: 0 0 0 3px rgba(55, 58, 60, 0.1);
+}
+
+/* ---------------------------------------------------------------
+   নড়াচড়া — শুধু যারা motion বন্ধ রাখেননি
+   --------------------------------------------------------------- */
+@media (prefers-reduced-motion: no-preference) {
+  /* পাতা খুললে লেখা নিচ থেকে, লাইট উপর থেকে নরমভাবে আসে */
+  .coming-soon-copy > * {
+    animation: cs-rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .coming-soon-copy > :nth-child(2) {
+    animation-delay: 0.06s;
+  }
+
+  .coming-soon-copy > :nth-child(3) {
+    animation-delay: 0.12s;
+  }
+
+  .coming-soon-copy > :nth-child(4) {
+    animation-delay: 0.18s;
+  }
+
+  .coming-soon-copy > :nth-child(5) {
+    animation-delay: 0.24s;
+  }
+
+  .coming-soon-visual {
+    animation: cs-drop 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
+  }
+
+  /* লাইট খুব ধীরে দোলে — ±1.2°, 7 সেকেন্ডে এক চক্র */
+  .coming-soon-pendant {
+    animation: cs-sway 7s ease-in-out infinite;
+  }
+
+  .coming-soon[data-variant="soon"] .coming-soon-cone {
+    animation: cs-breathe 5s ease-in-out infinite;
+  }
+
+  .coming-soon[data-variant="soon"] .coming-soon-status-dot::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: var(--cs-yellow);
+    animation: cs-ping 1.8s cubic-bezier(0, 0, 0.2, 1) infinite;
+  }
+
+  .coming-soon-status-bar span {
+    animation: cs-progress 1.6s ease-in-out infinite;
+  }
+
+  /* নিভে থাকা লাইট আরও ধীরে দোলে */
+  .coming-soon:not([data-variant="soon"]) .coming-soon-pendant {
+    animation-duration: 10s;
+  }
+}
+
+@keyframes cs-rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes cs-drop {
+  from {
+    opacity: 0;
+    transform: translateY(-24px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes cs-sway {
+  0%,
+  100% {
+    transform: rotate(-1.2deg);
+  }
+  50% {
+    transform: rotate(1.2deg);
+  }
+}
+
+@keyframes cs-breathe {
+  0%,
+  100% {
+    opacity: 0.85;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes cs-ping {
+  0% {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+  80%,
+  100% {
+    opacity: 0;
+    transform: scale(2.6);
+  }
+}
+
+@keyframes cs-progress {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(250%);
+  }
+}
+
+/* ===============================================================
+   Responsive
+   =============================================================== */
+
+/* লেখা উপরে, লাইট নিচে */
+@media (max-width: 1099px) {
+  .coming-soon {
+    min-height: 0;
+  }
+
+  .coming-soon-inner {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 32px;
+  }
+
+  .coming-soon-visual {
+    max-width: 420px;
+  }
+}
+
+@media (max-width: 639px) {
+  .coming-soon-title {
+    font-size: 40px;
+    line-height: 1.05;
+  }
+
+  .coming-soon-text {
+    margin-top: 18px;
+  }
+
+  .coming-soon-actions {
+    width: 100%;
+    margin-top: 28px;
+  }
+
+  /* ফোনে বোতাম পুরো চওড়া — আঙুলে চাপা সহজ */
+  .coming-soon-btn {
+    flex: 1 1 100%;
+  }
+
+  .coming-soon-visual {
+    max-width: 320px;
+  }
+
+  .coming-soon-status {
+    padding: 8px 14px;
+    font-size: 12px;
+  }
+
+  /* ইমেইল আর ফোন দুই লাইনে ভাঙে — মাঝের "·" তখন একা পড়ে থাকত */
+  .coming-soon-reach-sep {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .coming-soon-btn,
+  .coming-soon-btn svg,
+  .coming-soon-reach a,
+  .coming-soon-lamp {
+    transition: none;
+  }
+}

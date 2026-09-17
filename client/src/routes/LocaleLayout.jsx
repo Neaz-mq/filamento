@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { ScrollRestoration, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import MainLayout from "../layouts/MainLayout";
 import {
@@ -72,7 +72,17 @@ function LocaleLayout({ lang }) {
     });
   }, [lang, pathname]);
 
-  return <MainLayout />;
+  /* ScrollRestoration (React Router এর নিজের):
+     - নতুন পাতায় গেলে উপর থেকে শুরু — আগে আগের পাতার মাঝখান
+       থেকেই নতুন পাতা খুলত
+     - back/forward চাপলে আগের জায়গায় ফেরে
+     - ঠিকানায় #contact এর মতো hash থাকলে সেই section এ যায় */
+  return (
+    <>
+      <ScrollRestoration />
+      <MainLayout />
+    </>
+  );
 }
 
 export default LocaleLayout;
