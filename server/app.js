@@ -7,6 +7,7 @@ import { isAllowedOrigin } from "./config/origins.js";
 import productRoutes from "./routes/productRoutes.js";
 import videoViewRoutes from "./routes/videoViewRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
+import adminUserRoutes from "./routes/adminUserRoutes.js"; 
 
 const app = express();
 
@@ -61,6 +62,8 @@ app.get("/health", (req, res) => {
 
 // Admin login — POST /login, POST /logout, GET /me
 app.use("/api/auth", authRoutes);
+
+app.use("/api/admins", adminUserRoutes); 
 
 app.use("/api/products", productRoutes);
 

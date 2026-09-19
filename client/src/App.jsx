@@ -19,6 +19,27 @@ const AdminRoot = lazy(() => import("./admin/AdminRoot"));
 const AdminProtected = lazy(() => import("./admin/AdminProtected"));
 const AdminLogin = lazy(() => import("./admin/AdminLogin"));
 const AdminHome = lazy(() => import("./admin/AdminHome"));
+const AdminSoon = lazy(() => import("./admin/AdminSoon"));
+const AdminUsers = lazy(() => import("./admin/AdminUsers"));
+
+/* admin এর যে পাতাগুলো এখনো বানানো হয়নি — sidebar এ link আছে,
+   কিন্তু ভেতরে "তৈরি হচ্ছে" লেখা.
+
+   ✅ কোনোটা তৈরি হলে এখান থেকে নামটা মুছে নিচে ADMIN_ROUTE এর
+   children এ আসল component দিয়ে সারি যোগ করবেন */
+const ADMIN_SOON = [
+  "products",
+  "projects",
+  "application",
+  "company",
+  "shop",
+  "media",
+  "pages",
+  "leads",
+  "testimonials",
+  "activity",
+  "settings",
+];
 
 /* admin এর কোড নামার ফাঁকের পর্দা — inline style, কারণ admin.css ও
    তখনো নামেনি */
@@ -124,7 +145,13 @@ const ADMIN_ROUTE = {
        যোগ করবেন — নিজে থেকেই সুরক্ষিত হয়ে যাবে */
     {
       element: <AdminProtected />,
-      children: [{ index: true, element: <AdminHome /> }],
+      children: [
+        { index: true, element: <AdminHome /> },
+        // Home পাতার আলাদা আলাদা অংশ — /admin/home/hero ইত্যাদি
+        { path: "home/:section", element: <AdminSoon /> },
+        { path: "users", element: <AdminUsers /> },
+        ...ADMIN_SOON.map((path) => ({ path, element: <AdminSoon /> })),
+      ],
     },
 
     // /admin এর ভেতরে অচেনা ঠিকানা → dashboard

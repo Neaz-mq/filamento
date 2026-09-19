@@ -62,6 +62,22 @@ export const api = {
   // "আমি কে" — login না থাকলে 401 দেয়
   me: () => request("/api/auth/me"),
 
+  /* ---------- Admin দের তালিকা (Users & Roles) ----------
+     পড়া যে কোনো admin পারে, কিন্তু বানানো/বদলানো/মোছা শুধু owner.
+     আসল পাহারা server এ — এখানে শুধু কী দেখানো হবে সেটা ঠিক হয় */
+  listAdmins: () => request("/api/admins"),
+
+  createAdmin: (data) =>
+    request("/api/admins", { method: "POST", body: JSON.stringify(data) }),
+
+  updateAdmin: (id, data) =>
+    request(`/api/admins/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    }),
+
+  deleteAdmin: (id) => request(`/api/admins/${id}`, { method: "DELETE" }),
+
   /* ---------- Product ---------- */
   getProducts: () => request("/api/products"),
   getProduct: (id) => request(`/api/products/${id}`),
