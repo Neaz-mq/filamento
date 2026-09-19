@@ -1,10 +1,24 @@
-/* Vite এ শুধু VITE_ দিয়ে শুরু হওয়া variable গুলোই browser এ পৌঁছায়।
-   এগুলো build এর সময় কোডে বসে যায়, তাই কোনো গোপন জিনিস (API key,
-   password) এখানে রাখা যাবে না — browser এ দেখা যাবে */
-const BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:5000";
+/* ---------------------------------------------------------------
+   Backend এর সাথে কথা বলার একটাই জায়গা
+
+   ঠিকানা ইচ্ছে করে ফাঁকা — "/api/..." মানে সাইটের নিজের ঠিকানা:
+
+     dev এ         vite.config.js এর proxy সেটা localhost:5000 এ পাঠায়
+     production এ  vercel.json এর rewrite সেটা filamento-api তে পাঠায়
+
+   অন্য domain এ সরাসরি না পাঠানোর কারণ admin login. Chrome আর
+   Safari এখন অন্য সাইটের cookie আটকে দেয় — তাহলে login করার পরের
+   request এই logout হয়ে যেত. একই সাইট বলে cookie নির্বিঘ্নে চলে,
+   আর CORS এরও দরকার পড়ে না.
+
+   ⚠️ VITE_API_URL আর ব্যবহার হয় না. Vercel এ ওটা থেকে গেলেও ক্ষতি
+   নেই, কোড আর পড়ে না — চাইলে মুছে দিতে পারেন
+   --------------------------------------------------------------- */
 
 async function request(path, options = {}) {
-  const response = await fetch(`${BASE_URL}${path}`, {
+  const response = await fetch(path, {
+    // login এর cookie যেন প্রতিটা request এর সাথে যায়
+    credentials: "include",
     headers: { "Content-Type": "application/json" },
     ...options,
   });
@@ -20,7 +34,13 @@ async function request(path, options = {}) {
     } catch {
       // response টা JSON না — উপরের default message ই থাক
     }
-    throw new Error(message);
+
+    /* status টাও সাথে দেওয়া হচ্ছে — login পাতা এটা দেখে ঠিক করে
+       কী দেখাবে (401 = ভুল password, 429 = অনেকবার চেষ্টা,
+       status নেই = server এ পৌঁছানোই যায়নি) */
+    const error = new Error(message);
+    error.status = response.status;
+    throw error;
   }
 
   if (response.status === 204) return null;
@@ -28,6 +48,21 @@ async function request(path, options = {}) {
 }
 
 export const api = {
+  /* ---------- Admin login ----------
+     cookie টা server বসায় আর browser নিজে রাখে — এখানে কোনো
+     token ধরে রাখার দরকার নেই */
+  login: (email, password) =>
+    request("/api/auth/login", {
+      method: "POST",
+      body: JSON.stringify({ email, password }),
+    }),
+
+  logout: () => request("/api/auth/logout", { method: "POST" }),
+
+  // "আমি কে" — login না থাকলে 401 দেয়
+  me: () => request("/api/auth/me"),
+
+  /* ---------- Product ---------- */
   getProducts: () => request("/api/products"),
   getProduct: (id) => request(`/api/products/${id}`),
   createProduct: (data) =>

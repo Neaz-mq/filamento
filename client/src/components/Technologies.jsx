@@ -341,14 +341,46 @@ function Technologies() {
 
   const [active, setActive] = useState(DEFAULT_ACTIVE);
   /* নতুন card কোন দিক থেকে আসবে — উপরের pill চাপলে উপর থেকে,
-     নিচেরটা চাপলে নিচ থেকে. প্রথমবার কোনো animation নয় */
+     নিচেরটা চাপলে নিচ থেকে */
   const [enterFrom, setEnterFrom] = useState("none");
   const [playing, setPlaying] = useState(false);
+
+  /* বদলানোর animation এর সময় পুরনো card টা কিছুক্ষণ পেছনে থাকে —
+     নতুনটা তার উপর দিয়ে আসে. { index, key } — key দিয়ে প্রতিবার
+     নতুন করে animation শুরু হয় (দ্রুত পরপর চাপলেও) */
+  const [leaving, setLeaving] = useState(null);
+
+  /* নতুন card এর key — শুধু বদলানোর সময় বাড়ে. animation শেষে
+     পুরনো card সরলেও এটা বদলায় না, তাই নতুন card নতুন করে তৈরি
+     হয় না (ছবি ঝলকায় না, চলমান video থামে না) */
+  const [enterKey, setEnterKey] = useState(0);
+
+  /* animation শেষ হলে পুরনো card সরানো হয় (নিচে onAnimationEnd).
+     motion বন্ধ থাকলে animation হয় না, event ও আসে না — তাই সময়
+     পেরোলে এমনিতেই সরে যায় */
+  useEffect(() => {
+    if (!leaving) return undefined;
+    const timer = setTimeout(() => setLeaving(null), 1100);
+    return () => clearTimeout(timer);
+  }, [leaving]);
 
   const sectionRef = useRef(null);
   const near = useNearViewport(sectionRef);
   const [durations, rememberDuration] = useVideoDurations(near, ITEMS);
   const [views, countView] = useVideoViews(near);
+
+  /* section কাছে এলে তিনটা cover ছবি আগেই নামিয়ে রাখা — নাহলে
+     animation এর সময় নতুন card এর ছবি তখনো আসেনি, ফাঁকা দেখাত */
+  useEffect(() => {
+    if (!near) return;
+    ITEMS.forEach(({ cover }) => {
+      if (!cover) return;
+      const image = new Image();
+      image.srcset = coverSrcSet(cover);
+      image.sizes = "(max-width: 1099px) 90vw, 45vw";
+      image.src = cloudinary(cover, 800);
+    });
+  }, [near]);
 
   /* play চাপলে বোতামটা সরে গিয়ে video আসে — keyboard এর focus যেন
      হারিয়ে না যায়, তাই video তে পাঠানো হয়. video শেষ হলে আবার
@@ -370,9 +402,6 @@ function Technologies() {
   const nextIndex = wrap(active + 1);
   const item = ITEMS[active];
   const itemTitle = t(`technologies.items.${item.id}.title`);
-  const itemDuration = durations[item.id];
-  // backend থেকে সংখ্যা না এলে null — তখন view দেখায় না
-  const itemViews = views ? (item.baseViews ?? 0) + (views[item.id] ?? 0) : null;
 
   const handlePlay = () => {
     setPlaying(true);
@@ -386,9 +415,133 @@ function Technologies() {
 
   const show = (index, from) => {
     if (index === active) return;
+    setLeaving({ index: active, key: Date.now() });
+    setEnterKey((current) => current + 1);
     setEnterFrom(from);
     setActive(index);
     setPlaying(false); // অন্য technology তে গেলে চলমান video বন্ধ
+  };
+
+  /* নতুন card এর বড় হওয়া শেষ → পুরনোটা সরানো.
+     ভেতরের element এর animation (লেখা, play) ও এখানে bubble করে আসে,
+     তাই শুধু card এর নিজের animation ধরা হয় */
+  const handleCardAnimationEnd = (event) => {
+    if (event.target === event.currentTarget) setLeaving(null);
+  };
+
+  /* card এর ভেতরের অংশ — cover, play বোতাম / video, নিচের লেখা.
+     interactive false → animation এর সময় পেছনে থাকা পুরনো card:
+     একই রকম দেখায়, কিন্তু চাপা যায় না আর video চলে না */
+  const renderFace = (entry, interactive) => {
+    const title = t(`technologies.items.${entry.id}.title`);
+    const duration = durations[entry.id];
+    // backend থেকে সংখ্যা না এলে null — তখন view দেখায় না
+    const viewCount = views
+      ? (entry.baseViews ?? 0) + (views[entry.id] ?? 0)
+      : null;
+
+    return (
+      <>
+        <div className="tech-cover">
+          {entry.cover && (
+            <img
+              src={cloudinary(entry.cover, 800)}
+              srcSet={coverSrcSet(entry.cover)}
+              sizes="(max-width: 1099px) 90vw, 45vw"
+              alt=""
+              loading="lazy"
+              decoding="async"
+            />
+          )}
+        </div>
+
+        {interactive && playing && entry.video ? (
+          /* play চাপার পরেই video নামা শুরু হয় — আগে থেকে
+             তিনটা video নামিয়ে পাতা ভারী করা হয় না.
+             শেষ হলে আবার cover আর লেখা ফিরে আসে.
+
+             controlsList="nodownload" — তিন-বিন্দু menu থেকে
+             "Download" সরায়, মূল filamento.com এর মতো. playback
+             speed আর picture-in-picture থাকে.
+             onContextMenu — ডান-ক্লিকের "Save video as" ও বন্ধ.
+             (link টা public, তাই এটা পুরো সুরক্ষা নয় — শুধু
+             সাধারণ দর্শকের জন্য সহজ download এর পথ বন্ধ) */
+          <video
+            ref={focusOnMount}
+            className="tech-video"
+            src={entry.video}
+            controls
+            controlsList="nodownload"
+            onContextMenu={(event) => event.preventDefault()}
+            autoPlay
+            playsInline
+            aria-label={title}
+            onLoadedMetadata={(event) =>
+              rememberDuration(entry.id, event.currentTarget.duration)
+            }
+            onEnded={handleEnded}
+          />
+        ) : (
+          <>
+            {interactive && entry.video ? (
+              <button
+                ref={playButtonRef}
+                type="button"
+                className="tech-play"
+                onClick={handlePlay}
+                aria-label={t("technologies.play", { title })}
+              >
+                <PlayIcon />
+              </button>
+            ) : (
+              <span className="tech-play is-idle" aria-hidden="true">
+                <PlayIcon />
+              </span>
+            )}
+
+            {/* Figma: video-overlay — নিচে কালো আভা, তার উপর লেখা */}
+            <div className="tech-overlay">
+              <div className="tech-overlay-text">
+                <h3 className="tech-card-title">{title}</h3>
+                <p className="tech-card-text">
+                  {t(`technologies.items.${entry.id}.text`)}
+                </p>
+              </div>
+
+              {/* Boolean — নাহলে দুটোই 0 হলে React পাতায় "0" লিখে দিত */}
+              {Boolean(duration || viewCount) && (
+                <div className="tech-meta">
+                  {/* সময় পড়া শেষ না হওয়া পর্যন্ত ফাঁকা span —
+                      view সংখ্যা যেন ডান পাশেই থাকে */}
+                  {duration ? (
+                    <span className="tech-meta-item">
+                      <ClockIcon />
+                      <span className="sr-only">
+                        {`${t("technologies.duration")} `}
+                      </span>
+                      {formatDuration(duration)}
+                    </span>
+                  ) : (
+                    <span />
+                  )}
+
+                  {viewCount ? (
+                    <span className="tech-meta-item">
+                      <EyeIcon />
+                      {/* "count" নাম নয় — i18next ওই নামে বহুবচনের
+                          নিয়ম খোঁজে, আর এখানে এটা লেখা ("1.2k") */}
+                      {t("technologies.views", {
+                        value: formatViews(viewCount, i18n.language),
+                      })}
+                    </span>
+                  ) : null}
+                </div>
+              )}
+            </div>
+          </>
+        )}
+      </>
+    );
   };
 
   const renderPill = (index, from, visible) => {
@@ -440,111 +593,40 @@ function Technologies() {
             {renderPill(prevIndex, "top", showPrev)}
 
             {/* নতুন technology এলে screen reader শিরোনামটা পড়ে শোনায় */}
+            {/* নতুন technology এলে screen reader শিরোনামটা পড়ে শোনায়.
+                slot এর ভেতরে দুইটা card একই জায়গায় স্তূপ করা — পুরনোটা
+                পেছনে, নতুনটা উপরে (Technologies.css দেখুন) */}
             <div className="tech-card-slot" aria-live="polite">
+              {leaving && (
+                <article
+                  key={`leaving-${leaving.key}`}
+                  className="tech-card is-leaving"
+                  data-fit={ITEMS[leaving.index].cover?.fit ?? "photo"}
+                  data-enter={enterFrom}
+                  aria-hidden="true"
+                  inert
+                >
+                  {renderFace(ITEMS[leaving.index], false)}
+                </article>
+              )}
+
               <article
-                key={item.id}
+                key={`${item.id}-${enterKey}`}
                 className="tech-card"
                 data-fit={item.cover?.fit ?? "photo"}
-                data-enter={enterFrom}
+                data-enter={leaving ? enterFrom : "none"}
+                onAnimationEnd={handleCardAnimationEnd}
               >
-                <div className="tech-cover">
-                  {item.cover && (
-                    <img
-                      src={cloudinary(item.cover, 800)}
-                      srcSet={coverSrcSet(item.cover)}
-                      sizes="(max-width: 1099px) 90vw, 45vw"
-                      alt=""
-                      loading="lazy"
-                      decoding="async"
-                    />
-                  )}
-                </div>
-
-                {playing && item.video ? (
-                  /* play চাপার পরেই video নামা শুরু হয় — আগে থেকে
-                     তিনটা video নামিয়ে পাতা ভারী করা হয় না.
-                     শেষ হলে আবার cover আর লেখা ফিরে আসে.
-
-                     controlsList="nodownload" — তিন-বিন্দু menu থেকে
-                     "Download" সরায়, মূল filamento.com এর মতো. playback
-                     speed আর picture-in-picture থাকে.
-                     onContextMenu — ডান-ক্লিকের "Save video as" ও বন্ধ.
-                     (link টা public, তাই এটা পুরো সুরক্ষা নয় — শুধু
-                     সাধারণ দর্শকের জন্য সহজ download এর পথ বন্ধ) */
-                  <video
-                    ref={focusOnMount}
-                    className="tech-video"
-                    src={item.video}
-                    controls
-                    controlsList="nodownload"
-                    onContextMenu={(event) => event.preventDefault()}
-                    autoPlay
-                    playsInline
-                    aria-label={itemTitle}
-                    onLoadedMetadata={(event) =>
-                      rememberDuration(item.id, event.currentTarget.duration)
-                    }
-                    onEnded={handleEnded}
-                  />
-                ) : (
-                  <>
-                    {item.video ? (
-                      <button
-                        ref={playButtonRef}
-                        type="button"
-                        className="tech-play"
-                        onClick={handlePlay}
-                        aria-label={t("technologies.play", { title: itemTitle })}
-                      >
-                        <PlayIcon />
-                      </button>
-                    ) : (
-                      <span className="tech-play is-idle" aria-hidden="true">
-                        <PlayIcon />
-                      </span>
-                    )}
-
-                    {/* Figma: video-overlay — নিচে কালো আভা, তার উপর লেখা */}
-                    <div className="tech-overlay">
-                      <div className="tech-overlay-text">
-                        <h3 className="tech-card-title">{itemTitle}</h3>
-                        <p className="tech-card-text">
-                          {t(`technologies.items.${item.id}.text`)}
-                        </p>
-                      </div>
-
-                      {/* Boolean — নাহলে দুটোই 0 হলে React পাতায় "0" লিখে দিত */}
-                      {Boolean(itemDuration || itemViews) && (
-                        <div className="tech-meta">
-                          {/* সময় পড়া শেষ না হওয়া পর্যন্ত ফাঁকা span —
-                              view সংখ্যা যেন ডান পাশেই থাকে */}
-                          {itemDuration ? (
-                            <span className="tech-meta-item">
-                              <ClockIcon />
-                              <span className="sr-only">
-                                {`${t("technologies.duration")} `}
-                              </span>
-                              {formatDuration(itemDuration)}
-                            </span>
-                          ) : (
-                            <span />
-                          )}
-
-                          {itemViews ? (
-                            <span className="tech-meta-item">
-                              <EyeIcon />
-                              {/* "count" নাম নয় — i18next ওই নামে বহুবচনের
-                                  নিয়ম খোঁজে, আর এখানে এটা লেখা ("1.2k") */}
-                              {t("technologies.views", {
-                                value: formatViews(itemViews, i18n.language),
-                              })}
-                            </span>
-                          ) : null}
-                        </div>
-                      )}
-                    </div>
-                  </>
+                {/* বড় হওয়ার শুরুতে card টা pill এর মতো দেখায় — ধূসর,
+                    ভেতরে pill এর লেখা. তারপর মিলিয়ে যায় */}
+                {leaving && (
+                  <span className="tech-card-veil" aria-hidden="true">
+                    <span className="tech-card-veil-label">
+                      + {itemTitle}
+                    </span>
+                  </span>
                 )}
+                {renderFace(item, true)}
               </article>
             </div>
 

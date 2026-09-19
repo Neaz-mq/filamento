@@ -1,38 +1,40 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 import { connectDB } from "./config/db.js";
+import { isAllowedOrigin } from "./config/origins.js";
 import productRoutes from "./routes/productRoutes.js";
 import videoViewRoutes from "./routes/videoViewRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
 
 const app = express();
 
-/* ---------- CORS ----------
-   production এ সবাইকে allow করা যাবে না। CLIENT_URL এ কমা দিয়ে
-   একাধিক origin দেওয়া যায় — Vercel এ preview deployment গুলোর
-   URL আলাদা হয়, তাই সেগুলোও লাগতে পারে */
-const allowedOrigins = (process.env.CLIENT_URL ?? "")
-  .split(",")
-  .map((o) => o.trim())
-  .filter(Boolean);
+/* Vercel এর পেছনে চলে — আসল ব্যবহারকারীর IP আর https বোঝার জন্য */
+app.set("trust proxy", 1);
 
+// কোন framework চলছে সেটা বাইরে জানানোর দরকার নেই
+app.disable("x-powered-by");
+
+/* ---------- CORS ----------
+   কোন সাইট গ্রহণ করা হবে সেটা config/origins.js এ (CLIENT_URL).
+   admin এর request গুলো frontend এর নিজের ঠিকানা দিয়ে আসে
+   (Vercel rewrite), তাই সেগুলোর CORS লাগে না — এটা বাকিগুলোর জন্য */
 app.use(
   cors({
     origin(origin, callback) {
       // origin undefined মানে Postman, curl, বা server-to-server call
-      if (!origin) return callback(null, true);
-
-      // CLIENT_URL সেট না থাকলে (local dev) সবাইকে ঢুকতে দিচ্ছি
-      if (allowedOrigins.length === 0) return callback(null, true);
-
-      if (allowedOrigins.includes(origin)) return callback(null, true);
-
+      if (!origin || isAllowedOrigin(origin)) return callback(null, true);
       callback(new Error(`Not allowed by CORS: ${origin}`));
     },
   }),
 );
 
-app.use(express.json());
+// body সর্বোচ্চ 1MB — বড় কিছু পাঠিয়ে server ব্যস্ত রাখা ঠেকাতে
+app.use(express.json({ limit: "1mb" }));
+
+// admin login এর cookie পড়ার জন্য
+app.use(cookieParser());
 
 /* ---------- DB ----------
    serverless এ প্রতিটা request আলাদা invocation, কিন্তু container
@@ -56,6 +58,9 @@ app.get("/", (req, res) => {
 app.get("/health", (req, res) => {
   res.json({ ok: true, time: new Date().toISOString() });
 });
+
+// Admin login — POST /login, POST /logout, GET /me
+app.use("/api/auth", authRoutes);
 
 app.use("/api/products", productRoutes);
 

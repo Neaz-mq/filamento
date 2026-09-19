@@ -394,19 +394,132 @@ button.tech-play:focus-visible {
 }
 
 /* ---------------------------------------------------------------
-   বদলানোর animation
+   বদলানোর animation — "pill থেকে card" (morph + stack)
 
-   নতুন card যেদিকের pill চাপা হয়েছে সেদিক থেকে নরমভাবে আসে —
-   মনে হয় তালিকাটা সত্যিই উপরে বা নিচে সরল. pill এর লেখা শুধু
-   আবছা থেকে ফুটে ওঠে
+   ১. নতুন card শুরু হয় ঠিক চাপা pill এর আকারে আর জায়গায় —
+      ধূসর, ভেতরে pill এর লেখা (veil)
+   ২. সেখান থেকে বড় হয়ে পুরো card হয়, পুরনো card এর উপর দিয়ে
+   ৩. পুরনো card পেছনে ছোট হয়, আবছা হয়, উল্টো দিকে সামান্য সরে
+      মিলিয়ে যায়
+   ৪. শেষে নতুন card এর লেখা আর play বোতাম ফুটে ওঠে
+
+   pill এর মাপ (উচ্চতা, ফাঁক, পাশের জায়গা) variable এ — ফোনে pill
+   ছোট, তাই শুধু variable বদলালেই animation মিলে যায়
    --------------------------------------------------------------- */
+.tech-stack {
+  --pill-h: 60px;
+  --pill-gap: 16px;
+  --pill-side: 14.55%; /* (100 − 70.9) / 2 — pill card এর চেয়ে সরু */
+  --card-r: 40px;
+  --swap-time: 0.85s;
+  --swap-ease: cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+/* দুইটা card একই জায়গায় — পুরনোটা নিচে, নতুনটা উপরে */
+.tech-card-slot {
+  display: grid;
+}
+
+.tech-card-slot > .tech-card {
+  grid-area: 1 / 1;
+  z-index: 2;
+}
+
+.tech-card-slot > .tech-card.is-leaving {
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* কোন দিক থেকে আসবে:
+   --from-y  → pill টা card থেকে কতটা দূরে (উপরে −, নিচে +)
+   --strip   → card এর কোন অংশটা শুরুতে দেখা যাবে (pill এর মাপে) */
+.tech-card[data-enter="top"] {
+  --from-y: calc(-1 * (var(--pill-h) + var(--pill-gap)));
+  --strip: inset(
+    0 var(--pill-side) calc(100% - var(--pill-h)) var(--pill-side)
+    round calc(var(--pill-h) / 2)
+  );
+}
+
+.tech-card[data-enter="bottom"] {
+  --from-y: calc(var(--pill-h) + var(--pill-gap));
+  --strip: inset(
+    calc(100% - var(--pill-h)) var(--pill-side) 0 var(--pill-side)
+    round calc(var(--pill-h) / 2)
+  );
+}
+
+/* ---------- pill এর মতো ধূসর আবরণ ----------
+   সাধারণ অবস্থায় অদৃশ্য; শুধু বদলানোর শুরুতে দেখা যায় */
+.tech-card-veil {
+  position: absolute;
+  z-index: 6;
+  inset: 0;
+  background: #9b9c9d; /* pill: rgba(55,58,60,.5) সাদার উপর */
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* pill এর লেখা — ঠিক pill এর জায়গায় (card এর উপরের বা নিচের 60px) */
+.tech-card-veil-label {
+  position: absolute;
+  left: var(--pill-side);
+  right: var(--pill-side);
+  height: var(--pill-h);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 24px;
+  box-sizing: border-box;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-family: "Inter", var(--font-sans), sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 26px;
+  text-transform: uppercase;
+  color: #ebebec;
+}
+
+.tech-card[data-enter="top"] .tech-card-veil-label {
+  top: 0;
+}
+
+.tech-card[data-enter="bottom"] .tech-card-veil-label {
+  bottom: 0;
+}
+
 @media (prefers-reduced-motion: no-preference) {
-  .tech-card[data-enter="top"] {
-    animation: tech-in-top 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+  /* ১ + ২ — pill থেকে card */
+  .tech-card[data-enter="top"]:not(.is-leaving),
+  .tech-card[data-enter="bottom"]:not(.is-leaving) {
+    animation: tech-card-in var(--swap-time) var(--swap-ease) both;
+    will-change: clip-path, transform;
   }
 
-  .tech-card[data-enter="bottom"] {
-    animation: tech-in-bottom 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+  .tech-card:not(.is-leaving) .tech-card-veil {
+    animation: tech-veil var(--swap-time) ease-out both;
+  }
+
+  .tech-card:not(.is-leaving) .tech-card-veil-label {
+    animation: tech-veil-label var(--swap-time) ease-out both;
+  }
+
+  /* ৩ — পুরনো card পেছনে সরে যায় */
+  .tech-card.is-leaving {
+    animation: tech-card-out var(--swap-time) var(--swap-ease) both;
+  }
+
+  /* ৪ — নতুন card এর লেখা আর play বোতাম, একটু পরে */
+  .tech-card[data-enter="top"]:not(.is-leaving) .tech-overlay,
+  .tech-card[data-enter="bottom"]:not(.is-leaving) .tech-overlay {
+    animation: tech-content-in var(--swap-time) var(--swap-ease) both;
+  }
+
+  .tech-card[data-enter="top"]:not(.is-leaving) .tech-play,
+  .tech-card[data-enter="bottom"]:not(.is-leaving) .tech-play {
+    animation: tech-play-in var(--swap-time) var(--swap-ease) both;
   }
 
   .tech-pill-label {
@@ -414,25 +527,77 @@ button.tech-play:focus-visible {
   }
 }
 
-@keyframes tech-in-top {
+@keyframes tech-card-in {
   from {
-    opacity: 0;
-    transform: translateY(-24px) scale(0.98);
+    clip-path: var(--strip);
+    transform: translateY(var(--from-y));
   }
   to {
+    clip-path: inset(0 0 0 0 round var(--card-r));
+    transform: translateY(0);
+  }
+}
+
+/* শুরুতে পুরো ধূসর (pill), মাঝপথে মিলিয়ে যায় — ভেতরের ছবি ফুটে ওঠে */
+@keyframes tech-veil {
+  0%,
+  15% {
+    opacity: 1;
+  }
+  55%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/* লেখাটা আগেই মেলায়, card বড় হতে শুরু করলেই */
+@keyframes tech-veil-label {
+  0% {
+    opacity: 1;
+  }
+  25%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/* পুরনো card উল্টো দিকে একটু সরে (নতুনটা যেন ঠেলে দিচ্ছে),
+   ছোট আর আবছা হয়ে মিলিয়ে যায় */
+@keyframes tech-card-out {
+  from {
+    opacity: 1;
+    transform: none;
+    filter: brightness(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(calc(var(--from-y) * -0.2)) scale(0.9);
+    filter: brightness(0.55);
+  }
+}
+
+@keyframes tech-content-in {
+  0%,
+  45% {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  100% {
     opacity: 1;
     transform: none;
   }
 }
 
-@keyframes tech-in-bottom {
-  from {
+/* play বোতাম মাঝে থাকে (translate −50%) — সেটা রেখেই ছোট থেকে বড় */
+@keyframes tech-play-in {
+  0%,
+  40% {
     opacity: 0;
-    transform: translateY(24px) scale(0.98);
+    transform: translate(-50%, -50%) scale(0.6);
   }
-  to {
+  100% {
     opacity: 1;
-    transform: none;
+    transform: translate(-50%, -50%) scale(1);
   }
 }
 
@@ -442,6 +607,18 @@ button.tech-play:focus-visible {
   }
   to {
     opacity: 1;
+  }
+}
+
+/* motion বন্ধ থাকলে: শুধু নরম fade, আর পুরনো card সরাসরি লুকানো */
+@media (prefers-reduced-motion: reduce) {
+  .tech-card.is-leaving {
+    display: none;
+  }
+
+  .tech-card[data-enter="top"]:not(.is-leaving),
+  .tech-card[data-enter="bottom"]:not(.is-leaving) {
+    animation: tech-fade 0.3s ease both;
   }
 }
 
@@ -482,6 +659,19 @@ button.tech-play:focus-visible {
   .tech-pill {
     width: 86%;
     height: 48px;
+    padding: 0 18px;
+    font-size: 14px;
+  }
+
+  /* animation এর pill এর মাপও ফোনের pill এর সাথে মেলানো */
+  .tech-stack {
+    --pill-h: 48px;
+    --pill-gap: 12px;
+    --pill-side: 7%;
+    --card-r: 28px;
+  }
+
+  .tech-card-veil-label {
     padding: 0 18px;
     font-size: 14px;
   }
