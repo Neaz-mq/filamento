@@ -288,6 +288,42 @@
       "installationGuides": "Installation Guides"
     }
   },
+  "projects": {
+    "eyebrow": "Our work",
+    "title": "Projects",
+    "subhead": "A look at the facilities already running on Filamento fixtures — from cold storage to convention centers, coast to coast.",
+    "search": {
+      "placeholder": "Search by project, city, or environment...",
+      "ariaLabel": "Search projects",
+      "environmentLabel": "All environments",
+      "environmentAriaLabel": "Filter by environment"
+    },
+    "categories": {
+      "all": "All Projects",
+      "airport": "Airport",
+      "automotiveDealership": "Automotive Dealership",
+      "church": "Church",
+      "coldStorage": "Cold Storage",
+      "conferenceCenter": "Conference Center",
+      "conventionCenter": "Convention Center",
+      "distributionCenter": "Distribution Center",
+      "gymnasium": "Gymnasium",
+      "manufacturing": "Manufacturing",
+      "office": "Office",
+      "retail": "Retail",
+      "streetLights": "Street Lights",
+      "warehouse": "Warehouse"
+    },
+    "viewProject": "View {{name}} project",
+    "empty": "No projects match your search yet.",
+    "emptyHint": "Try a different keyword, or clear the environment filter.",
+    "clearFilters": "Clear filters",
+    "pagination": {
+      "previous": "Previous",
+      "next": "Next",
+      "pageAriaLabel": "Go to page {{page}}"
+    }
+  },
   "comingSoon": {
     "eyebrow": "Coming soon",
     "titleRest": "Coming to light soon.",

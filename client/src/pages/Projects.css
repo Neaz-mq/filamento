@@ -1,0 +1,776 @@
+/* ===============================================================
+   PROJECTS — লিস্ট পাতা (Figma "Frame 285" + projects css)
+
+   Frame 285   1408 x 742, padding 32px 0 0, কোনো background নেই
+   Frame 153   1240, gap 48
+     Frame 424 (filters)  gap 32
+       Search Bar   1240 x 70, border 1px rgba(55,58,60,.25), radius 40, padding 12
+       Frame 419    pill সারি, gap 16 — [তীর 24][pill, gap 8][তীর 24]
+     Frame 404 (gallery)  gap 32
+       rail         450 উঁচু, card 298 (খোলা: 612), gap 16, radius 40
+       pagination   40 উঁচু, মাঝখানে, gap 8
+
+   32 + 140 + 48 + 450 + 32 + 40 = 742 ✓
+   =============================================================== */
+
+.section.projects {
+  --pj-surface: #ebebec;
+  --pj-ink: #373a3c;
+  --pj-ink-75: rgba(55, 58, 60, 0.75);
+  --pj-ink-50: rgba(55, 58, 60, 0.5);
+  --pj-ink-25: rgba(55, 58, 60, 0.25);
+  --pj-ink-10: rgba(55, 58, 60, 0.1);
+  --pj-line: #ebebec;
+  --pj-yellow: #ffc107;
+
+  /* card এর মাপ (Figma: 298 → 612, উচ্চতা 450, নিচের ধূসর অংশ 92) */
+  --pj-card-h: 450px;
+  --pj-card-w: 298px;
+  --pj-card-w-active: 612px;
+  --pj-card-foot: 92px;
+  --pj-card-radius: 40px;
+  --pj-card-gap: 16px;
+  --pj-card-dur: 0.82s; /* Projects.jsx এর CARD_TRANSITION_MS এর সাথে মেলে */
+  /* শুরু আর শেষ দুই দিকেই নরম — আগের ease-out এ শুরুটা ধাক্কার মতো লাগত */
+  --pj-card-ease: cubic-bezier(0.45, 0, 0.2, 1);
+
+  /* container (1240) এর বাইরে, পাতার কিনারা পর্যন্ত কতটা জায়গা —
+     rail এই জায়গাটুকু দখল করে, তাই পরের card অর্ধেক উঁকি দেয়।
+     100cqw = এই section এর content প্রস্থ (নিচের container-type থেকে) */
+  --pj-gutter: calc(var(--section-pad-x) + max(0px, (100cqw - var(--content-max)) / 2));
+
+  container-type: inline-size;
+  /* উঁকি দেওয়া card পাতার কিনারায় কেটে যাবে (Figma frame এর মতো) */
+  overflow-x: clip;
+  /* Figma: উপরে 32, পাশে নেই (1240 এ কেন্দ্রীভূত), Figma তে কোনো
+     background রঙ নেই */
+  padding-top: 32px;
+  padding-bottom: var(--section-pad-y);
+  background: transparent;
+  color: var(--pj-ink);
+  font-family: "Inter", var(--font-sans), sans-serif;
+}
+
+@media (max-width: 1099px) {
+  .section.projects {
+    --pj-card-h: 400px;
+    --pj-card-w: 220px;
+    --pj-card-w-active: 460px;
+    --pj-card-radius: 32px;
+  }
+}
+
+@media (max-width: 640px) {
+  .section.projects {
+    --pj-card-h: 380px;
+    --pj-card-w: 128px;
+    --pj-card-w-active: 100cqw; /* ফোনে খোলা card টা পুরো প্রস্থ */
+    --pj-card-radius: 28px;
+    --pj-card-foot: 88px;
+    padding-top: 24px;
+  }
+}
+
+.projects-inner {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(32px, 3.5vw, 48px);
+}
+
+.projects-filters {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+/* ---------------------------------------------------------------
+   সার্চ বার — Figma "Search Bar"
+   --------------------------------------------------------------- */
+.projects-searchbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 70px;
+  /* Figma: 12 + 1px border = 13 দুইপাশে (ভেতরের content 1214) */
+  padding: 0 12px;
+  border: 1px solid var(--pj-ink-25);
+  border-radius: 40px;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease;
+}
+
+.projects-searchbar:focus-within {
+  border-color: var(--pj-ink);
+}
+
+/* Frame 32: 46 উঁচু, padding 10 0 10 16, radius 23 */
+.projects-search-field {
+  display: flex;
+  align-items: center;
+  flex: 1 1 auto;
+  min-width: 0;
+  gap: 13px;
+  height: 46px;
+  padding: 10px 0 10px 16px;
+  border-radius: 23px;
+  filter: drop-shadow(0 2px 2px rgba(11, 18, 26, 0.02));
+  cursor: text;
+}
+
+.projects-search-field svg {
+  flex: none;
+}
+
+.projects-search-field input {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  font-family: inherit;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 26px;
+  color: var(--pj-ink);
+}
+
+.projects-search-field input::placeholder {
+  color: var(--pj-ink-50);
+  opacity: 1;
+}
+
+.projects-filter-icon {
+  flex: none;
+}
+
+/* Frame 152: 242 x 46, border 1px #EBEBEC, radius 35, padding 14।
+   আসল <select> চোখে দেখা যায় না এমন করে উপরে বসানো, নিচে শুধু pill
+   এর চেহারা + chevron আঁকা — keyboard আর screen reader এর নিজস্ব আচরণ
+   (native <select>) অক্ষত থাকে */
+.projects-env-select {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: none;
+  width: 242px;
+  height: 46px;
+  padding: 0 14px;
+  border: 1px solid var(--pj-line);
+  border-radius: 35px;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease;
+}
+
+.projects-env-select:hover {
+  border-color: var(--pj-ink-25);
+}
+
+.projects-env-select:focus-within {
+  border-color: var(--pj-ink);
+}
+
+.projects-env-select select {
+  width: 100%;
+  height: 100%;
+  padding: 0 24px 0 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  appearance: none;
+  font-family: inherit;
+  font-weight: 500;
+  font-size: 14.5px;
+  line-height: 18px;
+  color: var(--pj-ink);
+  cursor: pointer;
+}
+
+.projects-env-chevron {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  display: flex;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+@media (max-width: 640px) {
+  .projects-searchbar {
+    flex-wrap: wrap;
+    height: auto;
+    border-radius: 28px;
+    padding: 10px;
+  }
+  .projects-search-field {
+    flex-basis: 100%;
+  }
+  .projects-filter-icon {
+    display: none;
+  }
+  .projects-env-select {
+    flex: 1 1 100%;
+    width: auto;
+  }
+}
+
+/* ---------------------------------------------------------------
+   category pill এর সারি — Figma "Frame 419"
+   [তীর 24] gap 16 [pill গুলো, gap 8] gap 16 [তীর 24]
+   --------------------------------------------------------------- */
+.projects-tabs-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  /* Figma "Frame 419" 38 উঁচু — pill 40, তাই দুই দিকে 1px বেরিয়ে থাকে */
+  height: 38px;
+}
+
+.projects-tabs-arrow {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--pj-ink-75);
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.projects-tabs-arrow:hover:not(:disabled) {
+  color: var(--pj-ink);
+}
+
+/* Figma: শুরুর প্রান্তে বাঁ তীর ফ্যাকাশে (rgba .1) */
+.projects-tabs-arrow:disabled {
+  color: var(--pj-ink-10);
+  cursor: default;
+}
+
+.projects-tabs {
+  display: flex;
+  align-items: center;
+  flex: 1 1 auto;
+  min-width: 0;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  /* focus ring যেন কেটে না যায় */
+  padding: 3px;
+  margin: -3px;
+}
+
+.projects-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+/* Figma: সব pill 40 উঁচু, padding 10 16, gap 6, radius 30।
+   বন্ধ pill: সাদা, border #EBEBEC, লেখা 16/19, rgba(55,58,60,.75)।
+   সক্রিয় pill: #373A3C, লেখা 14/17 সাদা — Figma তে সত্যিই ছোট */
+.projects-tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  gap: 6px;
+  height: 40px;
+  padding: 0 16px;
+  box-sizing: border-box;
+  background: #ffffff;
+  border: 1px solid var(--pj-line);
+  border-radius: 30px;
+  font-family: inherit;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 19px;
+  white-space: nowrap;
+  color: var(--pj-ink-75);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.projects-tab:hover {
+  border-color: var(--pj-ink-25);
+}
+
+.projects-tab.is-active {
+  background: var(--pj-ink);
+  border-color: var(--pj-ink);
+  font-size: 14px;
+  line-height: 17px;
+  color: #ffffff;
+}
+
+.projects-tab-count {
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 15px;
+  color: var(--pj-ink-75);
+}
+
+.projects-tab.is-active .projects-tab-count {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+/* ---------------------------------------------------------------
+   gallery = rail + pagination, gap 32
+   --------------------------------------------------------------- */
+.projects-gallery {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+/* stage: container (1240) থেকে দুইপাশে বেরিয়ে পাতার কিনারা পর্যন্ত।
+   flow-root — ভেতরের rail এর negative margin যেন বাইরে না গড়ায় */
+.projects-stage {
+  position: relative;
+  display: flow-root;
+  margin-inline: calc(var(--pj-gutter) * -1);
+}
+
+/* rail: আনুভূমিক scroll, scrollbar লুকানো। উপরে-নিচে 6px বাড়তি জায়গা
+   focus ring এর জন্য (negative margin দিয়ে ফেরত) */
+.projects-rail {
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding-block: 6px;
+  margin-block: -6px;
+}
+
+.projects-rail::-webkit-scrollbar {
+  display: none;
+}
+
+/* track: card গুলোর সারি। padding-inline ই সেই gutter — তাই প্রথম
+   card 1240 এর বাঁ কিনারায় বসে, আর শেষ card এর পরেও একই ফাঁক থাকে */
+.projects-track {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--pj-card-gap);
+  width: max-content;
+  min-width: 100%;
+  margin: 0;
+  padding: 0 var(--pj-gutter);
+  list-style: none;
+  box-sizing: border-box;
+}
+
+/* ---------------------------------------------------------------
+   project card
+
+   বন্ধ  : 298 x 450, শুধু ছবি (radius 40)
+   খোলা : 612 x 450, background #EBEBEC (radius 40)
+            ছবি 612 x 358 (radius 40) + label উপরে-বাঁয়ে 24/24
+            নিচে 92 উঁচু অংশ: নাম (Space Grotesk 700 20), শহর, 48px বোতাম
+
+   ছবির উচ্চতা 450 → 358 আর card এর প্রস্থ 298 → 612 একসাথে
+   বদলায়, নিচের ধূসর অংশ ভেতর থেকে উঠে আসে
+   --------------------------------------------------------------- */
+.projects-card {
+  position: relative;
+  isolation: isolate;
+  flex: none;
+  width: var(--pj-card-w);
+  height: var(--pj-card-h);
+  overflow: hidden;
+  border-radius: var(--pj-card-radius);
+  background-color: transparent;
+  cursor: pointer;
+  transition:
+    width var(--pj-card-dur) var(--pj-card-ease),
+    background-color var(--pj-card-dur) var(--pj-card-ease);
+}
+
+.projects-card.is-active {
+  width: var(--pj-card-w-active);
+  background-color: var(--pj-surface);
+  cursor: default;
+}
+
+.projects-card-media {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--pj-card-h);
+  overflow: hidden;
+  border-radius: var(--pj-card-radius);
+  background: #d9d9da;
+  transition: height var(--pj-card-dur) var(--pj-card-ease);
+}
+
+.projects-card.is-active .projects-card-media {
+  height: calc(var(--pj-card-h) - var(--pj-card-foot));
+}
+
+/* ছবির মাপ কখনো বদলায় না (খোলা card এর প্রস্থ x পুরো উচ্চতা) আর মাঝ
+   বরাবর বসানো — card বাড়া-কমার সময় ছবি scale হয় না, শুধু জানালাটা
+   বড়/ছোট হয়। আগে প্রতি frame এ ছবি নতুন করে কেটে scale হতো, সেটাই
+   ঝাঁকুনির মতো লাগছিল */
+.projects-card-media img {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: block;
+  width: var(--pj-card-w-active);
+  height: var(--pj-card-h);
+  max-width: none;
+  transform: translate(-50%, -50%);
+  object-fit: cover;
+  user-select: none;
+}
+
+/* Label — Figma: 30 উঁচু, padding 8 10, rgba(255,255,255,.9), লেখা 14 uppercase */
+.projects-card-badge {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  max-width: calc(100% - 48px);
+  box-sizing: border-box;
+  padding: 8px 10px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 30px;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 14px;
+  text-transform: uppercase;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--pj-ink);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.projects-card.is-active .projects-card-badge {
+  opacity: 1;
+  transition-duration: 0.35s;
+  transition-delay: 0.3s;
+}
+
+/* নিচের অংশ — Figma "Frame 440": padding 20 24 24, উচ্চতা 92।
+   প্রস্থ সবসময় খোলা card এর সমান — বন্ধ অবস্থায় card এর overflow
+   এ কাটা থাকে, তাই লেখা কখনো ভেঙে (wrap) যায় না */
+.projects-card-footer {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  display: flex;
+  align-items: flex-end;
+  gap: 24px;
+  width: var(--pj-card-w-active);
+  height: var(--pj-card-foot);
+  padding: 20px 24px 24px;
+  box-sizing: border-box;
+  opacity: 0;
+  transform: translateY(14px);
+  transition:
+    opacity 0.25s ease,
+    transform 0.4s ease;
+  pointer-events: none;
+}
+
+.projects-card.is-active .projects-card-footer {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 0.45s ease 0.28s,
+    transform var(--pj-card-dur) var(--pj-card-ease) 0.12s;
+}
+
+/* Figma "Frame 453": নাম + শহর, মোট 48 (= বোতামের উচ্চতা)।
+   নামের line-height 24 (margin -2 দিয়ে ঠিক 20px জায়গায়) — 20 এ y, g
+   এর নিচের অংশ কেটে যেত */
+.projects-card-text {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-width: 0;
+  gap: 10px;
+}
+
+.projects-card-name {
+  margin: -2px 0 0;
+  overflow: hidden;
+  font-family: "Space Grotesk", var(--font-sans), sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 24px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--pj-ink);
+}
+
+.projects-card-city {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 16px;
+  margin: 0;
+  font-weight: 400;
+  font-size: 16px;
+  color: var(--pj-ink-75);
+}
+
+.projects-card-city svg {
+  flex: none;
+}
+
+.projects-card-city span {
+  overflow: hidden;
+  line-height: 20px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Figma "Frame 68": 48 x 48, #373A3C, radius 40 */
+.projects-card-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 48px;
+  height: 48px;
+  background: var(--pj-ink);
+  border-radius: 40px;
+  transition: background-color 0.2s ease;
+}
+
+.projects-card-arrow svg {
+  transition: transform 0.25s ease;
+}
+
+.projects-card.is-active:hover .projects-card-arrow {
+  background: #1f2123;
+}
+
+.projects-card.is-active:hover .projects-card-arrow svg {
+  transform: translate(2px, -2px);
+}
+
+/* পুরো card জুড়ে লিংক — শুধু খোলা card এ ক্লিক ধরে */
+.projects-card-link {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.projects-card.is-active .projects-card-link {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.projects-card-link:focus-visible {
+  outline: 3px solid var(--pj-yellow);
+  outline-offset: -8px;
+}
+
+/* ---------------------------------------------------------------
+   rail এর তীর — Figma "Button": 48px গোল, container এর দুই কিনারায়
+   অর্ধেক ভেতরে অর্ধেক বাইরে, card এর উচ্চতার ঠিক মাঝে
+   বাঁ (শুরুতে): opacity .25 আর ডান: rgba(55,58,60,.75)
+   --------------------------------------------------------------- */
+.projects-rail-arrow {
+  position: absolute;
+  top: calc(50% - 24px);
+  z-index: 4;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: var(--pj-ink-75);
+  box-shadow: 0 0 10px rgba(11, 18, 26, 0.1);
+  color: #ebebec;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.projects-rail-arrow.is-prev {
+  left: calc(var(--pj-gutter) - 24px);
+}
+
+.projects-rail-arrow.is-next {
+  right: calc(var(--pj-gutter) - 24px);
+}
+
+.projects-rail-arrow:hover:not(:disabled) {
+  background: var(--pj-ink);
+}
+
+.projects-rail-arrow:disabled {
+  background: var(--pj-ink);
+  opacity: 0.25;
+  cursor: default;
+}
+
+/* ফোনে আঙুলে টানাই যথেষ্ট, তীর সরিয়ে দেওয়া */
+@media (max-width: 640px) {
+  .projects-rail-arrow {
+    display: none;
+  }
+}
+
+/* ---------------------------------------------------------------
+   ফলাফল খালি হলে
+   --------------------------------------------------------------- */
+.projects-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 48px;
+  background: var(--pj-surface);
+  border-radius: 40px;
+  text-align: left;
+}
+
+.projects-empty p {
+  margin: 0;
+  font-weight: 600;
+  font-size: 18px;
+  color: var(--pj-ink);
+}
+
+.projects-empty-hint {
+  font-weight: 400 !important;
+  font-size: 14px !important;
+  color: var(--pj-ink-75) !important;
+}
+
+.projects-empty-clear {
+  margin-top: 12px;
+  padding: 10px 20px;
+  background: var(--pj-ink);
+  border: 0;
+  border-radius: 100px;
+  font-family: inherit;
+  font-weight: 500;
+  font-size: 14px;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.projects-empty-clear:hover {
+  background: #000000;
+}
+
+/* ---------------------------------------------------------------
+   pagination — Figma "Group 5": মাঝখানে, gap 8
+   Previous (padding 13 18 12 19, 12/15 500) + 40x40 সংখ্যা + Next
+   --------------------------------------------------------------- */
+.projects-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.projects-pagination-side {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 40px;
+  padding: 0 18px 0 19px;
+  background: #ffffff;
+  border: 0;
+  border-radius: 20px;
+  font-family: inherit;
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 15px;
+  color: var(--pj-ink);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.projects-pagination-side:hover:not(:disabled) {
+  background: var(--pj-surface);
+}
+
+.projects-pagination-side:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.projects-pagination-pages {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.projects-pagination-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  background: #ffffff;
+  border: 0;
+  border-radius: 20px;
+  font-family: inherit;
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 15px;
+  color: var(--pj-ink);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.projects-pagination-page:hover:not(.is-active) {
+  background: var(--pj-surface);
+}
+
+.projects-pagination-page.is-active {
+  background: var(--pj-ink);
+  color: #ffffff;
+}
+
+.projects-pagination-ellipsis {
+  min-width: 20px;
+  text-align: center;
+  font-weight: 500;
+  font-size: 12px;
+  color: var(--pj-ink-75);
+}
+
+@media (max-width: 640px) {
+  .projects-pagination-side span {
+    display: none;
+  }
+  .projects-pagination-side {
+    padding: 0 14px;
+  }
+}
+
+/* ---------------------------------------------------------------
+   motion কমানো — সব transition বন্ধ, card সঙ্গে সঙ্গে বদলায়
+   --------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .projects-card,
+  .projects-card-media,
+  .projects-card-badge,
+  .projects-card-footer,
+  .projects-card-arrow svg {
+    transition: none !important;
+  }
+}

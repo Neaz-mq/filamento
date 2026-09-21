@@ -288,6 +288,42 @@
       "installationGuides": "設置ガイド"
     }
   },
+  "projects": {
+    "eyebrow": "施工実績",
+    "title": "プロジェクト",
+    "subhead": "Filamentoの照明を導入いただいている施設をご紹介します — 冷蔵倉庫からコンベンションセンターまで、全米各地で稼働中です。",
+    "search": {
+      "placeholder": "プロジェクト名、都市、用途で検索...",
+      "ariaLabel": "プロジェクトを検索",
+      "environmentLabel": "すべての用途",
+      "environmentAriaLabel": "用途で絞り込む"
+    },
+    "categories": {
+      "all": "すべてのプロジェクト",
+      "airport": "空港",
+      "automotiveDealership": "自動車販売店",
+      "church": "教会",
+      "coldStorage": "冷蔵倉庫",
+      "conferenceCenter": "会議場",
+      "conventionCenter": "コンベンションセンター",
+      "distributionCenter": "物流センター",
+      "gymnasium": "体育館",
+      "manufacturing": "製造業",
+      "office": "オフィス",
+      "retail": "小売",
+      "streetLights": "街路灯",
+      "warehouse": "倉庫"
+    },
+    "viewProject": "{{name}}のプロジェクトを見る",
+    "empty": "条件に一致するプロジェクトが見つかりませんでした。",
+    "emptyHint": "別のキーワードで検索するか、用途の絞り込みを解除してください。",
+    "clearFilters": "絞り込みを解除",
+    "pagination": {
+      "previous": "前へ",
+      "next": "次へ",
+      "pageAriaLabel": "{{page}}ページ目へ"
+    }
+  },
   "comingSoon": {
     "eyebrow": "近日公開",
     "titleRest": "まもなく点灯します。",

@@ -288,6 +288,42 @@
       "installationGuides": "安裝指南"
     }
   },
+  "projects": {
+    "eyebrow": "實績案例",
+    "title": "專案",
+    "subhead": "看看已經採用 Filamento 燈具的場域 — 從冷凍倉儲到會議中心，遍布各地。",
+    "search": {
+      "placeholder": "依專案名稱、城市或用途搜尋...",
+      "ariaLabel": "搜尋專案",
+      "environmentLabel": "所有用途",
+      "environmentAriaLabel": "依用途篩選"
+    },
+    "categories": {
+      "all": "所有專案",
+      "airport": "機場",
+      "automotiveDealership": "汽車經銷商",
+      "church": "教堂",
+      "coldStorage": "冷凍倉儲",
+      "conferenceCenter": "會議中心",
+      "conventionCenter": "會展中心",
+      "distributionCenter": "物流中心",
+      "gymnasium": "體育館",
+      "manufacturing": "製造業",
+      "office": "辦公室",
+      "retail": "零售",
+      "streetLights": "路燈",
+      "warehouse": "倉庫"
+    },
+    "viewProject": "查看「{{name}}」專案",
+    "empty": "找不到符合條件的專案。",
+    "emptyHint": "請換個關鍵字搜尋，或清除用途篩選。",
+    "clearFilters": "清除篩選",
+    "pagination": {
+      "previous": "上一頁",
+      "next": "下一頁",
+      "pageAriaLabel": "前往第 {{page}} 頁"
+    }
+  },
   "comingSoon": {
     "eyebrow": "即將推出",
     "titleRest": "即將點亮登場。",

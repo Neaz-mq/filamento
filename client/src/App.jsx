@@ -2,6 +2,7 @@ import { Suspense, lazy } from "react";
 import { Navigate, createBrowserRouter, RouterProvider } from "react-router-dom";
 import LocaleLayout from "./routes/LocaleLayout";
 import Home from "./pages/Home";
+import Projects from "./pages/Projects";
 import ComingSoon from "./pages/ComingSoon";
 import { useLocaleLink } from "./i18n/useLocaleLink";
 import { DEFAULT_LANGUAGE, LANGUAGES } from "./i18n";
@@ -72,8 +73,9 @@ function AdminBoot() {
    --------------------------------------------------------------- */
 const COMING_SOON = [
   { path: "products", titleKey: "nav.products" },
-  { path: "projects", titleKey: "nav.projects" },
-  // Testimonial এর "Project" link — /projects/marcus-cold-storage ইত্যাদি
+  // "projects" (তালিকা) এখন আসল পাতা — নিচে PAGES এ।
+  // Testimonial এর "Project" link — /projects/marcus-cold-storage ইত্যাদি,
+  // এই একক প্রজেক্ট বিস্তারিত পাতাটা এখনো বানানো হয়নি
   { path: "projects/:slug", titleKey: "nav.projects" },
   { path: "application", titleKey: "nav.application" },
   { path: "company", titleKey: "nav.company" },
@@ -102,6 +104,7 @@ const PAGES = [
   { index: true, element: <Home /> },
   // { path: "products", element: <Products /> },
   // { path: "products/:slug", element: <ProductDetail /> },
+  { path: "projects", element: <Projects /> },
   { path: "contact", element: <ContactRedirect /> },
   ...COMING_SOON.map(({ path, titleKey }) => ({
     path,

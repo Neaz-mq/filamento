@@ -1,0 +1,819 @@
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { useLocaleLink } from "../i18n/useLocaleLink";
+import "./Projects.css";
+
+/* ===============================================================
+   PROJECTS — লিস্ট পাতা
+
+   Figma "Frame 285" (1408 x 742, কোনো background রঙ নেই):
+
+     সার্চ বার (1240 x 70) ── gap 32 ── category pill এর সারি (দুইপাশে তীর)
+        │ gap 48
+     card rail (450 উঁচু) ── gap 32 ── pagination (মাঝখানে)
+
+   card এর আচরণ: সাধারণ অবস্থায় 298 x 450 শুধু ছবি। মাউস দিলে (hover)
+   card টা 612 চওড়া হয়ে যায় — ছবি 358 উঁচুতে নামে, নিচে ধূসর অংশে নাম,
+   শহর আর তীর বোতাম ফুটে ওঠে, উপরে বাঁয়ে category label। বাকি card
+   গুলো 298 এ ফিরে যায়। rail এর দুইপাশে 48px এর তীর দিয়ে card এ
+   card এ যাওয়া যায়; পরের card অর্ধেক উঁকি দেয় (peek)।
+
+   ⚠️ backend/CMS এখনো নেই — তাই PROJECTS array এ হাতে বসানো ডেটা।
+   admin থেকে project যোগ/বাদ দেওয়া চালু হলে এই array টা বাদ দিয়ে
+   API থেকে আনলেই বাকি সব (search, filter, pagination) এমনিই কাজ
+   করবে — নিচের UI কোড ডেটার উৎস নিয়ে মাথা ঘামায় না।
+
+   ছবি: Cloudinary থেকে — নিচের PHOTOS দেখুন। একই ছবি collapsed অবস্থায়
+   298 x 450 (portrait) আর expanded অবস্থায় 612 x 358 (landscape) এ
+   object-fit: cover দিয়ে কাটা হয়।
+   =============================================================== */
+
+const PAGE_SIZE = 4;
+
+/* শুরুতে কোন card টা খোলা থাকবে (0 থেকে গোনা) — Figma তে তৃতীয়টা।
+   4 card এর পাতায় তৃতীয়টা খুললে 628 + 612 = 1240, অর্থাৎ ঠিক
+   container এর ডান কিনারায় শেষ হয় — তাই rail কে সরাতে হয় না।
+   পাতায় এর চেয়ে কম card থাকলে নিচের `active` হিসাবটা শেষেরটা ধরে */
+const DEFAULT_ACTIVE_INDEX = 2;
+
+/* project এর ছবি — Cloudinary (Fixtures.jsx এর মতোই, একই account)।
+   PHOTOS এ এখন তিনটা ছবি; project গুলো ক্রমানুসারে এগুলো ঘুরিয়ে-ফিরিয়ে
+   নেয় (১ম→ছবি১, ২য়→ছবি২, ৩য়→ছবি৩, ৪র্থ→ছবি১ ...)।
+   ✅ নতুন ছবি পেলে শুধু PHOTOS এ path যোগ করলেই হবে — বাকি সব নিজে মেলে
+
+   f_auto,q_auto  — ব্রাউজার অনুযায়ী সেরা format আর মানানসই মান
+   c_limit,w_     — নির্দিষ্ট প্রস্থে নামায়, ছোট ছবি কখনো বড় করে না */
+const PHOTOS = [
+  "v1789985331/be5360cb5806dd39ba58c23000d7201a66b3447a_wl2fwe.jpg",
+  "v1789985339/3041207c74d5ee01e3921128797d9c9614c8156d_adbdcq.jpg",
+  "v1789985350/55103d210a35d777640fc5b5351acecee6d9580e_uvrmn1.jpg",
+];
+
+const photoUrl = (path, width) =>
+  `https://res.cloudinary.com/dzi3u164c/image/upload/c_limit,w_${width},f_auto,q_auto/${path}`;
+
+/* srcset — খোলা card 612px, retina তে ~1224px লাগে। ফোনে card পুরো
+   প্রস্থ, তাই 100vw */
+const PHOTO_WIDTHS = [800, 1200, 1600];
+const photoSrcSet = (path) =>
+  PHOTO_WIDTHS.map((w) => `${photoUrl(path, w)} ${w}w`).join(", ");
+const PHOTO_SIZES = "(max-width: 640px) 100vw, 612px";
+
+/* category — projects.categories.<key> এর সাথে মেলে, আর Footer.jsx
+   এর COLUMNS["projects"].links এর সাথেও (?category=xxx) মিলিয়ে
+   রাখা, যাতে footer এর link থেকে সরাসরি সঠিক filter এ আসে */
+const PROJECT_LIST = [
+  {
+    slug: "denver-regional-airport",
+    name: "Denver Regional Airport",
+    city: "Denver, Colorado",
+    category: "airport",
+  },
+  {
+    slug: "barn-xo",
+    name: "Barn XO",
+    city: "Chicago, Illinois",
+    category: "retail",
+  },
+  {
+    slug: "westside-auto-gallery",
+    name: "Westside Auto Gallery",
+    city: "Austin, Texas",
+    category: "automotiveDealership",
+  },
+  {
+    slug: "precision-auto-works",
+    name: "Precision Auto Works",
+    city: "Miami, Florida",
+    category: "automotiveDealership",
+  },
+  {
+    slug: "grace-community-church",
+    name: "Grace Community Church",
+    city: "Nashville, Tennessee",
+    category: "church",
+  },
+  {
+    slug: "st-andrews-cathedral",
+    name: "St. Andrew's Cathedral",
+    city: "Boston, Massachusetts",
+    category: "church",
+  },
+  {
+    slug: "lakeside-convention-center",
+    name: "Lakeside Convention Center",
+    city: "Cleveland, Ohio",
+    category: "conventionCenter",
+  },
+  {
+    slug: "central-high-gymnasium",
+    name: "Central High Gymnasium",
+    city: "Columbus, Ohio",
+    category: "gymnasium",
+  },
+  {
+    // Testimonial.jsx এর "David R." এর quote এই প্রজেক্টের কথাই বলছে
+    slug: "david-manufacturing-plant",
+    name: "David's Manufacturing Plant",
+    city: "Detroit, Michigan",
+    category: "manufacturing",
+  },
+  {
+    slug: "harborview-office-park",
+    name: "Harborview Office Park",
+    city: "Seattle, Washington",
+    category: "office",
+  },
+  {
+    slug: "meridian-tech-campus",
+    name: "Meridian Tech Campus",
+    city: "San Jose, California",
+    category: "office",
+  },
+  {
+    slug: "union-square-retail-center",
+    name: "Union Square Retail Center",
+    city: "San Francisco, California",
+    category: "retail",
+  },
+  {
+    // Testimonial.jsx এর "Elena M." এর quote
+    slug: "elena-warehouse-retrofit",
+    name: "Elena's Warehouse Retrofit",
+    city: "Phoenix, Arizona",
+    category: "warehouse",
+  },
+  {
+    slug: "riverside-conference-center",
+    name: "Riverside Conference Center",
+    city: "Portland, Oregon",
+    category: "conferenceCenter",
+  },
+  {
+    slug: "downtown-street-lighting-upgrade",
+    name: "Downtown Street Lighting Upgrade",
+    city: "Sacramento, California",
+    category: "streetLights",
+  },
+  {
+    // Testimonial.jsx এর "Marcus L." এর quote
+    slug: "marcus-cold-storage",
+    name: "Marcus Cold Storage Facility",
+    city: "Minneapolis, Minnesota",
+    category: "coldStorage",
+  },
+  {
+    // Testimonial.jsx এর "Frank S." এর quote
+    slug: "frank-distribution-center",
+    name: "Frank's Distribution Center",
+    city: "Dallas, Texas",
+    category: "distributionCenter",
+  },
+  {
+    slug: "riverfront-manufacturing-annex",
+    name: "Riverfront Manufacturing Annex",
+    city: "Pittsburgh, Pennsylvania",
+    category: "manufacturing",
+  },
+];
+
+/* প্রতিটা project এ তার ক্রম অনুযায়ী একটা ছবি বসানো */
+const PROJECTS = PROJECT_LIST.map((project, index) => ({
+  ...project,
+  photo: PHOTOS[index % PHOTOS.length],
+}));
+
+/* pill এর ক্রম — screenshot এর মতোই, "All Projects" সবার আগে */
+const CATEGORY_ORDER = [
+  "all",
+  "airport",
+  "automotiveDealership",
+  "church",
+  "conventionCenter",
+  "gymnasium",
+  "manufacturing",
+  "office",
+  "retail",
+  "warehouse",
+  "conferenceCenter",
+  "coldStorage",
+  "distributionCenter",
+  "streetLights",
+];
+
+/* ---------------------------------------------------------------
+   আইকন — মাপ আর stroke Figma র CSS থেকে
+   --------------------------------------------------------------- */
+
+/* Figma: 24px, stroke 2px #40464E */
+function SearchIcon() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="11" cy="11" r="7" stroke="#40464E" strokeWidth="2" />
+      <path d="M16.5 16.5 21 21" stroke="#40464E" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+/* Figma: 16px, stroke 1.5px #84888C — তিন সারির slider আইকন।
+   শুধু সাজসজ্জা (dropdown এর পাশে), তাই aria-hidden */
+function FilterIcon() {
+  return (
+    <svg
+      className="projects-filter-icon"
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      aria-hidden="true"
+    >
+      <g stroke="#84888C" strokeWidth="1.5" strokeLinecap="round">
+        <path d="M2 3.33h4.67M9.33 3.33H14M9.33 2v2.67" />
+        <path d="M2 8h3.33M8 8h6M5.33 6.67v2.67" />
+        <path d="M2 12.67h6M10.67 12.67H14M10.67 11.33V14" />
+      </g>
+    </svg>
+  );
+}
+
+/* Figma: 10 x 5, stroke 1.5px #373A3C */
+function ChevronDown() {
+  return (
+    <svg width="10" height="5" viewBox="0 0 10 5" fill="none" aria-hidden="true">
+      <path d="M1 .75 5 4.25 9 .75" stroke="#373A3C" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+/* Figma: 16px, stroke 1.5px */
+function PinIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <path
+        d="M8 14.67S13.33 10.2 13.33 6.67A5.33 5.33 0 0 0 2.67 6.67C2.67 10.2 8 14.67 8 14.67Z"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+      />
+      <circle cx="8" cy="6.67" r="2" stroke="currentColor" strokeWidth="1.5" />
+    </svg>
+  );
+}
+
+/* card এর 48px গোল বোতামের ভেতরের সাদা তীর */
+function ArrowUpRight() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M6 18 18 6" stroke="#fff" strokeWidth="2" strokeLinecap="round" />
+      <path d="M8.5 6H18v9.5" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+/* pill সারি আর rail এর তীর — দিক CSS ছাড়া এখানেই ঘোরানো */
+function Chevron({ direction = "left", width = 8, height = 14 }) {
+  return (
+    <svg
+      width={width}
+      height={height}
+      viewBox="0 0 8 14"
+      fill="none"
+      aria-hidden="true"
+      style={{ transform: direction === "right" ? "rotate(180deg)" : undefined }}
+    >
+      <path d="M7 1 1 7l6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+/* pagination এর "← Previous" / "Next →" এর ছোট তীর */
+function PageArrow({ direction = "right" }) {
+  return (
+    <svg
+      width="10"
+      height="10"
+      viewBox="0 0 10 10"
+      fill="none"
+      aria-hidden="true"
+      style={{ transform: direction === "left" ? "scaleX(-1)" : undefined }}
+    >
+      <path d="M1 5h8M5.6 1.6 9 5 5.6 8.4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+/* ট্যাবের শিরোনাম — ComingSoon.jsx এর মতোই প্যাটার্ন */
+function usePageMeta(title) {
+  useEffect(() => {
+    const previousTitle = document.title;
+    document.title = `${title} | Filamento`;
+    return () => {
+      document.title = previousTitle;
+    };
+  }, [title]);
+}
+
+/* একটা আনুভূমিক scroll এলাকা তার শুরু/শেষ প্রান্তে আছে কিনা — তীর
+   বোতাম ধূসর (disabled) করার জন্য।
+
+   ResizeObserver দিয়ে মাপা হয়, তাই প্রথমবার আঁকা, resize, আর
+   ভেতরের জিনিসের মাপ বদলানো (card বড় হওয়া) — সবই নিজে ধরে।
+   ⚠️ enabled=false হলে element নেই (যেমন ফলাফল খালি) — তখন কিছু করে না */
+function useScrollEdges(ref, enabled = true) {
+  const [edges, setEdges] = useState({ atStart: true, atEnd: false });
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!enabled || !el) return undefined;
+
+    const measure = () => {
+      const atStart = el.scrollLeft <= 4;
+      const atEnd = el.scrollLeft + el.clientWidth >= el.scrollWidth - 4;
+      setEdges((prev) =>
+        prev.atStart === atStart && prev.atEnd === atEnd ? prev : { atStart, atEnd }
+      );
+    };
+
+    el.addEventListener("scroll", measure, { passive: true });
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    Array.from(el.children).forEach((child) => observer.observe(child));
+
+    return () => {
+      el.removeEventListener("scroll", measure);
+      observer.disconnect();
+    };
+  }, [ref, enabled]);
+
+  return edges;
+}
+
+/* pagination এর সংখ্যা: শুরু, শেষ আর বর্তমান পাতার দুইপাশ।
+   মাঝে শুধু একটা পাতা বাদ পড়লে "…" না বসিয়ে সংখ্যাটাই দেখানো হয়।
+   ৫ পাতার প্রথম পাতায়:  1 2 … 5   (Figma র মতো) */
+function buildPageItems(current, total) {
+  if (total <= 4) return Array.from({ length: total }, (_, i) => i + 1);
+
+  const keep = [...new Set([1, total, current - 1, current, current + 1])]
+    .filter((p) => p >= 1 && p <= total)
+    .sort((a, b) => a - b);
+
+  const items = [];
+  keep.forEach((page, index) => {
+    if (index > 0) {
+      const gap = page - keep[index - 1];
+      if (gap === 2) items.push(page - 1);
+      else if (gap > 2) items.push(`ellipsis-${page}`);
+    }
+    items.push(page);
+  });
+  return items;
+}
+
+const prefersReducedMotion = () =>
+  typeof window !== "undefined" &&
+  window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* card বড় হওয়ার transition এর সময় (ms) — Projects.css এর
+   --pj-card-dur এর সাথে মেলাতে হবে */
+const CARD_TRANSITION_MS = 820;
+
+/* মাউস card এর উপর এসে এই সময় (ms) থাকলে তবেই card খোলে — মাউস
+   দ্রুত অনেক card এর উপর দিয়ে গেলে প্রতিটা খুলতে-বন্ধ হতে থাকত (ঝাঁকুনি) */
+const HOVER_INTENT_MS = 90;
+
+/* CSS variable এর আসল মাপ (px) — var(--x) এ px, calc, cqw যাই থাকুক,
+   একটা অদৃশ্য element এ বসিয়ে ব্রাউজারকে দিয়েই হিসাব করানো */
+function cssWidth(host, variable) {
+  const probe = document.createElement("div");
+  probe.style.cssText = `position:absolute;visibility:hidden;height:0;width:var(${variable})`;
+  host.appendChild(probe);
+  const width = probe.getBoundingClientRect().width;
+  probe.remove();
+  return width;
+}
+
+function Projects() {
+  const { t } = useTranslation();
+  const localeLink = useLocaleLink();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  usePageMeta(t("projects.title"));
+
+  // ইউআরএল থেকে শুরুর অবস্থা পড়া — footer/testimonial এর
+  // ?category=xxx লিংক থেকে সরাসরি এলে যেন সঠিক ট্যাব সিলেক্ট থাকে
+  const initialCategory = searchParams.get("category") || "all";
+  const [query, setQuery] = useState(searchParams.get("q") || "");
+  const [category, setCategory] = useState(
+    CATEGORY_ORDER.includes(initialCategory) ? initialCategory : "all"
+  );
+  const [page, setPage] = useState(1);
+  // এই পাতার কোন card টা এখন বড় (expanded) — hover/focus/tap এ বদলায়।
+  // শুরুতে Figma র মতো তৃতীয় card টা খোলা; মাউস সরিয়ে নিলেও শেষ
+  // card টাই বড় থাকে, যাতে rail লাফালাফি না করে
+  const [activeIndex, setActiveIndex] = useState(DEFAULT_ACTIVE_INDEX);
+
+  const tabsRef = useRef(null);
+  const railRef = useRef(null);
+  // rail নিজে নিজে scroll করলে (তীর/reveal) card গুলো স্থির মাউসের নিচ
+  // দিয়ে সরে যায় — তখনকার "hover" ধরা হয় না, নাহলে একটার পর একটা
+  // card খুলতে থাকত
+  const autoScrollAt = useRef(0);
+  const hasMounted = useRef(false);
+  const hoverTimer = useRef(null);
+  // rail কে scroll করানো হবে শুধু স্পষ্ট কাজে (তীর, ক্লিক/tap, কিবোর্ড
+  // focus)। মাউস hover এ কখনোই নয় — hover এ card গুলো নিজের জায়গায় থাকে
+  const revealOnChange = useRef(false);
+
+  // ফিল্টার বদলালে ইউআরএল টাও (?q=, ?category=) সাথে সাথে আপডেট —
+  // যাতে লিংক শেয়ার করা যায়। পাতা ১ এ ফেরত নেওয়াটা effect এ না
+  // করে নিচের handler এ করা — effect এর ভেতর থেকে সরাসরি setState
+  // করলে cascading render হয়
+  useEffect(() => {
+    const next = new URLSearchParams();
+    if (query.trim()) next.set("q", query.trim());
+    if (category !== "all") next.set("category", category);
+    setSearchParams(next, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [query, category]);
+
+  // নতুন তালিকা/পাতা এলে rail শুরুতে ফিরে যায়, তৃতীয় card বড়
+  function resetRail() {
+    setActiveIndex(DEFAULT_ACTIVE_INDEX);
+    railRef.current?.scrollTo({ left: 0 });
+  }
+
+  function handleQueryChange(value) {
+    setQuery(value);
+    setPage(1);
+    resetRail();
+  }
+
+  function handleCategoryChange(id) {
+    setCategory(id);
+    setPage(1);
+    resetRail();
+  }
+
+  function goToPage(nextPage) {
+    setPage(nextPage);
+    resetRail();
+  }
+
+  const counts = useMemo(() => {
+    const map = { all: PROJECTS.length };
+    for (const project of PROJECTS) {
+      map[project.category] = (map[project.category] || 0) + 1;
+    }
+    return map;
+  }, []);
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return PROJECTS.filter((project) => {
+      const matchesCategory = category === "all" || project.category === category;
+      if (!matchesCategory) return false;
+      if (!q) return true;
+      const categoryLabel = t(`projects.categories.${project.category}`).toLowerCase();
+      return (
+        project.name.toLowerCase().includes(q) ||
+        project.city.toLowerCase().includes(q) ||
+        categoryLabel.includes(q)
+      );
+    });
+  }, [query, category, t]);
+
+  const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const safePage = Math.min(page, pageCount);
+  const visible = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+  // পাতায় ৩টার কম card থাকলে (যেমন filter এর শেষ পাতা) DEFAULT_ACTIVE_INDEX
+  // নাগালের বাইরে — তখন শেষ card টাই খোলা থাকে
+  const active = Math.min(activeIndex, Math.max(visible.length - 1, 0));
+  const hasResults = visible.length > 0;
+
+  const tabEdges = useScrollEdges(tabsRef);
+  const railEdges = useScrollEdges(railRef, hasResults);
+
+  // তীর/ক্লিক/focus এ card বদলালে, transition শেষে ডানে/বাঁয়ে কেটে থাকলে
+  // rail কে সরিয়ে card টাকে content এর ভেতরে আনা। hover এ কখনো নয়,
+  // আর প্রথমবার আঁকার সময়ও নয়
+  useEffect(() => {
+    if (!hasMounted.current) {
+      hasMounted.current = true;
+      return undefined;
+    }
+    if (!revealOnChange.current) return undefined;
+    revealOnChange.current = false;
+
+    const timer = setTimeout(() => {
+      const rail = railRef.current;
+      const card = rail?.querySelectorAll(".projects-card")[active];
+      if (!rail || !card) return;
+
+      // content এর বাঁ/ডান সীমা = rail এর padding (--rail-gutter)
+      const gutter = parseFloat(getComputedStyle(rail.firstElementChild).paddingLeft) || 0;
+      const railBox = rail.getBoundingClientRect();
+      const cardBox = card.getBoundingClientRect();
+      const overRight = cardBox.right - (railBox.right - gutter);
+      const overLeft = cardBox.left - (railBox.left + gutter);
+
+      let delta = 0;
+      if (overRight > 1) delta = overRight;
+      else if (overLeft < -1) delta = overLeft;
+
+      if (delta !== 0) {
+        autoScrollAt.current = performance.now();
+        rail.scrollBy({ left: delta, behavior: prefersReducedMotion() ? "auto" : "smooth" });
+      }
+    }, CARD_TRANSITION_MS);
+    return () => clearTimeout(timer);
+  }, [active]);
+
+  // খুললে card টা (612) কি এখন দেখা যাওয়া এলাকার ভেতরেই ধরবে? উত্তর "না"
+  // হলে (যেমন ডানে উঁকি দেওয়া card) hover এ খোলা হয় না — নাহলে বাড়তে
+  // গিয়ে কেটে যেত, আর কাটা ঠেকাতে rail সরাতে হতো। ওই card তীর বা
+  // ক্লিক দিয়ে খোলা যায়
+  function fitsWhenOpen(index) {
+    const rail = railRef.current;
+    const track = rail?.firstElementChild;
+    if (!rail || !track) return false;
+    const style = getComputedStyle(track);
+    const gutter = parseFloat(style.paddingLeft) || 0;
+    const gap = parseFloat(style.columnGap) || 0;
+    const closed = cssWidth(rail, "--pj-card-w");
+    const open = cssWidth(rail, "--pj-card-w-active");
+    // খুললে বাকি সব card বন্ধ — তাই index তম card এর বাঁ কিনারা এটাই
+    const left = gutter + index * (closed + gap);
+    const right = left + open;
+    return left >= rail.scrollLeft - 1 && right <= rail.scrollLeft + rail.clientWidth + 1;
+  }
+
+  function handlePointerEnter(event, index) {
+    // touch এ hover নেই — সেখানে tap (onClick) দিয়ে খোলে
+    if (event.pointerType !== "mouse") return;
+    if (index === active) return;
+    if (performance.now() - autoScrollAt.current < CARD_TRANSITION_MS + 200) return;
+    clearTimeout(hoverTimer.current);
+    hoverTimer.current = setTimeout(() => {
+      if (fitsWhenOpen(index)) setActiveIndex(index);
+    }, HOVER_INTENT_MS);
+  }
+
+  function handlePointerLeave() {
+    clearTimeout(hoverTimer.current);
+  }
+
+  // ক্লিক/tap/কিবোর্ড focus — স্পষ্ট ইচ্ছা, তাই দরকারে rail সরবে
+  function openCard(index) {
+    clearTimeout(hoverTimer.current);
+    if (index === active) return;
+    revealOnChange.current = true;
+    setActiveIndex(index);
+  }
+
+  useEffect(() => () => clearTimeout(hoverTimer.current), []);
+
+  function scrollTabsBy(amount) {
+    tabsRef.current?.scrollBy({ left: amount, behavior: "smooth" });
+  }
+
+  // rail এর তীর: আগের/পরের card টা খোলা হয়, scroll করানোর কাজটা
+  // ওপরের effect ই করে
+  function stepCard(direction) {
+    openCard(Math.min(Math.max(active + direction, 0), visible.length - 1));
+  }
+
+  const pageItems = useMemo(() => buildPageItems(safePage, pageCount), [safePage, pageCount]);
+
+  return (
+    <section className="section projects">
+      <div className="container projects-inner">
+        {/* Figma নকশায় পাতার শিরোনাম দেখানো হয়নি — তবু h1 থাকা দরকার
+            (screen reader, SEO), তাই শুধু চোখের আড়ালে */}
+        <h1 className="sr-only">{t("projects.title")}</h1>
+
+        <div className="projects-filters">
+          {/* সার্চ বার + environment dropdown — Figma "Search Bar" */}
+          <div className="projects-searchbar">
+            <label className="projects-search-field">
+              <SearchIcon />
+              <input
+                type="search"
+                value={query}
+                onChange={(event) => handleQueryChange(event.target.value)}
+                placeholder={t("projects.search.placeholder")}
+                aria-label={t("projects.search.ariaLabel")}
+              />
+            </label>
+
+            <FilterIcon />
+
+            <label className="projects-env-select">
+              <span className="sr-only">{t("projects.search.environmentAriaLabel")}</span>
+              <select
+                value={category}
+                onChange={(event) => handleCategoryChange(event.target.value)}
+                aria-label={t("projects.search.environmentAriaLabel")}
+              >
+                <option value="all">{t("projects.search.environmentLabel")}</option>
+                {CATEGORY_ORDER.filter((id) => id !== "all").map((id) => (
+                  <option key={id} value={id}>
+                    {t(`projects.categories.${id}`)}
+                  </option>
+                ))}
+              </select>
+              <span className="projects-env-chevron" aria-hidden="true">
+                <ChevronDown />
+              </span>
+            </label>
+          </div>
+
+          {/* category pill — Figma "Frame 419": 24px তীর + pill + 24px তীর, gap 16 */}
+          <div className="projects-tabs-row">
+            <button
+              type="button"
+              className="projects-tabs-arrow"
+              onClick={() => scrollTabsBy(-240)}
+              disabled={tabEdges.atStart}
+              aria-label={t("projects.categoriesPrev", "Scroll categories left")}
+            >
+              <Chevron direction="left" />
+            </button>
+
+            <div className="projects-tabs" ref={tabsRef} role="tablist">
+              {CATEGORY_ORDER.map((id) => (
+                <button
+                  key={id}
+                  type="button"
+                  role="tab"
+                  aria-selected={category === id}
+                  className={`projects-tab${category === id ? " is-active" : ""}`}
+                  onClick={() => handleCategoryChange(id)}
+                >
+                  <span>{t(`projects.categories.${id}`)}</span>
+                  <span className="projects-tab-count">{counts[id] ?? 0}</span>
+                </button>
+              ))}
+            </div>
+
+            <button
+              type="button"
+              className="projects-tabs-arrow"
+              onClick={() => scrollTabsBy(240)}
+              disabled={tabEdges.atEnd}
+              aria-label={t("projects.categoriesNext", "Scroll categories right")}
+            >
+              <Chevron direction="right" />
+            </button>
+          </div>
+        </div>
+
+        <div className="projects-gallery">
+          {hasResults ? (
+            <div className="projects-stage">
+              <button
+                type="button"
+                className="projects-rail-arrow is-prev"
+                onClick={() => stepCard(-1)}
+                disabled={active === 0 && railEdges.atStart}
+                aria-label={t("projects.carouselPrev", "Previous project")}
+              >
+                <Chevron direction="left" width={9} height={16} />
+              </button>
+
+              <div className="projects-rail" ref={railRef}>
+                <ul className="projects-track">
+                  {visible.map((project, index) => (
+                    <li
+                      key={project.slug}
+                      className={`projects-card${index === active ? " is-active" : ""}`}
+                      onPointerEnter={(event) => handlePointerEnter(event, index)}
+                      onPointerLeave={handlePointerLeave}
+                      onFocus={() => openCard(index)}
+                      onClick={() => openCard(index)}
+                    >
+                      <div className="projects-card-media">
+                        <img
+                          src={photoUrl(project.photo, 1200)}
+                          srcSet={photoSrcSet(project.photo)}
+                          sizes={PHOTO_SIZES}
+                          alt=""
+                          width="1200"
+                          height="900"
+                          loading={index < 3 ? "eager" : "lazy"}
+                          decoding="async"
+                          draggable="false"
+                        />
+                        <span className="projects-card-badge">
+                          {t(`projects.categories.${project.category}`)}
+                        </span>
+                      </div>
+
+                      <div className="projects-card-footer">
+                        <div className="projects-card-text">
+                          <h2 className="projects-card-name">{project.name}</h2>
+                          <p className="projects-card-city">
+                            <PinIcon />
+                            <span>{project.city}</span>
+                          </p>
+                        </div>
+                        <span className="projects-card-arrow" aria-hidden="true">
+                          <ArrowUpRight />
+                        </span>
+                      </div>
+
+                      {/* পুরো card জুড়ে লিংক — কিন্তু শুধু খোলা card এ ক্লিক
+                          ধরে (CSS)। বন্ধ card এ প্রথম tap/click শুধু card টা
+                          খোলে, দ্বিতীয়টায় project এ যায় — touch এ এটাই দরকার */}
+                      <Link
+                        to={localeLink(`/projects/${project.slug}`)}
+                        className="projects-card-link"
+                        aria-label={t("projects.viewProject", { name: project.name })}
+                      />
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <button
+                type="button"
+                className="projects-rail-arrow is-next"
+                onClick={() => stepCard(1)}
+                disabled={active === visible.length - 1 && railEdges.atEnd}
+                aria-label={t("projects.carouselNext", "Next project")}
+              >
+                <Chevron direction="right" width={9} height={16} />
+              </button>
+            </div>
+          ) : (
+            <div className="projects-empty">
+              <p>{t("projects.empty")}</p>
+              <p className="projects-empty-hint">{t("projects.emptyHint")}</p>
+              <button
+                type="button"
+                className="projects-empty-clear"
+                onClick={() => {
+                  setQuery("");
+                  setCategory("all");
+                  goToPage(1);
+                }}
+              >
+                {t("projects.clearFilters")}
+              </button>
+            </div>
+          )}
+
+          {/* pagination — Figma "Group 5": মাঝখানে, gap 8 */}
+          {pageCount > 1 && (
+            <nav className="projects-pagination" aria-label="Projects pagination">
+              <button
+                type="button"
+                className="projects-pagination-side"
+                disabled={safePage === 1}
+                onClick={() => goToPage(Math.max(1, safePage - 1))}
+              >
+                <PageArrow direction="left" />
+                <span>{t("projects.pagination.previous")}</span>
+              </button>
+
+              <ul className="projects-pagination-pages">
+                {pageItems.map((item) =>
+                  typeof item === "number" ? (
+                    <li key={item}>
+                      <button
+                        type="button"
+                        className={`projects-pagination-page${item === safePage ? " is-active" : ""}`}
+                        aria-current={item === safePage ? "page" : undefined}
+                        aria-label={t("projects.pagination.pageAriaLabel", { page: item })}
+                        onClick={() => goToPage(item)}
+                      >
+                        {item}
+                      </button>
+                    </li>
+                  ) : (
+                    <li key={item} className="projects-pagination-ellipsis" aria-hidden="true">
+                      …
+                    </li>
+                  )
+                )}
+              </ul>
+
+              <button
+                type="button"
+                className="projects-pagination-side"
+                disabled={safePage === pageCount}
+                onClick={() => goToPage(Math.min(pageCount, safePage + 1))}
+              >
+                <span>{t("projects.pagination.next")}</span>
+                <PageArrow direction="right" />
+              </button>
+            </nav>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+export default Projects;
