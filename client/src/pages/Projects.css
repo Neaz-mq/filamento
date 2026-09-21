@@ -248,6 +248,7 @@
 .projects-tabs-arrow:disabled {
   color: var(--pj-ink-10);
   cursor: default;
+  pointer-events: none;
 }
 
 .projects-tabs {
@@ -343,6 +344,10 @@
   -ms-overflow-style: none;
   padding-block: 6px;
   margin-block: -6px;
+  /* টানা/momentum নিজে JS এ, তাই এখানে smooth নয় (নাহলে টানতে দেরি লাগত) */
+  scroll-behavior: auto;
+  -webkit-overflow-scrolling: touch;
+  will-change: scroll-position;
 }
 
 .projects-rail::-webkit-scrollbar {
@@ -361,6 +366,27 @@
   padding: 0 var(--pj-gutter);
   list-style: none;
   box-sizing: border-box;
+  /* পাতা বা filter বদলালে card গুলো হঠাৎ না বদলে নরমভাবে ঢোকে */
+  animation: pj-track-in 0.55s var(--pj-card-ease) both;
+}
+
+@keyframes pj-track-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* তীর/ক্লিকে card বদলানোর transition চলাকালীন track লক থাকে (Projects.jsx
+   এর isNavigating) — ভেতরের card এ hover/click একদমই পৌঁছায় না, তাই
+   animation এর মাঝে card এর কিনারা মাউসের নিচ দিয়ে সরে গেলেও নতুন করে
+   activeIndex পাল্টায় না। rail এর তীর দুটো track এর বাইরে, তাই এতে আটকায় না */
+.projects-track.is-navigating {
+  pointer-events: none;
 }
 
 /* ---------------------------------------------------------------
@@ -531,7 +557,9 @@
   white-space: nowrap;
 }
 
-/* Figma "Frame 68": 48 x 48, #373A3C, radius 40 */
+/* Figma "Frame 68": 48 x 48, #373A3C, radius 40।
+   এটাই এখন project এর লিংক (<a>) — পুরো card এ আর কোনো লিংক নেই।
+   ডিফল্টে pointer-events বন্ধ, শুধু খোলা card এ চালু */
 .projects-card-arrow {
   display: flex;
   align-items: center;
@@ -541,6 +569,14 @@
   height: 48px;
   background: var(--pj-ink);
   border-radius: 40px;
+  text-decoration: none;
+  position: relative;
+  z-index: 3;
+  /* footer এ pointer-events: none, তাই এখানে স্পষ্ট auto। বন্ধ card এ
+     এটা card এর overflow: hidden এ কাটা থাকে, তাই ক্লিকই পায় না;
+     আর মাঝপথের transition এ ক্লিক হলে JSX এর onClick আটকায় */
+  pointer-events: auto;
+  cursor: pointer;
   transition: background-color 0.2s ease;
 }
 
@@ -548,81 +584,32 @@
   transition: transform 0.25s ease;
 }
 
-.projects-card.is-active:hover .projects-card-arrow {
+.projects-card.is-active .projects-card-arrow:hover {
   background: #1f2123;
 }
 
-.projects-card.is-active:hover .projects-card-arrow svg {
+.projects-card.is-active .projects-card-arrow:hover svg {
   transform: translate(2px, -2px);
 }
 
-/* পুরো card জুড়ে লিংক — শুধু খোলা card এ ক্লিক ধরে */
-.projects-card-link {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  border-radius: inherit;
-  pointer-events: none;
-}
-
-.projects-card.is-active .projects-card-link {
-  pointer-events: auto;
-  cursor: pointer;
-}
-
-.projects-card-link:focus-visible {
+.projects-card-arrow:focus-visible {
   outline: 3px solid var(--pj-yellow);
-  outline-offset: -8px;
+  outline-offset: 3px;
 }
 
 /* ---------------------------------------------------------------
-   rail এর তীর — Figma "Button": 48px গোল, container এর দুই কিনারায়
-   অর্ধেক ভেতরে অর্ধেক বাইরে, card এর উচ্চতার ঠিক মাঝে
-   বাঁ (শুরুতে): opacity .25 আর ডান: rgba(55,58,60,.75)
+   rail এ তীর নেই — মাউসে টেনে সরানোর সময় (Projects.jsx এর drag)
    --------------------------------------------------------------- */
-.projects-rail-arrow {
-  position: absolute;
-  top: calc(50% - 24px);
-  z-index: 4;
-  display: grid;
-  place-items: center;
-  width: 48px;
-  height: 48px;
-  padding: 0;
-  border: 0;
-  border-radius: 999px;
-  background: var(--pj-ink-75);
-  box-shadow: 0 0 10px rgba(11, 18, 26, 0.1);
-  color: #ebebec;
-  cursor: pointer;
-  transition:
-    background-color 0.2s ease,
-    opacity 0.2s ease;
+.projects-rail.is-dragging {
+  cursor: grabbing;
+  user-select: none;
 }
 
-.projects-rail-arrow.is-prev {
-  left: calc(var(--pj-gutter) - 24px);
-}
-
-.projects-rail-arrow.is-next {
-  right: calc(var(--pj-gutter) - 24px);
-}
-
-.projects-rail-arrow:hover:not(:disabled) {
-  background: var(--pj-ink);
-}
-
-.projects-rail-arrow:disabled {
-  background: var(--pj-ink);
-  opacity: 0.25;
-  cursor: default;
-}
-
-/* ফোনে আঙুলে টানাই যথেষ্ট, তীর সরিয়ে দেওয়া */
-@media (max-width: 640px) {
-  .projects-rail-arrow {
-    display: none;
-  }
+/* টানার সময় card এ hover/click একদম পৌঁছায় না — কোনো card খুলে
+   বাকি সব সরিয়ে দেবে না */
+.projects-rail.is-dragging .projects-card {
+  cursor: grabbing;
+  pointer-events: none;
 }
 
 /* ---------------------------------------------------------------
@@ -696,7 +683,14 @@
   line-height: 15px;
   color: var(--pj-ink);
   cursor: pointer;
-  transition: background-color 0.15s ease;
+  transition:
+    background-color 0.3s ease,
+    opacity 0.3s ease,
+    transform 0.2s ease;
+}
+
+.projects-pagination-side:active:not(:disabled) {
+  transform: scale(0.95);
 }
 
 .projects-pagination-side:hover:not(:disabled) {
@@ -733,7 +727,14 @@
   line-height: 15px;
   color: var(--pj-ink);
   cursor: pointer;
-  transition: background-color 0.15s ease, color 0.15s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease,
+    transform 0.2s ease;
+}
+
+.projects-pagination-page:active {
+  transform: scale(0.92);
 }
 
 .projects-pagination-page:hover:not(.is-active) {
@@ -772,5 +773,8 @@
   .projects-card-footer,
   .projects-card-arrow svg {
     transition: none !important;
+  }
+  .projects-track {
+    animation: none;
   }
 }

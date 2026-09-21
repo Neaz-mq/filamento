@@ -19,17 +19,20 @@ import "./Projects.css";
    গুলো 298 এ ফিরে যায়। rail এর দুইপাশে 48px এর তীর দিয়ে card এ
    card এ যাওয়া যায়; পরের card অর্ধেক উঁকি দেয় (peek)।
 
+   ✅ project details এ যাওয়ার লিংক এখন শুধু খোলা card এর ↗ বোতামে।
+   card এর বাকি অংশে ক্লিক করলে শুধু card খোলে, কোথাও যায় না।
+
    ⚠️ backend/CMS এখনো নেই — তাই PROJECTS array এ হাতে বসানো ডেটা।
    admin থেকে project যোগ/বাদ দেওয়া চালু হলে এই array টা বাদ দিয়ে
    API থেকে আনলেই বাকি সব (search, filter, pagination) এমনিই কাজ
    করবে — নিচের UI কোড ডেটার উৎস নিয়ে মাথা ঘামায় না।
 
-   ছবি: Cloudinary থেকে — নিচের PHOTOS দেখুন। একই ছবি collapsed অবস্থায়
+   ছবি: Unsplash থেকে — নিচের CATEGORY_PHOTOS দেখুন। একই ছবি collapsed অবস্থায়
    298 x 450 (portrait) আর expanded অবস্থায় 612 x 358 (landscape) এ
    object-fit: cover দিয়ে কাটা হয়।
    =============================================================== */
 
-const PAGE_SIZE = 4;
+const PAGE_SIZE = 10;
 
 /* শুরুতে কোন card টা খোলা থাকবে (0 থেকে গোনা) — Figma তে তৃতীয়টা।
    4 card এর পাতায় তৃতীয়টা খুললে 628 + 612 = 1240, অর্থাৎ ঠিক
@@ -37,27 +40,63 @@ const PAGE_SIZE = 4;
    পাতায় এর চেয়ে কম card থাকলে নিচের `active` হিসাবটা শেষেরটা ধরে */
 const DEFAULT_ACTIVE_INDEX = 2;
 
-/* project এর ছবি — Cloudinary (Fixtures.jsx এর মতোই, একই account)।
-   PHOTOS এ এখন তিনটা ছবি; project গুলো ক্রমানুসারে এগুলো ঘুরিয়ে-ফিরিয়ে
-   নেয় (১ম→ছবি১, ২য়→ছবি২, ৩য়→ছবি৩, ৪র্থ→ছবি১ ...)।
-   ✅ নতুন ছবি পেলে শুধু PHOTOS এ path যোগ করলেই হবে — বাকি সব নিজে মেলে
+/* project এর ছবি — Unsplash (Unsplash License: বিনা খরচে ব্যবহার করা যায়)।
+   প্রতিটা category এর জন্য প্রাসঙ্গিক ছবি নিচের CATEGORY_PHOTOS এ। একই
+   category তে একের বেশি project থাকলে ছবিগুলো ঘুরিয়ে-ফিরিয়ে বসে।
+   ✅ ছবি বদলাতে চাইলে শুধু এখানে photo id বদলান — বাকি সব নিজে মেলে।
 
-   f_auto,q_auto  — ব্রাউজার অনুযায়ী সেরা format আর মানানসই মান
+   photo id = images.unsplash.com/ এর পরের অংশ (যেমন "photo-1465848059293-...")।
+   auto=format  — ব্রাউজার অনুযায়ী সেরা format (WebP/AVIF)
+   fit=crop&w=  — নির্দিষ্ট প্রস্থে নামায় */
+/* নিজেদের ছবি — Cloudinary (Fixtures.jsx এর মতোই, একই account)।
+   f_auto,q_auto  — ব্রাউজার অনুযায়ী সেরা format আর মান
    c_limit,w_     — নির্দিষ্ট প্রস্থে নামায়, ছোট ছবি কখনো বড় করে না */
-const PHOTOS = [
-  "v1789985331/be5360cb5806dd39ba58c23000d7201a66b3447a_wl2fwe.jpg",
-  "v1789985339/3041207c74d5ee01e3921128797d9c9614c8156d_adbdcq.jpg",
-  "v1789985350/55103d210a35d777640fc5b5351acecee6d9580e_uvrmn1.jpg",
-];
+const OWN_PHOTOS = {
+  arena: "v1789985331/be5360cb5806dd39ba58c23000d7201a66b3447a_wl2fwe.jpg",
+  barn: "v1789985339/3041207c74d5ee01e3921128797d9c9614c8156d_adbdcq.jpg",
+  fitness: "v1789985350/55103d210a35d777640fc5b5351acecee6d9580e_uvrmn1.jpg",
+};
 
-const photoUrl = (path, width) =>
-  `https://res.cloudinary.com/dzi3u164c/image/upload/c_limit,w_${width},f_auto,q_auto/${path}`;
+const CATEGORY_PHOTOS = {
+  // Le Toan — airport terminal
+  airport: ["photo-1579695779019-7fe42ce31317"],
+  // Omar Ramadan — car showroom
+  automotiveDealership: ["photo-1761738217531-44a249d1dc87"],
+  // Shifaz Abdul Hakkim — Expo convention complex
+  conventionCenter: [OWN_PHOTOS.arena, "photo-1652084868625-2d1a886f4189"],
+  // Patrick Schöpflin — indoor basketball court
+  gymnasium: [OWN_PHOTOS.fitness, "photo-1559369064-c4d65141e408"],
+  // Ant Rozetsky — large industrial factory interior
+  manufacturing: ["photo-1496247749665-49cf5b1022e9"],
+  // Spl Interiors, Arlington Research — modern offices
+  office: ["photo-1747992021633-762a63985d01", "photo-1560264280-88b68371db39"],
+  // Tanya Barrow — retail store shelving
+  retail: [OWN_PHOTOS.barn, "photo-1761207300250-a71b2ff68b99"],
+  // Alberto Rodríguez — warehouse with pallets
+  warehouse: ["photo-1684695749267-233af13276d0"],
+  // Arlington Research — open workspace (conference/office feel)
+  conferenceCenter: ["photo-1560264280-88b68371db39"],
+  // Alberto Rodríguez — warehouse (cold storage racking)
+  coldStorage: ["photo-1684695749267-233af13276d0"],
+  // Ashley (@ashleynva) — distribution warehouse with forklift
+  distributionCenter: ["photo-1721937718756-3bfec49f42a2"],
+  // BehindTheTmuna — street light at night
+  streetLights: ["photo-1743369673059-cae28a9a8c9c"],
+};
+
+/* "v1789985331/..." দিয়ে শুরু হলে Cloudinary, নাহলে Unsplash */
+const isOwnPhoto = (id) => /^v\d+\//.test(id);
+
+const photoUrl = (id, width) =>
+  isOwnPhoto(id)
+    ? `https://res.cloudinary.com/dzi3u164c/image/upload/c_limit,w_${width},f_auto,q_auto/${id}`
+    : `https://images.unsplash.com/${id}?auto=format&fit=crop&q=75&w=${width}`;
 
 /* srcset — খোলা card 612px, retina তে ~1224px লাগে। ফোনে card পুরো
    প্রস্থ, তাই 100vw */
 const PHOTO_WIDTHS = [800, 1200, 1600];
-const photoSrcSet = (path) =>
-  PHOTO_WIDTHS.map((w) => `${photoUrl(path, w)} ${w}w`).join(", ");
+const photoSrcSet = (id) =>
+  PHOTO_WIDTHS.map((w) => `${photoUrl(id, w)} ${w}w`).join(", ");
 const PHOTO_SIZES = "(max-width: 640px) 100vw, 612px";
 
 /* category — projects.categories.<key> এর সাথে মেলে, আর Footer.jsx
@@ -83,22 +122,10 @@ const PROJECT_LIST = [
     category: "automotiveDealership",
   },
   {
-    slug: "precision-auto-works",
-    name: "Precision Auto Works",
-    city: "Miami, Florida",
-    category: "automotiveDealership",
-  },
-  {
-    slug: "grace-community-church",
-    name: "Grace Community Church",
-    city: "Nashville, Tennessee",
-    category: "church",
-  },
-  {
-    slug: "st-andrews-cathedral",
-    name: "St. Andrew's Cathedral",
-    city: "Boston, Massachusetts",
-    category: "church",
+    slug: "main-street-lighting-retrofit",
+    name: "Main Street Lighting Retrofit",
+    city: "Raleigh, North Carolina",
+    category: "streetLights",
   },
   {
     slug: "lakeside-convention-center",
@@ -126,18 +153,6 @@ const PROJECT_LIST = [
     category: "office",
   },
   {
-    slug: "meridian-tech-campus",
-    name: "Meridian Tech Campus",
-    city: "San Jose, California",
-    category: "office",
-  },
-  {
-    slug: "union-square-retail-center",
-    name: "Union Square Retail Center",
-    city: "San Francisco, California",
-    category: "retail",
-  },
-  {
     // Testimonial.jsx এর "Elena M." এর quote
     slug: "elena-warehouse-retrofit",
     name: "Elena's Warehouse Retrofit",
@@ -149,12 +164,6 @@ const PROJECT_LIST = [
     name: "Riverside Conference Center",
     city: "Portland, Oregon",
     category: "conferenceCenter",
-  },
-  {
-    slug: "downtown-street-lighting-upgrade",
-    name: "Downtown Street Lighting Upgrade",
-    city: "Sacramento, California",
-    category: "streetLights",
   },
   {
     // Testimonial.jsx এর "Marcus L." এর quote
@@ -171,25 +180,152 @@ const PROJECT_LIST = [
     category: "distributionCenter",
   },
   {
+    slug: "downtown-street-lighting-upgrade",
+    name: "Downtown Street Lighting Upgrade",
+    city: "Sacramento, California",
+    category: "streetLights",
+  },
+  {
+    slug: "lakeshore-regional-airport",
+    name: "Lakeshore Regional Airport",
+    city: "Madison, Wisconsin",
+    category: "airport",
+  },
+  {
+    slug: "union-square-retail-center",
+    name: "Union Square Retail Center",
+    city: "San Francisco, California",
+    category: "retail",
+  },
+  {
+    slug: "precision-auto-works",
+    name: "Precision Auto Works",
+    city: "Miami, Florida",
+    category: "automotiveDealership",
+  },
+  {
+    slug: "harborline-warehouse-expansion",
+    name: "Harborline Warehouse Expansion",
+    city: "Baltimore, Maryland",
+    category: "warehouse",
+  },
+  {
+    slug: "bayfront-convention-hall",
+    name: "Bayfront Convention Hall",
+    city: "Tampa, Florida",
+    category: "conventionCenter",
+  },
+  {
+    slug: "riverbend-athletic-center",
+    name: "Riverbend Athletic Center",
+    city: "Omaha, Nebraska",
+    category: "gymnasium",
+  },
+  {
     slug: "riverfront-manufacturing-annex",
     name: "Riverfront Manufacturing Annex",
     city: "Pittsburgh, Pennsylvania",
     category: "manufacturing",
   },
+  {
+    slug: "meridian-tech-campus",
+    name: "Meridian Tech Campus",
+    city: "San Jose, California",
+    category: "office",
+  },
+  {
+    slug: "gateway-storage-facility",
+    name: "Gateway Storage Facility",
+    city: "Houston, Texas",
+    category: "warehouse",
+  },
+  {
+    slug: "summit-conference-hall",
+    name: "Summit Conference Hall",
+    city: "Kansas City, Missouri",
+    category: "conferenceCenter",
+  },
+  {
+    slug: "glacier-cold-chain-depot",
+    name: "Glacier Cold Chain Depot",
+    city: "Boise, Idaho",
+    category: "coldStorage",
+  },
+  {
+    slug: "crossroads-distribution-hub",
+    name: "Crossroads Distribution Hub",
+    city: "Memphis, Tennessee",
+    category: "distributionCenter",
+  },
+  {
+    slug: "summit-air-cargo-hub",
+    name: "Summit Air Cargo Hub",
+    city: "Louisville, Kentucky",
+    category: "airport",
+  },
+  {
+    slug: "maple-street-marketplace",
+    name: "Maple Street Marketplace",
+    city: "Atlanta, Georgia",
+    category: "retail",
+  },
+  {
+    slug: "northgate-motors-showroom",
+    name: "Northgate Motors Showroom",
+    city: "Charlotte, North Carolina",
+    category: "automotiveDealership",
+  },
+  {
+    slug: "ironbridge-fabrication-works",
+    name: "Ironbridge Fabrication Works",
+    city: "Milwaukee, Wisconsin",
+    category: "manufacturing",
+  },
+  {
+    slug: "cascade-corporate-tower",
+    name: "Cascade Corporate Tower",
+    city: "Salt Lake City, Utah",
+    category: "office",
+  },
+  // পাতা ৪ — এই তিনটায় নিজেদের Cloudinary ছবি সরাসরি বসানো (photo)
+  {
+    slug: "metro-arena-lighting-retrofit",
+    name: "Metro Arena Lighting Retrofit",
+    city: "Indianapolis, Indiana",
+    category: "conventionCenter",
+    photo: OWN_PHOTOS.arena,
+  },
+  {
+    slug: "summit-fitness-club",
+    name: "Summit Fitness Club",
+    city: "Scottsdale, Arizona",
+    category: "gymnasium",
+    photo: OWN_PHOTOS.fitness,
+  },
+  {
+    slug: "barn-and-table-marketplace",
+    name: "Barn & Table Marketplace",
+    city: "Nashville, Tennessee",
+    category: "retail",
+    photo: OWN_PHOTOS.barn,
+  },
 ];
 
-/* প্রতিটা project এ তার ক্রম অনুযায়ী একটা ছবি বসানো */
-const PROJECTS = PROJECT_LIST.map((project, index) => ({
-  ...project,
-  photo: PHOTOS[index % PHOTOS.length],
-}));
+/* প্রতিটা project এ তার category এর ছবি বসানো — একই category তে
+   একাধিক ছবি থাকলে (যেমন office) ক্রমানুসারে ঘুরে-ফিরে */
+const photoCounter = {};
+const PROJECTS = PROJECT_LIST.map((project) => {
+  const photos = CATEGORY_PHOTOS[project.category] || CATEGORY_PHOTOS.office;
+  const n = photoCounter[project.category] || 0;
+  photoCounter[project.category] = n + 1;
+  return { ...project, photo: project.photo || photos[n % photos.length] };
+});
 
 /* pill এর ক্রম — screenshot এর মতোই, "All Projects" সবার আগে */
 const CATEGORY_ORDER = [
   "all",
   "airport",
   "automotiveDealership",
-  "church",
   "conventionCenter",
   "gymnasium",
   "manufacturing",
@@ -383,6 +519,9 @@ const CARD_TRANSITION_MS = 820;
    দ্রুত অনেক card এর উপর দিয়ে গেলে প্রতিটা খুলতে-বন্ধ হতে থাকত (ঝাঁকুনি) */
 const HOVER_INTENT_MS = 90;
 
+/* scroll/টানা থামার পর এই সময় (ms) পর্যন্ত hover এ card খোলা বন্ধ */
+const SLIDE_SETTLE_MS = 250;
+
 /* CSS variable এর আসল মাপ (px) — var(--x) এ px, calc, cqw যাই থাকুক,
    একটা অদৃশ্য element এ বসিয়ে ব্রাউজারকে দিয়েই হিসাব করানো */
 function cssWidth(host, variable) {
@@ -413,18 +552,29 @@ function Projects() {
   // শুরুতে Figma র মতো তৃতীয় card টা খোলা; মাউস সরিয়ে নিলেও শেষ
   // card টাই বড় থাকে, যাতে rail লাফালাফি না করে
   const [activeIndex, setActiveIndex] = useState(DEFAULT_ACTIVE_INDEX);
+  // তীর/ক্লিকে card বদলানোর সময়টুকু (width transition) track এর
+  // hover/click handler লক থাকে — carousel লাইব্রেরির industry-standard
+  // প্যাটার্ন: animation চলাকালীন নতুন interaction ধরা হয় না, তাই
+  // মাঝপথে হঠাৎ hover ফায়ার হয়ে তীরের ক্লিককে বাতিল করতে পারে না
+  const [isNavigating, setIsNavigating] = useState(false);
+  const navigateLockTimer = useRef(null);
 
   const tabsRef = useRef(null);
   const railRef = useRef(null);
-  // rail নিজে নিজে scroll করলে (তীর/reveal) card গুলো স্থির মাউসের নিচ
-  // দিয়ে সরে যায় — তখনকার "hover" ধরা হয় না, নাহলে একটার পর একটা
-  // card খুলতে থাকত
+  // openCard() থেকে প্রতিবার সেট হয় (শুধু auto-scroll নয়) — width
+  // transition চলাকালীন কোনো card এর উপর দিয়ে মাউস "সরে" গেলে
+  // (আসলে card টাই সরে, browser কে hover recompute করতে হয়) hover
+  // handler যেন নতুন করে activeIndex পাল্টাতে না পারে
   const autoScrollAt = useRef(0);
   const hasMounted = useRef(false);
   const hoverTimer = useRef(null);
   // rail কে scroll করানো হবে শুধু স্পষ্ট কাজে (তীর, ক্লিক/tap, কিবোর্ড
   // focus)। মাউস hover এ কখনোই নয় — hover এ card গুলো নিজের জায়গায় থাকে
   const revealOnChange = useRef(false);
+  // slider টানা/scroll চলছে কিনা — তখন hover এ কোনো card খুলবে না, নাহলে
+  // card এর মাপ বদলে বাকি সব জায়গা থেকে সরে যেত
+  const isDragging = useRef(false);
+  const lastScrollAt = useRef(0);
 
   // ফিল্টার বদলালে ইউআরএল টাও (?q=, ?category=) সাথে সাথে আপডেট —
   // যাতে লিংক শেয়ার করা যায়। পাতা ১ এ ফেরত নেওয়াটা effect এ না
@@ -493,7 +643,14 @@ function Projects() {
   const hasResults = visible.length > 0;
 
   const tabEdges = useScrollEdges(tabsRef);
-  const railEdges = useScrollEdges(railRef, hasResults);
+
+  // পাতা/filter বদলে card কমে গেলে (যেমন শেষ পাতায় ২টা) activeIndex
+  // নাগালের বাইরে থেকে যেত — উপরের `active` ঠিক দেখালেও state টা আলাদা
+  // থাকত, ফলে openCard এর `index === active` তুলনা মিলত না আর তীর
+  // চুপচাপ কিছুই করত না। তাই state কেই সীমার ভেতরে টেনে আনা
+  useEffect(() => {
+    setActiveIndex((prev) => Math.min(prev, Math.max(visible.length - 1, 0)));
+  }, [visible.length]);
 
   // তীর/ক্লিক/focus এ card বদলালে, transition শেষে ডানে/বাঁয়ে কেটে থাকলে
   // rail কে সরিয়ে card টাকে content এর ভেতরে আনা। hover এ কখনো নয়,
@@ -549,13 +706,20 @@ function Projects() {
     return left >= rail.scrollLeft - 1 && right <= rail.scrollLeft + rail.clientWidth + 1;
   }
 
+  // টানা চলছে, বা এইমাত্র scroll থেমেছে (momentum/trackpad সহ)
+  function isSliding() {
+    return isDragging.current || performance.now() - lastScrollAt.current < SLIDE_SETTLE_MS;
+  }
+
   function handlePointerEnter(event, index) {
     // touch এ hover নেই — সেখানে tap (onClick) দিয়ে খোলে
     if (event.pointerType !== "mouse") return;
     if (index === active) return;
     if (performance.now() - autoScrollAt.current < CARD_TRANSITION_MS + 200) return;
+    if (isSliding()) return;
     clearTimeout(hoverTimer.current);
     hoverTimer.current = setTimeout(() => {
+      if (isSliding()) return;
       if (fitsWhenOpen(index)) setActiveIndex(index);
     }, HOVER_INTENT_MS);
   }
@@ -569,20 +733,127 @@ function Projects() {
     clearTimeout(hoverTimer.current);
     if (index === active) return;
     revealOnChange.current = true;
+    autoScrollAt.current = performance.now();
+    setIsNavigating(true);
+    clearTimeout(navigateLockTimer.current);
+    navigateLockTimer.current = setTimeout(() => setIsNavigating(false), CARD_TRANSITION_MS);
     setActiveIndex(index);
   }
 
-  useEffect(() => () => clearTimeout(hoverTimer.current), []);
+  useEffect(
+    () => () => {
+      clearTimeout(hoverTimer.current);
+      clearTimeout(navigateLockTimer.current);
+    },
+    []
+  );
 
   function scrollTabsBy(amount) {
     tabsRef.current?.scrollBy({ left: amount, behavior: "smooth" });
   }
 
-  // rail এর তীর: আগের/পরের card টা খোলা হয়, scroll করানোর কাজটা
-  // ওপরের effect ই করে
-  function stepCard(direction) {
-    openCard(Math.min(Math.max(active + direction, 0), visible.length - 1));
-  }
+  // তীর নেই — card গুলো শুধু slider: touch এ আঙুলে টানা, trackpad এ
+  // swipe, আর মাউসে চেপে ধরে টানা। ছাড়ার পর হালকা momentum থাকে,
+  // তাই থামাটা আচমকা নয়
+  const dragMoved = useRef(false);
+  useEffect(() => {
+    const rail = railRef.current;
+    if (!hasResults || !rail) return undefined;
+
+    let down = false;
+    let startX = 0;
+    let startLeft = 0;
+    let lastX = 0;
+    let lastT = 0;
+    let velocity = 0; // px/ms, scrollLeft এর দিকে
+    let raf = 0;
+
+    const stopMomentum = () => cancelAnimationFrame(raf);
+
+    const onScroll = () => {
+      lastScrollAt.current = performance.now();
+      // scroll চলাকালীন অপেক্ষায় থাকা hover-open বাতিল
+      clearTimeout(hoverTimer.current);
+    };
+
+    const onDown = (event) => {
+      if (event.pointerType !== "mouse" || event.button !== 0) return;
+      stopMomentum();
+      down = true;
+      dragMoved.current = false;
+      startX = event.clientX;
+      startLeft = rail.scrollLeft;
+      lastX = event.clientX;
+      lastT = performance.now();
+      velocity = 0;
+    };
+
+    const onMove = (event) => {
+      if (!down) return;
+      const dx = event.clientX - startX;
+      if (!dragMoved.current && Math.abs(dx) > 5) {
+        dragMoved.current = true;
+        isDragging.current = true;
+        clearTimeout(hoverTimer.current);
+        rail.classList.add("is-dragging");
+      }
+      if (!dragMoved.current) return;
+
+      const now = performance.now();
+      const dt = now - lastT;
+      if (dt > 0) velocity = 0.7 * velocity + 0.3 * ((lastX - event.clientX) / dt);
+      lastX = event.clientX;
+      lastT = now;
+
+      rail.scrollLeft = startLeft - dx;
+    };
+
+    const onUp = () => {
+      if (!down) return;
+      down = false;
+      rail.classList.remove("is-dragging");
+      lastScrollAt.current = performance.now();
+
+      const wasDragging = dragMoved.current;
+      // ছাড়ার আগে অনেকক্ষণ থেমে থাকলে momentum নেই
+      if (!wasDragging || performance.now() - lastT > 80 || prefersReducedMotion()) {
+        isDragging.current = false;
+        return;
+      }
+
+      let v = velocity * 16; // px/frame
+      const step = () => {
+        const before = rail.scrollLeft;
+        rail.scrollLeft += v;
+        v *= 0.94;
+        lastScrollAt.current = performance.now();
+        if (Math.abs(v) > 0.4 && rail.scrollLeft !== before) {
+          raf = requestAnimationFrame(step);
+        } else {
+          isDragging.current = false;
+        }
+      };
+      raf = requestAnimationFrame(step);
+    };
+
+    rail.addEventListener("scroll", onScroll, { passive: true });
+    rail.addEventListener("pointerdown", onDown);
+    // wheel/touch এ momentum চললে নতুন ইনপুটে আগেরটা থামানো
+    rail.addEventListener("wheel", stopMomentum, { passive: true });
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+    window.addEventListener("pointercancel", onUp);
+    return () => {
+      stopMomentum();
+      rail.removeEventListener("scroll", onScroll);
+      rail.removeEventListener("pointerdown", onDown);
+      rail.removeEventListener("wheel", stopMomentum);
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+      window.removeEventListener("pointercancel", onUp);
+      isDragging.current = false;
+    };
+  }, [hasResults]);
 
   const pageItems = useMemo(() => buildPageItems(safePage, pageCount), [safePage, pageCount]);
 
@@ -672,18 +943,23 @@ function Projects() {
         <div className="projects-gallery">
           {hasResults ? (
             <div className="projects-stage">
-              <button
-                type="button"
-                className="projects-rail-arrow is-prev"
-                onClick={() => stepCard(-1)}
-                disabled={active === 0 && railEdges.atStart}
-                aria-label={t("projects.carouselPrev", "Previous project")}
+              <div
+                className="projects-rail"
+                ref={railRef}
+                onClickCapture={(event) => {
+                  // টেনে সরানোর পর ছাড়লে যে "click" ফায়ার হয় সেটা আটকানো,
+                  // নাহলে টানার শেষে হঠাৎ একটা card খুলে যেত
+                  if (dragMoved.current) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    dragMoved.current = false;
+                  }
+                }}
               >
-                <Chevron direction="left" width={9} height={16} />
-              </button>
-
-              <div className="projects-rail" ref={railRef}>
-                <ul className="projects-track">
+                <ul
+                  key={`${safePage}-${category}`}
+                  className={`projects-track${isNavigating ? " is-navigating" : ""}`}
+                >
                   {visible.map((project, index) => (
                     <li
                       key={project.slug}
@@ -701,7 +977,7 @@ function Projects() {
                           alt=""
                           width="1200"
                           height="900"
-                          loading={index < 3 ? "eager" : "lazy"}
+                          loading={index < 4 ? "eager" : "lazy"}
                           decoding="async"
                           draggable="false"
                         />
@@ -718,33 +994,28 @@ function Projects() {
                             <span>{project.city}</span>
                           </p>
                         </div>
-                        <span className="projects-card-arrow" aria-hidden="true">
-                          <ArrowUpRight />
-                        </span>
-                      </div>
 
-                      {/* পুরো card জুড়ে লিংক — কিন্তু শুধু খোলা card এ ক্লিক
-                          ধরে (CSS)। বন্ধ card এ প্রথম tap/click শুধু card টা
-                          খোলে, দ্বিতীয়টায় project এ যায় — touch এ এটাই দরকার */}
-                      <Link
-                        to={localeLink(`/projects/${project.slug}`)}
-                        className="projects-card-link"
-                        aria-label={t("projects.viewProject", { name: project.name })}
-                      />
+                        {/* শুধু এই ↗ বোতামেই project details এ যায়। বন্ধ card এ
+                            CSS এ pointer-events বন্ধ, তাই সেখানে ক্লিক শুধু
+                            card খোলে। বন্ধ card এর বোতাম tab দিয়েও ধরা যায় না */}
+                        <Link
+                          to={localeLink(`/projects/${project.slug}`)}
+                          className="projects-card-arrow"
+                          aria-label={t("projects.viewProject", { name: project.name })}
+                          tabIndex={index === active ? 0 : -1}
+                          onClick={(event) => {
+                            // বন্ধ card এর বোতামে ক্লিক হলে navigate নয়,
+                            // শুধু card খোলা (li এর onClick সেটা করবে)
+                            if (index !== active) event.preventDefault();
+                          }}
+                        >
+                          <ArrowUpRight />
+                        </Link>
+                      </div>
                     </li>
                   ))}
                 </ul>
               </div>
-
-              <button
-                type="button"
-                className="projects-rail-arrow is-next"
-                onClick={() => stepCard(1)}
-                disabled={active === visible.length - 1 && railEdges.atEnd}
-                aria-label={t("projects.carouselNext", "Next project")}
-              >
-                <Chevron direction="right" width={9} height={16} />
-              </button>
             </div>
           ) : (
             <div className="projects-empty">
