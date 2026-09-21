@@ -237,6 +237,23 @@
      প্লেটের উপর থেকে শুরু হয়ে ফাঁক তৈরি করত।
      আরও নামাতে 6%, উপরে তুলতে 2% বা 0% */
   --hero-drop: 4%;
+
+  /* ---------- LED প্লেটের আসল মাপ (আলো এখান থেকেই বেরোয়) ----------
+     আলো প্লেটের নিজের কেন্দ্র আর প্রস্থ ধরে চলে।
+     সব মান .hero-visual এর চওড়ার %.
+
+     --plate-x   প্লেটের কেন্দ্র (আলো ডানে সরাতে বাড়ান, বাঁয়ে সরাতে কমান)
+     --plate-hw  প্লেটের অর্ধেক প্রস্থ (আলো চওড়া করতে বাড়ান)
+     --plate-y   প্লেটের নিচের ধার — সব আলো ঠিক এখান থেকে শুরু,
+                 এর উপরে কোনো আলো/আভা থাকবে না */
+  --plate-x: 49.35%;
+  --plate-hw: 30%;
+  --plate-y: calc(61.47% + var(--hero-drop));
+
+  /* ---------- আলোর তীব্রতা (একটাই knob) ----------
+     cone + দেয়ালের আভা + LED রেখা — তিনটাই এটা মেনে চলে।
+     1 = সবচেয়ে উজ্জ্বল, 0.85 = ডিফল্ট, 0.7 = আরও নরম, 0 = আলো বন্ধ */
+  --glow-strength: 0.85;
 }
 
 /* Figma: 610 x 430.2 @ left 8.57%, top -20.24
@@ -260,66 +277,67 @@
 }
 
 /* ---------- আলোর শঙ্কু ----------
-   Figma তে এটা আয়তক্ষেত্র নয়, ট্রাপিজয়েড — উপরে ফিক্সচারের প্লেটের
-   সমান সরু, নিচে পুরো চওড়া। CSS export মুখোশ (mask) প্রকাশ করতে পারে
-   না, তাই শুধু মাপ দেখে বোঝা যায় না; shape টা clip-path দিয়ে বানানো।
+   ⚠️ FIX: আগে প্লেটের উপরেও আলো/আভা দেখা যেত। কারণ ছিল দুইটা:
+     (a) blur(12px) শঙ্কুর ধার সব দিকে ছড়ায়, উপরের দিকেও
+     (b) শঙ্কু প্লেটের 3% উপর থেকে শুরু হতো
 
-   ⚠️ blur আর clip আলাদা স্তরে রাখা জরুরি: একই element এ দিলে ব্রাউজার
-   আগে blur করে তারপর কাটে, ফলে কাটা দাগ ধারালো থেকে যায়। তাই blur
-   বাইরের element এ, clip ভেতরের ::before এ */
+   এখন নিয়ম:
+     ১. blur আগে চলে, clip-path পরে — তাই blur উপরের ধারে সোজা
+        কেটে যায়, উপরে ফাঁস হয় না. ডান-বাঁ-নিচে -40px inset রাখা
+        হয়েছে যাতে ওই তিন দিকে নরম ফেড অক্ষত থাকে.
+     ২. শঙ্কুর উপরের প্রান্ত প্লেটের চেয়ে সামান্য সরু (20%..80%),
+        তাই উপরের কোণে blur প্লেটের দুই পাশে উঁকি দেয় না.
+     ৩. প্লেটের 1.5% উপর থেকে শুরু (image z-index 1 > glow z-index 0,
+        তাই ওই অংশ প্লেটের পেছনে লুকিয়ে থাকে) — প্লেটের ঠিক নিচ থেকেই
+        পূর্ণ আলো, মাঝখানে ফাঁক নেই. */
 .hero-glow {
   position: absolute;
   z-index: 0;
-  height: 37.34%; /* 219.89 / 588.95 */
   pointer-events: none;
-  filter: blur(15px);
-
-  /* Figma র "Group 76" এর opacity — এটা না থাকলে আভাটা বেশি
-     উজ্জ্বল আর ভারী লাগে */
-  opacity: 0.75;
+  filter: blur(12px);
+  opacity: var(--glow-strength);
+  transform-origin: 50% 0; /* শঙ্কু নিচের দিকে ছড়ায় */
+  clip-path: inset(0 -40px -40px -40px);
 }
 
 .hero-glow::before {
   content: "";
   position: absolute;
   inset: 0;
-  /* Figma: radial-gradient(110.46% 142.41% at 50% 0%,
-     #FFFFFF 25%, rgba(255,255,255,0) 90%) — উপরে (ফিক্সচারের গায়ে)
-     সাদা, নিচে গিয়ে মিলিয়ে যায় */
-  background: radial-gradient(
-    110.46% 142.41% at 50% 0%,
-    #ffffff 25%,
-    rgba(255, 255, 255, 0) 90%
-  );
 }
 
-/* বাইরের শঙ্কু: 776.57 চওড়া @ left -16.71, top 362.
-   উপরের প্রান্ত 26.2%..71.7% — ফিক্সচারের নিচের প্লেট বরাবর।
-   আলোর শুরুটা প্লেটের সাথে না মিললে এই দুইটা সংখ্যা নাড়ান */
 .hero-glow--wide {
-  left: -2.15%;
-  top: calc(61.47% + var(--hero-drop));
-  width: 100%;
+  left: calc(var(--plate-x) - var(--plate-hw) * 1.6);
+  top: calc(var(--plate-y) - 1.5%);
+  width: calc(var(--plate-hw) * 3.2);
+  /* প্লেটের ধারের সামান্য উপর থেকে .hero-visual এর তলা পর্যন্ত */
+  height: calc(100% - var(--plate-y) + 1.5%);
 }
 
 .hero-glow--wide::before {
-  clip-path: polygon(26.2% 0, 71.7% 0, 100% 100%, 0 100%);
+  clip-path: polygon(20% 0, 80% 0, 100% 100%, 0 100%);
+  /* উজ্জ্বলতা বাড়াতে/কমাতে এই তিনটা সংখ্যা বদলান (1 = খাঁটি সাদা) */
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 1) 0%,
+    rgba(255, 255, 255, 0.85) 40%,
+    rgba(255, 255, 255, 0.4) 75%,
+    rgba(255, 255, 255, 0) 100%
+  );
 }
 
-/* ভেতরের উজ্জ্বল শঙ্কু: 593.75 চওড়া @ left 80.78, top 369.07 */
+/* শঙ্কু একটাই. দ্বিতীয়টা জমে সাদা চাদর বানাত. JSX এ span টা
+   রেখে দেওয়া হলো (কিছু ভাঙে না) */
 .hero-glow--narrow {
-  left: 10.4%;
-  top: calc(62.67% + var(--hero-drop));
-  width: 76.46%;
-}
-
-.hero-glow--narrow::before {
-  clip-path: polygon(17.9% 0, 77.3% 0, 100% 100%, 0 100%);
+  display: none;
 }
 
 /* hero webp এ আলোটা আগে থেকেই আঁকা থাকলে section এ
    data-glow="off" বসাবেন। transparent ছবি হলে দরকার নেই */
-.hero[data-glow="off"] .hero-glow {
+.hero[data-glow="off"] .hero-glow,
+.hero[data-glow="off"] .hero-visual::before,
+.hero[data-glow="off"] .hero-visual::after,
+.hero[data-glow="off"] .hero-led {
   display: none;
 }
 
@@ -371,65 +389,75 @@
   pointer-events: none;
 }
 
-/* লাইটের চারপাশের দেয়ালে ছড়ানো নরম আভা — জ্বলন্ত লাইটের আশেপাশে
-   বাতাসটাও একটু উজ্জ্বল লাগে. প্লেটের ঠিক নিচে কেন্দ্র */
+/* ---------- দেয়ালে ছড়ানো নরম আভা ----------
+   ⚠️ FIX (মূল কারণ): আগে এটা top: 40% থেকে শুরু হতো, অথচ প্লেটের
+   নিচের ধার ~65% এ। মানে প্লেটের ~25% উপর থেকে 0.55 opacity এর সাদা
+   কুয়াশা শুরু হতো — ফিক্সচারের ফাঁকা জায়গা দিয়ে সেটাই "উপরের আলো"
+   হয়ে দেখা যেত।
+
+   এখন: প্লেটের ধার (--plate-y) থেকে শুরু, gradient এর কেন্দ্র একদম
+   উপরে (50% 0%) — অর্ধ-উপবৃত্ত, শুধু নিচের দিকে ছড়ায়, উপরে কিছু নেই */
 .hero-visual::before {
   content: "";
   position: absolute;
   z-index: 0;
-  left: 8%;
-  top: calc(40% + var(--hero-drop));
+  left: calc(var(--plate-x) - 39%);
+  top: var(--plate-y);
   width: 78%;
-  height: 60%;
+  height: calc(100% - var(--plate-y));
   background: radial-gradient(
-    50% 50% at 50% 42%,
-    rgba(255, 255, 255, 0.55) 0%,
+    45% 100% at 50% 0%,
+    rgba(255, 255, 255, 0.85) 0%,
     rgba(255, 255, 255, 0) 100%
   );
   pointer-events: none;
 }
 
-/* LED প্লেট — শঙ্কুর উপরের প্রান্ত বরাবর (24.05% থেকে 69.55%).
-   একটা সরু উজ্জ্বল রেখা + ঠিক নিচে নরম ঝলক */
+/* ---------- ডিদার (banding ভাঙার স্তর) ----------
+   খুব হালকা gradient এ 8-bit রঙের ধাপ চোখে অনুভূমিক ঢেউয়ের মতো
+   ফুটে ওঠে. প্রায় অদৃশ্য সাদা দানা (noise) সেই ধাপগুলো ভেঙে দেয়.
+   ভালো না লাগলে এই পুরো rule টা মুছে দিন — আর কিছু ভাঙবে না */
+.hero-visual::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  left: calc(var(--plate-x) - 39%);
+  top: var(--plate-y);
+  width: 78%;
+  height: calc(100% - var(--plate-y));
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.3 -0.06'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 160px 160px;
+  opacity: var(--glow-strength);
+  -webkit-mask-image: radial-gradient(55% 100% at 50% 0%, #000 30%, transparent 100%);
+  mask-image: radial-gradient(55% 100% at 50% 0%, #000 30%, transparent 100%);
+  pointer-events: none;
+}
+
+/* ---------- LED প্লেট রেখা ----------
+   প্লেটের নিচের ধার বরাবর একটা সরু, নরম উজ্জ্বল রেখা.
+
+   ⚠️ FIX: আগে z-index: 2 ছিল, মানে ছবির *উপরে* বসে প্লেটের নিচের
+   ধারকে ধুয়ে সাদা করে দিত. এখন z-index: 0 — ছবির *পেছনে*, তাই
+   প্লেটের ধার পরিষ্কার থাকে আর রেখাটা শুধু ধারের নিচ দিয়ে উঁকি দেয়.
+   translateY(-30%) (আগে -70%) — রেখা আরও নিচে নেমেছে, উপরে ছড়ায় না */
 .hero-led {
   position: absolute;
-  z-index: 2;
-  left: 25%;
-  top: calc(61.47% + var(--hero-drop));
-  width: 43.5%;
-  height: 1.1%;
-  transform: translateY(-60%);
+  z-index: 0;
+  left: calc(var(--plate-x) - var(--plate-hw) * 0.96);
+  top: var(--plate-y);
+  width: calc(var(--plate-hw) * 1.92);
+  height: 0.9%;
+  transform: translateY(-30%);
   border-radius: 50%;
   background: linear-gradient(
     90deg,
     rgba(255, 255, 255, 0) 0%,
-    #ffffff 18%,
-    #ffffff 82%,
+    rgba(255, 255, 255, 0.85) 20%,
+    rgba(255, 255, 255, 0.85) 80%,
     rgba(255, 255, 255, 0) 100%
   );
-  filter: blur(3px);
+  filter: blur(4px);
   pointer-events: none;
-}
-
-.hero-led::after {
-  content: "";
-  position: absolute;
-  left: 4%;
-  right: 4%;
-  top: 50%;
-  height: 900%;
-  border-radius: 50%;
-  background: radial-gradient(
-    50% 50% at 50% 30%,
-    rgba(255, 255, 255, 0.9) 0%,
-    rgba(255, 255, 255, 0) 100%
-  );
-  filter: blur(10px);
-}
-
-/* শঙ্কু নিচের দিকে ছড়ায়, তাই উপরের প্রান্ত থেকে বড় হয় */
-.hero-glow {
-  transform-origin: 50% 0;
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -441,7 +469,8 @@
 
   .hero[data-light="off"] .hero-glow,
   .hero[data-light="off"] .hero-led,
-  .hero[data-light="off"] .hero-visual::before {
+  .hero[data-light="off"] .hero-visual::before,
+  .hero[data-light="off"] .hero-visual::after {
     opacity: 0;
   }
 
@@ -460,16 +489,12 @@
     animation: hero-cone var(--light-duration) linear var(--light-delay) both;
   }
 
-  /* ভেতরের শঙ্কু সামান্য পরে — আলো ভেতর থেকে বাইরে ছড়ানোর অনুভূতি */
-  .hero[data-light="on"] .hero-glow--narrow {
-    animation-delay: calc(var(--light-delay) + 0.12s);
-  }
-
   .hero[data-light="on"] .hero-led {
     animation: hero-led var(--light-duration) linear var(--light-delay) both;
   }
 
-  .hero[data-light="on"] .hero-visual::before {
+  .hero[data-light="on"] .hero-visual::before,
+  .hero[data-light="on"] .hero-visual::after {
     animation: hero-spill var(--light-duration) linear var(--light-delay) both;
   }
 
@@ -477,12 +502,8 @@
     animation: hero-lamp var(--light-duration) ease-out var(--light-delay) both;
   }
 
-  /* জ্বলে ওঠার পর: আলো খুব ধীরে ওঠানামা করে (১০% এর মধ্যে).
-     ::before এ রাখা — বাইরের element এর animation এর সাথে ঝগড়া
-     করে না */
-  .hero[data-light="on"] .hero-glow::before {
-    animation: hero-breathe 7s ease-in-out var(--light-settled) infinite;
-  }
+  /* ⚠️ আগে এখানে 'hero-breathe' loop ছিল (আলো ওঠানামা করত) — wave এর
+     মতো লাগায় বাদ দেওয়া হয়েছে. জ্বলে ওঠার পর আলো স্থির থাকে */
 }
 
 /* সব স্তর একই সময়রেখায় (--light-duration), শুধু শুরুর বিন্দু আলাদা:
@@ -494,10 +515,10 @@
     animation-timing-function: cubic-bezier(0.33, 0, 0.2, 1);
   }
   35% {
-    opacity: 1;
+    opacity: var(--glow-strength);
   }
   100% {
-    opacity: 1;
+    opacity: var(--glow-strength);
   }
 }
 
@@ -511,7 +532,7 @@
     animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
   }
   100% {
-    opacity: 0.75;
+    opacity: var(--glow-strength);
     transform: scaleY(1);
   }
 }
@@ -535,7 +556,7 @@
     animation-timing-function: cubic-bezier(0.33, 0, 0.2, 1);
   }
   100% {
-    opacity: 1;
+    opacity: var(--glow-strength);
   }
 }
 
@@ -545,16 +566,6 @@
   }
   to {
     filter: brightness(1);
-  }
-}
-
-@keyframes hero-breathe {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.9;
   }
 }
 
