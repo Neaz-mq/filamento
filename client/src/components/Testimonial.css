@@ -14,6 +14,11 @@
                  মাঝ বরাবর থেকে 16.5px উপরে
 
    100 + 126 + 48 + 455 + 100 = 829 ✓
+
+   hover এ খোলা (accordion): তিনটা card একই রকম, চওড়া শুধু
+   flex-grow দিয়ে ভাগ — খোলা card 810, বাকি দুইটা 199. অর্থাৎ
+   (1240 − 32) × 810/1208 = 810, আর × 199/1208 = 199 — Figma র
+   মাপই, শুধু এখন যেকোনো card খোলা হতে পারে
    =============================================================== */
 
 .testimonials {
@@ -85,40 +90,138 @@
 }
 
 /* ---------------------------------------------------------------
-   card এর সারি — Figma: 810 : 414, gap 16
+   card এর সারি — Figma: 810 : 199 : 199, মাঝে 16
+
+   ফাঁকটা gap দিয়ে নয়, প্রতিটা card এর দুই পাশে 8px margin দিয়ে.
+   কারণ চারটা card ই DOM এ থাকে, একটা সবসময় জানালার বাইরে শূন্য
+   চওড়ায়. gap হলে শূন্য card এর পাশেও 16px ফাঁক থেকে যেত — সারি
+   একদিকে সরে থাকত. margin হলে শূন্য card নিজের margin ও শূন্য করে
+   দেয়, আর সেটাও মসৃণভাবে (margin এও transition).
+
+   সারিটা তাই দুই পাশে 8px করে বাড়ানো (width + 16, margin −8) —
+   যাতে প্রথম আর শেষ card এর বাইরের 8px margin কিনারা ছাড়িয়ে যায়
+   আর card গুলো ঠিক আগের জায়গাতেই বসে.
+
+   container-type: সারিটা নিজের চওড়া জানায় (cqw), তাই card এর
+   ভেতরের লেখা সারির মাপ দেখে নিজের চওড়া ঠিক করতে পারে — card
+   এর নয়. নিচে .tcard-full দেখুন কেন এটা দরকার
    --------------------------------------------------------------- */
 .testimonials-row {
   position: relative;
-  width: 100%;
-  display: grid;
-  grid-template-columns: minmax(0, 810fr) minmax(0, 414fr);
-  gap: 16px;
+  box-sizing: border-box;
+  width: calc(100% + 16px);
+  margin-inline: -8px;
+  display: flex;
+  row-gap: 16px;
   align-items: stretch;
+  container: tm-row / inline-size;
 }
 
-/* ---------- বড় (featured) card ----------
+/* ---------- একটা card ----------
+   চওড়া আসে flex-grow থেকে: সরু 199, খোলা 810, জানালার বাইরে 0.
+   flex-grow বদলানোয় transition দেওয়া যায়, তাই card মসৃণভাবে
+   চওড়া/সরু হয়.
+
+   গতি: 0.9s, cubic-bezier(0.45, 0, 0.15, 1) — ধীরে শুরু, মাঝে
+   চলা, আর অনেকটা সময় নিয়ে আলতো করে থামা. আগে ছিল (0.22,1,0.36,1)
+   যেটা শুরুতেই ঝাঁপিয়ে ~0.2s এ 90% পথ শেষ করত — চোখে তাই
+   "খুব দ্রুত" লাগত. এখন 90% পৌঁছায় প্রায় 0.55s এ, বাকিটা নরম.
+
+   overflow: hidden — card সরু থাকলে ভেতরের বড় রূপটা কিনারায় কেটে
+   যায়, বেরিয়ে আসে না */
+.tcard {
+  --tm-ease: cubic-bezier(0.45, 0, 0.15, 1);
+  --tm-speed: 0.9s;
+
+  position: relative;
+  flex: 199 1 0;
+  min-width: 0;
+  min-height: 455px;
+  margin-inline: 8px;
+  overflow: hidden;
+  /* card নিজেই একটা স্তর — তাই পেছনের “ চিহ্নের z-index −1 card
+     এর রঙের উপরে বসে, card এর নিচে হারিয়ে যায় না */
+  isolation: isolate;
+  border-radius: 40px;
+  background: var(--tm-card-bg);
+  transition:
+    flex-grow var(--tm-speed) var(--tm-ease),
+    margin var(--tm-speed) var(--tm-ease),
+    opacity 0.6s ease;
+}
+
+.tcard.is-active {
+  flex-grow: 810;
+}
+
+/* জানালার বাইরে — গুটিয়ে শূন্য, margin ও শূন্য, আর মিলিয়ে যায়.
+   তীর চাপলে একপাশে এটা হয় আর অন্যপাশে নতুন card খুলে আসে */
+.tcard.is-out {
+  flex-grow: 0;
+  margin-inline: 0;
+  opacity: 0;
+}
+
+/* ---------- বড় রূপ ----------
    Figma: padding 64, gap 16, লেখা উপর থেকে. লেখার মোট উচ্চতা
    = rating 40 + 16 + quote 135 + 32 + রেখা 1 + 32 + ব্যক্তি 100
    = 356. Figma তে এটা নিচের padding এ 29px ঢুকে যায়, তাই নিচে
-   ফাঁক 64 নয়, 35: উপরে 64 + লেখা 356 + নিচে 35 = 455 */
-.testimonials-featured {
+   ফাঁক 64 নয়, 35: উপরে 64 + লেখা 356 + নিচে 35 = 455.
+
+   ⭐ মূল কৌশল — চওড়াটা card এর নয়, সবসময় খোলা card এর সমান:
+   (সারি − 48) × 810/1208. সারি এখন দুই পাশে 8px বাড়তি, আর তিনটা
+   card এর margin মিলে 48 — বাকিটাই card গুলোর. card চওড়া হওয়ার সময় যদি লেখা
+   card এর মাপ ধরত, তাহলে প্রতিটা মুহূর্তে লাইন ভেঙে নতুন করে
+   সাজত — quote টা চোখের সামনে কিলবিল করত. এখন লেখা একই চওড়ায়
+   স্থির থাকে, card শুধু পর্দার মতো সরে গিয়ে সেটা খুলে দেয়.
+
+   এটা flow তে থাকে (absolute নয়) — তাই card এর উচ্চতা এটাই ঠিক
+   করে, লম্বা quote এলে card লম্বা হয় */
+.tcard-full {
   position: relative;
-  overflow: hidden;
-  isolation: isolate; /* quote এর blend শুধু card এর সাথে মেশে */
   box-sizing: border-box;
+  width: calc((100cqw - 48px) * 810 / 1208);
   min-height: 455px;
   padding: 64px 64px 35px;
   display: flex;
   flex-direction: column;
   gap: 16px;
-  border-radius: 40px;
-  background: var(--tm-card-bg);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(12px);
+  /* বন্ধ হওয়ার সময় আগে মিলিয়ে যায়; visibility পরে বন্ধ হয়, যাতে
+     মিলিয়ে যাওয়াটা দেখা যায় */
+  transition:
+    opacity 0.35s ease,
+    transform 0.35s ease,
+    visibility 0s linear 0.35s;
+}
+
+/* খোলার সময় card এর চওড়া হওয়ার মাঝামাঝি থেকে লেখা আলতো করে
+   উপরে উঠে ফোটে, card থামার ঠিক পরে পুরো স্থির হয় — "বসে যাওয়ার"
+   অনুভূতি. আগে এলে সরু card এ কাটা লেখা এক ঝলক দেখা যেত */
+.tcard.is-active .tcard-full {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition:
+    opacity 0.6s ease 0.32s,
+    transform 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.32s,
+    visibility 0s;
 }
 
 /* Figma: “ — 300 x 237.19, rgba(55,58,60,.25), mix-blend-mode:
    overlay, card এর ভেতরে উপর-ডানে (padding 64 এর ভেতরে).
-   overlay blend এ হালকা পটভূমির উপর প্রায় জলছাপের মতো আবছা —
-   Figma তেও ঠিক এমনই, তাই চোখে প্রায় পড়ে না */
+
+   overlay blend বাদ দিয়ে তার ফলটাই সরাসরি রং হিসেবে বসানো:
+   #373A3C (.25) কে #F5F5F6 এর উপর overlay করলে ঠিক rgb(244,244,245)
+   হয় — হিসাব করে দেখা. পেছনে সবসময় একই card এর রং, তাই ফলও
+   সবসময় এক — চোখে হুবহু একই জলছাপ.
+
+   কেন বদলালাম: hover এ বড় রূপটা মিলিয়ে যাওয়া/ফোটার সময় আধা-
+   স্বচ্ছ থাকে, আর আধা-স্বচ্ছ জিনিসকে browser আলাদা করে আঁকে —
+   তখন blend এর নিচে card এর রং থাকে না, চিহ্নটা গাঢ় ধূসর হয়ে
+   বড় করে ফুটে উঠত. সরাসরি রং দিলে কোনো মুহূর্তেই এমন হয় না */
 .testimonials-quote-mark {
   position: absolute;
   z-index: -1;
@@ -128,8 +231,7 @@
   height: auto;
   aspect-ratio: 406 / 321;
   max-width: none;
-  color: var(--tm-ink-25);
-  mix-blend-mode: overlay;
+  color: rgb(244, 244, 245);
   pointer-events: none;
 }
 
@@ -372,52 +474,48 @@
   border-radius: 4px;
 }
 
-/* ---------- ছোট দুইটা card ---------- */
-.testimonials-side {
-  display: flex;
-  gap: 16px;
-  min-width: 0;
-}
+/* ---------- সরু রূপ ----------
+   Figma: padding 32 16, ভেতরের সব কিছু খাড়াভাবে মাঝে.
+   ছবি 100 + 16 + নাম/পদবি 82 + 48 + rating 40 + 48 + Project 32.
 
-/* Figma: padding 32 16, ভেতরের সব কিছু খাড়াভাবে মাঝে
-   (Frame 280: justify-content center, gap 48) */
-.testimonials-mini {
-  position: relative;
-  flex: 1 1 0;
-  min-width: 0;
-  min-height: 455px;
+   absolute, card এর ঠিক মাঝে — card চওড়া হওয়ার সময়ও এটা মাঝেই
+   থাকে আর মিলিয়ে যায়. চওড়া স্থির (সরু card এর মাপ), একই কারণে:
+   নাম আর পদবি যেন লাইন বদলে না নাচে.
+
+   pointer-events: none — এর নিচের অদৃশ্য বোতামে চাপ পৌঁছায়, শুধু
+   Project link এ নয় (নিচে) */
+.tcard-compact {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  bottom: 0;
+  left: 50%;
   box-sizing: border-box;
+  width: calc((100cqw - 48px) * 199 / 1208);
+  padding: 32px 16px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 48px;
-  padding: 32px 16px;
-  border-radius: 40px;
-  background: var(--tm-card-bg);
   text-align: center;
-  transition: background 0.2s ease;
+  transform: translate(-50%, 0);
+  pointer-events: none;
+  opacity: 1;
+  visibility: visible;
+  transition:
+    opacity 0.55s ease 0.38s,
+    transform 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.38s,
+    visibility 0s;
 }
 
-.testimonials-mini:hover {
-  background: var(--tm-card-bg-hover);
-}
-
-/* বাছাই বোতাম — চোখে card এর উপরের অংশ (ছবি, নাম, rating).
-   ফাঁক আলাদা আলাদা (ছবি→নাম 16, নাম→rating 48), তাই gap নয়,
-   margin দিয়ে */
-.testimonials-mini-select {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  align-self: stretch;
-  padding: 0;
-  border: 0;
-  background: none;
-  font: inherit;
-  color: inherit;
-  text-align: center;
-  cursor: pointer;
+.tcard.is-active .tcard-compact {
+  opacity: 0;
+  visibility: hidden;
+  transform: translate(-50%, 10px);
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease,
+    visibility 0s linear 0.3s;
 }
 
 /* Figma: Frame 266 — নাম আর পদবি, gap 4, মাঝে বসানো */
@@ -431,33 +529,46 @@
   text-align: center;
 }
 
-.testimonials-mini-select .testimonial-rating {
+.tcard-compact .testimonial-rating,
+.tcard-compact .testimonial-project {
   margin-top: 48px;
 }
 
-/* অদৃশ্য স্তর পুরো card ঢেকে রাখে — card এর যেকোনো জায়গায়
-   ক্লিক করলে বাছাই হয়. keyboard focus এর রেখাও এটাতেই আঁকা হয়,
-   তাই রেখাটা পুরো card ঘিরে দেখায় */
-.testimonials-mini-select::after {
-  content: "";
+/* Project link চাপা যায় — সরু রূপের বাকিটা চাপ ছেড়ে দেয় */
+.tcard-compact .testimonial-project {
+  pointer-events: auto;
+}
+
+/* ---------- পুরো card ঢাকা অদৃশ্য বোতাম ----------
+   সরু card এর যেকোনো জায়গায় চাপলে খোলে. keyboard focus এর
+   রেখাও এটাতেই — তাই রেখাটা পুরো card ঘিরে দেখায়.
+
+   খোলা card এ চাপ ছেড়ে দেয়, যাতে quote বাছাই করা (select) আর
+   Project link চাপা যায় */
+.tcard-select {
   position: absolute;
-  inset: 0;
-  border-radius: 40px;
-}
-
-.testimonials-mini-select:focus-visible {
-  outline: none;
-}
-
-.testimonials-mini-select:focus-visible::after {
-  outline: 2px solid var(--tm-ink);
-  outline-offset: 2px;
-}
-
-/* Project link অদৃশ্য স্তরের উপরে — আলাদাভাবে চাপা যায় */
-.testimonials-mini .testimonial-project {
-  position: relative;
   z-index: 1;
+  inset: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 40px;
+  background: none;
+  cursor: pointer;
+}
+
+.tcard.is-active .tcard-select {
+  pointer-events: none;
+}
+
+.tcard-select:focus-visible {
+  outline: 2px solid var(--tm-ink);
+  outline-offset: -2px;
+}
+
+/* বড় রূপের Project link ও বোতামের উপরে */
+.tcard-full .testimonial-project {
+  position: relative;
+  z-index: 2;
 }
 
 /* ---------- prev/next তীর ----------
@@ -467,7 +578,8 @@
 
 /* mobile-first: নিচে সাধারণ centered বোতাম জোড়া */
 .testimonials-nav {
-  grid-column: 1 / -1;
+  flex: 1 1 100%;
+  order: 2;
   display: flex;
   justify-content: center;
   gap: 16px;
@@ -513,8 +625,9 @@
 @media (min-width: 1100px) {
   .testimonials-nav {
     position: absolute;
-    inset: 0;
-    grid-column: unset;
+    z-index: 3;
+    /* সারির দুই পাশের বাড়তি 8px বাদ — তীর আগের জায়গাতেই */
+    inset: 0 8px;
     justify-content: space-between;
     align-items: center;
     pointer-events: none;
@@ -532,55 +645,127 @@
   .testimonials-arrow-next {
     transform: translateX(50%);
   }
+
+  /* তীর দুটো card এর কিনারায় 24px ভেতরে ঢুকে থাকে, আর সরু card এর
+     padding মাত্র 16 — তাই "Facility Manager, Cold Storage" এর মতো
+     লম্বা পদবির শেষটা তীরের নিচে চাপা পড়ত. কিনারার card দুটোয়
+     সেদিকে ভেতরের ফাঁক একটু বেশি */
+  .tcard.is-first .tcard-compact {
+    padding-left: 30px;
+  }
+
+  .tcard.is-last .tcard-compact {
+    padding-right: 30px;
+  }
 }
 
 /* ===============================================================
    Responsive
    =============================================================== */
 
-/* বড় card উপরে, ছোট দুইটা পাশাপাশি নিচে */
+/* ---------------------------------------------------------------
+   ছোট পর্দা: পাশাপাশি জায়গা নেই, তাই আগের মতো — খোলা card
+   পুরো চওড়ায় উপরে, বাকি দুইটা নিচে পাশাপাশি.
+
+   খোলা card টা order: -1 দিয়ে সবসময় উপরে আসে, DOM এ যেখানেই
+   থাকুক. এখানে চওড়ার animation নেই — card ছুঁলে সোজা বদলে যায়,
+   quote টা নিজের fade নিয়ে আসে
+   --------------------------------------------------------------- */
 @media (max-width: 1099px) {
   .testimonials-row {
-    grid-template-columns: minmax(0, 1fr);
+    flex-wrap: wrap;
   }
 
-  .testimonials-featured {
+  .tcard,
+  .tcard.is-active {
+    min-height: 0;
+    transition: none;
+  }
+
+  /* margin দুই পাশে 8 — তাই চওড়া থেকে 16 বাদ */
+  .tcard {
+    flex: 1 1 calc(50% - 16px);
+  }
+
+  .tcard.is-active {
+    flex: 1 1 calc(100% - 16px);
+    order: -1;
+  }
+
+  /* জানালার বাইরের card ছোট পর্দায় একেবারেই নেই */
+  .tcard.is-out {
+    display: none;
+  }
+
+  /* বড় রূপ শুধু খোলা card এ, চওড়া card অনুযায়ী (আর স্থির নয়) */
+  .tcard-full {
+    display: none;
+    width: auto;
     min-height: 0;
     padding: 48px;
   }
 
-  /* 455 বাদ, কিন্তু 0 নয় — 0 দিলে ফোনে card চ্যাপ্টা হয়ে ভেতরের
-     লেখা একে অপরের উপর উঠে যেত */
-  .testimonials-mini {
-    min-height: auto;
+  .tcard.is-active .tcard-full {
+    display: flex;
+    transform: none;
   }
 
-  /* ক্রম: বড় card → ছোট card → তীর */
-  .testimonials-side {
-    order: 1;
+  /* সরু রূপ flow তে ফেরে — card এর উচ্চতা এটাই ঠিক করে.
+     static নয়, relative: z-index শুধু positioned জিনিসে কাজ করে,
+     আর এটা না থাকলে অদৃশ্য বোতামটা Project link ঢেকে ফেলত —
+     ফোনে Project এ আঙুল দিলে card খুলত, link এ যেত না */
+  .tcard-compact {
+    position: relative;
+    top: auto;
+    bottom: auto;
+    left: auto;
+    width: auto;
+    transform: none;
   }
 
-  .testimonials-nav {
-    order: 2;
+  .tcard.is-active .tcard-compact {
+    display: none;
+  }
+}
+
+/* ছোট পর্দায় চওড়ার animation নেই — card ছুঁলে বদলে যায়. তাই
+   নতুন দেখা দেওয়া রূপটা অন্তত আলতো করে ফোটে (display: none থেকে
+   ফিরলে animation নতুন করে চলে) */
+@media (max-width: 1099px) and (prefers-reduced-motion: no-preference) {
+  .tcard.is-active .tcard-full,
+  .tcard:not(.is-active) .tcard-compact {
+    animation: testimonial-quote-in 0.45s ease both;
   }
 }
 
 @media (max-width: 639px) {
-  .testimonials-side {
-    flex-direction: column;
+  /* ---------- সব card একটার নিচে একটা ----------
+     এখানে খোলা card উপরে সরে না (order: 0) — নিজের জায়গাতেই
+     খোলে. এক কলামে সবাই পুরো চওড়া, তাই কোথাও ফাঁকা থাকে না.
+     উপরে সরালে সমস্যা হতো: কেউ নিচে scroll করে দ্বিতীয় card
+     ছুঁলেন, card টা লাফিয়ে উপরে চলে গেল — পর্দার বাইরে, যেটা
+     পড়তে চেয়েছিলেন সেটাই হারিয়ে গেল */
+  .tcard,
+  .tcard.is-active {
+    flex-basis: calc(100% - 16px);
+    order: 0;
+    border-radius: 28px;
   }
 
-  /* ---------- বড় card: ফোনে সব কিছু মাঝ বরাবর ----------
-     নিচের ছোট card গুলোর মতোই — ছবি, নাম, পদবি, Project এক
+  .tcard-select {
+    border-radius: 28px;
+  }
+
+  /* ---------- বড় রূপ: ফোনে সব কিছু মাঝ বরাবর ----------
+     নিচের সরু card গুলোর মতোই — ছবি, নাম, পদবি, Project এক
      কলামে মাঝে. rating আর quote ও মাঝে, নাহলে উপরের অংশ বাঁয়ে
      আর নিচের অংশ মাঝে হয়ে card টা এলোমেলো লাগত */
-  .testimonials-featured {
+  .tcard-full {
     padding: 32px 24px;
-    border-radius: 28px;
     text-align: center;
   }
 
-  .testimonials-featured .testimonial-rating {
+  .tcard-full .testimonial-rating {
     align-self: center;
   }
 
@@ -599,7 +784,7 @@
     align-items: center;
   }
 
-  /* নাম-পদবি থেকে Project সামান্য আলাদা, ছোট card এর মতো */
+  /* নাম-পদবি থেকে Project সামান্য আলাদা, সরু card এর মতো */
   .testimonial-person .testimonial-project {
     margin-top: 4px;
   }
@@ -622,18 +807,13 @@
     font-size: 26px;
   }
 
-  /* ---------- ছোট card ---------- */
-  .testimonials-mini {
-    flex: 1 1 auto;
-    gap: 28px;
-    border-radius: 28px;
-  }
-
-  .testimonials-mini-select .testimonial-rating {
+  /* ---------- সরু রূপ ---------- */
+  .tcard-compact .testimonial-rating,
+  .tcard-compact .testimonial-project {
     margin-top: 28px;
   }
 
-  /* বড় আর ছোট দুই card এ একই মাপের ছবি */
+  /* বড় আর সরু দুই রূপে একই মাপের ছবি */
   .testimonial-avatar {
     width: 88px;
     height: 88px;
@@ -644,10 +824,16 @@
   }
 }
 
+/* নড়াচড়া কম চাইলে card চওড়া হয় না — এক লাফে বদলে যায় */
 @media (prefers-reduced-motion: reduce) {
   .testimonials-arrow,
-  .testimonials-mini,
-  .testimonial-project-icon {
+  .testimonial-project-icon,
+  .tcard,
+  .tcard.is-out,
+  .tcard-full,
+  .tcard-compact,
+  .tcard.is-active .tcard-full,
+  .tcard.is-active .tcard-compact {
     transition: none;
   }
 }

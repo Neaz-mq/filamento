@@ -1,12 +1,23 @@
-import { useState } from "react";
+import { useId, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useLocaleLink } from "../i18n/useLocaleLink";
 import "./Testimonial.css";
 
-/* Figma "Frame 282" — বাঁয়ে বড় featured card (active testimonial),
-   ডানে দুইটা ছোট card (পরের দুইটা)। arrow চাপলে সবকিছু এক ঘর করে
-   ঘুরে যায় — ছোট card এ ক্লিক করলেও সেটা featured হয়ে যায়।
+/* Figma "Frame 282" — তিনটা card পাশাপাশি: একটা বড় (খোলা), দুইটা
+   সরু. শুরুতে প্রথমটা খোলা.
+
+   hover করলে সেই card টা মসৃণভাবে চওড়া হয়ে বড় card এর রূপ নেয়,
+   আর যেটা খোলা ছিল সেটা সরু হয়ে যায় — এক card থেকে আরেক card এ
+   চোখ গেলেই সেটা পড়ার মতো বড় হয়ে ওঠে. মাউস সরিয়ে নিলে আবার
+   বেছে রাখা card টা খোলে (শুরুতে প্রথমটা; তীর বা ক্লিকে বদলায়).
+
+   keyboard এ Tab দিয়ে card এ এলে, আর ফোনে card ছুঁলেও একই কাজ হয়.
+
+   তীর চাপলেও ঠিক একই animation: খোলা card টা পাশের card এ সরে
+   যায়. চারটা testimonial কিন্তু জায়গা তিনটার — তাই শেষ প্রান্তে
+   পৌঁছালে একপাশের card গুটিয়ে শূন্য হয়ে যায় আর অন্য পাশ থেকে
+   নতুনটা খুলে আসে, পুরো সারিটা যেন মসৃণভাবে সরে.
 
    ⚠️ নিচের quote/নাম/ছবি সবই placeholder — আসল client testimonial
    আর ছবি পেলে TESTIMONIALS array আর en/ja/zh-Hant.json এর
@@ -185,11 +196,13 @@ function MiniRating({ value, t }) {
   );
 }
 
-function ProjectLink({ to, label }) {
+/* tabIndex — সরু card এর link টা keyboard এ থামে না (নিচে কারণ
+   লেখা আছে), কিন্তু মাউস বা আঙুলে চাপা যায় */
+function ProjectLink({ to, label, tabIndex }) {
   const localeLink = useLocaleLink();
 
   return (
-    <Link to={localeLink(to)} className="testimonial-project">
+    <Link to={localeLink(to)} className="testimonial-project" tabIndex={tabIndex}>
       <span>{label}</span>
       <span className="testimonial-project-icon">
         <ProjectIcon />
@@ -198,30 +211,206 @@ function ProjectLink({ to, label }) {
   );
 }
 
+/* hover এ card খোলা শুধু চওড়া পর্দায় — যেখানে card গুলো পাশাপাশি.
+   ছোট পর্দায় card গুলো খাড়া সাজানো, আর খোলা card টা উপরে চলে
+   আসে (CSS এর order). তখন মাউস ছুঁলেই খুলে দিলে card লাফিয়ে উপরে
+   উঠত, মাউসের নিচে অন্য card চলে আসত, সেটাও খুলত — অনন্ত লাফালাফি.
+   তাই ওখানে শুধু চাপলে খোলে */
+const WIDE = "(min-width: 1100px)";
+const isWide = () =>
+  typeof window !== "undefined" && window.matchMedia(WIDE).matches;
+
+/* ---------------------------------------------------------------
+   একটা card — ভেতরে দুইটা রূপ, একটার উপর আরেকটা:
+
+     tcard-full     বড় রূপ: rating, পুরো quote, ব্যক্তি, Project
+     tcard-compact  সরু রূপ: ছবি, নাম, পদবি, একটা তারা, Project
+
+   খোলা card এ বড় রূপ দেখা যায়, বাকিগুলোতে সরু রূপ. দুইটা রূপই
+   সবসময় DOM এ থাকে — card চওড়া হওয়ার সময় একটা মিলিয়ে যায়,
+   আরেকটা ফুটে ওঠে (Testimonial.css এ কেন লেখা নড়ে না, দেখুন)
+   --------------------------------------------------------------- */
+/* out   — এই মুহূর্তে জানালার বাইরে: চওড়া শূন্য, আর inert (Tab এ
+           থামে না, screen reader ও পড়ে না)
+   first / last — জানালার প্রথম আর শেষ card: তীরগুলো এদের কিনারায়
+           ভাসে, তাই ভেতরের লেখা সেদিকে একটু সরে থাকে (CSS দেখুন) */
+function TestimonialCard({ item, active, out, first, last, onHover, onSelect, t }) {
+  const nameId = useId();
+  const roleId = useId();
+  const cardRef = useRef(null);
+
+  /* ছোট পর্দায় চাপলে: card খোলার পরে সেটা পর্দার ভেতরে আছে কি না
+     দেখা — না থাকলে আলতো করে scroll করে আনা. ট্যাবলেটে খোলা card
+     উপরে চলে যায়, তখন এটা না থাকলে সেটা পর্দার বাইরে থাকত.
+     requestAnimationFrame — React নতুন অবস্থা আঁকার পরে মাপা হয় */
+  const handleSelect = () => {
+    onSelect();
+    if (isWide()) return;
+
+    const calm = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.requestAnimationFrame(() => {
+      cardRef.current?.scrollIntoView({
+        block: "nearest",
+        behavior: calm ? "auto" : "smooth",
+      });
+    });
+  };
+
+  const name = t(`testimonials.items.${item.id}.name`);
+  const role = t(`testimonials.items.${item.id}.role`);
+
+  return (
+    <article
+      ref={cardRef}
+      className={[
+        "tcard",
+        active && "is-active",
+        out && "is-out",
+        first && "is-first",
+        last && "is-last",
+      ]
+        .filter(Boolean)
+        .join(" ")}
+      inert={out}
+      onPointerEnter={(event) => {
+        if (event.pointerType === "mouse" && isWide()) onHover();
+      }}
+      /* card এর যেকোনো জায়গায় ক্লিক = বেছে নেওয়া. hover এ খোলা card
+         এ ক্লিক করলেও সেটা থেকে যায়, মাউস সরালে আর ফিরে যায় না —
+         খোলা card এ অদৃশ্য বোতামটা চাপ ছেড়ে দেয়, তাই এটা এখানে */
+      onClick={onSelect}
+      /* keyboard এ Tab দিয়ে card এর ভেতরে এলে খোলে (React এর onFocus
+         ভেতর থেকে উপরে ওঠে).
+
+         শুধু keyboard এর focus (:focus-visible) — আঙুল বা মাউসের
+         focus এ নয়. কারণ ছোঁয়ার মুহূর্তেই focus আসে, click আসে তার
+         পরে. focus এ খুলে দিলে click পৌঁছানোর আগেই সরু রূপটা লুকিয়ে
+         যেত: Project link এ আঙুল দিলে link এ যেত না, শুধু card খুলত.
+         আঙুল আর মাউসের জন্য খোলার কাজ নিচের বোতামের onClick করে */
+      onFocus={(event) => {
+        if (event.target.matches(":focus-visible")) onSelect();
+      }}
+    >
+      {/* পুরো card ঢাকা অদৃশ্য বোতাম — সরু card এর যেকোনো জায়গায়
+          চাপলে খোলে. নাম আর পদবি থেকেই এর পড়ার লেখা আসে
+          (aria-labelledby), তাই নতুন অনুবাদ লাগে না.
+
+          খোলার পরেও বোতামটা DOM এ থাকে, শুধু Tab এ আর থামে না —
+          বোতামটা সরিয়ে দিলে যে বোতামে focus ছিল সেটাই হারিয়ে যেত,
+          keyboard এর মানুষ পাতার শুরুতে ছিটকে যেতেন */}
+      <button
+        type="button"
+        className="tcard-select"
+        onClick={handleSelect}
+        tabIndex={active ? -1 : 0}
+        aria-expanded={active}
+        aria-labelledby={`${nameId} ${roleId}`}
+      />
+
+      {/* ---- বড় রূপ ---- */}
+      <div className="tcard-full" aria-hidden={active ? undefined : "true"}>
+        <QuoteMark />
+
+        <Rating value={item.rating} t={t} />
+
+        <div className="testimonials-body">
+          {/* চারটা quote একই জায়গায়, একটার উপর আরেকটা — শুধু এই
+              card এর টা দেখা যায়. ফলে প্রতিটা card এর উচ্চতা সবচেয়ে
+              লম্বা quote এর সমান: তিনটা card সবসময় সমান উঁচু, আর
+              hover বা তীর চাপলে সারির উচ্চতা একটুও বদলায় না */}
+          <div className="testimonial-quotes">
+            {TESTIMONIALS.map((other) => {
+              const own = other.id === item.id;
+              return (
+                <p
+                  key={other.id}
+                  className="testimonial-quote"
+                  data-active={own ? "true" : undefined}
+                  aria-hidden={own ? undefined : "true"}
+                >
+                  {t(`testimonials.items.${other.id}.quote`)}
+                </p>
+              );
+            })}
+          </div>
+          <hr className="testimonial-divider" />
+          <div className="testimonial-person">
+            <Avatar name={name} src={item.avatar} className="testimonial-avatar-lg" />
+            <div className="testimonial-person-info">
+              <span className="testimonial-name">{name}</span>
+              <span className="testimonial-role">{role}</span>
+            </div>
+            <ProjectLink to={item.projectTo} label={t("testimonials.project")} />
+          </div>
+        </div>
+      </div>
+
+      {/* ---- সরু রূপ ---- */}
+      <div className="tcard-compact" aria-hidden={active ? "true" : undefined}>
+        <Avatar name={name} src={item.avatar} className="testimonial-avatar-sm" />
+        <span className="testimonial-mini-info">
+          <span className="testimonial-name" id={nameId}>
+            {name}
+          </span>
+          <span className="testimonial-role" id={roleId}>
+            {role}
+          </span>
+        </span>
+        <MiniRating value={item.rating} t={t} />
+        {/* keyboard এ এই link এ থামে না: এখানে focus এলে card টা
+            খুলে যেত, আর খোলার সাথে সাথে এই সরু রূপটাই লুকিয়ে যেত —
+            focus করা link টা চোখের সামনে থেকে উধাও. keyboard এর
+            মানুষ card খোলার পর বড় রূপের Project link টা পান */}
+        <ProjectLink to={item.projectTo} label={t("testimonials.project")} tabIndex={-1} />
+      </div>
+    </article>
+  );
+}
+
+// একসাথে কয়টা card দেখা যায়
+const VISIBLE = 3;
+
 function Testimonial() {
   const { t } = useTranslation();
-  const [activeIndex, setActiveIndex] = useState(0);
+
+  /* তিনটা আলাদা জিনিস:
+
+       selected    — বেছে নেওয়া testimonial (তীর, ক্লিক, ছোঁয়া, Tab).
+                     এটা থেকে যায়
+       hovered     — মাউস যেটার উপরে, শুধু দেখার জন্য. মাউস সরালে
+                     মুছে যায়, তখন আবার selected টা খোলে
+       windowStart — চারটার মধ্যে কোন তিনটা এখন দেখা যাচ্ছে */
+  const [selected, setSelected] = useState(0);
+  const [hovered, setHovered] = useState(null);
+  const [windowStart, setWindowStart] = useState(0);
 
   const count = TESTIMONIALS.length;
-  const at = (offset) => TESTIMONIALS[(activeIndex + offset + count) % count];
+  const activeIndex = hovered ?? selected;
 
-  const featured = at(0);
-  const upcoming = [at(1), at(2)];
+  /* বেছে নেওয়া — যেটা বাছা হলো সেটা জানালার বাইরে থাকলে জানালাও
+     সেদিকে সরে, ঠিক যতটুকু দরকার (একবারে এক ঘর) */
+  const select = (index) => {
+    setSelected(index);
+    setHovered(null);
+    setWindowStart((start) => {
+      if (index < start) return index;
+      if (index > start + VISIBLE - 1) return index - VISIBLE + 1;
+      return start;
+    });
+  };
 
-  /* তীর দুই প্রান্তে থামে — Figma তে শুরুর অবস্থায় বাঁয়ের তীর
-     আবছা (চাপার কিছু নেই). ডানের ছোট card দুটো অবশ্য তালিকার
-     শুরু থেকে ঘুরে আসে, তাই সবসময় দুইটা card দেখায় */
+  /* তীর গোনে যেটা এখন খোলা দেখা যাচ্ছে সেটা থেকে — hover করে
+     তৃতীয় card খোলা রেখে "পরে" চাপলে চতুর্থটা খোলে, যেমনটা চোখ
+     আশা করে. দুই প্রান্তে থামে, Figma র মতো আবছা হয়ে */
   const atStart = activeIndex === 0;
   const atEnd = activeIndex === count - 1;
-  const goPrev = () => setActiveIndex((current) => Math.max(current - 1, 0));
-  const goNext = () => setActiveIndex((current) => Math.min(current + 1, count - 1));
+  const goPrev = () => select(Math.max(activeIndex - 1, 0));
+  const goNext = () => select(Math.min(activeIndex + 1, count - 1));
 
-  const infoFor = (item) => ({
-    name: t(`testimonials.items.${item.id}.name`),
-    role: t(`testimonials.items.${item.id}.role`),
-  });
-
-  const featuredInfo = infoFor(featured);
+  // মাউস সারি ছেড়ে গেলে শুধু দেখাটা মোছে — বেছে নেওয়াটা থাকে
+  const handleRowLeave = (event) => {
+    if (event.pointerType === "mouse") setHovered(null);
+  };
 
   return (
     <section id="testimonials" className="testimonials" aria-labelledby="testimonials-title">
@@ -233,76 +422,27 @@ function Testimonial() {
           <p className="testimonials-text">{t("testimonials.text")}</p>
         </div>
 
-        <div className="testimonials-row">
-          {/* বড় card — Figma র "Group 65": পেছনে আবছা quote চিহ্ন
-              (উপর-ডানে), উপরে আসল লেখা. দুটো layer একই card এ */}
-          <article className="testimonials-featured">
-            <QuoteMark />
-
-            <Rating value={featured.rating} t={t} />
-
-            <div className="testimonials-body">
-              {/* সব quote একই জায়গায়, একটার উপর আরেকটা — শুধু চালু টা
-                  দেখা যায়. ফলে জায়গাটা সবসময় সবচেয়ে লম্বা quote এর
-                  সমান থাকে: ছোট quote এলেও নিচের রেখা, ছবি আর Project
-                  একই জায়গায় থাকে, আর ফোনে তীর চাপলে card লাফায় না */}
-              <div className="testimonial-quotes">
-                {TESTIMONIALS.map((item) => {
-                  const active = item.id === featured.id;
-                  return (
-                    <p
-                      key={item.id}
-                      className="testimonial-quote"
-                      data-active={active ? "true" : undefined}
-                      aria-hidden={active ? undefined : "true"}
-                    >
-                      {t(`testimonials.items.${item.id}.quote`)}
-                    </p>
-                  );
-                })}
-              </div>
-              <hr className="testimonial-divider" />
-              <div className="testimonial-person">
-                <Avatar name={featuredInfo.name} src={featured.avatar} className="testimonial-avatar-lg" />
-                <div className="testimonial-person-info">
-                  <span className="testimonial-name">{featuredInfo.name}</span>
-                  <span className="testimonial-role">{featuredInfo.role}</span>
-                </div>
-                <ProjectLink to={featured.projectTo} label={t("testimonials.project")} />
-              </div>
-            </div>
-          </article>
-
-          {/* ছোট দুইটা card — ক্লিক করলে সেটাই featured হয়ে যায়.
-
-              আগে পুরো card টাই একটা বোতাম ছিল, আর তার ভেতরে
-              "Project" link — HTML এ বোতামের ভেতরে link রাখা নিষেধ,
-              "Project" চাপলে দুইটা কাজ একসাথে ঘটত. এখন বোতাম আর link
-              পাশাপাশি; বোতামের অদৃশ্য ::after পুরো card ঢেকে রাখে,
-              তাই card এর যেকোনো জায়গায় ক্লিক করলেই বাছাই হয়, আর link
-              টা তার উপরে বসে আলাদাভাবে কাজ করে */}
-          <div className="testimonials-side">
-            {upcoming.map((item) => {
-              const info = infoFor(item);
-              return (
-                <article key={item.id} className="testimonials-mini">
-                  <button
-                    type="button"
-                    className="testimonials-mini-select"
-                    onClick={() => setActiveIndex(TESTIMONIALS.indexOf(item))}
-                  >
-                    <Avatar name={info.name} src={item.avatar} className="testimonial-avatar-sm" />
-                    <span className="testimonial-mini-info">
-                      <span className="testimonial-name">{info.name}</span>
-                      <span className="testimonial-role">{info.role}</span>
-                    </span>
-                    <MiniRating value={item.rating} t={t} />
-                  </button>
-                  <ProjectLink to={item.projectTo} label={t("testimonials.project")} />
-                </article>
-              );
-            })}
-          </div>
+        <div className="testimonials-row" onPointerLeave={handleRowLeave}>
+          {/* চারটা card ই সবসময় DOM এ, key testimonial ধরে — তাই প্রতিটা
+              card নিজের জায়গায় থেকে শুধু চওড়া বদলায়: বড় হয়, ছোট হয়,
+              বা জানালার বাইরে গেলে শূন্য হয়ে যায়. কোনো card লাফিয়ে
+              অন্য জায়গায় যায় না, তাই সব বদলই একই মসৃণ animation */}
+          {TESTIMONIALS.map((item, index) => {
+            const inView = index >= windowStart && index < windowStart + VISIBLE;
+            return (
+              <TestimonialCard
+                key={item.id}
+                item={item}
+                active={index === activeIndex}
+                out={!inView}
+                first={index === windowStart}
+                last={index === windowStart + VISIBLE - 1}
+                onHover={() => setHovered(index)}
+                onSelect={() => select(index)}
+                t={t}
+              />
+            );
+          })}
 
           {/* Figma তে arrow দুটো card গুলোর একদম কিনারায় ভেসে থাকে;
               মোবাইলে row একটা কলামে নেমে গেলে সেটা আর মানানসই না,
