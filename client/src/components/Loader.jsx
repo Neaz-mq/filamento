@@ -45,24 +45,41 @@ function Loader({ onRevealContent, onComplete }) {
       return;
     }
 
-    /* scroll বন্ধ করলে scrollbar টাও চলে যায়, পাতা ~15px চওড়া হয়।
-       loader শেষে scrollbar ফিরে এলে পুরো পাতা বাঁয়ে লাফ দিত।
+    /* intro চলার সময় পাতা scroll হয় না — কিন্তু scrollbar লুকানো হয় না.
 
-       তাই যতটুকু scrollbar ছিল, ঠিক ততটুকু padding দিয়ে জায়গাটা
-       ধরে রাখা হচ্ছে — নিচের পাতা শুরু থেকেই শেষ প্রস্থে সাজানো থাকে.
-       Mac এ scrollbar ভাসমান (প্রস্থ 0), তখন কিছুই বদলায় না */
-    const scrollbarWidth =
-      window.innerWidth - document.documentElement.clientWidth;
+       আগে body তে overflow: hidden দেওয়া হতো. তাতে scrollbar চলে যেত,
+       পাতা ~15px চওড়া হতো, আর intro শেষে scrollbar ফিরলে আবার সরু হতো.
+       body তে padding দিয়ে ঢাকার চেষ্টা ছিল, কিন্তু fixed জিনিস (যেমন
+       নতুন Home এর header) padding মানে না — তাই শেষে পুরো পাতা একটু
+       পাশে সরে যাওয়ার মতো লাগত, scrollbar ও হঠাৎ হাজির হতো.
 
-    document.body.style.overflow = "hidden";
-    if (scrollbarWidth > 0) {
-      document.body.style.paddingRight = `${scrollbarWidth}px`;
-    }
+       এখন scrollbar সারাক্ষণ থাকে, পাতার প্রস্থ একবারও বদলায় না.
+       scroll আটকানো হয় যেভাবে scroll হয় সেগুলো থামিয়ে: mouse wheel,
+       আঙুলে টানা, আর keyboard এর Space / PageUp / PageDown / তীর /
+       Home / End. (passive: false — নাহলে ব্রাউজার preventDefault মানে না) */
+    const SCROLL_KEYS = new Set([
+      " ",
+      "PageUp",
+      "PageDown",
+      "ArrowUp",
+      "ArrowDown",
+      "Home",
+      "End",
+    ]);
 
-    // দুইটা একসাথে ফেরত — scrollbar যে মুহূর্তে আসে, padding সেই মুহূর্তেই যায়
+    const blockScroll = (event) => event.preventDefault();
+    const blockKeys = (event) => {
+      if (SCROLL_KEYS.has(event.key)) event.preventDefault();
+    };
+
+    window.addEventListener("wheel", blockScroll, { passive: false });
+    window.addEventListener("touchmove", blockScroll, { passive: false });
+    window.addEventListener("keydown", blockKeys);
+
     const unlockScroll = () => {
-      document.body.style.overflow = "";
-      document.body.style.paddingRight = "";
+      window.removeEventListener("wheel", blockScroll);
+      window.removeEventListener("touchmove", blockScroll);
+      window.removeEventListener("keydown", blockKeys);
     };
 
     const timers = [

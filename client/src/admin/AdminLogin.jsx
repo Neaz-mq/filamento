@@ -71,10 +71,14 @@ function AdminLogin() {
 
   const emailRef = useRef(null);
 
-  // পাতা খুললেই কার্সার ইমেইলের ঘরে
+  /* ফর্মটা দেখা দিলেই কার্সার ইমেইলের ঘরে.
+
+     [] নয়, [status] — পাতা খোলার মুহূর্তে status "checking" থাকে আর
+     ফর্মের বদলে অপেক্ষার পর্দা দেখায়, তখন ইমেইলের ঘরটাই নেই. আগে
+     তাই সরাসরি /admin/login খুললে কার্সার কোথাও বসত না */
   useEffect(() => {
-    emailRef.current?.focus();
-  }, []);
+    if (status === "out") emailRef.current?.focus();
+  }, [status]);
 
   /* যে পাতায় যেতে চেয়ে আটকে গিয়েছিল সেখানেই ফেরত, নাহলে dashboard.
      "/admin" দিয়ে শুরু না হলে নেওয়া হয় না — কেউ যেন তৈরি করা link

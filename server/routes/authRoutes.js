@@ -34,8 +34,15 @@ const router = Router();
 router.use(requireSameOrigin);
 
 /* ইমেইল না পেলেও bcrypt চালানো হয় এই নকল hash দিয়ে — নাহলে উত্তর
-   আসার সময় দেখে কেউ বুঝে ফেলত কোন ইমেইল আছে (timing attack) */
-const DUMMY_HASH = bcrypt.hashSync("filamento-timing-guard", 12);
+   আসার সময় দেখে কেউ বুঝে ফেলত কোন ইমেইল আছে (timing attack).
+
+   hash টা আগে থেকে বানিয়ে বসানো. আগে এটা file load এর সময়
+   bcrypt.hashSync দিয়ে বানানো হতো — তাতে Vercel এর প্রতিটা cold
+   start এ ~300ms server আটকে থাকত, শুধু login নয়, product আর video
+   এর request ও (সব route একই app এ). "$2b$12$" মানে cost 12 —
+   আসল password এর cost এর সাথে মিলতে হবে, নাহলে সময়ের পার্থক্য থেকে যায় */
+const DUMMY_HASH =
+  "$2b$12$1B7Uxl.f3XbQIT1vLN1PBOnBjAqI5RPSDe2pTA7e3xb8Sem2evEK2";
 
 // ভুলের বার্তা সবসময় একই — কোনটা ভুল (ইমেইল নাকি password) বলা হয় না
 const INVALID = { message: "Invalid email or password" };

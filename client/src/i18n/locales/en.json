@@ -350,5 +350,124 @@
       "docTitle": "Something went wrong",
       "refresh": "Refresh page"
     }
+  },
+  "home2": {
+    "meta": {
+      "title": "Home"
+    },
+    "hero": {
+      "title": "Brighter Performance. Lower Costs. Lasting Value",
+      "subhead": "Improve your lighting performance and cut operating costs up to <b>50%</b> with the <b>LA1</b>, <b>LS1</b> and <b>RH1</b> Series.",
+      "launch": "Launch 2026"
+    },
+    "about": {
+      "tag": "About Us",
+      "text": "At Filamento, we create high-performance LED lighting solutions designed to deliver brighter spaces, lower energy use, and lasting value. Our mission is to make commercial and industrial lighting more efficient, reliable, and sustainable.",
+      "stats": {
+        "energy": {
+          "value": "{{n}}%+",
+          "label": "Potential Energy Savings"
+        },
+        "warranty": {
+          "value": "{{n}} Years",
+          "label": "Product Warranty"
+        },
+        "usa": {
+          "value": "{{n}}%",
+          "label": "Made in USA"
+        }
+      },
+      "imageAlt": "Filamento engineers reviewing an LED fixture at a meeting table",
+      "cards": {
+        "efficiency": {
+          "label": "Energy Efficiency",
+          "value": "60%+",
+          "text": "Efficient LED. Lower Energy."
+        },
+        "built": {
+          "label": "Built to Last",
+          "value": "5 Year",
+          "text": "Reliable lighting. Built to last."
+        }
+      }
+    },
+    "fixtures": {
+      "tag": "Fixtures Product",
+      "title": "Three Products. One Complete Performance Solution.",
+      "moreInfo": "More Info"
+    },
+    "technology": {
+      "tag": "Technology",
+      "title": "Every High-Performance Fixture Starts With a Better Idea.",
+      "text": "Through continuous research and engineering, we turn better ideas into smarter, more efficient lighting solutions."
+    },
+    "choose": {
+      "tag": "Why Choose Us",
+      "title": "Three Products. One Complete Performance Solution.",
+      "imageAlt": "Installers fitting a large circular LED fixture in a shopping mall"
+    },
+    "contact": {
+      "tag": "Contact Us",
+      "infoLabel": "Contact Us",
+      "countryLabel": "Country code",
+      "fields": {
+        "firstName": "First Name",
+        "lastName": "Last Name",
+        "phone": "Phone Number",
+        "email": "Email Address",
+        "description": "Description"
+      },
+      "placeholders": {
+        "firstName": "First name",
+        "lastName": "Last name",
+        "phone": "Phone number",
+        "email": "you@company.com",
+        "select": "Select",
+        "description": "Tell us about your space, ceiling height and goals"
+      },
+      "facilityTypes": {
+        "warehouse": "Warehouse / Distribution",
+        "manufacturing": "Manufacturing",
+        "gymnasium": "Gymnasium / Sports",
+        "retail": "Retail / Showroom",
+        "office": "Office / Conference",
+        "parking": "Parking / Street",
+        "other": "Other"
+      }
+    },
+    "testimonials": {
+      "tag": "Testimonials",
+      "title": "Trusted Performance, Backed by Real Experiences.",
+      "text": "Explore what our customers have to say about the quality, flexibility, and dependable performance of our lighting solutions.",
+      "expand": "Read the full review from {{name}}",
+      "collapse": "Show all reviews at the same size"
+    },
+    "cta": {
+      "title": "Get A Lighting Layout Designed Around Your Space",
+      "text": "Get a tailored lighting plan optimized for your space, layout, ceiling height, and performance needs.",
+      "button": "Build My Custom Layout"
+    },
+    "footer": {
+      "aboutTitle": "About Us",
+      "aboutText": "Filamento designs high-performance lighting solutions for modern spaces.",
+      "navTitle": "Navigation",
+      "nav": {
+        "home": "Home",
+        "about": "About Us",
+        "contact": "Contact"
+      },
+      "servicesTitle": "Services",
+      "services": {
+        "one": "Adapta Bilpay",
+        "two": "API Payouts",
+        "three": "Documentations"
+      },
+      "newsletterTitle": "Newsletter",
+      "emailLabel": "Email address for the newsletter",
+      "emailPlaceholder": "Enter your email",
+      "subscribe": "Subscribe",
+      "subscribed": "Thanks — you're on the list.",
+      "subscribeError": "Couldn't subscribe right now. Please try again."
+    }
   }
 }

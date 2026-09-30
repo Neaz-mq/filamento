@@ -350,5 +350,124 @@
       "docTitle": "發生錯誤",
       "refresh": "重新整理"
     }
+  },
+  "home2": {
+    "meta": {
+      "title": "首頁"
+    },
+    "hero": {
+      "title": "更亮的效能。更低的成本。持久的價值。",
+      "subhead": "透過 <b>LA1</b>、<b>LS1</b> 與 <b>RH1</b> 系列提升照明效能，營運成本最多可降低 <b>50%</b>。",
+      "launch": "2026 年上市"
+    },
+    "about": {
+      "tag": "關於我們",
+      "text": "Filamento 致力打造高效能 LED 照明解決方案，帶來更明亮的空間、更低的能源消耗與持久的價值。我們的使命，是讓商業與工業照明更有效率、更可靠，也更永續。",
+      "stats": {
+        "energy": {
+          "value": "{{n}}%+",
+          "label": "潛在節能幅度"
+        },
+        "warranty": {
+          "value": "{{n}} 年",
+          "label": "產品保固"
+        },
+        "usa": {
+          "value": "{{n}}%",
+          "label": "美國製造"
+        }
+      },
+      "imageAlt": "Filamento 工程師在會議桌前檢視 LED 燈具",
+      "cards": {
+        "efficiency": {
+          "label": "能源效率",
+          "value": "60%+",
+          "text": "高效 LED，更低耗能。"
+        },
+        "built": {
+          "label": "經久耐用",
+          "value": "5 年",
+          "text": "可靠照明，經久耐用。"
+        }
+      }
+    },
+    "fixtures": {
+      "tag": "燈具產品",
+      "title": "三款產品。一套完整的效能解決方案。",
+      "moreInfo": "了解更多"
+    },
+    "technology": {
+      "tag": "技術",
+      "title": "每一款高效能燈具，都始於一個更好的構想。",
+      "text": "透過持續的研究與工程開發，我們將更好的構想化為更聰明、更有效率的照明解決方案。"
+    },
+    "choose": {
+      "tag": "選擇我們的理由",
+      "title": "三款產品。一套完整的效能解決方案。",
+      "imageAlt": "安裝人員在購物中心安裝大型環形 LED 燈具"
+    },
+    "contact": {
+      "tag": "聯絡我們",
+      "infoLabel": "聯絡我們",
+      "countryLabel": "國碼",
+      "fields": {
+        "firstName": "名字",
+        "lastName": "姓氏",
+        "phone": "電話號碼",
+        "email": "電子郵件",
+        "description": "需求說明"
+      },
+      "placeholders": {
+        "firstName": "名字",
+        "lastName": "姓氏",
+        "phone": "電話號碼",
+        "email": "you@company.com",
+        "select": "請選擇",
+        "description": "請描述您的空間、天花板高度與需求"
+      },
+      "facilityTypes": {
+        "warehouse": "倉庫／物流中心",
+        "manufacturing": "製造廠",
+        "gymnasium": "體育館／運動場館",
+        "retail": "零售店／展示間",
+        "office": "辦公室／會議中心",
+        "parking": "停車場／道路",
+        "other": "其他"
+      }
+    },
+    "testimonials": {
+      "tag": "客戶見證",
+      "title": "值得信賴的效能，來自真實的使用經驗。",
+      "text": "看看客戶如何評價我們照明解決方案的品質、彈性與可靠效能。",
+      "expand": "閱讀 {{name}} 的完整評價",
+      "collapse": "以相同大小顯示所有評價"
+    },
+    "cta": {
+      "title": "為您的空間量身設計照明配置",
+      "text": "依據您的空間、配置、天花板高度與效能需求，取得最佳化的專屬照明規劃。",
+      "button": "建立我的專屬配置"
+    },
+    "footer": {
+      "aboutTitle": "關於我們",
+      "aboutText": "Filamento 為現代空間設計高效能照明解決方案。",
+      "navTitle": "導覽",
+      "nav": {
+        "home": "首頁",
+        "about": "關於我們",
+        "contact": "聯絡我們"
+      },
+      "servicesTitle": "服務",
+      "services": {
+        "one": "Adapta Bilpay",
+        "two": "API Payouts",
+        "three": "Documentations"
+      },
+      "newsletterTitle": "電子報",
+      "emailLabel": "訂閱電子報的電子郵件地址",
+      "emailPlaceholder": "輸入您的電子郵件",
+      "subscribe": "訂閱",
+      "subscribed": "感謝訂閱！",
+      "subscribeError": "目前無法訂閱，請稍後再試。"
+    }
   }
 }

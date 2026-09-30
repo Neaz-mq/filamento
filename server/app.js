@@ -7,9 +7,13 @@ import { isAllowedOrigin } from "./config/origins.js";
 import productRoutes from "./routes/productRoutes.js";
 import videoViewRoutes from "./routes/videoViewRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
-import adminUserRoutes from "./routes/adminUserRoutes.js"; 
+import adminUserRoutes from "./routes/adminUserRoutes.js";
+import quoteRequestRoutes from "./routes/quoteRequestRoutes.js";
+import newsletterRoutes from "./routes/newsletterRoutes.js";
 
 const app = express();
+
+const isProduction = process.env.NODE_ENV === "production";
 
 /* Vercel এর পেছনে চলে — আসল ব্যবহারকারীর IP আর https বোঝার জন্য */
 app.set("trust proxy", 1);
@@ -20,13 +24,18 @@ app.disable("x-powered-by");
 /* ---------- CORS ----------
    কোন সাইট গ্রহণ করা হবে সেটা config/origins.js এ (CLIENT_URL).
    admin এর request গুলো frontend এর নিজের ঠিকানা দিয়ে আসে
-   (Vercel rewrite), তাই সেগুলোর CORS লাগে না — এটা বাকিগুলোর জন্য */
+   (Vercel rewrite), তাই সেগুলোর CORS লাগে না — এটা বাকিগুলোর জন্য.
+
+   অচেনা সাইট হলে 403 — আগে এটা 500 যেত, মনে হতো server ভেঙেছে */
 app.use(
   cors({
     origin(origin, callback) {
       // origin undefined মানে Postman, curl, বা server-to-server call
       if (!origin || isAllowedOrigin(origin)) return callback(null, true);
-      callback(new Error(`Not allowed by CORS: ${origin}`));
+
+      const error = new Error("Origin not allowed");
+      error.status = 403;
+      callback(error);
     },
   }),
 );
@@ -63,9 +72,16 @@ app.get("/health", (req, res) => {
 // Admin login — POST /login, POST /logout, GET /me
 app.use("/api/auth", authRoutes);
 
-app.use("/api/admins", adminUserRoutes); 
+// Users & Roles — একাধিক admin
+app.use("/api/admins", adminUserRoutes);
 
 app.use("/api/products", productRoutes);
+
+// Home এর Contact form — গ্রাহকের quote request
+app.use("/api/quote-requests", quoteRequestRoutes);
+
+// নতুন Home এর footer — newsletter
+app.use("/api/newsletter", newsletterRoutes);
 
 // Technologies section এর video কতবার চালানো হয়েছে
 app.use("/api/video-views", videoViewRoutes);
@@ -76,12 +92,22 @@ app.use((req, res) => {
 });
 
 /* global error handler. চারটা argument থাকতেই হবে, নাহলে Express
-   একে error handler হিসেবে চিনবে না */
+   একে error handler হিসেবে চিনবে না.
+
+   500 এর আসল বার্তা শুধু log এ যায়, browser এ নয় — MongoDB র error এ
+   database এর ঠিকানা বা ভেতরের তথ্য থাকতে পারে. 400-499 (যেমন ভুল
+   JSON, body খুব বড়) এর বার্তা নিরাপদ, সেগুলো যেমন আছে তেমনই যায় */
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
-  console.error("💥", err);
-  res.status(err.status || 500).json({
-    message: err.message || "Internal server error",
+  const status = err.status || err.statusCode || 500;
+
+  if (status >= 500) console.error("💥", err);
+
+  res.status(status).json({
+    message:
+      status >= 500 && isProduction
+        ? "Internal server error"
+        : err.message || "Internal server error",
   });
 });
 

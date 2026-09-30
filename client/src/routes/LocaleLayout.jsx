@@ -1,7 +1,6 @@
 import { useEffect } from "react";
-import { ScrollRestoration, useLocation } from "react-router-dom";
+import { Outlet, ScrollRestoration, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import MainLayout from "../layouts/MainLayout";
 import {
   DEFAULT_LANGUAGE,
   LANGUAGES,
@@ -76,11 +75,16 @@ function LocaleLayout({ lang }) {
      - নতুন পাতায় গেলে উপর থেকে শুরু — আগে আগের পাতার মাঝখান
        থেকেই নতুন পাতা খুলত
      - back/forward চাপলে আগের জায়গায় ফেরে
-     - ঠিকানায় #contact এর মতো hash থাকলে সেই section এ যায় */
+     - ঠিকানায় #contact এর মতো hash থাকলে সেই section এ যায়
+
+     Outlet — ভেতরে কোন layout বসবে সেটা App.jsx ঠিক করে: বেশিরভাগ
+     পাতা MainLayout (Navbar + Footer) এ, নতুন Home নিজের header/footer
+     নিয়ে. ভাষা, <html lang>, hreflang — এগুলো দুই রকম পাতাতেই এখান
+     থেকে চলে */
   return (
     <>
       <ScrollRestoration />
-      <MainLayout />
+      <Outlet />
     </>
   );
 }

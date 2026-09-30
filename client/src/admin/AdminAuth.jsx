@@ -7,7 +7,7 @@ import {
   useState,
 } from "react";
 import { Navigate, useLocation } from "react-router-dom";
-import { api } from "../lib/api";
+import { SIGNED_OUT_EVENT, api } from "../lib/api";
 
 /* ===============================================================
    Admin কে — এক জায়গায়
@@ -53,6 +53,19 @@ export function AdminAuthProvider({ children }) {
     return () => {
       cancelled = true;
     };
+  }, []);
+
+  /* কাজের মাঝে session শেষ হয়ে গেলে (lib/api.js দেখুন) — "out" হলেই
+     RequireAdmin login পাতায় পাঠায়, আর কোন পাতায় ছিল সেটা মনে রাখে.
+     login এর পরে সেখানেই ফেরত আসে */
+  useEffect(() => {
+    const handleSignedOut = () => {
+      setAdmin(null);
+      setStatus("out");
+    };
+
+    window.addEventListener(SIGNED_OUT_EVENT, handleSignedOut);
+    return () => window.removeEventListener(SIGNED_OUT_EVENT, handleSignedOut);
   }, []);
 
   const signIn = useCallback(async (email, password) => {

@@ -10,8 +10,27 @@ import Contact from "../components/Contact";
 
 const INTRO_KEY = "filamento_intro_played";
 
+/* sessionStorage কিছু browser এ throw করে (Safari তে "Block all
+   cookies" চালু থাকলে, কিছু in-app browser এ). try না থাকলে পুরো Home
+   পাতাই ভেঙে error পাতা দেখাত — এখন শুধু intro টা প্রতিবার চলবে */
+const readIntroPlayed = () => {
+  try {
+    return sessionStorage.getItem(INTRO_KEY) === "true";
+  } catch {
+    return false;
+  }
+};
+
+const writeIntroPlayed = () => {
+  try {
+    sessionStorage.setItem(INTRO_KEY, "true");
+  } catch {
+    // রাখা গেল না — পরের বার intro আবার চলবে, এর বেশি কিছু না
+  }
+};
+
 function Home() {
-  const alreadyPlayed = sessionStorage.getItem(INTRO_KEY) === "true";
+  const [alreadyPlayed] = useState(readIntroPlayed);
 
   const [loading, setLoading] = useState(!alreadyPlayed);
   const [contentVisible, setContentVisible] = useState(alreadyPlayed);
@@ -19,7 +38,7 @@ function Home() {
   // flag টা animation শেষ হলে বসছে, mount এ নয় — কেউ ২ সেকেন্ডে
   // refresh দিলে সে intro টা আবার দেখবে
   const handleComplete = () => {
-    sessionStorage.setItem(INTRO_KEY, "true");
+    writeIntroPlayed();
     setLoading(false);
   };
 

@@ -1,6 +1,7 @@
 import { Suspense, lazy } from "react";
 import { Navigate, createBrowserRouter, RouterProvider } from "react-router-dom";
 import LocaleLayout from "./routes/LocaleLayout";
+import MainLayout from "./layouts/MainLayout";
 import Home from "./pages/Home";
 import Projects from "./pages/Projects";
 import ComingSoon from "./pages/ComingSoon";
@@ -22,6 +23,37 @@ const AdminLogin = lazy(() => import("./admin/AdminLogin"));
 const AdminHome = lazy(() => import("./admin/AdminHome"));
 const AdminSoon = lazy(() => import("./admin/AdminSoon"));
 const AdminUsers = lazy(() => import("./admin/AdminUsers"));
+
+/* নতুন Home (Figma র দ্বিতীয় landing page) — এটাও lazy. মূল পাতার
+   দর্শকের browser এ এর কোড, CSS আর Manrope font কিছুই নামে না */
+const HomeTwo = lazy(() => import("./home2/HomeTwo"));
+
+/* নতুন Home এর কোড নামার ফাঁকের পর্দা — এরপর যা আসবে তার রঙেই:
+     intro এখনো হয়নি → সাদা (intro র পর্দা সাদা)
+     intro আগেই হয়েছে → কালো (hero কালো)
+   তাহলে কোনো রঙের ঝলক দেখা যায় না.
+   key টা home2/HomeTwo.jsx এর INTRO_KEY এর সাথে মিলতে হবে */
+const readHomeTwoIntroPlayed = () => {
+  try {
+    return sessionStorage.getItem("filamento_home2_intro_played") === "true";
+  } catch {
+    return false; // কিছু browser এ sessionStorage throw করে
+  }
+};
+
+/* উচ্চতা পর্দার চেয়ে 1px বেশি — যাতে এই ফাঁকেও scrollbar থাকে.
+   নাহলে পাতা নামার মুহূর্তে scrollbar হঠাৎ এসে পাতা 15px সরু করত */
+function HomeTwoBoot() {
+  const introPlayed = readHomeTwoIntroPlayed();
+  return (
+    <div
+      style={{
+        minHeight: "calc(100vh + 1px)",
+        background: introPlayed ? "#000" : "#fff",
+      }}
+    />
+  );
+}
 
 /* admin এর যে পাতাগুলো এখনো বানানো হয়নি — sidebar এ link আছে,
    কিন্তু ভেতরে "তৈরি হচ্ছে" লেখা.
@@ -58,6 +90,55 @@ function AdminBoot() {
       }}
     >
       Loading…
+    </div>
+  );
+}
+
+/* admin এর কোনো পাতা ভাঙলে এটা দেখায়.
+
+   আগে errorElement এ AdminBoot ("Loading…") বসানো ছিল — ভাঙলে পর্দা
+   চিরকাল "Loading…" এ আটকে থাকত. সবচেয়ে সাধারণ কারণ: নতুন deploy এর
+   পরে পুরনো tab থেকে কোনো admin পাতায় গেলে পুরনো chunk এর ফাইল আর
+   server এ থাকে না. reload করলেই নতুন ফাইল নামে, তাই বোতামটা ওটাই করে.
+
+   inline style — admin.css নামার আগেও ভাঙতে পারে */
+function AdminCrash() {
+  return (
+    <div
+      role="alert"
+      style={{
+        minHeight: "100dvh",
+        display: "grid",
+        placeItems: "center",
+        alignContent: "center",
+        gap: "12px",
+        padding: "24px",
+        textAlign: "center",
+        background: "#f4f4f5",
+        color: "#0b121a",
+        fontFamily: "system-ui, sans-serif",
+        fontSize: "14px",
+      }}
+    >
+      <p style={{ margin: 0 }}>
+        Something went wrong while opening this page. Reloading usually fixes it.
+      </p>
+      <button
+        type="button"
+        onClick={() => window.location.reload()}
+        style={{
+          padding: "10px 20px",
+          border: 0,
+          borderRadius: "999px",
+          background: "#f7be00",
+          color: "#0b121a",
+          font: "inherit",
+          fontWeight: 600,
+          cursor: "pointer",
+        }}
+      >
+        Reload
+      </button>
     </div>
   );
 }
@@ -139,7 +220,7 @@ const ADMIN_ROUTE = {
       <AdminRoot />
     </Suspense>
   ),
-  errorElement: <AdminBoot />,
+  errorElement: <AdminCrash />,
   children: [
     // login পাতা — এটাই একমাত্র পাতা যেটা login ছাড়া দেখা যায়
     { path: "login", element: <AdminLogin /> },
@@ -162,6 +243,15 @@ const ADMIN_ROUTE = {
   ],
 };
 
+/* ভাষার route এর ভেতরে দুই রকম পাতা:
+
+     MainLayout এর ভেতরে — মূল সাইটের Navbar আর Footer সহ (PAGES)
+     /home              — নতুন Home, নিজের header আর footer (তাই
+                          MainLayout এর বাইরে, কিন্তু ভাষার ভেতরে:
+                          /ja/home, /zh-Hant/home ও চলে)
+
+   React Router নির্দিষ্ট পথ ("home") কে "*" এর চেয়ে আগে ধরে, তাই
+   PAGES এর 404 route টা /home কে ধরে ফেলে না */
 const router = createBrowserRouter([
   ADMIN_ROUTE,
   ...LANGUAGES.map((language) => ({
@@ -172,7 +262,17 @@ const router = createBrowserRouter([
         <ComingSoon variant="error" />
       </div>
     ),
-    children: PAGES,
+    children: [
+      { element: <MainLayout />, children: PAGES },
+      {
+        path: "home",
+        element: (
+          <Suspense fallback={<HomeTwoBoot />}>
+            <HomeTwo />
+          </Suspense>
+        ),
+      },
+    ],
   })),
 ]);
 

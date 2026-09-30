@@ -350,5 +350,124 @@
       "docTitle": "エラーが発生しました",
       "refresh": "再読み込み"
     }
+  },
+  "home2": {
+    "meta": {
+      "title": "ホーム"
+    },
+    "hero": {
+      "title": "より明るく。より低コストに。長く続く価値を。",
+      "subhead": "<b>LA1</b>、<b>LS1</b>、<b>RH1</b> シリーズで照明性能を高め、運用コストを最大 <b>50%</b> 削減します。",
+      "launch": "2026年発売"
+    },
+    "about": {
+      "tag": "会社概要",
+      "text": "Filamento は、より明るい空間、より少ないエネルギー消費、そして長く続く価値を実現する高性能 LED 照明ソリューションを開発しています。私たちの使命は、商業・産業用照明をより効率的で、信頼性が高く、持続可能なものにすることです。",
+      "stats": {
+        "energy": {
+          "value": "{{n}}%+",
+          "label": "期待できる省エネ効果"
+        },
+        "warranty": {
+          "value": "{{n}}年",
+          "label": "製品保証"
+        },
+        "usa": {
+          "value": "{{n}}%",
+          "label": "米国製"
+        }
+      },
+      "imageAlt": "打ち合わせテーブルで LED 照明器具を確認する Filamento のエンジニア",
+      "cards": {
+        "efficiency": {
+          "label": "エネルギー効率",
+          "value": "60%+",
+          "text": "高効率 LED で、消費電力を削減。"
+        },
+        "built": {
+          "label": "長寿命設計",
+          "value": "5年",
+          "text": "信頼できる照明を、長く。"
+        }
+      }
+    },
+    "fixtures": {
+      "tag": "照明器具",
+      "title": "3つの製品。ひとつの完全なパフォーマンスソリューション。",
+      "moreInfo": "詳しく見る"
+    },
+    "technology": {
+      "tag": "テクノロジー",
+      "title": "すべての高性能照明器具は、より良いアイデアから始まります。",
+      "text": "継続的な研究とエンジニアリングにより、より良いアイデアを、よりスマートで効率的な照明ソリューションへと形にしています。"
+    },
+    "choose": {
+      "tag": "選ばれる理由",
+      "title": "3つの製品。ひとつの完全なパフォーマンスソリューション。",
+      "imageAlt": "ショッピングモールで大型の円形 LED 照明を取り付ける作業員"
+    },
+    "contact": {
+      "tag": "お問い合わせ",
+      "infoLabel": "お問い合わせ",
+      "countryLabel": "国番号",
+      "fields": {
+        "firstName": "名",
+        "lastName": "姓",
+        "phone": "電話番号",
+        "email": "メールアドレス",
+        "description": "詳細"
+      },
+      "placeholders": {
+        "firstName": "名",
+        "lastName": "姓",
+        "phone": "電話番号",
+        "email": "you@company.com",
+        "select": "選択してください",
+        "description": "施設の広さ、天井高、ご要望などをお書きください"
+      },
+      "facilityTypes": {
+        "warehouse": "倉庫・物流センター",
+        "manufacturing": "製造工場",
+        "gymnasium": "体育館・スポーツ施設",
+        "retail": "小売店・ショールーム",
+        "office": "オフィス・会議施設",
+        "parking": "駐車場・道路",
+        "other": "その他"
+      }
+    },
+    "testimonials": {
+      "tag": "お客様の声",
+      "title": "確かな性能を、実際の体験が裏付けます。",
+      "text": "品質、柔軟性、そして信頼できる性能について、お客様からいただいた声をご紹介します。",
+      "expand": "{{name}} 様のレビューを全文表示",
+      "collapse": "すべてのレビューを同じ大きさで表示"
+    },
+    "cta": {
+      "title": "お客様の空間に合わせた照明レイアウトを",
+      "text": "空間、レイアウト、天井高、求める性能に合わせて最適化した照明プランをご提案します。",
+      "button": "カスタムレイアウトを作成"
+    },
+    "footer": {
+      "aboutTitle": "会社概要",
+      "aboutText": "Filamento は、現代の空間に向けた高性能な照明ソリューションを設計しています。",
+      "navTitle": "ナビゲーション",
+      "nav": {
+        "home": "ホーム",
+        "about": "会社概要",
+        "contact": "お問い合わせ"
+      },
+      "servicesTitle": "サービス",
+      "services": {
+        "one": "Adapta Bilpay",
+        "two": "API Payouts",
+        "three": "Documentations"
+      },
+      "newsletterTitle": "ニュースレター",
+      "emailLabel": "ニュースレター用メールアドレス",
+      "emailPlaceholder": "メールアドレスを入力",
+      "subscribe": "登録する",
+      "subscribed": "ご登録ありがとうございます。",
+      "subscribeError": "現在登録できません。もう一度お試しください。"
+    }
   }
 }

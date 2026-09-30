@@ -1,0 +1,3037 @@
+/* ===============================================================
+   নতুন Home — সব style এক ফাইলে, সব class "nh-" দিয়ে শুরু
+   (মূল পাতার কোনো class এর সাথে যেন না মেলে)
+
+   মাপ Figma র 1440 frame থেকে: content 1280 চওড়া, দুই পাশে 80px.
+   ছোট পর্দায় একই অনুপাতে ছোট হয় (clamp).
+
+   মসৃণ রাখার নিয়ম (lag না হওয়ার জন্য):
+     • animation শুধু transform আর opacity তে — GPU তে চলে
+     • Figma র বড় blur (filter: blur 100–207px) বাদ, তার বদলে
+       radial-gradient — দেখতে একই, প্রতি frame এ আঁকার খরচ নেই
+     • backdrop-filter বাদ — Figma র card গুলো পুরো সাদা, blur চোখে
+       পড়ে না, কিন্তু scroll এ ভারী
+     • parallax শুধু যেসব ব্রাউজার CSS এর scroll-timeline চেনে
+       (Chrome, Edge) — তাতে JavaScript লাগে না. বাকিগুলোতে ছবি
+       স্থির থাকে, কিছু ভাঙে না
+   =============================================================== */
+
+.nh-page {
+  --nh-yellow: #fabf12;
+  --nh-play: #f7be00;
+  --nh-gray: #f6f6f6;
+  --nh-muted: rgba(0, 0, 0, 0.7);
+  --nh-gutter: clamp(20px, 5.56vw, 80px);
+  --nh-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --nh-header-h: 74px;
+
+  position: relative;
+  overflow-x: clip;
+  background: #ffffff;
+  color: #000000;
+  font-family:
+    "Manrope Variable", "Manrope", ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI",
+    "Noto Sans JP", sans-serif;
+  font-optical-sizing: auto;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* চীনা পাতায় জাপানি font আগে এলে কিছু অক্ষরের গড়ন ভুল দেখায় */
+html:lang(zh-Hant) .nh-page {
+  font-family:
+    "Manrope Variable", "Manrope", ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", sans-serif;
+}
+
+.nh-page *,
+.nh-page *::before,
+.nh-page *::after {
+  box-sizing: border-box;
+}
+
+/* :where — এই দুইটার "ওজন" (specificity) শূন্য, তাই নিচে কোনো বোতাম
+   বা link এ রঙ/font বসালে সেটাই জেতে. না হলে সব link পাশের লেখার রঙ
+   নিত — হলুদ বোতামে সাদা লেখা হয়ে যেত */
+:where(.nh-page) a {
+  color: inherit;
+  text-decoration: none;
+}
+
+:where(.nh-page) button {
+  font: inherit;
+  color: inherit;
+}
+
+.nh-page :focus-visible {
+  outline: 2px solid #000000;
+  outline-offset: 3px;
+}
+
+.nh-hero :focus-visible,
+.nh-header :focus-visible,
+.nh-contact-intro :focus-visible,
+.nh-footer :focus-visible {
+  outline-color: var(--nh-yellow);
+}
+
+/* header কখন কালো হবে — পাতার একদম উপরের অদৃশ্য দাগ */
+.nh-sentinel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 80px;
+  pointer-events: none;
+}
+
+/* content এর চওড়া — Figma 1280 */
+.nh-wrap {
+  width: min(1280px, 100% - 2 * var(--nh-gutter));
+  margin-inline: auto;
+}
+
+.nh-section {
+  padding-block: clamp(64px, 6.95vw, 100px);
+  /* "#contact" এ গেলে header এর নিচে যেন ঢাকা না পড়ে */
+  scroll-margin-top: calc(var(--nh-header-h) - 8px);
+}
+
+/* ===============================================================
+   আসা-যাওয়ার animation
+
+   [data-reveal] — পর্দায় এলে (motion.js) data-shown বসে, তখন নিচ
+   থেকে ভেসে ওঠে. --d দিয়ে একটার পর একটা (90ms করে দেরি).
+
+   transition নয়, animation — কারণ transition এর দেরি (delay) পরে
+   hover এর animation এও লেগে থাকত, card hover করলে দেরিতে নড়ত.
+   animation শেষ হলে element নিজের স্বাভাবিক style এ ফেরে, hover
+   তখন সাথে সাথে কাজ করে
+   =============================================================== */
+.nh-page [data-reveal]:not([data-shown]) {
+  opacity: 0;
+}
+
+.nh-page [data-reveal][data-shown] {
+  animation: nh-rise 0.9s var(--nh-ease) backwards;
+  animation-delay: calc(var(--d, 0) * 90ms);
+}
+
+.nh-page [data-reveal="zoom"][data-shown] {
+  animation-name: nh-zoom;
+  animation-duration: 1.1s;
+}
+
+/* hero পাতা খোলার সাথে সাথেই — পর্দায় আসার অপেক্ষা নেই */
+.nh-hero-in {
+  animation: nh-rise 1s var(--nh-ease) backwards;
+  animation-delay: calc(0.2s + var(--d, 0) * 110ms);
+}
+
+/* intro (Loader) চলার সময় hero র animation থেমে থাকে — শুরুর অবস্থায়
+   (লুকানো). পর্দা উঠতে শুরু করলেই data-intro সরে যায়, তখন চলে */
+.nh-page[data-intro] .nh-hero-in {
+  animation-play-state: paused;
+}
+
+.nh-page[data-intro] .nh-hero-media[data-loaded] img {
+  opacity: 0;
+  transform: scale(1.14);
+}
+
+@keyframes nh-rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 28px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes nh-zoom {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ===============================================================
+   ছোট জিনিস যেগুলো কয়েক জায়গায় আছে
+   =============================================================== */
+
+/* section এর চিহ্ন — Figma "Frame 2147227679" */
+.nh-tag {
+  display: inline-flex;
+  align-items: center;
+  margin: 0;
+}
+
+.nh-tag-num {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 90px;
+  background: var(--nh-yellow);
+  color: #000000;
+  font-size: 16px;
+  line-height: 1.2;
+}
+
+.nh-tag-label {
+  display: flex;
+  align-items: center;
+  height: 40px;
+  padding: 10px 16px;
+  border: 1px solid var(--nh-yellow);
+  border-radius: 30px;
+  color: #121212;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.nh-tag--black .nh-tag-num {
+  background: #000000;
+  color: #ffffff;
+}
+
+.nh-tag--black .nh-tag-label {
+  border-color: #000000;
+  color: #000000;
+}
+
+.nh-tag--night .nh-tag-label {
+  color: #ffffff;
+}
+
+/* মাঝে বসানো section এর মাথা: চিহ্ন, শিরোনাম, ছোট লেখা */
+.nh-head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16.44px;
+  max-width: 890px;
+  margin: 0 auto clamp(40px, 4.28vw, 61.67px);
+  text-align: center;
+}
+
+.nh-h2 {
+  max-width: 840px;
+  margin: 0;
+  font-weight: 600;
+  font-size: clamp(30px, 3.34vw, 48px);
+  line-height: 1.2;
+  color: #000000;
+  text-wrap: balance;
+}
+
+.nh-h2--tech {
+  max-width: 810px;
+}
+
+.nh-h2--left {
+  max-width: 700px;
+  text-align: left;
+}
+
+.nh-sub {
+  max-width: 630px;
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--nh-muted);
+  text-wrap: pretty;
+}
+
+.nh-sub--left {
+  max-width: 538px;
+  text-align: left;
+}
+
+/* ">>" — দুইটা chevron গায়ে গায়ে */
+.nh-dchev {
+  display: flex;
+  align-items: center;
+  transition: transform 0.35s var(--nh-ease);
+}
+
+.nh-dchev svg + svg {
+  margin-left: -6px;
+}
+
+/* Request Quote / Build My Custom Layout — হলুদ বা সাদা বোতাম, ভেতরে
+   আলাদা রঙের বাক্সে ">>" */
+.nh-btn-quote,
+.nh-btn-layout {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 50px;
+  padding: 4px 16px 4px 4px;
+  border-radius: 12px;
+  color: #000000;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 22px;
+  white-space: nowrap;
+  transition:
+    transform 0.3s var(--nh-ease),
+    background-color 0.25s ease;
+}
+
+.nh-btn-quote {
+  background: var(--nh-yellow);
+}
+
+.nh-btn-layout {
+  background: #ffffff;
+}
+
+.nh-btn-quote-box {
+  display: grid;
+  place-items: center;
+  width: 60px;
+  height: 42px;
+  border-radius: 10px;
+  background: #ffffff;
+}
+
+.nh-btn-layout .nh-btn-quote-box {
+  background: var(--nh-yellow);
+}
+
+.nh-btn-quote:hover,
+.nh-btn-layout:hover {
+  transform: translate3d(0, -2px, 0);
+}
+
+.nh-btn-quote:hover .nh-dchev,
+.nh-btn-layout:hover .nh-dchev {
+  transform: translate3d(4px, 0, 0);
+}
+
+.nh-btn-quote:active,
+.nh-btn-layout:active {
+  transform: translate3d(0, 0, 0) scale(0.98);
+}
+
+/* ===============================================================
+   Header
+   =============================================================== */
+.nh-header {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 50;
+  padding: 30px 0 14px;
+  color: #ffffff;
+  transition: transform 0.45s var(--nh-ease);
+}
+
+/* কালো পটভূমি আলাদা স্তরে, শুধু opacity বদলায় — রঙ বদলানোর চেয়ে সস্তা */
+.nh-header::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.88);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06);
+  opacity: 0;
+  transition: opacity 0.45s ease;
+  pointer-events: none;
+}
+
+.nh-header.is-solid {
+  transform: translate3d(0, -16px, 0);
+}
+
+.nh-header.is-solid::before,
+.nh-header.is-open::before {
+  opacity: 1;
+}
+
+.nh-header-inner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  width: min(1280px, 100% - 2 * var(--nh-gutter));
+  height: 46px;
+  margin-inline: auto;
+}
+
+.nh-logo {
+  flex: none;
+  display: block;
+}
+
+.nh-logo img {
+  width: 170px;
+  height: auto;
+}
+
+.nh-nav {
+  display: flex;
+  align-items: center;
+}
+
+.nh-nav-link {
+  padding: 8px 16px;
+  border-radius: 100px;
+  font-size: 16px;
+  line-height: 22px;
+  color: rgba(255, 255, 255, 0.7);
+  white-space: nowrap;
+  transition: color 0.2s ease;
+}
+
+.nh-nav-link:hover,
+.nh-nav-link[aria-current="page"] {
+  color: var(--nh-yellow);
+}
+
+.nh-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nh-btn-contact {
+  display: inline-flex;
+  align-items: center;
+  height: 46px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: var(--nh-yellow);
+  color: #000000;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 22px;
+  white-space: nowrap;
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.nh-btn-contact:hover {
+  background: #ffd24d;
+}
+
+.nh-btn-contact:active {
+  transform: scale(0.97);
+}
+
+/* ভাষার বোতাম — মূল পাতার LanguageSwitcher, এখানে Figma র সাদা
+   বাক্সের রূপে */
+.nh-lang .lang-button {
+  gap: 8px;
+  min-width: 0;
+  height: 46px;
+  padding: 12px 16px;
+  border: 0;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #000000;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 22px;
+  transition: background-color 0.2s ease;
+}
+
+.nh-lang .lang-button:hover {
+  background: #f1f1f1;
+}
+
+.nh-lang .lang-button svg:first-child {
+  width: 20px;
+  height: 20px;
+}
+
+.nh-lang .lang-menu {
+  z-index: 60;
+}
+
+.nh-burger {
+  display: none;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  padding: 0;
+  border: 0;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  cursor: pointer;
+}
+
+/* ছোট পর্দার মেনু — header এর ঠিক নিচে, পর্দার বাকিটা জুড়ে */
+.nh-menu {
+  display: none;
+}
+
+@media (max-width: 1099px) {
+  .nh-header {
+    padding: 14px 0;
+  }
+
+  .nh-header.is-solid {
+    transform: none;
+  }
+
+  .nh-nav,
+  .nh-header-actions > .nh-lang {
+    display: none;
+  }
+
+  .nh-burger {
+    display: grid;
+  }
+
+  .nh-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 32px;
+    height: calc(100dvh - var(--nh-header-h));
+    padding: 16px var(--nh-gutter) 32px;
+    overflow-y: auto;
+    background: #000000;
+    opacity: 0;
+    visibility: hidden;
+    transform: translate3d(0, -12px, 0);
+    transition:
+      opacity 0.3s ease,
+      transform 0.4s var(--nh-ease),
+      visibility 0s linear 0.4s;
+  }
+
+  .nh-header.is-open .nh-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    transition-delay: 0s;
+  }
+
+  .nh-menu-links {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .nh-menu-links a {
+    padding: 16px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    font-weight: 600;
+    font-size: 26px;
+    line-height: 1.2;
+    color: #ffffff;
+    opacity: 0;
+    transform: translate3d(0, 10px, 0);
+    transition:
+      opacity 0.35s ease,
+      transform 0.45s var(--nh-ease),
+      color 0.2s ease;
+  }
+
+  .nh-header.is-open .nh-menu-links a {
+    opacity: 1;
+    transform: none;
+    transition-delay: calc(80ms + var(--i, 0) * 50ms), calc(80ms + var(--i, 0) * 50ms), 0s;
+  }
+
+  .nh-menu-links a:hover {
+    color: var(--nh-yellow);
+  }
+
+  .nh-menu-foot {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 24px;
+  }
+
+  .nh-menu .lang-inline-label {
+    color: rgba(255, 255, 255, 0.6);
+  }
+
+  .nh-menu .lang-inline-option {
+    border-color: rgba(255, 255, 255, 0.25);
+    color: #ffffff;
+  }
+
+  .nh-menu .lang-inline-option.is-active {
+    border-color: var(--nh-yellow);
+    background: var(--nh-yellow);
+    color: #000000;
+  }
+}
+
+@media (max-width: 400px) {
+  .nh-logo img {
+    width: 140px;
+  }
+
+  .nh-header-actions > .nh-btn-contact {
+    display: none;
+  }
+}
+
+/* ===============================================================
+   Hero — Figma 1440 x 986
+   =============================================================== */
+.nh-hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: #000000;
+  color: #ffffff;
+  /* header (30 + 46) + Figma র 80px ফাঁক */
+  padding-top: 156px;
+}
+
+.nh-hero-media {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+}
+
+/* Figma: ছবি 1593 x 1062, বাঁয়ে -77 — মানে মাঝ বরাবর, উপর থেকে.
+   নামা শেষ হলে একটু বড় থেকে ধীরে বসে (শুধু transform) */
+.nh-hero-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 0%;
+  transform: scale(1.14);
+  transform-origin: 50% 30%;
+  opacity: 0;
+  transition:
+    opacity 1s ease,
+    transform 2.8s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.nh-hero-media[data-loaded] img {
+  opacity: 1;
+  transform: scale(1.04);
+}
+
+.nh-hero-shade {
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* Figma: উপরে 726px, #000 9.8% → স্বচ্ছ */
+.nh-hero-shade--top {
+  top: 0;
+  height: 73.6%;
+  background: linear-gradient(180deg, #000000 9.8%, rgba(0, 0, 0, 0) 100%);
+}
+
+/* Figma: নিচে 248px, উল্টো দিকে */
+.nh-hero-shade--bottom {
+  bottom: 0;
+  height: 248px;
+  background: linear-gradient(0deg, #000000 20.26%, rgba(0, 0, 0, 0) 100%);
+}
+
+.nh-hero-copy {
+  max-width: 930px;
+}
+
+.nh-hero-eyebrow {
+  display: inline-flex;
+  margin: 0 0 12px;
+  padding: 6px 10px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--nh-yellow);
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.1em;
+}
+
+.nh-hero-title {
+  margin: 0;
+  font-weight: 600;
+  font-size: clamp(38px, 5vw, 72px);
+  line-height: 1.1;
+  color: #ffffff;
+  text-wrap: balance;
+}
+
+/* Figma তে লাইন ভাঙে "costs" এর পরে — সেই চওড়া */
+.nh-hero-text {
+  max-width: 560px;
+  margin: 24px 0 40px;
+  font-size: clamp(16px, 1.39vw, 20px);
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.nh-hero-text strong {
+  font-weight: 700;
+  color: #ffffff;
+}
+
+/* ---------- card এর স্তূপ — Figma "Group 174" (344 x 169) ---------- */
+.nh-stack {
+  position: relative;
+  width: 344px;
+  height: 170px;
+  margin: 104px 0 0 auto;
+}
+
+.nh-stack-card {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  gap: 13.37px;
+  width: 344px;
+  height: 155px;
+  padding: 8.9px;
+  border: 0.56px solid #ffffff;
+  border-radius: 13.33px;
+  background: #ffffff;
+  box-shadow: 0 -1.67px 8.33px rgba(0, 0, 0, 0.08);
+  color: #000000;
+  transform-origin: 50% 0;
+  transition: transform 0.85s var(--nh-ease);
+}
+
+/* slot 0 সামনে (Figma top 14.48), 1 মাঝে (316 চওড়া), 2 পেছনে (286) */
+/* --dx — টানার সময় JavaScript বসায় (px সংখ্যা, একক ছাড়া). card সেই
+   পরিমাণ সরে আর প্রতি 100px এ 3° হেলে — হাতে ধরে টানার মতো */
+.nh-stack-card[data-slot="0"] {
+  z-index: 3;
+  transform: translate3d(calc(var(--dx, 0) * 1px), 14.5px, 0)
+    rotate(calc(var(--dx, 0) * 0.03deg));
+}
+
+.nh-stack-card[data-slot="1"] {
+  z-index: 2;
+  transform: translate3d(0, 6.7px, 0) scale(0.919);
+}
+
+.nh-stack-card[data-slot="2"] {
+  z-index: 1;
+  transform: translate3d(0, 0, 0) scale(0.832);
+}
+
+.nh-stack-media {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 142.6px;
+  height: 137px;
+  border-radius: 10px;
+  background: var(--nh-gray);
+  overflow: hidden;
+}
+
+.nh-stack-media img {
+  width: 102px;
+  height: 102px;
+  object-fit: contain;
+  transition: transform 0.6s var(--nh-ease);
+}
+
+/* টানা যায় — ধরার হাত দেখায়. খাড়া scroll ব্রাউজারের, আড়াআড়ি টানা আমাদের */
+.nh-stack {
+  cursor: grab;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.nh-stack[data-dragging] {
+  cursor: grabbing;
+}
+
+/* টানার সময় transition বন্ধ — card দেরি না করে হাতের সাথে চলে */
+.nh-stack[data-dragging] .nh-stack-card[data-slot="0"] {
+  transition: none;
+}
+
+/* ছুড়ে দেওয়া — দ্রুত, শেষের দিকে গতি বাড়ে (ছুড়ে ফেলার মতো) */
+.nh-stack-card[data-thrown] {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 1, 1);
+}
+
+.nh-stack-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-self: stretch;
+  min-width: 0;
+  flex: 1;
+  padding-block: 2px;
+}
+
+.nh-stack-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.nh-stack-tag {
+  padding: 6.7px 11.1px;
+  border-radius: 6.66px;
+  background: var(--nh-gray);
+  font-size: 12.25px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.nh-stack-go {
+  display: grid;
+  place-items: center;
+  width: 25.6px;
+  height: 25.6px;
+  border-radius: 6.66px;
+  background: #000000;
+  color: #ffffff;
+  transition: transform 0.35s var(--nh-ease);
+}
+
+.nh-stack-text {
+  display: flex;
+  flex-direction: column;
+  gap: 6.68px;
+}
+
+.nh-stack-title {
+  font-weight: 500;
+  font-size: 16.66px;
+  line-height: 1;
+}
+
+.nh-stack-desc {
+  font-size: 11.66px;
+  line-height: 1.5;
+  color: var(--nh-muted);
+}
+
+.nh-stack-card[data-slot="0"]:hover .nh-stack-media img {
+  transform: scale(1.08);
+}
+
+.nh-stack-card[data-slot="0"]:hover .nh-stack-go {
+  transform: translate3d(2px, -2px, 0);
+}
+
+/* ---------- নিচের logo সারি ---------- */
+.nh-hero-logos {
+  padding: 74px 0 50px;
+}
+
+.nh-logos {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* logo গুলো ধূসর — কালো পটভূমিতে সাদা করে দেখানো (Figma র মতো) */
+.nh-logos img {
+  width: 114px;
+  height: 57px;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+  opacity: 0.92;
+}
+
+@media (max-width: 1099px) {
+  .nh-hero {
+    padding-top: calc(var(--nh-header-h) + 56px);
+  }
+
+  .nh-stack {
+    margin-top: 56px;
+  }
+
+  .nh-hero-logos {
+    padding: 48px 0 40px;
+  }
+
+  .nh-logos {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 16px 36px;
+  }
+
+  .nh-logos img {
+    width: 96px;
+    height: 48px;
+  }
+}
+
+@media (max-width: 560px) {
+  /* scale আলাদা property — transform নয়, কারণ পাতা খোলার animation
+     transform ব্যবহার করে, শেষ হলে ছোট করাটা লাফ দিয়ে বসত */
+  .nh-stack {
+    margin: 48px auto 0;
+    scale: 0.9;
+    transform-origin: 50% 0;
+  }
+
+  .nh-hero-text {
+    margin-bottom: 32px;
+  }
+
+  .nh-logos {
+    gap: 12px 24px;
+  }
+
+  .nh-logos img {
+    width: 84px;
+    height: 42px;
+  }
+}
+
+/* ===============================================================
+   About — Figma "Frame 2147228145"
+   =============================================================== */
+.nh-about {
+  background: #ffffff;
+}
+
+.nh-about-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 40px;
+  margin-bottom: clamp(40px, 4.28vw, 61.67px);
+}
+
+.nh-about-main {
+  width: min(959px, 75%);
+}
+
+.nh-about-lead {
+  margin: 0;
+  font-size: clamp(19px, 1.81vw, 26px);
+  line-height: 1.4;
+  color: #000000;
+  text-wrap: pretty;
+}
+
+.nh-stats {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  margin: clamp(36px, 5.07vw, 73px) 0 0;
+}
+
+/* dt (লেখা) আগে DOM এ, কিন্তু চোখে সংখ্যা উপরে — column-reverse */
+.nh-stat {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 12.33px;
+}
+
+.nh-stat:last-child {
+  align-items: flex-end;
+  text-align: right;
+}
+
+.nh-stat-value {
+  margin: 0;
+  font-weight: 600;
+  font-size: clamp(36px, 4.03vw, 58px);
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.nh-stat-label {
+  font-size: clamp(14px, 1.25vw, 18px);
+  line-height: 1.6;
+  color: var(--nh-muted);
+}
+
+/* ছবি — Figma: 1280 x 523, গোল কোণা 30. ছবিটা 1552 x 960, উপরে
+   -121 — সেই কাটাটাই শতাংশে, তাই যেকোনো প্রস্থে একই অংশ দেখায় */
+.nh-about-media {
+  position: relative;
+  margin: 0;
+  aspect-ratio: 1280 / 523;
+  border-radius: 30px;
+  overflow: hidden;
+  background: #e9e9e9;
+}
+
+.nh-about-media img {
+  position: absolute;
+  left: 0;
+  top: -23.13%;
+  width: 121.25%;
+  height: 183.56%;
+  max-width: none;
+  object-fit: cover;
+}
+
+.nh-about-cards {
+  position: absolute;
+  left: clamp(16px, 3.2%, 41px);
+  bottom: clamp(16px, 4.4%, 23px);
+  display: flex;
+  flex-direction: column;
+  gap: 16.44px;
+}
+
+.nh-glass-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10.28px;
+  width: 288px;
+  padding: 16.44px;
+  border: 0.67px solid #ffffff;
+  border-radius: 16px;
+  background: #ffffff;
+}
+
+.nh-glass-card p {
+  margin: 0;
+}
+
+.nh-glass-label {
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.nh-glass-value {
+  font-weight: 600;
+  font-size: 32px;
+  line-height: 1.2;
+}
+
+.nh-glass-text {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--nh-muted);
+}
+
+@media (max-width: 1024px) {
+  .nh-about-top {
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .nh-about-main {
+    width: 100%;
+  }
+
+  .nh-glass-card {
+    width: 240px;
+    padding: 14px;
+    gap: 6px;
+  }
+
+  .nh-glass-value {
+    font-size: 26px;
+  }
+}
+
+@media (max-width: 700px) {
+  .nh-stats {
+    flex-wrap: wrap;
+  }
+
+  .nh-stat:last-child {
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  /* ফোনে ছবি লম্বাটে, card দুইটা নিচে পাশাপাশি */
+  .nh-about-media {
+    aspect-ratio: 4 / 5;
+    border-radius: 22px;
+  }
+
+  .nh-about-media img {
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-position: 30% 50%;
+  }
+
+  .nh-about-cards {
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    flex-direction: row;
+    gap: 8px;
+  }
+
+  .nh-glass-card {
+    flex: 1;
+    width: auto;
+    min-width: 0;
+    padding: 12px;
+    border-radius: 14px;
+  }
+
+  .nh-glass-label {
+    font-size: 13px;
+  }
+
+  .nh-glass-value {
+    font-size: 22px;
+  }
+
+  .nh-glass-text {
+    font-size: 12px;
+  }
+}
+
+/* ===============================================================
+   Fixtures — Figma "Frame 2147228146"
+   =============================================================== */
+.nh-fixtures {
+  background: var(--nh-gray);
+}
+
+.nh-fixture-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nh-fixture {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 27px;
+  min-height: 476px;
+  padding: 28px 24px;
+  border-radius: 30px;
+  background: #ffffff;
+  transition: transform 0.5s var(--nh-ease);
+}
+
+/* ছায়া আলাদা স্তরে — শুধু opacity বদলায়, box-shadow আঁকা হয় একবারই */
+.nh-fixture::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: 0 28px 56px -28px rgba(0, 0, 0, 0.22);
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+}
+
+.nh-fixture:hover {
+  transform: translate3d(0, -6px, 0);
+}
+
+.nh-fixture:hover::before {
+  opacity: 1;
+}
+
+.nh-fixture:has(.nh-more:focus-visible) {
+  outline: 2px solid #000000;
+  outline-offset: 3px;
+}
+
+.nh-fixture-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.nh-fixture-title {
+  align-self: stretch;
+  margin: 0;
+  font-weight: 600;
+  font-size: clamp(20px, 1.67vw, 24px);
+  line-height: 33px;
+}
+
+.nh-fixture-media {
+  display: grid;
+  place-items: center;
+  width: 300px;
+  max-width: 100%;
+  height: 230px;
+}
+
+.nh-fixture-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: transform 0.7s var(--nh-ease);
+}
+
+.nh-fixture:hover .nh-fixture-media img {
+  transform: scale(1.05) translate3d(0, -4px, 0);
+}
+
+.nh-fixture-text {
+  align-self: stretch;
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--nh-muted);
+}
+
+.nh-more {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 4px;
+  font-weight: 600;
+  font-size: 18px;
+  line-height: 25px;
+  color: #000000;
+}
+
+/* পুরো card জুড়ে চাপার জায়গা */
+.nh-more::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: 30px;
+}
+
+.nh-more:focus-visible {
+  outline: none;
+}
+
+.nh-more-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.nh-more-row svg {
+  transition: transform 0.35s var(--nh-ease);
+}
+
+.nh-more-bar {
+  height: 3px;
+  border-radius: 100px;
+  background: var(--nh-yellow);
+  transform-origin: 0 50%;
+  transition: transform 0.45s var(--nh-ease);
+}
+
+.nh-fixture:hover .nh-more-row svg {
+  transform: translate3d(4px, 0, 0);
+}
+
+.nh-fixture:hover .nh-more-bar {
+  transform: scaleX(1.12);
+}
+
+@media (max-width: 1024px) {
+  .nh-fixture-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .nh-fixture-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .nh-fixture {
+    min-height: 0;
+  }
+}
+
+/* ===============================================================
+   Technology — Figma "Frame 2147228152"
+   =============================================================== */
+.nh-tech {
+  overflow: hidden; /* পাশের card ছোট পর্দায় বাইরে উঁকি দেয় */
+  background: #ffffff;
+}
+
+.nh-tech-stage {
+  width: min(1014px, 100%);
+  margin: 0 auto;
+}
+
+/* Figma: 1014 x 450 এর জায়গা, মাঝের card 830 x 450 */
+.nh-tech-track {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1014 / 450;
+}
+
+.nh-tech-card {
+  position: absolute;
+  top: 0;
+  left: 9.075%; /* (1014 - 830) / 2 / 1014 */
+  width: 81.85%;
+  height: 100%;
+  border-radius: clamp(22px, 3.5vw, 50px);
+  overflow: hidden;
+  background: #1a1a1a;
+  transition:
+    transform 0.8s var(--nh-ease),
+    opacity 0.6s ease;
+  /* ঘোরার সময় তিনটা card আলাদা স্তরে থাকে — ব্রাউজারকে আগে জানিয়ে
+     রাখা, যাতে প্রথম ঘোরাতে ঝাঁকি না লাগে */
+  will-change: transform;
+}
+
+/* Figma: পাশের card 709.5 চওড়া (830 এর 85.46%), কেন্দ্র থেকে 152px
+   সরে — 830 এর 18.34% */
+/* --drag — মাঝের card টানার সময় JavaScript বসায় (px, একক ছাড়া) */
+.nh-tech-card[data-pos="center"] {
+  z-index: 3;
+  transform: translate3d(calc(var(--drag, 0) * 1px), 0, 0) scale(1);
+}
+
+.nh-tech-track {
+  cursor: grab;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.nh-tech-track[data-dragging] {
+  cursor: grabbing;
+}
+
+.nh-tech-track[data-dragging] .nh-tech-card {
+  transition: none;
+}
+
+.nh-tech-card[data-pos="prev"] {
+  z-index: 1;
+  transform: translate3d(-18.34%, 0, 0) scale(0.8546);
+}
+
+.nh-tech-card[data-pos="next"] {
+  z-index: 1;
+  transform: translate3d(18.34%, 0, 0) scale(0.8546);
+}
+
+.nh-tech-card[data-pos="hidden"] {
+  z-index: 0;
+  opacity: 0;
+  transform: scale(0.7);
+}
+
+.nh-tech-face {
+  position: absolute;
+  inset: 0;
+  transition: filter 0.8s ease;
+}
+
+/* পাশের card আবছা আর একটু গাঢ় — Figma র 20% কালো পর্দা */
+.nh-tech-card:not([data-pos="center"]) .nh-tech-face {
+  filter: blur(2px);
+}
+
+.nh-tech-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  background: rgba(0, 0, 0, 0.22);
+  opacity: 0;
+  transition: opacity 0.8s ease;
+  pointer-events: none;
+}
+
+.nh-tech-card:not([data-pos="center"])::after {
+  opacity: 1;
+}
+
+.nh-tech-cover {
+  position: absolute;
+  inset: 0;
+}
+
+.nh-tech-card[data-fit="photo"] .nh-tech-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* শুধু লাইটের ছবি — হালকা ধূসর পটভূমি আর হলুদ বৃত্ত (মূল পাতার মতো) */
+.nh-tech-card[data-fit="product"] .nh-tech-cover {
+  background: linear-gradient(180deg, #f4f4f5 0%, #dedfe0 100%);
+}
+
+.nh-tech-card[data-fit="product"] .nh-tech-cover::before {
+  content: "";
+  position: absolute;
+  right: -10%;
+  top: -30%;
+  width: 52%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--nh-yellow);
+  opacity: 0.9;
+}
+
+.nh-tech-card[data-fit="product"] .nh-tech-cover img {
+  position: absolute;
+  left: 50%;
+  top: 40%;
+  width: 60%;
+  height: 66%;
+  object-fit: contain;
+  transform: translate(-50%, -50%);
+}
+
+/* Figma "Rectangle 34629002" — নিচের 200px কালো আভা */
+.nh-tech-shade {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 44.5%;
+  background: linear-gradient(179.51deg, rgba(0, 0, 0, 0) 0.43%, #000000 93.97%);
+  pointer-events: none;
+}
+
+.nh-tech-info {
+  position: absolute;
+  left: 3.7%;
+  right: 3.7%;
+  bottom: clamp(16px, 3vw, 30px);
+  display: flex;
+  flex-direction: column;
+  gap: 10.28px;
+  color: #ffffff;
+}
+
+.nh-tech-title {
+  margin: 0;
+  font-weight: 700;
+  font-size: clamp(18px, 2.08vw, 30px);
+  line-height: 1.1;
+}
+
+.nh-tech-text {
+  margin: 0;
+  font-size: clamp(13px, 1.25vw, 18px);
+  line-height: 1.3;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.nh-tech-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 24px;
+  margin-top: clamp(4px, 1.1vw, 11px);
+}
+
+.nh-tech-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: clamp(13px, 1.16vw, 16.7px);
+  line-height: 23px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.nh-tech-meta-item svg {
+  color: #ffffff;
+}
+
+/* Figma: 92.5px হলুদ বৃত্ত, ভেতরে 40px play */
+.nh-tech-play {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: clamp(60px, 6.43vw, 92.5px);
+  height: clamp(60px, 6.43vw, 92.5px);
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--nh-play);
+  box-shadow: 0 12.85px 30.84px -10.28px rgba(0, 0, 0, 0.149);
+  color: #292d32;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+  transition: transform 0.35s var(--nh-ease);
+}
+
+.nh-tech-play svg {
+  width: 43%;
+  height: 43%;
+}
+
+/* মাঝের card এর play বোতামের চারপাশে ধীরে ছড়িয়ে পড়া আংটি —
+   শুধু transform + opacity, তাই সারাক্ষণ চললেও হালকা */
+.nh-tech-card[data-pos="center"] button.nh-tech-play::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--nh-play);
+  opacity: 0.45;
+  animation: nh-ping 2.4s cubic-bezier(0, 0, 0.2, 1) infinite;
+  z-index: -1;
+}
+
+.nh-tech-card[data-pos="center"] button.nh-tech-play:hover {
+  transform: translate(-50%, -50%) scale(1.07);
+}
+
+@keyframes nh-ping {
+  0% {
+    transform: scale(1);
+    opacity: 0.45;
+  }
+  80%,
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+.nh-tech-video {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #000000;
+}
+
+/* পাশের card এর উপর স্বচ্ছ বোতাম */
+.nh-tech-pick {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+/* Figma: 14 x 10 pill, চালুটা 44 চওড়া হলুদ */
+.nh-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.nh-dot {
+  width: 14px;
+  height: 10px;
+  padding: 0;
+  border: 0;
+  border-radius: 100px;
+  background: #ececec;
+  cursor: pointer;
+  transition:
+    width 0.45s var(--nh-ease),
+    background-color 0.3s ease;
+}
+
+.nh-dot:hover {
+  background: #dcdcdc;
+}
+
+.nh-dot[aria-current="true"] {
+  width: 44px;
+  background: var(--nh-yellow);
+}
+
+/* ফোনে পাশের card কম উঁকি দেয় — মাঝেরটা প্রায় পুরো চওড়া */
+@media (max-width: 700px) {
+  /* ফোনে card লম্বাটে — নাহলে play বোতাম শিরোনামের উপর পড়ত */
+  .nh-tech-track {
+    aspect-ratio: 5 / 4;
+  }
+
+  .nh-tech-play {
+    top: 38%;
+  }
+
+  .nh-tech-card {
+    left: 5%;
+    width: 90%;
+  }
+
+  .nh-tech-card[data-pos="prev"] {
+    transform: translate3d(-9%, 0, 0) scale(0.86);
+  }
+
+  .nh-tech-card[data-pos="next"] {
+    transform: translate3d(9%, 0, 0) scale(0.86);
+  }
+
+  .nh-tech-info {
+    left: 18px;
+    right: 18px;
+    gap: 6px;
+  }
+}
+
+/* ===============================================================
+   Why Choose Us — Figma "Frame 2147228151"
+   =============================================================== */
+.nh-choose {
+  background: linear-gradient(358.9deg, #ffffff 0.94%, #fabf12 99.05%);
+}
+
+.nh-choose-row {
+  display: flex;
+  align-items: stretch;
+  gap: 40px;
+}
+
+/* Figma: 524 x 550 বাক্স, ভেতরে ছবি 824 চওড়া, বাঁয়ে -67 */
+.nh-choose-media {
+  position: relative;
+  flex: 0 0 40.94%;
+  margin: 0;
+  aspect-ratio: 524 / 550;
+  border-radius: 30px;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.nh-choose-media img {
+  position: absolute;
+  top: 0;
+  left: -12.79%;
+  width: 157.25%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+}
+
+.nh-choose-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nh-benefit {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 54px;
+  min-height: 267px;
+  padding: 24px;
+  border-radius: 30px;
+  background: #ffffff;
+  transition: transform 0.5s var(--nh-ease);
+}
+
+.nh-benefit:hover {
+  transform: translate3d(0, -5px, 0);
+}
+
+.nh-benefit-icon {
+  display: grid;
+  place-items: center;
+  width: 68px;
+  height: 68px;
+  border-radius: 360px;
+  background: var(--nh-yellow);
+  color: #000000;
+  transition: transform 0.55s var(--nh-ease);
+}
+
+.nh-benefit:hover .nh-benefit-icon {
+  transform: rotate(-10deg) scale(1.07);
+}
+
+.nh-benefit-text {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.nh-benefit-title {
+  margin: 0;
+  font-weight: 600;
+  font-size: 22px;
+  line-height: 1.1;
+}
+
+.nh-benefit-desc {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--nh-muted);
+}
+
+@media (max-width: 1024px) {
+  .nh-choose-row {
+    flex-direction: column;
+  }
+
+  .nh-choose-media {
+    flex: none;
+    width: 100%;
+    aspect-ratio: 16 / 10;
+  }
+
+  .nh-choose-media img {
+    left: 0;
+    width: 100%;
+    object-position: 35% 50%;
+  }
+}
+
+@media (max-width: 560px) {
+  .nh-choose-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .nh-benefit {
+    min-height: 0;
+    gap: 28px;
+  }
+}
+
+/* ===============================================================
+   Contact — Figma "Frame 2147228147"
+   =============================================================== */
+.nh-contact {
+  background: #ffffff;
+}
+
+.nh-contact-card {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  min-height: 783px;
+  border-radius: 40px;
+  color: #ffffff;
+}
+
+/* ছবি + কালো আভা — নিজের খোপে কাটা (card নিজে কাটা নয়, তাই dropdown
+   বাইরে খুলতে পারে) */
+.nh-contact-bg {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  overflow: hidden;
+  background: #0b0b0b;
+}
+
+/* Figma: ছবি 842 উঁচু, কেন্দ্র থেকে 24px উপরে */
+.nh-contact-bg img {
+  position: absolute;
+  left: 0;
+  top: -6.86%;
+  width: 100%;
+  height: 107.54%;
+  max-width: none;
+  object-fit: cover;
+}
+
+/* Figma: ঘোরানো আয়তক্ষেত্র — বাঁ দিক কালো, ডানে ~740px এ মিলিয়ে যায় */
+.nh-contact-shade {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 57.85%;
+  background: linear-gradient(90deg, #000000 0%, rgba(0, 0, 0, 0) 100%);
+}
+
+.nh-contact-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 40px;
+  width: 100%;
+  padding: 40px 50px 40px 51px;
+}
+
+.nh-contact-intro {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 40px;
+  align-self: stretch;
+  width: 588px;
+  max-width: 50%;
+  min-height: 556px;
+}
+
+.nh-contact-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.nh-contact-title {
+  margin: 0;
+  font-weight: 700;
+  font-size: clamp(30px, 3.34vw, 48px);
+  line-height: 1;
+  color: #ffffff;
+}
+
+.nh-contact-text {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.nh-contact-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 44px;
+}
+
+.nh-contact-info-col {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.nh-contact-info-label {
+  font-weight: 400;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.nh-contact-info a {
+  transition: color 0.2s ease;
+}
+
+.nh-contact-info a:hover {
+  color: var(--nh-yellow);
+}
+
+/* ---------- form — Figma "Frame 2147236677" (468 চওড়া) ---------- */
+.nh-form {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 468px;
+  flex: none;
+  padding: 16px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 20px;
+  background: #ffffff;
+  color: #000000;
+}
+
+.nh-form-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.nh-form-row {
+  display: flex;
+  gap: 16px;
+}
+
+.nh-form-row > * {
+  flex: 1;
+  min-width: 0;
+}
+
+.nh-field {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.nh-label {
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #000000;
+}
+
+.nh-input,
+.nh-select-button,
+.nh-phone {
+  width: 100%;
+  min-height: 43px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  background: var(--nh-gray);
+  font-size: 12px;
+  line-height: 1.6;
+  color: #000000;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.nh-input {
+  padding: 12px;
+  outline: none;
+}
+
+.nh-input::placeholder,
+.nh-phone-input::placeholder {
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.nh-input:focus,
+.nh-phone:focus-within,
+.nh-select-button:focus-visible,
+.nh-select[data-open] .nh-select-button {
+  border-color: var(--nh-yellow);
+  box-shadow: 0 0 0 3px rgba(250, 191, 18, 0.22);
+  outline: none;
+}
+
+.nh-textarea {
+  min-height: 81px;
+  resize: vertical;
+}
+
+.nh-field[data-invalid] .nh-input {
+  border-color: #e5484d;
+}
+
+.nh-field-error {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #c9302c;
+}
+
+/* ফোন — বাঁয়ে দেশ, মাঝে দাগ, ডানে নম্বর */
+.nh-phone {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-right: 12px;
+}
+
+.nh-phone-divider {
+  flex: none;
+  width: 1px;
+  height: 28px;
+  background: #d9d9d9;
+}
+
+.nh-phone-input {
+  flex: 1;
+  min-width: 0;
+  height: 41px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  font-size: 12px;
+  color: #000000;
+  outline: none;
+}
+
+.nh-flag {
+  flex: none;
+  width: 20px;
+  height: 20px;
+}
+
+/* ---------- dropdown ---------- */
+.nh-select {
+  position: relative;
+}
+
+.nh-select-button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px;
+  text-align: left;
+  color: rgba(0, 0, 0, 0.7);
+  cursor: pointer;
+}
+
+.nh-select-button[data-empty] {
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.nh-select-button svg {
+  flex: none;
+  color: rgba(0, 0, 0, 0.7);
+  transition: transform 0.25s var(--nh-ease);
+}
+
+.nh-select[data-open] .nh-select-button svg {
+  transform: rotate(180deg);
+}
+
+.nh-select-value {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* দেশের বোতাম ফোনের বাক্সের ভেতরে — নিজের পটভূমি বা রেখা নেই */
+.nh-select--country {
+  flex: none;
+}
+
+.nh-select--country .nh-select-button {
+  width: auto;
+  min-height: 41px;
+  padding: 0 0 0 12px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.nh-select--country .nh-select-button:focus-visible {
+  outline: 2px solid #000000;
+  outline-offset: 2px;
+  box-shadow: none;
+}
+
+/* Figma "Program Type popup" */
+.nh-select-list {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: max(100%, 178px);
+  max-height: 272px;
+  margin: 0;
+  padding: 12px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  list-style: none;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow:
+    0 0 30px rgba(0, 0, 0, 0.06),
+    0 16px 32px -16px rgba(0, 0, 0, 0.2);
+  transform-origin: 50% 0;
+  animation: nh-pop 0.22s var(--nh-ease);
+}
+
+.nh-select--end .nh-select-list {
+  left: auto;
+  right: 0;
+}
+
+.nh-select--country .nh-select-list {
+  left: -1px;
+  width: 280px;
+}
+
+.nh-select-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+  padding: 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  line-height: 1;
+  color: rgba(0, 0, 0, 0.7);
+  cursor: pointer;
+  user-select: none;
+}
+
+.nh-select-option[data-highlight] {
+  background: var(--nh-gray);
+  color: #000000;
+}
+
+.nh-select-option[aria-selected="true"] {
+  font-weight: 600;
+  color: #000000;
+}
+
+.nh-country-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nh-country-dial {
+  color: rgba(0, 0, 0, 0.5);
+}
+
+@keyframes nh-pop {
+  from {
+    opacity: 0;
+    transform: translate3d(0, -6px, 0) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.nh-trap {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.nh-form-foot {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.nh-form-status {
+  flex: 1;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.nh-form-status[data-status="success"] {
+  color: #1a7f37;
+}
+
+.nh-form-status[data-status="error"] {
+  color: #c9302c;
+}
+
+.nh-btn-submit {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  padding: 11px 16px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--nh-yellow);
+  color: #000000;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 22px;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.nh-btn-submit svg {
+  transition: transform 0.3s var(--nh-ease);
+}
+
+.nh-btn-submit:hover {
+  background: #ffd24d;
+}
+
+.nh-btn-submit:hover svg {
+  transform: translate3d(3px, 0, 0);
+}
+
+.nh-btn-submit:active {
+  transform: scale(0.97);
+}
+
+.nh-btn-submit:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+@media (max-width: 1024px) {
+  .nh-contact-card {
+    min-height: 0;
+  }
+
+  .nh-contact-inner {
+    flex-direction: column;
+    align-items: stretch;
+    padding: clamp(28px, 5vw, 48px);
+  }
+
+  .nh-contact-intro {
+    width: 100%;
+    max-width: none;
+    min-height: 0;
+  }
+
+  /* ফোনে লেখা পুরো চওড়ায় — কালো আভাও পুরো জুড়ে, উপরে গাঢ় */
+  .nh-contact-shade {
+    width: 100%;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.88) 0%, rgba(0, 0, 0, 0.5) 100%);
+  }
+
+  .nh-form {
+    width: 100%;
+  }
+}
+
+@media (max-width: 560px) {
+  .nh-contact-card {
+    border-radius: 24px;
+  }
+
+  .nh-form-row {
+    flex-direction: column;
+  }
+
+  .nh-select--end .nh-select-list {
+    left: 0;
+    right: auto;
+  }
+}
+
+/* iPhone 16px এর ছোট লেখার ঘরে focus করলে পুরো পাতা zoom করে ফেলে */
+@media (pointer: coarse) {
+  .nh-input,
+  .nh-phone-input,
+  .nh-select-button {
+    font-size: 16px;
+  }
+}
+
+/* ===============================================================
+   Testimonials — Figma "Frame 2147228148"
+   =============================================================== */
+.nh-testi {
+  background: var(--nh-gray);
+}
+
+.nh-testi-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 16.44px 0 clamp(40px, 4.28vw, 61.67px);
+}
+
+.nh-testi-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.nh-testi-arrows {
+  display: flex;
+  gap: 12px;
+  flex: none;
+}
+
+.nh-arrow {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border: 0;
+  border-radius: 90px;
+  background: #ffffff;
+  color: #112222;
+  cursor: pointer;
+  transition:
+    transform 0.25s var(--nh-ease),
+    background-color 0.2s ease;
+}
+
+.nh-arrow--next {
+  background: var(--nh-yellow);
+  color: #000000;
+}
+
+.nh-arrow:hover {
+  transform: scale(1.06);
+}
+
+.nh-arrow:active {
+  transform: scale(0.94);
+}
+
+.nh-testi-viewport {
+  overflow: clip;
+}
+
+.nh-testi-track {
+  display: flex;
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nh-testi-track[data-ready] {
+  transition: transform 0.75s var(--nh-ease);
+}
+
+.nh-tcard {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10.28px;
+  width: calc((100% - 32px) / 3);
+  height: 324px;
+  padding: 16.44px;
+  overflow: hidden;
+  border: 0.67px solid #ffffff;
+  border-radius: 16px;
+  background: #ffffff;
+}
+
+.nh-testi-track[data-ready] .nh-tcard {
+  transition: width 0.75s var(--nh-ease);
+}
+
+.nh-tcard-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 20px;
+}
+
+.nh-rating {
+  display: flex;
+  gap: 6px;
+}
+
+.nh-rating span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--nh-yellow);
+}
+
+.nh-tcard-toggle {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  border-radius: 90px;
+  background: var(--nh-yellow);
+  color: #000000;
+  cursor: pointer;
+  position: relative;
+  transition:
+    transform 0.25s var(--nh-ease),
+    background-color 0.3s ease;
+}
+
+.nh-tcard[data-open] .nh-tcard-toggle {
+  background: rgba(250, 191, 18, 0.2);
+}
+
+.nh-tcard-toggle:hover {
+  transform: scale(1.15);
+}
+
+/* বড় লক্ষ্যবস্তু — 20px বোতাম আঙুলে চাপা কঠিন */
+.nh-tcard-toggle::after {
+  content: "";
+  position: absolute;
+  inset: -12px;
+}
+
+.nh-tcard-quote {
+  flex: 1;
+  margin: 0;
+  min-height: 0;
+}
+
+.nh-tcard-quote p {
+  margin: 0;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 6;
+  overflow: hidden;
+}
+
+.nh-tcard-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.nh-person {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.nh-avatar {
+  flex: none;
+  width: 46px;
+  height: 46px;
+  border: 1px solid #ebebec;
+  border-radius: 50%;
+  box-shadow: 0 4px 10px rgba(11, 18, 26, 0.15);
+  object-fit: cover;
+}
+
+.nh-person-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.nh-person-name {
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 1.2;
+}
+
+.nh-person-role {
+  overflow: hidden;
+  font-size: 12px;
+  line-height: 1.2;
+  color: var(--nh-muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nh-tcard-logo {
+  flex: none;
+  width: 92px;
+  height: 46px;
+  object-fit: contain;
+}
+
+@media (max-width: 899px) {
+  .nh-tcard {
+    height: auto;
+    min-height: 280px;
+  }
+
+  .nh-tcard-quote p {
+    -webkit-line-clamp: unset;
+  }
+}
+
+@media (max-width: 560px) {
+  .nh-testi-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* ===============================================================
+   Lighting Layout CTA — Figma "Frame 2147228150"
+   =============================================================== */
+.nh-cta {
+  padding-top: 0;
+  padding-bottom: 60px;
+  background: var(--nh-gray);
+}
+
+.nh-cta-box {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 420px;
+  padding: 60px 24px;
+  overflow: hidden;
+  border-radius: 30px;
+  background: linear-gradient(219.76deg, #ffffff -0.04%, #fabf12 99.96%);
+  text-align: center;
+}
+
+.nh-cta-deco {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.nh-cta-folder {
+  position: absolute;
+  display: block;
+}
+
+.nh-cta-folder span {
+  position: absolute;
+  display: block;
+}
+
+/* হলুদ ফাইল — Figma "Frame 2147230709" (বাঁ 21, উপর 313) */
+.nh-cta-folder--yellow {
+  left: 21px;
+  top: 313px;
+  width: 265px;
+  height: 205px;
+}
+
+.nh-cta-folder--yellow .nh-cta-tab {
+  left: 43.4px;
+  top: 0;
+  width: 121.4px;
+  height: 45.7px;
+  border: 14px solid #fcd259;
+  border-radius: 20px;
+  transform: rotate(-16.84deg);
+}
+
+.nh-cta-folder--yellow .nh-cta-body {
+  left: 0;
+  top: 18.1px;
+  width: 239px;
+  height: 127px;
+  border-radius: 30px;
+  background: #fcd259;
+  transform: rotate(-15.44deg);
+}
+
+/* সাদা ফাইল — Figma "Frame 2147230708" (বাঁ -40, উপর 279) */
+.nh-cta-folder--white {
+  left: -40px;
+  top: 279px;
+  width: 206px;
+  height: 220px;
+}
+
+.nh-cta-folder--white .nh-cta-tab {
+  left: 0;
+  top: 0;
+  width: 82.9px;
+  height: 45.7px;
+  border: 14px solid #ffffff;
+  border-radius: 20px;
+  transform: rotate(-16.84deg);
+}
+
+.nh-cta-folder--white .nh-cta-body {
+  left: 7.7px;
+  top: 15.5px;
+  width: 161px;
+  height: 169.3px;
+  border: 14px solid #ffffff;
+  border-radius: 30px;
+  transform: rotate(-14.43deg);
+}
+
+/* ডান-উপরের হলুদ চৌকো রেখা — Figma "Star 1" */
+.nh-cta-star {
+  position: absolute;
+  right: -196px;
+  top: -261px;
+  width: 356.7px;
+  height: 356.7px;
+  border: 12px solid var(--nh-yellow);
+  border-radius: 11px;
+  transform: rotate(-29.51deg);
+}
+
+/* ডান-নিচের কমলা আভা — Figma তে 325px বৃত্ত + blur(100px) */
+.nh-cta-glow {
+  position: absolute;
+  right: -294px;
+  bottom: -307px;
+  width: 525px;
+  height: 525px;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(229, 171, 0, 0.6), rgba(229, 171, 0, 0));
+}
+
+/* ধীরে ভাসা — বাক্স পর্দায় এলে শুরু */
+.nh-cta-box[data-shown] .nh-cta-folder--yellow {
+  animation: nh-float 7s ease-in-out 1s infinite alternate;
+}
+
+.nh-cta-box[data-shown] .nh-cta-folder--white {
+  animation: nh-float 8s ease-in-out 0.4s infinite alternate-reverse;
+}
+
+.nh-cta-box[data-shown] .nh-cta-star {
+  animation: nh-sway 12s ease-in-out infinite alternate;
+}
+
+@keyframes nh-float {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(6px, -12px, 0);
+  }
+}
+
+@keyframes nh-sway {
+  from {
+    transform: rotate(-29.51deg);
+  }
+  to {
+    transform: rotate(-24deg);
+  }
+}
+
+.nh-cta-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  max-width: 808px;
+}
+
+.nh-cta-text {
+  max-width: 590px;
+  margin: 0;
+  font-size: clamp(16px, 1.25vw, 18px);
+  line-height: 1.5;
+  color: var(--nh-muted);
+}
+
+.nh-btn-layout {
+  margin-top: 24px;
+}
+
+@media (max-width: 700px) {
+  .nh-cta-box {
+    min-height: 380px;
+    border-radius: 24px;
+  }
+
+  .nh-cta-folder--yellow,
+  .nh-cta-folder--white {
+    top: auto;
+    bottom: -165px;
+  }
+
+  .nh-cta-star {
+    right: -250px;
+  }
+}
+
+/* ===============================================================
+   Footer — Figma "Frame 2147228433"
+   =============================================================== */
+.nh-footer {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding: 60px 0;
+  background: #000000;
+  color: #ffffff;
+}
+
+/* Figma: 230px হলুদ বৃত্ত + blur(207px), ডান-উপরে */
+.nh-footer-glow {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(
+    460px circle at calc(100% - 129px) 41px,
+    rgba(250, 191, 18, 0.26),
+    rgba(250, 191, 18, 0) 70%
+  );
+  pointer-events: none;
+}
+
+.nh-footer-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.nh-footer-top {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+/* বিশাল "Filamento" — প্রতিটা অক্ষর নিচ থেকে ওঠে (overflow এ ঢাকা) */
+.nh-foot-word {
+  display: flex;
+  margin: 0;
+  overflow: hidden;
+  font-weight: 600;
+  font-size: clamp(64px, 10.42vw, 150px);
+  line-height: 1;
+  color: var(--nh-yellow);
+  /* g, j এর মতো নিচে নামা অক্ষর থাকলে যেন কাটা না পড়ে */
+  padding-bottom: 0.04em;
+}
+
+.nh-foot-word span {
+  display: inline-block;
+}
+
+.nh-page .nh-foot-word[data-reveal] {
+  opacity: 1;
+  animation: none;
+}
+
+.nh-foot-word:not([data-shown]) span {
+  transform: translate3d(0, 110%, 0);
+}
+
+.nh-foot-word[data-shown] span {
+  animation: nh-letter 0.9s var(--nh-ease) backwards;
+  animation-delay: calc(var(--i, 0) * 55ms);
+}
+
+@keyframes nh-letter {
+  from {
+    transform: translate3d(0, 110%, 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.nh-social {
+  display: flex;
+  gap: 5px;
+  margin: 0 0 12px;
+  padding: 0;
+  list-style: none;
+}
+
+.nh-social-btn {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 360px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease,
+    transform 0.25s var(--nh-ease);
+}
+
+a.nh-social-btn:hover {
+  background: var(--nh-yellow);
+  color: #000000;
+  transform: translate3d(0, -2px, 0);
+}
+
+.nh-social-btn.is-pending {
+  opacity: 0.55;
+}
+
+.nh-footer-cols {
+  display: flex;
+  justify-content: space-between;
+  gap: 62px;
+}
+
+.nh-footer-col {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.nh-footer-col--about {
+  width: 306px;
+}
+
+.nh-footer-col--news {
+  width: 290px;
+  gap: 48px;
+}
+
+.nh-footer-title {
+  margin: 0;
+  font-weight: 500;
+  font-size: 22px;
+  line-height: 1.1;
+  color: #ffffff;
+}
+
+.nh-footer-text {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.nh-footer-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 18px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.nh-footer-list a {
+  transition: color 0.2s ease;
+}
+
+.nh-footer-list a:hover {
+  color: var(--nh-yellow);
+}
+
+/* ---------- Newsletter ---------- */
+.nh-news-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.nh-news-field {
+  flex: 1;
+  min-width: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.6);
+  transition: border-color 0.2s ease;
+}
+
+.nh-news-field:focus-within {
+  border-color: var(--nh-yellow);
+}
+
+.nh-news-field input {
+  width: 100%;
+  padding: 0 0 10px;
+  border: 0;
+  background: transparent;
+  color: #ffffff;
+  font: inherit;
+  font-size: 18px;
+  line-height: 1.6;
+  outline: none;
+}
+
+.nh-news-field input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.nh-news-go {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  padding: 0;
+  border: 0;
+  border-radius: 90px;
+  background: #ffffff;
+  color: #121212;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.nh-news-go svg {
+  transition: transform 0.3s var(--nh-ease);
+}
+
+.nh-news-go:hover {
+  background: var(--nh-yellow);
+}
+
+.nh-news-go:hover svg {
+  transform: translate3d(3px, 0, 0);
+}
+
+.nh-news-go:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.nh-news-status {
+  min-height: 20px;
+  margin: 8px 0 0;
+  font-size: 14px;
+  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.nh-news-status[data-status="done"] {
+  color: var(--nh-yellow);
+}
+
+.nh-news-status[data-status="invalid"],
+.nh-news-status[data-status="error"] {
+  color: #ff8a80;
+}
+
+.nh-footer-bottom {
+  display: flex;
+  justify-content: space-between;
+  gap: 32px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(235, 235, 236, 0.25);
+  font-size: clamp(15px, 1.25vw, 18px);
+  line-height: 26px;
+  color: rgba(235, 235, 236, 0.75);
+}
+
+.nh-footer-bottom p {
+  margin: 0;
+}
+
+.nh-footer-bottom a {
+  transition: color 0.2s ease;
+}
+
+.nh-footer-bottom a:hover {
+  color: #ffffff;
+}
+
+@media (max-width: 1024px) {
+  .nh-footer-cols {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 40px;
+  }
+
+  .nh-footer-col--about,
+  .nh-footer-col--news {
+    width: auto;
+  }
+
+  .nh-footer-col--news {
+    gap: 24px;
+  }
+}
+
+@media (max-width: 700px) {
+  .nh-footer-top {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .nh-social {
+    margin: 0;
+  }
+}
+
+@media (max-width: 560px) {
+  .nh-footer-cols {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+
+  .nh-footer-bottom {
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
+/* ===============================================================
+   Parallax — শুধু যেসব ব্রাউজার scroll-timeline চেনে (Chrome/Edge).
+   ছবিগুলো scroll এর সাথে সামান্য ওঠানামা করে; পুরোটা ব্রাউজারের
+   compositor এ চলে, JavaScript এ নয়
+   =============================================================== */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .nh-about-media img,
+    .nh-choose-media img {
+      animation: nh-parallax linear both;
+      animation-timeline: view();
+      animation-range: entry 0% exit 100%;
+    }
+
+    .nh-contact-bg img {
+      animation: nh-parallax-soft linear both;
+      animation-timeline: view();
+      animation-range: entry 0% exit 100%;
+    }
+  }
+}
+
+@keyframes nh-parallax {
+  from {
+    transform: translate3d(0, -3%, 0) scale(1.06);
+  }
+  to {
+    transform: translate3d(0, 3%, 0) scale(1.06);
+  }
+}
+
+@keyframes nh-parallax-soft {
+  from {
+    transform: translate3d(0, -2.5%, 0) scale(1.05);
+  }
+  to {
+    transform: translate3d(0, 2.5%, 0) scale(1.05);
+  }
+}
+
+/* ===============================================================
+   কম নড়াচড়া চাওয়া দর্শক (ব্রাউজার/OS এর setting) — সব animation বন্ধ,
+   সব কিছু সাথে সাথে দেখা যায়
+   =============================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .nh-page *,
+  .nh-page *::before,
+  .nh-page *::after {
+    animation: none !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+
+  .nh-page [data-reveal]:not([data-shown]) {
+    opacity: 1;
+  }
+
+  .nh-foot-word:not([data-shown]) span {
+    transform: none;
+  }
+
+  .nh-hero-media img {
+    opacity: 1;
+    transform: scale(1.04);
+  }
+}

@@ -15,6 +15,16 @@
    নেই, কোড আর পড়ে না — চাইলে মুছে দিতে পারেন
    --------------------------------------------------------------- */
 
+/* admin এর session মাঝপথে শেষ হলে (8 ঘণ্টা পেরোলে, অন্য owner
+   ভূমিকা বদলালে বা সরিয়ে দিলে) server 401 দেয়. তখন এই event টা
+   ছোড়া হয়, আর AdminAuth.jsx সেটা শুনে login পাতায় পাঠায় — নাহলে
+   পাতা খোলা থাকত আর প্রতিটা বোতামে শুধু "Not signed in" লেখা আসত.
+
+   login আর /me বাদ: login এ 401 মানে ভুল password, আর /me এর 401
+   AdminAuth নিজেই সামলায় */
+export const SIGNED_OUT_EVENT = "filamento:admin-signed-out";
+const OWN_401 = ["/api/auth/login", "/api/auth/me"];
+
 async function request(path, options = {}) {
   const response = await fetch(path, {
     // login এর cookie যেন প্রতিটা request এর সাথে যায়
@@ -38,6 +48,10 @@ async function request(path, options = {}) {
     /* status টাও সাথে দেওয়া হচ্ছে — login পাতা এটা দেখে ঠিক করে
        কী দেখাবে (401 = ভুল password, 429 = অনেকবার চেষ্টা,
        status নেই = server এ পৌঁছানোই যায়নি) */
+    if (response.status === 401 && !OWN_401.includes(path)) {
+      window.dispatchEvent(new Event(SIGNED_OUT_EVENT));
+    }
+
     const error = new Error(message);
     error.status = response.status;
     throw error;
@@ -90,6 +104,22 @@ export const api = {
     }),
   deleteProduct: (id) =>
     request(`/api/products/${id}`, { method: "DELETE" }),
+
+  /* ---------- Quote request (Home এর Contact form) ----------
+     পাঠানো সবার জন্য খোলা; তালিকা শুধু owner/admin (Leads পাতা) */
+  createQuoteRequest: (data) =>
+    request("/api/quote-requests", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+  listQuoteRequests: () => request("/api/quote-requests"),
+
+  /* ---------- Newsletter (নতুন Home এর footer) ---------- */
+  subscribeNewsletter: (email, locale) =>
+    request("/api/newsletter", {
+      method: "POST",
+      body: JSON.stringify({ email, locale }),
+    }),
 
   /* Technologies section এর video view.
      GET  → { views: { thermal: 12, optical: 40, driver: 3 } }
