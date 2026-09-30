@@ -1,0 +1,3202 @@
+/* ===============================================================
+   Product পাতাগুলোর চেহারা — Figma র "Product Dashboard"
+
+   সব class "pd-" দিয়ে শুরু, তাই admin এর অন্য পাতার কিছুর সাথে
+   ধাক্কা লাগে না. রঙ আর হরফ admin.css এর variable থেকে
+   (--adm-ink, --adm-yellow …), তাই একই পরিবার.
+
+   Figma তে সব লেখা Inter. শুধু পাতার বড় শিরোনাম আর সংখ্যা
+   Space Grotesk — Dashboard আর Users পাতার সাথে মিল রাখতে.
+
+   মাপ ঠিক হয় পাশের অংশের চওড়া দেখে (@container adm-main), পর্দার
+   নয় — মেনু খোলা/বন্ধের সাথে জায়গা বদলায় বলে
+   =============================================================== */
+
+.pd-page,
+.pd-modal-scrim {
+  --pd-line: #ebebec;
+  --pd-soft: #f6f6f7;
+  --pd-ink-75: rgba(55, 58, 60, 0.75);
+  --pd-grey: #c1c2c3;
+  --pd-green: #16a34a;
+  --pd-radius: 20px;
+}
+
+.pd-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+  font-family: var(--adm-font-ui);
+  color: var(--adm-ink);
+}
+
+.pd-page *,
+.pd-modal * {
+  box-sizing: border-box;
+}
+
+/* লুকানো ধাপ — কোনো display নিয়ম যেন একে আবার দেখিয়ে না ফেলে */
+.pd-step-pane[hidden] {
+  display: none !important;
+}
+
+/* ---------------------------------------------------------------
+   মাথার সারি
+   --------------------------------------------------------------- */
+.pd-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.pd-head-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.pd-title {
+  margin: 0;
+  font-family: var(--adm-font);
+  font-weight: 500;
+  font-size: 30px;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  color: var(--adm-ink);
+}
+
+.pd-head-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pd-save-state {
+  font-size: 12px;
+  color: var(--adm-ink-50);
+}
+
+.pd-save-state.is-dirty {
+  color: #a37b00;
+}
+
+.pd-head-tools {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.pd-add {
+  border: 0;
+  cursor: pointer;
+  font-weight: 400;
+}
+
+/* ---------------------------------------------------------------
+   বোতাম
+   --------------------------------------------------------------- */
+.pd-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 16px;
+  border: 1px solid transparent;
+  border-radius: 100px;
+  background: none;
+  font-family: var(--adm-font-ui);
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 1;
+  color: var(--adm-ink);
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    opacity 0.15s ease;
+}
+
+.pd-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.pd-btn:focus-visible {
+  outline: 2px solid var(--adm-ink);
+  outline-offset: 2px;
+}
+
+.pd-btn--yellow {
+  background: var(--adm-yellow);
+}
+
+.pd-btn--yellow:hover:not(:disabled) {
+  background: var(--adm-yellow-dark);
+}
+
+.pd-btn--line {
+  border-color: rgba(55, 58, 60, 0.25);
+  background: #ffffff;
+}
+
+.pd-btn--line:hover:not(:disabled) {
+  border-color: var(--adm-ink);
+}
+
+/* Figma তে #EBEBEC, কিন্তু আমাদের পাতার পেছনটাও ওই রঙ — তাই
+   একটু গাঢ়, নাহলে বোতামটা পেছনে মিশে যেত */
+.pd-btn--grey {
+  background: #dcdcdd;
+}
+
+.pd-btn--grey:hover:not(:disabled) {
+  background: #d0d0d2;
+}
+
+.pd-modal .pd-btn--grey {
+  background: #ebebec;
+}
+
+.pd-btn--danger {
+  background: var(--adm-red);
+  color: #ffffff;
+}
+
+.pd-btn--danger:hover:not(:disabled) {
+  background: #dc2626;
+}
+
+.pd-btn--grow {
+  flex: 1;
+}
+
+.pd-btn--lg {
+  height: 45px;
+  border-radius: 20px;
+  font-weight: 700;
+}
+
+.pd-btn--sm {
+  height: 32px;
+  padding: 0 12px;
+  font-size: 13px;
+}
+
+.pd-btn--block {
+  width: 100%;
+  height: 36px;
+  font-size: 13px;
+}
+
+/* Figma র ছোট হলুদ "+ Add" (27px উঁচু) */
+.pd-add-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 27px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 100px;
+  background: var(--adm-yellow);
+  font-family: var(--adm-font-ui);
+  font-weight: 500;
+  font-size: 12px;
+  color: var(--adm-ink);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.pd-add-btn:hover:not(:disabled) {
+  background: var(--adm-yellow-dark);
+}
+
+.pd-add-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pd-add-btn:focus-visible {
+  outline: 2px solid var(--adm-ink);
+  outline-offset: 2px;
+}
+
+.pd-text-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  padding: 2px 0;
+  border: 0;
+  background: none;
+  font-family: var(--adm-font-ui);
+  font-size: 12px;
+  color: var(--adm-ink-70);
+  cursor: pointer;
+}
+
+.pd-text-btn:hover:not(:disabled) {
+  color: var(--adm-ink);
+  text-decoration: underline;
+}
+
+.pd-text-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* টেবিলের ছোট icon বোতাম (✏️ ⧉ 🗑) */
+.pd-icon-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  flex: none;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--adm-ink);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.pd-icon-btn:hover:not(:disabled) {
+  background: rgba(55, 58, 60, 0.07);
+}
+
+.pd-icon-btn:focus-visible {
+  outline: 2px solid var(--adm-ink);
+  outline-offset: 1px;
+}
+
+.pd-icon-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.pd-icon-btn--bad {
+  color: var(--adm-red);
+}
+
+.pd-icon-btn--bad:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.pd-icon-btn--sm {
+  width: 26px;
+  height: 26px;
+}
+
+/* টানার হাতল */
+.pd-grip {
+  display: inline-grid;
+  place-items: center;
+  width: 20px;
+  height: 30px;
+  flex: none;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: rgba(55, 58, 60, 0.4);
+  cursor: grab;
+  /* আঙুলে টানলে পাতা যেন না সরে — শুধু হাতলে */
+  touch-action: none;
+}
+
+.pd-grip::before {
+  content: "";
+  width: 6px;
+  height: 12px;
+  background:
+    radial-gradient(circle, currentColor 1.1px, transparent 1.4px) 0 0 / 3px 4px;
+}
+
+.pd-grip:hover {
+  color: var(--adm-ink);
+}
+
+.pd-grip:active {
+  cursor: grabbing;
+}
+
+.pd-grip:focus-visible {
+  outline: 2px solid var(--adm-ink);
+  outline-offset: 1px;
+}
+
+/* ---------------------------------------------------------------
+   সাদা card
+   --------------------------------------------------------------- */
+.pd-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+  padding: 20px;
+  background: #ffffff;
+  border: 1px solid var(--pd-line);
+  border-radius: var(--pd-radius);
+}
+
+.pd-card-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  min-height: 27px;
+}
+
+.pd-card-title {
+  margin: 0;
+  font-family: var(--adm-font-ui);
+  font-weight: 600;
+  font-size: 18px;
+  line-height: 1.2;
+  color: var(--adm-ink);
+}
+
+.pd-card-title--sm {
+  font-weight: 500;
+  font-size: 16px;
+}
+
+.pd-card-sub {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: var(--adm-ink-50);
+}
+
+.pd-hint {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--adm-ink-50);
+}
+
+.pd-error {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--adm-error);
+}
+
+.pd-required {
+  color: var(--adm-red);
+}
+
+.pd-tip {
+  margin: 0;
+  padding: 12px;
+  background: rgba(247, 190, 0, 0.1);
+  border: 1px solid rgba(247, 190, 0, 0.2);
+  border-radius: 8px;
+  font-size: 12px;
+  line-height: 1.3;
+  color: var(--pd-ink-75);
+}
+
+.pd-lock {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+/* ---------------------------------------------------------------
+   চারটা সংখ্যার card
+   --------------------------------------------------------------- */
+.pd-stats {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+}
+
+@container adm-main (min-width: 480px) {
+  .pd-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@container adm-main (min-width: 900px) {
+  .pd-stats {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.pd-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+  background: #ffffff;
+  border: 1px solid rgba(55, 58, 60, 0.05);
+  border-radius: 16px;
+}
+
+.pd-stat-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.pd-stat-label {
+  margin: 0;
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.pd-stat-icon {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  flex: none;
+  border: 1px solid rgba(55, 58, 60, 0.05);
+  border-radius: 100px;
+  color: var(--adm-ink);
+}
+
+.pd-stat-value {
+  margin: 0;
+  font-family: var(--adm-font);
+  font-weight: 700;
+  font-size: 30px;
+  line-height: 1;
+}
+
+.pd-stat-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 14px;
+  margin: 0;
+  font-size: 14px;
+  line-height: 1;
+  color: var(--adm-ink);
+}
+
+.pd-stat-note--green {
+  color: var(--adm-green);
+}
+
+/* ---------------------------------------------------------------
+   Product Library এর তালিকা
+   --------------------------------------------------------------- */
+.pd-library {
+  gap: 12px;
+}
+
+.pd-library-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.pd-tools {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.pd-search {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: 190px;
+  height: 36px;
+  padding: 0 12px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 100px;
+  background: rgba(255, 255, 255, 0.6);
+  color: var(--adm-ink);
+  transition: border-color 0.15s ease;
+}
+
+.pd-search:focus-within {
+  border-color: var(--adm-ink);
+}
+
+.pd-search input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: 400 13px / 1 var(--adm-font-ui);
+  color: var(--adm-ink);
+  outline: none;
+}
+
+.pd-search input::placeholder {
+  color: rgba(0, 0, 0, 0.5);
+}
+
+/* All Series, All Status, Filters, Newest — একই pill */
+.pd-tool {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--pd-line);
+  border-radius: 100px;
+  background: #ffffff;
+  font: 400 13px / 1 var(--adm-font-ui);
+  color: var(--adm-ink);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.pd-tool:hover,
+.pd-tool:focus-within {
+  border-color: rgba(55, 58, 60, 0.4);
+}
+
+.pd-tool.is-set {
+  border-color: var(--adm-yellow);
+  background: rgba(247, 190, 0, 0.08);
+}
+
+.pd-tool-count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 100px;
+  background: var(--adm-yellow);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.pd-tool--select {
+  padding: 0;
+}
+
+.pd-tool--select select {
+  height: 100%;
+  padding: 0 34px 0 12px;
+  border: 0;
+  border-radius: 100px;
+  background: none;
+  font: inherit;
+  color: inherit;
+  appearance: none;
+  cursor: pointer;
+  outline: none;
+}
+
+.pd-tool--select svg {
+  position: absolute;
+  right: 12px;
+  pointer-events: none;
+}
+
+.pd-tool--sm {
+  height: 32px;
+}
+
+.pd-filter {
+  position: relative;
+}
+
+.pd-filter-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 240px;
+  padding: 14px;
+  background: #ffffff;
+  border: 1px solid var(--pd-line);
+  border-radius: 14px;
+  box-shadow: 0 16px 32px -12px rgba(11, 18, 26, 0.25);
+}
+
+/* ---- টেবিল ---- */
+.pd-table-wrap {
+  position: relative;
+  min-width: 0;
+}
+
+.pd-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 8px;
+  font-size: 13px;
+}
+
+.pd-table thead th {
+  padding: 6px 12px;
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  text-align: left;
+  color: var(--adm-ink);
+  white-space: nowrap;
+}
+
+.pd-table tbody td {
+  padding: 12px;
+  background: #ffffff;
+  border-top: 1px solid var(--pd-line);
+  border-bottom: 1px solid var(--pd-line);
+  vertical-align: middle;
+}
+
+.pd-table tbody td:first-child {
+  padding-left: 8px;
+  border-left: 1px solid var(--pd-line);
+  border-radius: 10px 0 0 10px;
+}
+
+.pd-table tbody td:last-child {
+  border-right: 1px solid var(--pd-line);
+  border-radius: 0 10px 10px 0;
+}
+
+.pd-table tbody tr:not(.pd-skeleton):hover td {
+  background: #fcfcfc;
+}
+
+.pd-table tbody.is-refreshing {
+  opacity: 0.55;
+  transition: opacity 0.15s ease;
+}
+
+.pd-center {
+  text-align: center !important;
+}
+
+.pd-end {
+  text-align: right !important;
+}
+
+.pd-product-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+}
+
+.pd-product-cell:hover .pd-product-name {
+  text-decoration: underline;
+}
+
+.pd-product-cell:focus-visible {
+  outline: 2px solid var(--adm-ink);
+  outline-offset: 4px;
+  border-radius: 8px;
+}
+
+.pd-product-name {
+  font-weight: 600;
+  font-size: 13px;
+  line-height: 1.3;
+  color: #000000;
+}
+
+.pd-thumb {
+  display: grid;
+  place-items: center;
+  flex: none;
+  overflow: hidden;
+  border-radius: 10px;
+  background: var(--pd-soft);
+}
+
+.pd-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 4px;
+}
+
+/* নমুনা ছবি — আসল ছবির থেকে আলাদা বোঝাতে একটু ফিকে */
+.pd-thumb--demo {
+  outline: 1px dashed rgba(55, 58, 60, 0.18);
+  outline-offset: -1px;
+}
+
+.pd-thumb--demo img,
+.pd-thumb--demo svg {
+  opacity: 0.55;
+}
+
+.pd-muted-strong {
+  font-size: 12px;
+  color: var(--adm-ink);
+}
+
+.pd-dash {
+  color: var(--pd-grey);
+}
+
+.pd-certs {
+  display: inline-flex;
+  justify-content: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.pd-cert {
+  padding: 3px 7px;
+  border-radius: 100px;
+  background: rgba(55, 58, 60, 0.08);
+  font-weight: 500;
+  font-size: 10px;
+  line-height: 1.2;
+  color: var(--adm-ink);
+  white-space: nowrap;
+}
+
+.pd-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: 100px;
+  font-weight: 500;
+  font-size: 10px;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+.pd-status.is-live {
+  background: rgba(34, 197, 94, 0.1);
+  color: var(--pd-green);
+}
+
+.pd-status.is-draft {
+  background: rgba(247, 190, 0, 0.15);
+  color: #a37b00;
+}
+
+.pd-status-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.pd-row-actions {
+  display: inline-flex;
+  gap: 2px;
+}
+
+/* অপেক্ষার সারি */
+.pd-skeleton td {
+  padding: 18px 12px !important;
+}
+
+.pd-skeleton span {
+  display: block;
+  height: 14px;
+  border-radius: 7px;
+  background: linear-gradient(90deg, #f1f1f2 0%, #f8f8f9 50%, #f1f1f2 100%) 0 0 / 200% 100%;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .pd-skeleton span {
+    animation: pd-shimmer 1.2s linear infinite;
+  }
+}
+
+@keyframes pd-shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+/* ফাঁকা অবস্থা */
+.pd-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 40px 16px;
+  text-align: center;
+}
+
+.pd-empty-icon {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--adm-yellow-soft);
+  color: #a37b00;
+}
+
+.pd-empty-title {
+  margin: 0;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.pd-empty-text {
+  margin: 0 0 6px;
+  font-size: 13px;
+  color: var(--adm-ink-70);
+}
+
+.pd-loading-card {
+  display: grid;
+  place-items: center;
+  min-height: 260px;
+}
+
+/* ---- পাতা নম্বর ---- */
+.pd-pager {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding-top: 4px;
+}
+
+.pd-pager-info {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 11px;
+  color: var(--pd-ink-75);
+}
+
+.pd-pager-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--adm-yellow);
+}
+
+.pd-pages {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.pd-page-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-width: 30px;
+  height: 30px;
+  padding: 0 8px;
+  border: 1px solid rgba(55, 58, 60, 0.25);
+  border-radius: 100px;
+  background: #ffffff;
+  font: 500 11px / 1 var(--adm-font-ui);
+  color: var(--adm-ink);
+  cursor: pointer;
+}
+
+.pd-page-btn:hover:not(:disabled):not(.is-on) {
+  border-color: var(--adm-ink);
+}
+
+.pd-page-btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.pd-page-btn.is-on {
+  border-color: var(--adm-ink);
+  background: var(--adm-ink);
+  color: #ffffff;
+}
+
+.pd-page-btn--wide {
+  padding: 0 12px;
+}
+
+.pd-page-gap {
+  font-size: 12px;
+  color: var(--adm-ink-50);
+}
+
+.pd-show {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--adm-ink);
+}
+
+/* ---- নিচের ছোট বার্তা ---- */
+.pd-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  z-index: 900;
+  max-width: calc(100vw - 32px);
+  padding: 12px 18px;
+  border-radius: 12px;
+  background: var(--adm-ink);
+  font-size: 13px;
+  line-height: 1.4;
+  color: #ffffff;
+  box-shadow: 0 16px 32px -12px rgba(11, 18, 26, 0.45);
+  transform: translateX(-50%);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .pd-toast {
+    animation: pd-toast-in 0.25s ease-out;
+  }
+}
+
+@keyframes pd-toast-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 10px);
+  }
+}
+
+/* সরু জায়গায় টেবিলের প্রতিটা সারি একটা করে card */
+@container adm-main (max-width: 820px) {
+  .pd-library-head {
+    align-items: flex-start;
+  }
+
+  .pd-search {
+    width: 100%;
+  }
+
+  .pd-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+
+  .pd-table,
+  .pd-table tbody,
+  .pd-table tr,
+  .pd-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .pd-table tbody tr {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px 12px;
+    margin-bottom: 10px;
+    padding: 12px;
+    background: #ffffff;
+    border: 1px solid var(--pd-line);
+    border-radius: 14px;
+  }
+
+  .pd-table tbody td,
+  .pd-table tbody td:first-child,
+  .pd-table tbody td:last-child {
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none !important;
+    text-align: left !important;
+  }
+
+  .pd-table tbody td:first-child {
+    grid-column: 1 / -1;
+  }
+
+  .pd-table tbody td[data-label]:not(:first-child)::before {
+    content: attr(data-label);
+    display: block;
+    margin-bottom: 4px;
+    font-weight: 600;
+    font-size: 10px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--adm-ink-50);
+  }
+
+  .pd-certs {
+    justify-content: flex-start;
+  }
+
+  .pd-skeleton {
+    display: block !important;
+  }
+}
+
+/* ---------------------------------------------------------------
+   Modal
+   --------------------------------------------------------------- */
+.pd-modal-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  overflow-y: auto;
+  background: rgba(11, 18, 26, 0.42);
+  backdrop-filter: blur(2px);
+  font-family: var(--adm-font-ui);
+  color: var(--adm-ink);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .pd-modal-scrim {
+    animation: pd-fade 0.18s ease-out;
+  }
+
+  .pd-modal {
+    animation: pd-rise 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+}
+
+@keyframes pd-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes pd-rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+}
+
+.pd-modal {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 20px 25px rgba(0, 0, 0, 0.1);
+  outline: none;
+}
+
+.pd-modal--sm {
+  max-width: 460px;
+}
+
+.pd-modal--md {
+  max-width: 739px;
+}
+
+.pd-modal--lg {
+  max-width: 800px;
+}
+
+.pd-modal-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 24px;
+  border-bottom: 1px solid var(--pd-line, #ebebec);
+}
+
+.pd-modal-head-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+}
+
+.pd-modal-badge {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  flex: none;
+  border: 1px solid var(--adm-yellow);
+  border-radius: 10px;
+  background: rgba(247, 190, 0, 0.1);
+}
+
+.pd-modal-kicker {
+  margin: 0 0 4px;
+  font-size: 13px;
+  line-height: 16px;
+  color: var(--adm-ink-50);
+}
+
+.pd-modal-title {
+  margin: 0;
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 1.2;
+}
+
+.pd-modal-sub {
+  margin: 8px 0 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--adm-ink-70);
+}
+
+.pd-modal-x {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  flex: none;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: rgba(235, 235, 236, 0.5);
+  color: var(--adm-ink);
+  cursor: pointer;
+}
+
+.pd-modal-x:hover {
+  background: #ebebec;
+}
+
+.pd-modal-x:focus-visible {
+  outline: 2px solid var(--adm-ink);
+  outline-offset: 2px;
+}
+
+.pd-modal-x--round {
+  width: 40px;
+  height: 40px;
+  border-radius: 100px;
+  background: #ffffff;
+}
+
+.pd-modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 24px;
+}
+
+.pd-modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+}
+
+.pd-modal-simple-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 4px 4px 0;
+}
+
+.pd-modal-grey-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 12px;
+  border-radius: 12px;
+  background: #f6f6f6;
+}
+
+.pd-modal-grey-head .pd-modal-sub {
+  margin-top: 8px;
+}
+
+.pd-modal-foot {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px;
+  background: #ffffff;
+  border-top: 1px solid #ebebec;
+}
+
+.pd-cat-modal .pd-modal-foot {
+  gap: 16px;
+  padding: 24px;
+}
+
+.pd-confirm {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 24px 24px 8px;
+}
+
+.pd-confirm-title {
+  margin: 0;
+  font-weight: 700;
+  font-size: 18px;
+  line-height: 1.3;
+}
+
+.pd-confirm-text,
+.pd-confirm-text p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--adm-ink-70);
+}
+
+/* ---- Choose a Category ---- */
+.pd-cat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.pd-cat {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  height: 140px;
+  background: #ffffff;
+  border: 1px solid #ebebec;
+  border-radius: 16px;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.15s ease;
+}
+
+.pd-cat:hover {
+  border-color: rgba(247, 190, 0, 0.6);
+}
+
+/* ২px হলুদ দাগ — box-shadow দিয়ে, যাতে ঘরের মাপ না বদলায় */
+.pd-cat.is-on {
+  border-color: var(--adm-yellow);
+  box-shadow: inset 0 0 0 1px var(--adm-yellow);
+}
+
+.pd-cat:has(input:focus-visible) {
+  outline: 2px solid var(--adm-ink);
+  outline-offset: 2px;
+}
+
+.pd-cat-tick {
+  position: absolute;
+  top: 8px;
+  right: 7.5px;
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  background: var(--adm-yellow);
+  color: var(--adm-ink);
+}
+
+.pd-cat-art {
+  display: grid;
+  place-items: center;
+  flex: 1;
+  min-height: 0;
+  padding: 12px;
+}
+
+.pd-cat-art img {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+}
+
+.pd-cat-name {
+  padding: 0 8px 12px;
+  font-weight: 600;
+  font-size: 13px;
+  line-height: 16px;
+  text-align: center;
+}
+
+.pd-help {
+  background: rgba(235, 235, 236, 0.5);
+  border: 1px solid #ebebec;
+  border-radius: 8px;
+}
+
+.pd-help-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 16px;
+  border: 0;
+  background: none;
+  font-family: var(--adm-font-ui);
+  color: var(--adm-ink);
+  text-align: left;
+  cursor: pointer;
+}
+
+.pd-help-head:focus-visible {
+  outline: 2px solid var(--adm-ink);
+  outline-offset: -2px;
+  border-radius: 8px;
+}
+
+.pd-help-icon {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  flex: none;
+  border-radius: 16px;
+  background: rgba(247, 190, 0, 0.1);
+  color: var(--adm-yellow);
+}
+
+.pd-help-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.pd-help-text strong {
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 16px;
+}
+
+.pd-help-text span {
+  font-size: 12px;
+  line-height: 15px;
+  color: var(--adm-ink-50);
+}
+
+.pd-help-caret {
+  display: grid;
+  color: #475467;
+  transform: rotate(-90deg);
+  transition: transform 0.2s ease;
+}
+
+.pd-help.is-open .pd-help-caret {
+  transform: rotate(0deg);
+}
+
+.pd-help-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 20px;
+  margin: 0;
+  padding: 0 16px 16px 60px;
+}
+
+.pd-help-list[hidden] {
+  display: none;
+}
+
+.pd-help-list dt {
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.pd-help-list dd {
+  margin: 2px 0 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--adm-ink-70);
+}
+
+@media (max-width: 720px) {
+  .pd-cat-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .pd-cat {
+    height: 124px;
+  }
+
+  .pd-help-list {
+    grid-template-columns: minmax(0, 1fr);
+    padding-left: 16px;
+  }
+
+  .pd-modal-head,
+  .pd-modal-body,
+  .pd-cat-modal .pd-modal-foot {
+    padding: 16px;
+  }
+}
+
+/* ---------------------------------------------------------------
+   ফর্মের ঘর
+   --------------------------------------------------------------- */
+.pd-field-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.pd-label {
+  display: block;
+  margin: 0;
+  padding: 0;
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 15px;
+  color: var(--adm-ink);
+}
+
+.pd-input,
+.pd-input-box,
+.pd-textarea-box {
+  width: 100%;
+  min-height: 36px;
+  background: #ffffff;
+  border: 1px solid #ebebec;
+  border-radius: 8px;
+  font: 400 13px / 16px var(--adm-font-ui);
+  color: var(--adm-ink);
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.pd-input {
+  padding: 0 12px;
+  outline: none;
+}
+
+.pd-input:focus-visible,
+.pd-input-box:focus-within,
+.pd-textarea-box:focus-within {
+  border-color: var(--adm-ink);
+  box-shadow: 0 0 0 3px rgba(247, 190, 0, 0.25);
+}
+
+.pd-input[readonly],
+.pd-input:disabled {
+  background: #fafafa;
+}
+
+.pd-input--sm {
+  min-height: 32px;
+  height: 32px;
+}
+
+textarea.pd-input,
+.pd-textarea-plain {
+  min-height: 60px;
+  padding: 12px;
+  font-size: 12px;
+  line-height: 18px;
+  resize: vertical;
+}
+
+.pd-select {
+  appearance: none;
+  padding-right: 36px;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23475467' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9.5 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  cursor: pointer;
+}
+
+/* "Select color" — কিছু বাছা না হলে হালকা লেখা */
+.pd-select.is-placeholder {
+  color: rgba(55, 58, 60, 0.5);
+}
+
+.pd-select.is-placeholder option {
+  color: #373a3c;
+}
+
+.pd-input-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+}
+
+.pd-input-box input {
+  flex: 1;
+  min-width: 0;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  outline: none;
+}
+
+.pd-count {
+  flex: none;
+  font-size: 11px;
+  line-height: 13px;
+  color: var(--pd-grey, #c1c2c3);
+}
+
+.pd-textarea-box {
+  display: flex;
+  flex-direction: column;
+}
+
+.pd-textarea {
+  width: 100%;
+  min-height: 60px;
+  padding: 10px 12px 0;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  font: 400 13px / 18px var(--adm-font-ui);
+  color: var(--adm-ink);
+  resize: vertical;
+  outline: none;
+}
+
+.pd-textarea-box .pd-count {
+  align-self: flex-end;
+  padding: 8px;
+}
+
+.pd-input-box.is-bad,
+.pd-textarea-box.is-bad,
+.pd-field.is-bad {
+  border-color: var(--adm-red);
+}
+
+.pd-two {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+/* ---------------------------------------------------------------
+   Add / Edit — ধাপের সারি
+   --------------------------------------------------------------- */
+.pd-steps {
+  padding: 16px;
+}
+
+.pd-steps ol {
+  display: flex;
+  gap: 24px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.pd-step {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: 600 13px / 16px var(--adm-font-ui);
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  color: var(--pd-grey);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.pd-step-num {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  margin: 5px;
+  border-radius: 50%;
+  background: #e1e1e2;
+  font-weight: 700;
+  font-size: 12px;
+  color: var(--adm-ink);
+  /* Figma র ৩৪px এর হালকা বাইরের বৃত্ত */
+  box-shadow: 0 0 0 5px #ffffff, 0 0 0 6px rgba(235, 235, 236, 0.9);
+}
+
+.pd-step.is-on {
+  color: var(--adm-ink);
+}
+
+.pd-step.is-on .pd-step-num {
+  background: var(--adm-yellow);
+}
+
+.pd-step.is-done .pd-step-num {
+  background: var(--adm-green);
+  color: #ffffff;
+}
+
+.pd-step:hover:not(.is-on) {
+  color: var(--adm-ink-70);
+}
+
+.pd-step:focus-visible {
+  outline: 2px solid var(--adm-ink);
+  outline-offset: 2px;
+  border-radius: 100px;
+}
+
+.pd-notice {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.pd-notice-x {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+/* নিচের বোতামের সারি */
+.pd-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding-top: 12px;
+}
+
+.pd-foot-right {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* ---------------------------------------------------------------
+   ধাপ ১ — Product Info
+   --------------------------------------------------------------- */
+.pd-info {
+  display: grid;
+  grid-template-columns: minmax(0, 1.85fr) minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+@container adm-main (max-width: 900px) {
+  .pd-info {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.pd-info-main {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.pd-form-card {
+  gap: 20px;
+}
+
+.pd-features {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@container adm-main (max-width: 560px) {
+  .pd-features,
+  .pd-two {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.pd-feature {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid #ebebec;
+  border-radius: 12px;
+}
+
+.pd-feature-icon {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  flex: none;
+  border-radius: 50%;
+  background: #f1f1f2;
+  color: var(--adm-ink);
+}
+
+.pd-feature-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.pd-feature-text strong {
+  font-weight: 600;
+  font-size: 13px;
+  line-height: 1.25;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pd-feature-text span {
+  font-size: 11px;
+  line-height: 1.3;
+  color: var(--adm-ink-50);
+}
+
+.pd-row-tools {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex: none;
+}
+
+.pd-row-tools--lg {
+  gap: 8px;
+}
+
+/* ডান পাশের card — ছবি আর Video URLs */
+.pd-info-side {
+  min-width: 0;
+}
+
+.pd-side-card {
+  gap: 20px;
+}
+
+.pd-image-block {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pd-image-stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  border-radius: 12px;
+  background: var(--pd-soft);
+  transition: box-shadow 0.15s ease;
+}
+
+.pd-image-stage.is-over {
+  box-shadow: inset 0 0 0 2px var(--adm-yellow);
+  background: rgba(247, 190, 0, 0.06);
+}
+
+.pd-image-stage > img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 12px;
+}
+
+.pd-image-stage > img.is-uploading {
+  opacity: 0.5;
+}
+
+.pd-image-empty,
+.pd-drop-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 100%;
+  padding: 16px;
+  border: 0;
+  background: none;
+  font-family: var(--adm-font-ui);
+  color: var(--adm-ink);
+  text-align: center;
+  cursor: pointer;
+}
+
+.pd-image-empty strong {
+  font-weight: 500;
+  font-size: 13px;
+}
+
+.pd-image-empty span {
+  font-size: 11px;
+  color: var(--adm-ink-50);
+}
+
+.pd-image-empty:focus-visible,
+.pd-drop-empty:focus-visible {
+  outline: 2px solid var(--adm-ink);
+  outline-offset: -4px;
+  border-radius: 12px;
+}
+
+.pd-drop-icon {
+  display: grid;
+  place-items: center;
+  width: 50px;
+  height: 50px;
+  border: 1px solid rgba(55, 58, 60, 0.05);
+  border-radius: 100px;
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.pd-main-btn,
+.pd-main-tag {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 100px;
+  font: 500 11px / 1 var(--adm-font-ui);
+}
+
+.pd-main-btn {
+  bottom: 8px;
+  left: 8px;
+  height: 28px;
+  padding: 0 10px;
+  border: 1px solid #ebebec;
+  background: #ffffff;
+  color: var(--adm-ink);
+  cursor: pointer;
+}
+
+.pd-main-btn:hover {
+  border-color: var(--adm-ink);
+}
+
+.pd-main-tag {
+  top: 8px;
+  left: 8px;
+  padding: 5px 9px;
+  background: var(--adm-yellow);
+}
+
+.pd-thumbs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.pd-thumb-btn {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid #ebebec;
+  border-radius: 10px;
+  background: var(--pd-soft);
+  color: var(--adm-ink-70);
+  cursor: pointer;
+}
+
+.pd-thumb-btn img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 3px;
+}
+
+.pd-thumb-btn.is-on {
+  border-color: var(--adm-yellow);
+  box-shadow: inset 0 0 0 1px var(--adm-yellow);
+}
+
+.pd-thumb-btn:focus-visible {
+  outline: 2px solid var(--adm-ink);
+  outline-offset: 2px;
+}
+
+.pd-thumb-add {
+  border-style: dashed;
+  background: #ffffff;
+}
+
+.pd-thumb-add:hover {
+  border-color: var(--adm-ink);
+  color: var(--adm-ink);
+}
+
+.pd-thumb-btn.is-uploading {
+  cursor: default;
+}
+
+.pd-thumb-progress {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.72);
+  font-weight: 600;
+  font-size: 11px;
+}
+
+.pd-link-form {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pd-link-form .pd-input {
+  flex: 1;
+  min-width: 0;
+}
+
+.pd-link-form--wide {
+  flex-wrap: wrap;
+}
+
+.pd-link-form--wide .pd-input {
+  flex: 1 1 200px;
+}
+
+.pd-sample {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border-radius: 12px;
+  background: var(--pd-soft);
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--adm-ink-50);
+}
+
+.pd-video-urls {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ---------------------------------------------------------------
+   লাইনের তালিকা — Features, Mechanical, Video URLs …
+   --------------------------------------------------------------- */
+.pd-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pd-list--2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 16px;
+}
+
+@container adm-main (max-width: 640px) {
+  .pd-list--2 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.pd-list-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  border-radius: 12px;
+  transition: background 0.12s ease;
+}
+
+.pd-serial {
+  flex: none;
+  min-width: 20px;
+  font-size: 11px;
+  line-height: 13px;
+  text-align: center;
+  color: rgba(55, 58, 60, 0.7);
+}
+
+.pd-field {
+  flex: 1;
+  min-width: 0;
+  height: 36px;
+  padding: 0 12px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.6);
+  font: 400 12px / 1.6 var(--adm-font-ui);
+  color: rgba(0, 0, 0, 0.7);
+  outline: none;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.pd-field:hover {
+  border-color: rgba(0, 0, 0, 0.12);
+}
+
+.pd-field:focus-visible {
+  border-color: var(--adm-ink);
+  box-shadow: 0 0 0 3px rgba(247, 190, 0, 0.25);
+  color: var(--adm-ink);
+}
+
+.pd-field::placeholder {
+  color: rgba(55, 58, 60, 0.4);
+}
+
+.is-dragging {
+  position: relative;
+  z-index: 2;
+  background: rgba(247, 190, 0, 0.08);
+  box-shadow: 0 10px 24px -14px rgba(11, 18, 26, 0.45);
+}
+
+.is-dragging .pd-field {
+  border-color: var(--adm-yellow);
+}
+
+.pd-empty-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  margin: 0;
+  padding: 14px;
+  border: 1px dashed rgba(55, 58, 60, 0.2);
+  border-radius: 12px;
+  background: none;
+  font: 400 12px / 1.4 var(--adm-font-ui);
+  color: var(--adm-ink-50);
+  cursor: pointer;
+}
+
+.pd-empty-row span {
+  color: var(--adm-ink);
+  text-decoration: underline;
+}
+
+.pd-empty-row:hover:not(:disabled) {
+  border-color: var(--adm-yellow);
+  background: rgba(247, 190, 0, 0.05);
+}
+
+.pd-empty-row--tall {
+  flex-direction: column;
+  padding: 32px 16px;
+}
+
+.pd-empty-row--static {
+  cursor: default;
+  text-align: center;
+}
+
+.pd-empty-row--static:hover {
+  border-color: rgba(55, 58, 60, 0.2) !important;
+  background: none !important;
+}
+
+/* ---------------------------------------------------------------
+   ধাপ ২ — Specifications
+   --------------------------------------------------------------- */
+.pd-spec-layout {
+  display: grid;
+  grid-template-columns: 216px minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.pd-spec-nav {
+  position: sticky;
+  top: 16px;
+  gap: 4px;
+  padding: 12px;
+}
+
+.pd-spec-link {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 16px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: #ffffff;
+  font: 500 13px / 16px var(--adm-font-ui);
+  color: var(--pd-ink-75);
+  text-align: left;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background 0.12s ease,
+    border-color 0.12s ease;
+}
+
+.pd-spec-link:hover:not(.is-on) {
+  background: #f8f8f8;
+}
+
+.pd-spec-link.is-on {
+  border-color: #ebebec;
+  font-weight: 600;
+}
+
+.pd-spec-link.is-on svg {
+  color: var(--adm-yellow);
+}
+
+.pd-spec-link:focus-visible {
+  outline: 2px solid var(--adm-ink);
+  outline-offset: -2px;
+}
+
+.pd-spec-link-main {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.pd-spec-dot {
+  width: 6px;
+  height: 6px;
+  margin-right: 3px;
+  border-radius: 50%;
+  background: var(--adm-yellow);
+}
+
+.pd-spec-done {
+  display: grid;
+  place-items: center;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--adm-green);
+  color: #ffffff;
+}
+
+.pd-spec-right,
+.pd-spec-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.pd-spec-card {
+  gap: 20px;
+}
+
+.pd-spec-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  min-height: 27px;
+}
+
+.pd-spec-title {
+  margin: 0;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 19px;
+}
+
+.pd-spec-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.pd-title-input {
+  flex: 1 1 240px;
+  min-width: 0;
+  max-width: 420px;
+  height: 32px;
+  margin-left: -8px;
+  padding: 0 8px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: none;
+  font: 500 16px / 19px var(--adm-font-ui);
+  color: var(--adm-ink);
+  outline: none;
+}
+
+.pd-title-input:hover {
+  border-color: #ebebec;
+}
+
+.pd-title-input:focus-visible {
+  border-color: var(--adm-ink);
+  box-shadow: 0 0 0 3px rgba(247, 190, 0, 0.25);
+}
+
+.pd-add-table {
+  display: flex;
+  justify-content: center;
+}
+
+/* ---- টেবিল সম্পাদক ---- */
+.pd-grid-scroll {
+  overflow-x: auto;
+  margin: -4px;
+  padding: 4px;
+}
+
+.pd-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pd-grid-caption {
+  display: grid;
+  place-items: center;
+  min-height: 30px;
+  border-radius: 8px;
+  background: #ebebec;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.pd-grid-caption input {
+  width: 100%;
+  max-width: 300px;
+  height: 30px;
+  border: 0;
+  background: none;
+  font: 600 13px / 1 var(--adm-font-ui);
+  color: var(--adm-ink);
+  text-align: center;
+  outline: none;
+}
+
+.pd-grid-caption input:focus-visible {
+  box-shadow: inset 0 -2px 0 var(--adm-yellow);
+}
+
+.pd-grid-head,
+.pd-grid-row {
+  display: grid;
+  align-items: center;
+  gap: 8px;
+}
+
+.pd-grid-head {
+  padding: 0 12px;
+}
+
+.pd-head-cell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.pd-head-input {
+  width: 100%;
+  min-width: 0;
+  height: 28px;
+  padding: 0 6px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: none;
+  font: 600 12px / 1 var(--adm-font-ui);
+  color: var(--adm-ink);
+  outline: none;
+}
+
+.pd-head-input:not([readonly]):hover {
+  border-color: #ebebec;
+}
+
+.pd-head-input:focus-visible {
+  border-color: var(--adm-ink);
+  box-shadow: 0 0 0 2px rgba(247, 190, 0, 0.25);
+}
+
+.pd-col-x {
+  position: absolute;
+  top: 50%;
+  right: -4px;
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: 1px solid #ebebec;
+  border-radius: 50%;
+  background: #ffffff;
+  color: var(--adm-red);
+  opacity: 0;
+  transform: translateY(-50%);
+  cursor: pointer;
+  transition: opacity 0.12s ease;
+}
+
+.pd-head-cell:hover .pd-col-x,
+.pd-head-cell:focus-within .pd-col-x,
+.pd-col-x:focus-visible {
+  opacity: 1;
+}
+
+/* ফোন/ট্যাবলেটে hover নেই — তখন সবসময় দেখা যায় */
+@media (hover: none) {
+  .pd-col-x {
+    opacity: 1;
+  }
+}
+
+.pd-head-action {
+  font-weight: 600;
+  font-size: 12px;
+  text-align: right;
+}
+
+.pd-grid-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pd-grid-row {
+  min-height: 42px;
+  padding: 4px 12px 4px 4px;
+  border: 1px solid #ebebec;
+  border-radius: 12px;
+  background: #ffffff;
+}
+
+.pd-grid-row .pd-row-tools {
+  justify-content: flex-end;
+}
+
+.pd-grid-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+.pd-cell {
+  width: 100%;
+  min-width: 0;
+  padding: 6px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: none;
+  font: 400 12px / 1.45 var(--adm-font-ui);
+  color: var(--adm-ink);
+  outline: none;
+  resize: none;
+}
+
+textarea.pd-cell {
+  display: block;
+  overflow: hidden;
+}
+
+.pd-cell:hover {
+  background: #f7f7f8;
+}
+
+.pd-cell:focus-visible {
+  border-color: var(--adm-ink);
+  background: #ffffff;
+  box-shadow: 0 0 0 2px rgba(247, 190, 0, 0.25);
+}
+
+.pd-cell--label {
+  font-weight: 500;
+}
+
+/* সরু জায়গায় বাঁ পাশের group তালিকা উপরে, পাশাপাশি সরে */
+@container adm-main (max-width: 760px) {
+  .pd-spec-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .pd-spec-nav {
+    position: static;
+    flex-direction: row;
+    overflow-x: auto;
+    padding: 8px;
+    scrollbar-width: thin;
+  }
+
+  .pd-spec-link {
+    flex: none;
+    gap: 10px;
+  }
+}
+
+/* ---------------------------------------------------------------
+   ধাপ ৩ — Videos
+   --------------------------------------------------------------- */
+.pd-media-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pd-media-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  border-radius: 10px;
+}
+
+.pd-media-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+  padding: 12px;
+  background: #ffffff;
+  border: 1px solid #ebebec;
+  border-radius: 8px;
+}
+
+.pd-video-thumb {
+  position: relative;
+  display: block;
+  width: 100px;
+  height: 56px;
+  flex: none;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: 6px;
+  background: #ebebec;
+  cursor: pointer;
+}
+
+.pd-video-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.pd-video-thumb:focus-visible {
+  outline: 2px solid var(--adm-ink);
+  outline-offset: 2px;
+}
+
+.pd-play {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  padding-left: 1px;
+  border-radius: 999px;
+  background: var(--adm-yellow);
+  box-shadow: 0 0 10px rgba(11, 18, 26, 0.1);
+  color: var(--adm-ink);
+  transform: translate(-50%, -50%);
+  transition: transform 0.15s ease;
+}
+
+.pd-video-thumb:hover .pd-play {
+  transform: translate(-50%, -50%) scale(1.12);
+}
+
+.pd-duration {
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  padding: 1px 3px;
+  border-radius: 3px;
+  background: var(--adm-ink);
+  font: 600 8px / 10px var(--adm-font-ui);
+  color: #ffffff;
+}
+
+.pd-media-text {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+
+.pd-media-text strong {
+  overflow: hidden;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pd-media-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  line-height: 1;
+  color: var(--adm-ink-50);
+}
+
+.pd-sep {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: #c1c2c3;
+}
+
+/* ---- Add Video Details ---- */
+.pd-drop {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 182px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 20px;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
+}
+
+.pd-drop.is-over {
+  border: 1px dashed var(--adm-yellow);
+  background: rgba(247, 190, 0, 0.06);
+}
+
+.pd-drop-empty strong {
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 1.2;
+}
+
+.pd-drop-empty span {
+  font-size: 12px;
+  line-height: 1.2;
+}
+
+.pd-drop-empty u {
+  font-weight: 500;
+  font-size: 16px;
+}
+
+.pd-drop-progress {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: min(100%, 360px);
+  font-size: 12px;
+  text-align: center;
+}
+
+.pd-drop-progress strong {
+  max-width: 100%;
+  overflow: hidden;
+  font-weight: 500;
+  font-size: 14px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pd-bar {
+  display: block;
+  width: 100%;
+  height: 6px;
+  overflow: hidden;
+  border-radius: 3px;
+  background: #ebebec;
+}
+
+.pd-bar > span {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+  background: var(--adm-yellow);
+  transition: width 0.2s ease;
+}
+
+.pd-bar--float {
+  position: absolute;
+  right: 20px;
+  bottom: 10px;
+  left: 20px;
+  width: auto;
+}
+
+.pd-drop-file {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.pd-drop-preview {
+  display: grid;
+  place-items: center;
+  width: 120px;
+  height: 68px;
+  flex: none;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #ebebec;
+  color: var(--adm-ink-70);
+}
+
+.pd-drop-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.pd-drop-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.pd-drop-meta strong {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.pd-drop-meta span {
+  font-size: 12px;
+  color: var(--adm-ink-50);
+}
+
+.pd-video-modal .pd-modal-foot {
+  justify-content: flex-end;
+}
+
+.pd-player video {
+  display: block;
+  width: 100%;
+  max-height: 70dvh;
+  border-radius: 12px;
+  background: #000000;
+}
+
+/* ---- Key Feature এর icon বাছাই ---- */
+.pd-icon-pick {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.pd-icon-pick legend {
+  margin-bottom: 6px;
+}
+
+.pd-icon-choice {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border: 1px solid #ebebec;
+  border-radius: 10px;
+  background: #ffffff;
+  color: var(--adm-ink);
+  cursor: pointer;
+  transition:
+    border-color 0.12s ease,
+    background 0.12s ease;
+}
+
+.pd-icon-choice:hover {
+  border-color: rgba(55, 58, 60, 0.35);
+}
+
+.pd-icon-choice.is-on {
+  border-color: var(--adm-yellow);
+  background: rgba(247, 190, 0, 0.12);
+}
+
+.pd-icon-choice:has(input:focus-visible) {
+  outline: 2px solid var(--adm-ink);
+  outline-offset: 2px;
+}
+
+/* ---------------------------------------------------------------
+   ধাপ ৪ — Documents & Resources
+   --------------------------------------------------------------- */
+.pd-docs {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pd-upload-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.09fr) minmax(0, 1fr);
+  gap: 16px;
+}
+
+@container adm-main (max-width: 720px) {
+  .pd-upload-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.pd-drop--row {
+  min-height: 105px;
+  padding: 20px;
+  background: #ffffff;
+  border: 1px dashed #c1c2c3;
+}
+
+.pd-drop-row-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-family: var(--adm-font-ui);
+  color: var(--adm-ink);
+  text-align: left;
+  cursor: pointer;
+}
+
+.pd-drop-row-btn:disabled {
+  cursor: default;
+}
+
+.pd-drop-row-btn:focus-visible {
+  outline: 2px solid var(--adm-ink);
+  outline-offset: 6px;
+  border-radius: 12px;
+}
+
+.pd-drop-circle {
+  display: grid;
+  place-items: center;
+  width: 50px;
+  height: 50px;
+  flex: none;
+  border-radius: 100px;
+  background: var(--adm-yellow);
+}
+
+.pd-drop-row-text {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+.pd-drop-row-text strong {
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 1.2;
+}
+
+.pd-drop-row-text em {
+  font-style: normal;
+  color: #d9a100;
+  text-decoration: underline;
+}
+
+.pd-drop-row-text span {
+  font-size: 11px;
+  line-height: 1.2;
+  color: #a4a6a8;
+}
+
+.pd-file-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pd-upload-side {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.pd-doc-table {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.pd-doc-head,
+.pd-doc-row {
+  display: grid;
+  grid-template-columns:
+    20px minmax(180px, 2.5fr) minmax(120px, 1.2fr) minmax(70px, 0.8fr)
+    minmax(100px, 1fr) 110px;
+  align-items: center;
+  gap: 12px;
+}
+
+.pd-doc-head {
+  padding: 8px 12px;
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.pd-doc-table [role="list"] {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pd-doc-row {
+  min-height: 58px;
+  padding: 8px 12px;
+  border: 1px solid #ebebec;
+  border-radius: 12px;
+  background: #ffffff;
+}
+
+.pd-doc-name {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.pd-doc-icon {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  flex: none;
+  border-radius: 50%;
+  background: #ebebec;
+  color: var(--adm-ink-70);
+}
+
+.pd-doc-title {
+  overflow: hidden;
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 1.3;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pd-doc-muted {
+  font-size: 12px;
+  color: var(--adm-ink);
+}
+
+.pd-doc-when {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 12px;
+  line-height: 1.3;
+}
+
+.pd-doc-row .pd-row-tools {
+  justify-content: flex-end;
+}
+
+.pd-type {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 100px;
+  font-weight: 500;
+  font-size: 11px;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+.pd-type--blue {
+  background: rgba(59, 91, 219, 0.1);
+  color: #3b5bdb;
+}
+
+.pd-type--yellow {
+  background: rgba(247, 190, 0, 0.15);
+  color: #b88a00;
+}
+
+.pd-type--purple {
+  background: rgba(139, 92, 246, 0.12);
+  color: #7c3aed;
+}
+
+.pd-type--green {
+  background: rgba(34, 197, 94, 0.12);
+  color: var(--pd-green);
+}
+
+.pd-type--teal {
+  background: rgba(20, 184, 166, 0.12);
+  color: #0f766e;
+}
+
+.pd-type--grey {
+  background: rgba(55, 58, 60, 0.08);
+  color: var(--adm-ink-70);
+}
+
+/* সরু জায়গায় ফাইলের সারি খাড়া */
+@container adm-main (max-width: 760px) {
+  .pd-doc-head {
+    display: none;
+  }
+
+  .pd-doc-row {
+    grid-template-columns: 20px minmax(0, 1fr) auto;
+    gap: 8px 10px;
+  }
+
+  .pd-doc-row > [data-label] {
+    grid-column: 2 / 3;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .pd-doc-row > [data-label]::before {
+    content: attr(data-label);
+    min-width: 70px;
+    font-weight: 600;
+    font-size: 10px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--adm-ink-50);
+  }
+
+  .pd-doc-when {
+    flex-direction: row !important;
+  }
+
+  .pd-doc-row .pd-row-tools {
+    grid-column: 3;
+    grid-row: 1;
+  }
+}
+
+/* ---------------------------------------------------------------
+   Review & Publish
+   --------------------------------------------------------------- */
+.pd-review-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px;
+  border-radius: 14px;
+  background: var(--pd-soft, #f6f6f7);
+}
+
+.pd-review-head > div {
+  flex: 1;
+  min-width: 0;
+}
+
+.pd-review-name {
+  margin: 0;
+  overflow: hidden;
+  font-weight: 600;
+  font-size: 15px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pd-review-cat {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: var(--adm-ink-50);
+}
+
+.pd-review-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pd-review-list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid #ebebec;
+  border-radius: 10px;
+  font-size: 13px;
+}
+
+.pd-review-mark {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  flex: none;
+  border-radius: 50%;
+  border: 1px solid #d9dadb;
+  font-weight: 700;
+  font-size: 11px;
+}
+
+.pd-review-list .is-ok .pd-review-mark {
+  border-color: var(--adm-green);
+  background: var(--adm-green);
+  color: #ffffff;
+}
+
+.pd-review-list .is-bad .pd-review-mark {
+  border-color: var(--adm-red);
+  background: var(--adm-red);
+  color: #ffffff;
+}
+
+.pd-review-label {
+  font-weight: 600;
+}
+
+.pd-review-value {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--adm-ink-50);
+  text-align: right;
+}
+
+.pd-review-list .is-bad .pd-review-value {
+  color: var(--adm-error);
+}
+
+.pd-review-warn {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(247, 190, 0, 0.12);
+  font-size: 12px;
+  line-height: 1.5;
+  color: #8a6700;
+}
+
+.pd-review-warn svg {
+  flex: none;
+  margin-top: 1px;
+}
+
+/* ---------------------------------------------------------------
+   ছোট পর্দা
+   --------------------------------------------------------------- */
+@container adm-main (max-width: 560px) {
+  .pd-title {
+    font-size: 24px;
+  }
+
+  .pd-card {
+    padding: 16px;
+  }
+
+  .pd-foot {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .pd-foot-right {
+    flex-direction: column;
+  }
+
+  .pd-foot .pd-btn {
+    width: 100%;
+  }
+
+  .pd-media-card {
+    flex-wrap: wrap;
+  }
+
+  .pd-video-thumb {
+    width: 88px;
+    height: 50px;
+  }
+
+  .pd-media-text strong {
+    font-size: 14px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pd-page *,
+  .pd-modal * {
+    transition: none !important;
+  }
+}

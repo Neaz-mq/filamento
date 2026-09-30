@@ -105,6 +105,29 @@ export const api = {
   deleteProduct: (id) =>
     request(`/api/products/${id}`, { method: "DELETE" }),
 
+  /* admin panel — draft সহ সব product.
+     params: { q, status, series, category, sort, page, limit } —
+     ফাঁকা মানগুলো ঠিকানায় যায় না */
+  adminListProducts: (params = {}) => {
+    const query = new URLSearchParams(
+      Object.entries(params).filter(
+        ([, value]) => value !== undefined && value !== null && value !== "",
+      ),
+    ).toString();
+    return request(`/api/products/admin/list${query ? `?${query}` : ""}`);
+  },
+  adminGetProduct: (id) => request(`/api/products/admin/${id}`),
+  duplicateProduct: (id) =>
+    request(`/api/products/${id}/duplicate`, { method: "POST" }),
+
+  /* Cloudinary তে ফাইল তোলার অনুমতিপত্র.
+     kind: "image" | "video" | "document" */
+  signUpload: (kind) =>
+    request("/api/uploads/sign", {
+      method: "POST",
+      body: JSON.stringify({ kind }),
+    }),
+
   /* ---------- Quote request (Home এর Contact form) ----------
      পাঠানো সবার জন্য খোলা; তালিকা শুধু owner/admin (Leads পাতা) */
   createQuoteRequest: (data) =>

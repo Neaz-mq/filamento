@@ -1,51 +1,50 @@
 import express from "express";
 import {
+  adminGetProduct,
+  adminListProducts,
+  createProduct,
+  deleteProduct,
+  duplicateProduct,
   getAllProducts,
   getProductById,
-  createProduct,
   updateProduct,
-  deleteProduct,
 } from "../controllers/productController.js";
 import { requireAdmin, requireRole, requireSameOrigin } from "../lib/auth.js";
-
-const router = express.Router();
 
 /* ===============================================================
    Product
 
-   পড়া (GET) — সবার জন্য খোলা, public সাইট এখান থেকেই product দেখায়.
-   লেখা (POST / PATCH / PUT / DELETE) — শুধু login করা admin.
-
-   ⚠️ আগে লেখার route গুলোতে কোনো পাহারা ছিল না — যে কেউ curl দিয়ে
-   product বানাতে, বদলাতে বা মুছে ফেলতে পারত. এখন তিন ধাপ:
+   পড়া (public) — সবার জন্য খোলা, কিন্তু শুধু published product.
+                  draft কখনো সাইটে বা API তে বাইরে যায় না.
+   admin পড়া    — /admin/... — login করা যে কেউ (editor ও দেখতে পারে)
+   লেখা         — শুধু owner আর admin:
      requireSameOrigin — অন্য সাইট থেকে আসা request বাতিল (CSRF)
      requireAdmin      — login না থাকলে 401
-     requireRole       — editor product ছুঁতে পারে না (শুধু লেখা আর ছবি),
-                         owner আর admin পারে
+     requireRole       — editor product বদলাতে পারে না
    =============================================================== */
 
-const canEditProducts = [
-  requireSameOrigin,
-  requireAdmin,
-  requireRole("owner", "admin"),
-];
+const router = express.Router();
 
-/* ⚠️ নতুন static route (যেমন /featured, /search, /slug/:slug) এখানে,
-   "/:id" এর উপরে বসাবেন। নিচে বসালে /featured রিকোয়েস্ট
-   getProductById এ চলে যাবে, "featured" কে ObjectId ধরে 400 দেবে। */
+const canRead = [requireSameOrigin, requireAdmin];
+const canEdit = [requireSameOrigin, requireAdmin, requireRole("owner", "admin")];
+
+/* ⚠️ ক্রম জরুরি: "/admin/..." আর অন্য নির্দিষ্ট ঠিকানা "/:id" এর
+   উপরে. নিচে বসালে "/admin" কে product এর slug ধরে খুঁজত */
+router.get("/admin/list", ...canRead, adminListProducts);
+router.get("/admin/:id", ...canRead, adminGetProduct);
 
 router.get("/", getAllProducts);
-router.post("/", ...canEditProducts, createProduct);
+router.post("/", ...canEdit, createProduct);
+
+router.post("/:id/duplicate", ...canEdit, duplicateProduct);
 
 router.get("/:id", getProductById);
 
-/* controller টা $set দিয়ে partial update করে — অর্থাৎ যে field গুলো
-   পাঠাবেন শুধু সেগুলো বদলাবে। এটা PATCH এর semantics, PUT এর নয়।
-   পুরনো frontend কোড যাতে না ভাঙে তাই দুইটাই রাখা হলো; নতুন কোডে
-   PATCH ব্যবহার করবেন। */
-router.patch("/:id", ...canEditProducts, updateProduct);
-router.put("/:id", ...canEditProducts, updateProduct);
+/* PATCH — শুধু পাঠানো ঘরগুলো বদলায়. পুরনো frontend কোড যাতে না
+   ভাঙে তাই PUT ও একই কাজ করে; নতুন কোডে PATCH */
+router.patch("/:id", ...canEdit, updateProduct);
+router.put("/:id", ...canEdit, updateProduct);
 
-router.delete("/:id", ...canEditProducts, deleteProduct);
+router.delete("/:id", ...canEdit, deleteProduct);
 
 export default router;

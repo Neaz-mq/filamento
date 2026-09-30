@@ -1,10 +1,11 @@
 import { counts, homeSections } from "./dashboardData";
 import {
   IconBag,
-  IconBox,
+  // IconBox,
   IconCard,
   IconClock,
   IconDashboard,
+  IconFolder,
   IconHeart,
   IconLayers,
   IconPages,
@@ -38,11 +39,17 @@ export const NAV_GROUPS = [
     id: "content",
     label: "Content",
     items: [
+      // {
+      //   to: "/admin/products",
+      //   label: "Products",
+      //   Icon: IconBox,
+      //   keywords: "fixture series high bay la1 ls1 rh1 catalogue upload add product",
+      // },
       {
-        to: "/admin/products",
-        label: "Products",
-        Icon: IconBox,
-        keywords: "fixture series high bay la1 ls1 rh1 catalogue upload",
+        to: "/admin/projects",
+        label: "Projects",
+        Icon: IconFolder,
+        keywords: "case study installation customer site gallery",
       },
       {
         to: "/admin/application",

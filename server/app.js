@@ -10,6 +10,7 @@ import authRoutes from "./routes/authRoutes.js";
 import adminUserRoutes from "./routes/adminUserRoutes.js";
 import quoteRequestRoutes from "./routes/quoteRequestRoutes.js";
 import newsletterRoutes from "./routes/newsletterRoutes.js";
+import uploadRoutes from "./routes/uploadRoutes.js";
 
 const app = express();
 
@@ -76,6 +77,9 @@ app.use("/api/auth", authRoutes);
 app.use("/api/admins", adminUserRoutes);
 
 app.use("/api/products", productRoutes);
+
+// ছবি / video / document তোলার অনুমতিপত্র (Cloudinary)
+app.use("/api/uploads", uploadRoutes);
 
 // Home এর Contact form — গ্রাহকের quote request
 app.use("/api/quote-requests", quoteRequestRoutes);

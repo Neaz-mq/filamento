@@ -23,6 +23,8 @@ const AdminLogin = lazy(() => import("./admin/AdminLogin"));
 const AdminHome = lazy(() => import("./admin/AdminHome"));
 const AdminSoon = lazy(() => import("./admin/AdminSoon"));
 const AdminUsers = lazy(() => import("./admin/AdminUsers"));
+const ProductLibrary = lazy(() => import("./admin/products/ProductLibrary"));
+const ProductEditor = lazy(() => import("./admin/products/ProductEditor"));
 
 /* নতুন Home (Figma র দ্বিতীয় landing page) — এটাও lazy. মূল পাতার
    দর্শকের browser এ এর কোড, CSS আর Manrope font কিছুই নামে না */
@@ -61,7 +63,6 @@ function HomeTwoBoot() {
    ✅ কোনোটা তৈরি হলে এখান থেকে নামটা মুছে নিচে ADMIN_ROUTE এর
    children এ আসল component দিয়ে সারি যোগ করবেন */
 const ADMIN_SOON = [
-  "products",
   "projects",
   "application",
   "company",
@@ -234,6 +235,10 @@ const ADMIN_ROUTE = {
         // Home পাতার আলাদা আলাদা অংশ — /admin/home/hero ইত্যাদি
         { path: "home/:section", element: <AdminSoon /> },
         { path: "users", element: <AdminUsers /> },
+        /* Product — তালিকা, আর নতুন (/products/new?category=…) বা
+           পুরনো (/products/<id>) product এর চার ধাপের পাতা */
+        { path: "products", element: <ProductLibrary /> },
+        { path: "products/:id", element: <ProductEditor /> },
         ...ADMIN_SOON.map((path) => ({ path, element: <AdminSoon /> })),
       ],
     },

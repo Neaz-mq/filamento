@@ -36,7 +36,6 @@ const readRail = () => {
 
 // ঠিকানা → header এর লেখা
 const TITLES = {
-  "/admin/products": "Products",
   "/admin/application": "Application",
   "/admin/company": "Company",
   "/admin/shop": "Shop",
@@ -49,7 +48,16 @@ const TITLES = {
   "/admin/settings": "Settings",
 };
 
+/* যে পাতাগুলোর নিজের বড় শিরোনাম আছে (Figma তে header এ কিছু লেখা
+   নেই) — সেখানে header এর বাঁ পাশ ফাঁকা থাকে, একই নাম দুইবার
+   দেখায় না */
+const OWN_HEADING = ["/admin/products"];
+
 function pageTitle(pathname) {
+  if (OWN_HEADING.some((path) => pathname === path || pathname.startsWith(`${path}/`))) {
+    return "";
+  }
+
   if (TITLES[pathname]) return TITLES[pathname];
 
   if (pathname.startsWith("/admin/home/")) {
@@ -88,10 +96,14 @@ function AdminShell() {
     else setDrawerOpen((value) => !value);
   };
 
-  // পাতা বদলালে ছোট পর্দার drawer নিজে থেকে বন্ধ
-  useEffect(() => {
+  /* পাতা বদলালে ছোট পর্দার drawer নিজে থেকে বন্ধ.
+     effect এর বদলে render এর সময়েই — effect এ করলে আগে পুরনো
+     অবস্থায় একবার আঁকা হয়ে তারপর আবার আঁকা হতো */
+  const [lastPath, setLastPath] = useState(location.pathname);
+  if (lastPath !== location.pathname) {
+    setLastPath(location.pathname);
     setDrawerOpen(false);
-  }, [location.pathname]);
+  }
 
   // drawer খোলা থাকলে পেছনের পাতা যেন না নড়ে
   useEffect(() => {
@@ -156,15 +168,17 @@ function AdminShell() {
               <IconMenu />
             </button>
 
-            <h1 className="adm-greet">
-              {title ? (
-                title
-              ) : (
-                <>
-                  Welcome Back, <strong>{admin?.name}</strong>
-                </>
-              )}
-            </h1>
+            {title !== "" && (
+              <h1 className="adm-greet">
+                {title ? (
+                  title
+                ) : (
+                  <>
+                    Welcome Back, <strong>{admin?.name}</strong>
+                  </>
+                )}
+              </h1>
+            )}
           </div>
 
           <div className="adm-topbar-right">

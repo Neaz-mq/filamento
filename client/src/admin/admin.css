@@ -308,12 +308,20 @@
   max-height: calc(100dvh - 32px);
   overflow-y: auto;
   overscroll-behavior: contain;
+  /* scrollbar লুকানো, কিন্তু scroll চলে (mouse wheel, touchpad, আঙুল,
+     আর Tab চাপলে নিচের link এ নিজে থেকে নামে) */
+  scrollbar-width: none;
   display: flex;
   flex-direction: column;
   gap: 16px;
   padding: 20px;
   background: var(--adm-panel);
   border-radius: 20px;
+}
+
+/* Safari আর পুরনো Chrome এর জন্য */
+.adm-side::-webkit-scrollbar {
+  display: none;
 }
 
 .adm-side-top {

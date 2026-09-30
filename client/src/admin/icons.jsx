@@ -390,3 +390,192 @@ export function IconMore() {
     </svg>
   );
 }
+/* --- Product পাতার icon ---------------------------------------- */
+
+export const IconCopy = (p) => (
+  <Svg {...p}>
+    <rect x="8" y="8" width="13" height="13" rx="3.5" />
+    <path d="M16 8V6.5A3.5 3.5 0 0 0 12.5 3h-6A3.5 3.5 0 0 0 3 6.5v6A3.5 3.5 0 0 0 6.5 16H8" />
+  </Svg>
+);
+
+export const IconEye = (p) => (
+  <Svg {...p}>
+    <path d="M2.5 12c2.1-4.3 5.3-6.5 9.5-6.5s7.4 2.2 9.5 6.5c-2.1 4.3-5.3 6.5-9.5 6.5S4.6 16.3 2.5 12" />
+    <circle cx="12" cy="12" r="3" />
+  </Svg>
+);
+
+export const IconFilter = (p) => (
+  <Svg {...p}>
+    <path d="M4 4.5h16l-6 7.2v6.3l-4 2v-8.3z" />
+  </Svg>
+);
+
+export const IconUploadCloud = (p) => (
+  <Svg {...p}>
+    <path d="M7 18.5a5 5 0 0 1-.6-10 6 6 0 0 1 11.5 1.7A4.2 4.2 0 0 1 17.5 18.5" />
+    <path d="M12 12.5v8" />
+    <path d="m9 15.3 3-3 3 3" />
+  </Svg>
+);
+
+export const IconGalleryAdd = (p) => (
+  <Svg {...p}>
+    <path d="M13 2.5H9c-5 0-7 2-7 7v5c0 5 2 7 7 7h6c5 0 7-2 7-7v-4" />
+    <circle cx="9" cy="8.5" r="2" />
+    <path d="M15.7 5.5h5.5" />
+    <path d="M18.5 2.7v5.5" />
+    <path d="m2.7 18.9 4.9-3.3a2.2 2.2 0 0 1 2.7.2l.3.3a2.2 2.2 0 0 0 2.9 0l4.2-3.6a2.2 2.2 0 0 1 2.9 0L22 14" />
+  </Svg>
+);
+
+export const IconHelp = (p) => (
+  <Svg {...p}>
+    <circle cx="12" cy="12" r="10" />
+    <path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3" />
+    <path d="M12 17h.01" />
+  </Svg>
+);
+
+export const IconCheck = (p) => (
+  <Svg width="2.2" {...p}>
+    <path d="m5 12.5 4.5 4.5L19 7.5" />
+  </Svg>
+);
+
+export const IconSliders = (p) => (
+  <Svg {...p}>
+    <path d="M4 21v-7" />
+    <path d="M4 10V3" />
+    <path d="M12 21v-9" />
+    <path d="M12 8V3" />
+    <path d="M20 21v-5" />
+    <path d="M20 12V3" />
+    <path d="M1.5 14h5" />
+    <path d="M9.5 8h5" />
+    <path d="M17.5 16h5" />
+  </Svg>
+);
+
+export const IconAward = (p) => (
+  <Svg {...p}>
+    <circle cx="12" cy="8.5" r="6.5" />
+    <path d="M8.2 13.9 7 22l5-3 5 3-1.2-8.1" />
+  </Svg>
+);
+
+export const IconActivity = (p) => (
+  <Svg {...p}>
+    <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+  </Svg>
+);
+
+export const IconTrendUp = (p) => (
+  <Svg {...p}>
+    <path d="m2 17 7-7 4.5 4.5L22 6" />
+    <path d="M16 6h6v6" />
+  </Svg>
+);
+
+export const IconBattery = (p) => (
+  <Svg {...p}>
+    <rect x="2" y="6.5" width="17" height="11" rx="3" />
+    <path d="M22 10.5v3" />
+    <path d="m10.8 8.8-2.3 3.6h3.2l-2.3 3.6" />
+  </Svg>
+);
+
+export const IconShield = (p) => (
+  <Svg {...p}>
+    <path d="M12 2.5 4 5.5v6.1c0 4.6 3.4 8.6 8 9.9 4.6-1.3 8-5.3 8-9.9V5.5z" />
+    <path d="m8.8 12 2.2 2.2 4.2-4.3" />
+  </Svg>
+);
+
+export const IconFactory = (p) => (
+  <Svg {...p}>
+    <path d="M2.5 21.5h19" />
+    <path d="M3.5 21.5V11l5 3V11l5 3V11l5 3V5.5a1.5 1.5 0 0 1 1.5-1.5h0A1.5 1.5 0 0 1 21.5 5.5v16" />
+    <path d="M7 17.5h2" />
+    <path d="M12 17.5h2" />
+  </Svg>
+);
+
+export const IconLeaf = (p) => (
+  <Svg {...p}>
+    <path d="M5 19c0-8 5-14 15-15-1 10-7 15-15 15" />
+    <path d="M5 19c3-4 6-6.5 9.5-8.5" />
+  </Svg>
+);
+
+export const IconSun = (p) => (
+  <Svg {...p}>
+    <circle cx="12" cy="12" r="4.2" />
+    <path d="M12 2v2" />
+    <path d="M12 20v2" />
+    <path d="m4.9 4.9 1.4 1.4" />
+    <path d="m17.7 17.7 1.4 1.4" />
+    <path d="M2 12h2" />
+    <path d="M20 12h2" />
+    <path d="m4.9 19.1 1.4-1.4" />
+    <path d="m17.7 6.3 1.4-1.4" />
+  </Svg>
+);
+
+export const IconThermometer = (p) => (
+  <Svg {...p}>
+    <path d="M14 14.8V5a2 2 0 0 0-4 0v9.8a4 4 0 1 0 4 0" />
+    <path d="M12 9v7" />
+  </Svg>
+);
+
+export const IconPlay = (p) => (
+  <svg
+    width={p.size ?? 12}
+    height={p.size ?? 12}
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    aria-hidden="true"
+    focusable="false"
+  >
+    <path d="M8 5.6v12.8c0 .8.9 1.3 1.6.9l10.2-6.4c.6-.4.6-1.3 0-1.7L9.6 4.7C8.9 4.3 8 4.8 8 5.6" />
+  </svg>
+);
+
+export const IconDocument = (p) => (
+  <Svg {...p}>
+    <path d="M14 2.5H7.5a3 3 0 0 0-3 3v13a3 3 0 0 0 3 3h9a3 3 0 0 0 3-3V8z" />
+    <path d="M14 2.5V8h5.5" />
+    <path d="M8.5 13h7" />
+    <path d="M8.5 17h4.5" />
+  </Svg>
+);
+
+export const IconLink = (p) => (
+  <Svg {...p}>
+    <path d="M10 13.5a4.5 4.5 0 0 0 6.4.3l3-3a4.5 4.5 0 0 0-6.4-6.4l-1.7 1.7" />
+    <path d="M14 10.5a4.5 4.5 0 0 0-6.4-.3l-3 3a4.5 4.5 0 0 0 6.4 6.4l1.7-1.7" />
+  </Svg>
+);
+
+export const IconArrowLeft = (p) => (
+  <Svg width="1.8" {...p}>
+    <path d="M20 12H5" />
+    <path d="m10.5 6.5L5 12l5.5 5.5" />
+  </Svg>
+);
+
+export const IconStar = (p) => (
+  <Svg {...p}>
+    <path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z" />
+  </Svg>
+);
+
+export const IconAlert = (p) => (
+  <Svg {...p}>
+    <path d="M10.3 3.9 2.4 17.6A2 2 0 0 0 4.1 20.6h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0" />
+    <path d="M12 9v4.5" />
+    <path d="M12 17h.01" />
+  </Svg>
+);
