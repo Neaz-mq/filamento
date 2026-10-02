@@ -1,5 +1,6 @@
 import { categoryOf, LIMITS } from "./catalog";
-import { getGroup, groupFilled } from "./productShape";
+import ComponentsEditor from "./ComponentsEditor";
+import { getGroup, groupDone } from "./productShape";
 import { AddButton, ListEditor, TableEditor } from "./SpecEditors";
 import { IconCheck } from "../icons";
 
@@ -24,7 +25,7 @@ export function SpecNav({ product, active, onPick }) {
     <nav className="pd-card pd-spec-nav" aria-label="Specification groups">
       {groups.map((group) => {
         const on = group.id === active;
-        const filled = groupFilled(product.specs, group.id);
+        const filled = groupDone(product, group);
         const Icon = group.Icon;
         return (
           <button
@@ -93,6 +94,18 @@ function StepSpecs({ product, setProduct, active }) {
 
   const setDescription = (value) =>
     updateGroup((current) => ({ ...current, description: value }));
+
+  /* Luminaire Configurator — ধাপ আর option (product.components) */
+  if (group.kind === "components") {
+    editor = (
+      <ComponentsEditor
+        components={product.components}
+        onChange={(change) =>
+          setProduct((current) => ({ ...current, components: change(current.components ?? {}) }))
+        }
+      />
+    );
+  }
 
   if (group.kind === "list") {
     editor = (

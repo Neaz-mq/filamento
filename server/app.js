@@ -5,6 +5,7 @@ import cookieParser from "cookie-parser";
 import { connectDB } from "./config/db.js";
 import { isAllowedOrigin } from "./config/origins.js";
 import productRoutes from "./routes/productRoutes.js";
+import projectRoutes from "./routes/projectRoutes.js";
 import videoViewRoutes from "./routes/videoViewRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import adminUserRoutes from "./routes/adminUserRoutes.js";
@@ -77,6 +78,9 @@ app.use("/api/auth", authRoutes);
 app.use("/api/admins", adminUserRoutes);
 
 app.use("/api/products", productRoutes);
+
+// Projects — admin এর Projects পাতা আর সাইটের Projects
+app.use("/api/projects", projectRoutes);
 
 // ছবি / video / document তোলার অনুমতিপত্র (Cloudinary)
 app.use("/api/uploads", uploadRoutes);

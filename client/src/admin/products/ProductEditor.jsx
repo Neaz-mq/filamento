@@ -15,11 +15,13 @@ import StepSpecs, { SpecNav } from "./StepSpecs";
 import StepVideos from "./StepVideos";
 import StepDocuments from "./StepDocuments";
 import { ProductThumb, StatusPill } from "./ProductLibrary";
-import { CATEGORIES, categoryOf } from "./catalog";
+import { CATEGORIES, categoryOf, CONFIGURATOR } from "./catalog";
 import {
+  componentCount,
   emptyProduct,
   fromServer,
   getGroup,
+  missingComponents,
   missingForPublish,
   snapshot,
   specProgress,
@@ -110,6 +112,9 @@ function ReviewModal({ product, saving, error, onClose, onSave }) {
         group.descriptionRequired && !getGroup(product.specs, group.id).description.trim(),
     )
     .map((group) => `${group.label} short description`);
+  // Luminaire Configurator — Required ধাপে option আছে কি না
+  const partNeeds = missingComponents(product.components);
+  const parts = componentCount(product.components);
   const infoOk = Boolean(
     product.name.trim() &&
       product.shortDescription.trim() &&
@@ -142,6 +147,18 @@ function ReviewModal({ product, saving, error, onClose, onSave }) {
       value: `${product.keyFeatures.length} added`,
       ok: product.keyFeatures.length > 0,
     },
+    ...(product.category === CONFIGURATOR
+      ? [
+          {
+            label: "Components",
+            value: partNeeds.length
+              ? `${partNeeds.join(", ")} missing`
+              : `${parts} part${parts === 1 ? "" : "s"} to choose from`,
+            ok: !partNeeds.length,
+            required: true,
+          },
+        ]
+      : []),
     {
       label: "Specifications",
       value: specNeeds.length

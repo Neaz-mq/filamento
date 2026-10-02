@@ -29,14 +29,66 @@ export const CATEGORIES = [
 export const COLOR_CATEGORIES = ["mounting-base", "reflector"];
 
 /* যে category র কোনো Specification group এ "Short Description"
-   বাধ্যতামূলক (Figma: Reflector আর Control Cap এর General). client এর catalog.js
+   বাধ্যতামূলক (Figma: Reflector, Control Cap আর Reflector Accessory র
+   General). client এর catalog.js
    এ ওই group এ descriptionRequired: true */
 export const REQUIRED_SPEC_DESCRIPTIONS = {
   reflector: [{ group: "general", label: "general short description" }],
   "control-cap": [{ group: "general", label: "general short description" }],
+  "reflector-accessory": [{ group: "general", label: "general short description" }],
+};
+
+/* ---------------------------------------------------------------
+   Luminaire Configurator — "নিজের মতো বানাও" product
+
+   গ্রাহক কয়েকটা ধাপে অংশ বেছে একটা পুরো fixture বানায়: Lamp →
+   Mounting Base → Reflector → … প্রতিটা ধাপে কয়েকটা option, তার
+   একটা default. option গুলো library র আসল product — শুধু তাদের id
+   রাখা হয়, নাম/ছবি পড়ার সময় জুড়ে দেওয়া হয় (productController).
+   তাই কোনো অংশের নাম বা ছবি বদলালে configurator এ নিজে থেকেই
+   নতুনটা দেখায়.
+
+   code — ordering code এর অংশ (যেমন LA1, HK, C7). সব default এর
+   code মিলে পুরো build এর code হয়: LA1-HK-C7
+
+   ⚠️ client/src/admin/products/catalog.js এর COMPONENT_STEPS এর
+   সাথে মিলিয়ে রাখা
+   --------------------------------------------------------------- */
+export const CONFIGURATOR = "luminaire-configurator";
+
+export const COMPONENT_STEPS = {
+  lamp: { category: "lamp-fixture", label: "Lamp" },
+  mountingBase: { category: "mounting-base", label: "Mounting Base" },
+  reflector: { category: "reflector", label: "Reflector" },
+  controlCap: { category: "control-cap", label: "Control Cap" },
+  lampAccessory: { category: "lamp-accessory", label: "Lamp Accessory" },
+  reflectorAccessory: { category: "reflector-accessory", label: "Reflector Accessory" },
 };
 
 export const STATUSES = ["draft", "published"];
+
+/* ---------------------------------------------------------------
+   সাইটের Products পাতার বাঁ পাশের Filters (Figma: Power, CRI, CCT,
+   Lumens, Termination, Control Module).
+
+   প্রতিটা product এ admin শুধু তালিকা থেকে বাছে — নিজে লেখে না. তাই
+   "4000K" আর "4000 K" এর মতো দুই রকম লেখায় filter ভাগ হয়ে যায় না,
+   আর পাশের সংখ্যাগুলো ঠিক থাকে.
+
+   ⚠️ client এর দুই জায়গায় একই তালিকা:
+     client/src/admin/products/catalog.js  (FILTER_GROUPS)
+     client/src/pages/productCatalog.js    (সাইটের পাতা)
+   নতুন মান যোগ করলে তিন জায়গাতেই করবেন. মান (key) একবার চালু হলে
+   বদলাবেন না — পুরনো product গুলোতে সেটাই রাখা আছে
+   --------------------------------------------------------------- */
+export const FILTER_GROUPS = {
+  power: ["up-to-100w", "101-200w", "201-300w", "301-400w", "over-400w"],
+  cri: ["70", "80", "90"],
+  cct: ["2200k", "2700k", "3000k", "3500k", "4000k", "5000k"],
+  lumens: ["under-10k", "10k-20k", "20k-30k", "30k-40k", "over-40k"],
+  termination: ["e39", "e26", "hardwired", "cord-plug", "twist-lock"],
+  controlModule: ["non-dimming", "0-10v", "bluetooth", "occupancy", "daylight"],
+};
 
 export const DOC_TYPES = [
   "installation-guide",
@@ -85,6 +137,8 @@ export const LIMITS = {
   documents: 30,
   documentName: 150,
   url: 600,
+  componentOptions: 30,
+  componentCode: 24,
 };
 
 /* Cloudinary র যে ফোল্ডারে আমাদের upload যায়. মোছার সময় শুধু
@@ -251,6 +305,68 @@ const cleanSpecs = (value) => {
   return specs;
 };
 
+/* Configurator এর ধাপ — শুধু চেনা ধাপ, প্রতিটায় সর্বোচ্চ ৩০টা
+   option, একই product দুইবার না, আর ঠিক একটা default (না থাকলে
+   প্রথমটা). product টা সত্যিই আছে আর ঠিক category র কি না, সেটা
+   database দেখে productController এ যাচাই হয় */
+const productIdText = (value) =>
+  typeof value === "string" && /^[a-f\d]{24}$/i.test(value) ? value.toLowerCase() : "";
+
+const cleanComponents = (value) => {
+  if (value === undefined || value === null) return {};
+  if (typeof value !== "object" || Array.isArray(value)) {
+    fail("Components must be an object.");
+  }
+
+  const components = {};
+  for (const [key, step] of Object.entries(COMPONENT_STEPS)) {
+    const raw = value[key];
+    if (!raw || typeof raw !== "object") continue;
+
+    const seen = new Set();
+    const options = list(raw.options, LIMITS.componentOptions, `${step.label} options`)
+      .map((option, index) => ({
+        product: productIdText(option?.product),
+        code: line(
+          option?.code,
+          LIMITS.componentCode,
+          `${step.label} option ${index + 1} code`,
+        ),
+        isDefault: option?.isDefault === true,
+      }))
+      .filter((option) => {
+        if (!option.product || seen.has(option.product)) return false;
+        seen.add(option.product);
+        return true;
+      });
+
+    const chosen = Math.max(0, options.findIndex((option) => option.isDefault));
+    options.forEach((option, index) => {
+      option.isDefault = index === chosen;
+    });
+
+    components[key] = { required: raw.required === true, options };
+  }
+  return components;
+};
+
+/* Filters — শুধু চেনা group আর চেনা মান, একই মান দুইবার না, আর
+   তালিকার ক্রমেই রাখা (পাতায় সবসময় একই ক্রমে দেখায়) */
+const cleanFilters = (value) => {
+  if (value === undefined || value === null) return {};
+  if (typeof value !== "object" || Array.isArray(value)) fail("Filters must be an object.");
+
+  const filters = {};
+  for (const [group, allowed] of Object.entries(FILTER_GROUPS)) {
+    const raw = value[group];
+    if (raw === undefined || raw === null) continue;
+    if (!Array.isArray(raw)) fail(`Filter ${group} must be a list.`);
+    const picked = allowed.filter((option) => raw.includes(option));
+    if (picked.length) filters[group] = picked;
+  }
+  return filters;
+};
+
 const cleanVideos = (value) =>
   list(value, LIMITS.videos, "Videos").map((video, index) => ({
     title: line(video?.title, LIMITS.videoTitle, `Video ${index + 1} title`, {
@@ -312,10 +428,14 @@ const FIELDS = {
       ? null
       : whole(v, { max: 10_000_000 }),
   status: (v) => (STATUSES.includes(v) ? v : "draft"),
+  // Featured — সাইটের "Sort by: Featured" এ আগে আসে
+  featured: (v) => v === true,
+  filters: cleanFilters,
   images: cleanImages,
   videoUrls: cleanVideoUrls,
   keyFeatures: cleanFeatures,
   specs: cleanSpecs,
+  components: cleanComponents,
   videos: cleanVideos,
   documents: cleanDocuments,
 };
@@ -333,6 +453,11 @@ export function cleanProduct(body, { partial = false } = {}) {
     }
 
     if (!partial && !value.category) fail("Choose a valid category.");
+
+    // ধাপ শুধু Configurator এর — অন্য category তে কিছু এলেও রাখা হয় না
+    if (value.category && value.category !== CONFIGURATOR && "components" in value) {
+      value.components = {};
+    }
     return { value };
   } catch (error) {
     if (error instanceof Invalid) return { error: error.message };
@@ -353,7 +478,24 @@ export function missingForPublish(product) {
   for (const need of REQUIRED_SPEC_DESCRIPTIONS[product.category] ?? []) {
     if (!product.specs?.[need.group]?.description) missing.push(need.label);
   }
+  if (product.category === CONFIGURATOR) missing.push(...missingComponents(product.components));
   if (!product.images?.length) missing.push("at least one product image");
+  return missing;
+}
+
+/* Configurator — "Required" ধাপে অন্তত একটা option, আর পুরো
+   build এ অন্তত একটা অংশ */
+export function missingComponents(components = {}) {
+  const missing = [];
+  let total = 0;
+  for (const [key, step] of Object.entries(COMPONENT_STEPS)) {
+    const count = components?.[key]?.options?.length ?? 0;
+    total += count;
+    if (components?.[key]?.required && !count) {
+      missing.push(`${step.label.toLowerCase()} options`);
+    }
+  }
+  if (!total && !missing.length) missing.push("at least one component");
   return missing;
 }
 

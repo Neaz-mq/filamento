@@ -324,6 +324,167 @@
       "pageAriaLabel": "前往第 {{page}} 頁"
     }
   },
+  "productsPage": {
+    "categoriesLabel": "產品類別",
+    "categoriesPrev": "上一組類別",
+    "categoriesNext": "更多類別",
+    "categories": {
+      "all": "所有產品",
+      "lampFixture": "燈泡／燈具",
+      "luminaireConfigurator": "燈具配置工具",
+      "mountingBase": "安裝底座",
+      "reflector": "反射罩",
+      "controlCap": "控制蓋",
+      "lampAccessory": "燈具配件",
+      "reflectorAccessory": "反射罩配件",
+      "other": "其他"
+    },
+    "families": {
+      "lampFixture": "燈泡／燈具",
+      "luminaireConfigurator": "燈具配置",
+      "mountingBase": "安裝底座",
+      "reflector": "反射罩",
+      "controlCap": "控制蓋",
+      "lampAccessory": "燈具配件",
+      "reflectorAccessory": "反射罩配件",
+      "other": "零件與其他"
+    },
+    "resultCount_other": "找到 {{count}} 項產品",
+    "loading": "正在載入產品…",
+    "error": "目前無法載入產品。",
+    "retry": "再試一次",
+    "empty": "沒有符合條件的產品。",
+    "emptyHint": "請換個關鍵字，或移除部分篩選條件。",
+    "clearFilters": "清除所有篩選",
+    "seeAll": "查看所有產品",
+    "filters": {
+      "title": "篩選",
+      "reset": "重設",
+      "hide": "關閉篩選",
+      "searchLabel": "搜尋產品",
+      "searchPlaceholder": "搜尋產品",
+      "countLabel_other": "{{count}} 項產品",
+      "none": "此類別目前尚無篩選條件。",
+      "show_other": "顯示 {{count}} 項產品",
+      "groups": {
+        "power": "功率",
+        "cri": "演色性（CRI）",
+        "cct": "色溫（CCT）",
+        "lumens": "流明",
+        "termination": "接線方式",
+        "controlModule": "控制模組"
+      },
+      "options": {
+        "upTo100w": "100W 以下",
+        "over400w": "400W 以上",
+        "under10k": "10K lm 以下",
+        "over40k": "40K lm 以上",
+        "e39": "E39 大型燈頭",
+        "e26": "E26 燈頭",
+        "hardwired": "直接配線",
+        "cordPlug": "電源線與插頭",
+        "twistLock": "旋轉鎖定插頭",
+        "nonDimming": "不可調光",
+        "dimming010v": "0–10V 調光",
+        "bluetooth": "藍牙無線",
+        "occupancy": "人體感應器",
+        "daylight": "日光感應器"
+      }
+    },
+    "sort": {
+      "label": "排序方式",
+      "labelColon": "排序方式：",
+      "default": "預設",
+      "featured": "精選",
+      "newest": "最新",
+      "popular": "最熱門",
+      "nameAsc": "名稱：A–Z",
+      "nameDesc": "名稱：Z–A"
+    },
+    "pagination": {
+      "label": "產品頁面",
+      "previous": "上一頁",
+      "next": "下一頁",
+      "page": "前往第 {{page}} 頁"
+    },
+    "detail": {
+      "back": "返回產品列表",
+      "moreProducts": "更多產品",
+      "previous": "上一項產品",
+      "next": "下一項產品",
+      "gallery": "產品圖片",
+      "previousImage": "上一張圖片",
+      "nextImage": "下一張圖片",
+      "showImage": "顯示第 {{number}} 張圖片，共 {{total}} 張",
+      "imageAlt": "{{name}} — 第 {{number}} 張圖片，共 {{total}} 張",
+      "specs": "規格",
+      "contact": "聯絡經銷商",
+      "featuresLabel": "主要特色",
+      "tabsLabel": "產品資訊",
+      "notFoundTitle": "找不到產品",
+      "notFoundText": "此產品可能已更名或不再供應。請瀏覽完整產品系列尋找您需要的產品。",
+      "errorTitle": "發生錯誤",
+      "errorText": "目前無法載入此產品。請檢查網路連線後再試一次。",
+      "browseAll": "瀏覽所有產品"
+    },
+    "tabs": {
+      "spec": "完整規格",
+      "resources": "資源與下載"
+    },
+    "spec": {
+      "navLabel": "規格項目",
+      "seeAll": "查看全部",
+      "empty": "此產品的詳細規格即將提供。歡迎與我們聯絡，我們會立即寄送給您。",
+      "hours": "小時",
+      "default": "預設",
+      "required": "必選",
+      "groups": {
+        "components": "組成零件",
+        "applications": "應用場所",
+        "general": "一般",
+        "features": "特色",
+        "certifications": "認證",
+        "certificationsTitle": "全球認證",
+        "controlOptions": "控制選項",
+        "mechanical": "機構規格",
+        "emergencyBattery": "緊急電池選項",
+        "lumenMaintenance": "流明維持率",
+        "electrical": "電氣規格",
+        "ballastCompatibility": "安定器相容性"
+      },
+      "steps": {
+        "lamp": "燈泡",
+        "mountingBase": "安裝底座",
+        "reflector": "反射罩",
+        "controlCap": "控制蓋",
+        "lampAccessory": "燈具配件",
+        "reflectorAccessory": "反射罩配件"
+      }
+    },
+    "resources": {
+      "document": "文件",
+      "video": "產品影片 {{number}}",
+      "videoLink": "產品影片 {{number}}（{{site}}）",
+      "link": "連結",
+      "download": "下載 {{name}}（{{format}}）",
+      "open": "在新分頁開啟 {{name}}",
+      "empty": "此產品的文件即將提供。",
+      "engineerText": "需要客製化光學分析、DIALux 檔案或大量採購報價單嗎？",
+      "engineerLink": "與工程師洽詢"
+    },
+    "related": {
+      "title": "相關產品",
+      "text": "精選{{family}}系列中的替代產品。",
+      "compare": "比較這些產品"
+    },
+    "compare": {
+      "title": "產品比較",
+      "close": "關閉比較",
+      "category": "類別",
+      "series": "系列",
+      "certifications": "認證"
+    }
+  },
   "comingSoon": {
     "eyebrow": "即將推出",
     "titleRest": "即將點亮登場。",

@@ -4,6 +4,7 @@ import {
   CATEGORIES,
   COLORS,
   FEATURE_ICONS,
+  FILTER_GROUPS,
   LIMITS,
   UPLOADS,
   categoryOf,
@@ -48,11 +49,22 @@ const SERIES_SUGGESTIONS = [
 let uploadSeed = 0;
 
 /* ---------------------------------------------------------------
-   Key Feature যোগ / বদল
+   Key Feature যোগ / বদল.
+   Project পাতাও এটাই ব্যবহার করে — নিজের icon আর উদাহরণ দিয়ে
+   (icons, examples)
    --------------------------------------------------------------- */
-function FeatureModal({ initial, onSave, onClose }) {
+const FEATURE_EXAMPLES = { title: "Up to 50%", subtitle: "energy savings" };
+
+export function FeatureModal({
+  initial,
+  onSave,
+  onClose,
+  icons = FEATURE_ICONS,
+  examples = FEATURE_EXAMPLES,
+}) {
+  const firstIcon = Object.keys(icons)[0];
   const [feature, setFeature] = useState(
-    initial ?? { icon: "bolt", title: "", subtitle: "" },
+    initial ?? { icon: firstIcon, title: "", subtitle: "" },
   );
   const titleId = useId();
   const valid = feature.title.trim() || feature.subtitle.trim();
@@ -102,7 +114,7 @@ function FeatureModal({ initial, onSave, onClose }) {
 
         <fieldset className="pd-icon-pick">
           <legend className="pd-label">Icon</legend>
-          {Object.entries(FEATURE_ICONS).map(([key, { label, Icon }]) => (
+          {Object.entries(icons).map(([key, { label, Icon }]) => (
             <label
               key={key}
               className={`pd-icon-choice${feature.icon === key ? " is-on" : ""}`}
@@ -127,7 +139,7 @@ function FeatureModal({ initial, onSave, onClose }) {
             className="pd-input"
             value={feature.title}
             maxLength={LIMITS.featureText}
-            placeholder="Up to 50%"
+            placeholder={examples.title}
             data-autofocus
             onChange={(event) => setFeature((f) => ({ ...f, title: event.target.value }))}
           />
@@ -139,7 +151,7 @@ function FeatureModal({ initial, onSave, onClose }) {
             className="pd-input"
             value={feature.subtitle}
             maxLength={LIMITS.featureText}
-            placeholder="energy savings"
+            placeholder={examples.subtitle}
             onChange={(event) => setFeature((f) => ({ ...f, subtitle: event.target.value }))}
           />
         </label>
@@ -149,9 +161,17 @@ function FeatureModal({ initial, onSave, onClose }) {
 }
 
 /* ---------------------------------------------------------------
-   Product Image
+   Product Image. Project পাতাও এটাই ব্যবহার করে —
+     kind  — কোন ফোল্ডারে যাবে ("project-image")
+     label — মাথার লেখা ("Project Image")
    --------------------------------------------------------------- */
-function ImagesCard({ product, setProduct, canEdit }) {
+export function ImagesCard({
+  product,
+  setProduct,
+  canEdit,
+  kind = "image",
+  label = "Product Image",
+}) {
   const inputRef = useRef(null);
   const [selected, setSelected] = useState(0);
   const [uploads, setUploads] = useState([]);
@@ -188,7 +208,7 @@ function ImagesCard({ product, setProduct, canEdit }) {
       const preview = URL.createObjectURL(file);
       setUploads((list) => [...list, { id, preview, progress: 0 }]);
 
-      uploadFile(file, "image", {
+      uploadFile(file, kind, {
         onProgress: (progress) =>
           setUploads((list) =>
             list.map((item) => (item.id === id ? { ...item, progress } : item)),
@@ -241,7 +261,7 @@ function ImagesCard({ product, setProduct, canEdit }) {
     <section className="pd-image-block" aria-labelledby="pd-image-title">
       <div className="pd-card-row">
         <h3 id="pd-image-title" className="pd-card-title pd-card-title--sm">
-          Product Image <span className="pd-required">*</span>
+          {label} <span className="pd-required">*</span>
         </h3>
         {canEdit && current && (
           <button
@@ -273,7 +293,10 @@ function ImagesCard({ product, setProduct, canEdit }) {
         }}
       >
         {current ? (
-          <img src={thumb(current.url, 640)} alt={`${product.name || "Product"} — image ${selected + 1}`} />
+          <img
+            src={thumb(current.url, 640)}
+            alt={`${product.name || product.title || label} — image ${selected + 1}`}
+          />
         ) : uploads[0] ? (
           <img src={uploads[0].preview} alt="" className="is-uploading" />
         ) : (
@@ -392,7 +415,7 @@ function ImagesCard({ product, setProduct, canEdit }) {
 /* ---------------------------------------------------------------
    Video URLs — বাইরের link (YouTube ইত্যাদি). ধাপ ৩ এ আসল ফাইল
    --------------------------------------------------------------- */
-function VideoUrls({ product, setProduct, canEdit }) {
+export function VideoUrls({ product, setProduct, canEdit }) {
   const listRef = useRef(null);
   const urls = product.videoUrls;
 
@@ -482,6 +505,112 @@ function VideoUrls({ product, setProduct, canEdit }) {
         <p className="pd-error">Links must start with https://</p>
       )}
     </div>
+  );
+}
+
+/* ---------------------------------------------------------------
+   Filters — সাইটের Products পাতার বাঁ পাশের filter (Power, CRI,
+   CCT …). product টা যত রকমে পাওয়া যায় সবগুলো বাছা হয়, যেমন
+   4000K আর 5000K দুইটাই. কিছু না বাছলে সেই filter এ product টা
+   আসে না, কিন্তু "All Products" এ থাকে.
+
+   Featured — সাইটের "Sort by: Featured" এ আগে আসে
+   --------------------------------------------------------------- */
+function FiltersCard({ product, setProduct, canEdit }) {
+  const filters = product.filters ?? {};
+  const total = Object.values(filters).reduce((sum, list) => sum + list.length, 0);
+
+  const toggle = (group, value) =>
+    setProduct((p) => {
+      const current = p.filters?.[group.key] ?? [];
+      const nextValues = current.includes(value)
+        ? current.filter((item) => item !== value)
+        : group.options.map((option) => option.value).filter(
+            (option) => option === value || current.includes(option),
+          );
+      const nextFilters = { ...(p.filters ?? {}) };
+      if (nextValues.length) nextFilters[group.key] = nextValues;
+      else delete nextFilters[group.key];
+      return { ...p, filters: nextFilters };
+    });
+
+  return (
+    <section className="pd-card pd-form-card" aria-labelledby="pd-filters-title">
+      <div className="pd-card-row">
+        <div>
+          <h3 id="pd-filters-title" className="pd-card-title pd-card-title--sm">
+            Website Filters
+          </h3>
+          <p className="pd-card-sub">
+            Pick every option this product comes in — customers filter the product
+            list by these.
+          </p>
+        </div>
+        <label className="pd-switch" title="Featured products come first when sorting by Featured">
+          <input
+            type="checkbox"
+            checked={product.featured === true}
+            disabled={!canEdit}
+            onChange={(event) => setProduct((p) => ({ ...p, featured: event.target.checked }))}
+          />
+          <span className="pd-switch-track" aria-hidden="true" />
+          Featured
+        </label>
+      </div>
+
+      <div className="pd-filter-groups">
+        {FILTER_GROUPS.map((group) => {
+          const picked = filters[group.key] ?? [];
+          return (
+            <fieldset key={group.key} className="pd-filter-group">
+              <legend className="pd-label">
+                {group.label}
+                {picked.length > 0 && <span className="pd-filter-count">{picked.length}</span>}
+              </legend>
+              <div className="pd-chips">
+                {group.options.map((option) => {
+                  const on = picked.includes(option.value);
+                  return (
+                    <button
+                      key={option.value}
+                      type="button"
+                      className={`pd-chip${on ? " is-on" : ""}`}
+                      aria-pressed={on}
+                      disabled={!canEdit}
+                      onClick={() => toggle(group, option.value)}
+                    >
+                      {on && <IconCheckSmall />}
+                      {option.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </fieldset>
+          );
+        })}
+      </div>
+
+      {total === 0 && (
+        <p className="pd-hint">
+          No filters picked yet — the product still shows under All Products and its
+          category.
+        </p>
+      )}
+    </section>
+  );
+}
+
+function IconCheckSmall() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="m5 12.5 4.5 4.5L19 7.5"
+        stroke="currentColor"
+        strokeWidth="2.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
   );
 }
 
@@ -707,6 +836,8 @@ function StepInfo({ product, setProduct, errors = {}, canEdit }) {
             </p>
           )}
         </section>
+
+        <FiltersCard product={product} setProduct={setProduct} canEdit={canEdit} />
       </div>
 
       <aside className="pd-info-side">

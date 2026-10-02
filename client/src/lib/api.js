@@ -61,6 +61,16 @@ async function request(path, options = {}) {
   return response.json();
 }
 
+/* { q: "x", page: 2, status: "" } → "?q=x&page=2" — ফাঁকা মান বাদ */
+const toQuery = (params) => {
+  const query = new URLSearchParams(
+    Object.entries(params).filter(
+      ([, value]) => value !== undefined && value !== null && value !== "",
+    ),
+  ).toString();
+  return query ? `?${query}` : "";
+};
+
 export const api = {
   /* ---------- Admin login ----------
      cookie টা server বসায় আর browser নিজে রাখে — এখানে কোনো
@@ -94,7 +104,15 @@ export const api = {
 
   /* ---------- Product ---------- */
   getProducts: () => request("/api/products"),
-  getProduct: (id) => request(`/api/products/${id}`),
+  /* সাইটের Products পাতা — সব published product হালকা করে (নাম,
+     ছবি, category, filter এর মান …). খোঁজা/filter/সাজানো browser এ */
+  getCatalog: () => request("/api/products/catalog"),
+  // id অথবা slug — /products/la1-high-bay এর মতো ছোট slug ও চলে
+  getProduct: (id) => request(`/api/products/${encodeURIComponent(id)}`),
+  /* Product Details পাতা খোলা হলে একবার — "Most Popular" সাজানোর
+     জন্য. একই জায়গা থেকে ৩০ মিনিটে একবারই গোনা হয় */
+  addProductView: (id) =>
+    request(`/api/products/${encodeURIComponent(id)}/view`, { method: "POST" }),
   createProduct: (data) =>
     request("/api/products", { method: "POST", body: JSON.stringify(data) }),
   updateProduct: (id, data) =>
@@ -120,8 +138,27 @@ export const api = {
   duplicateProduct: (id) =>
     request(`/api/products/${id}/duplicate`, { method: "POST" }),
 
+  /* ---------- Project ----------
+     তালিকার params: { q, status, category, sort, page, limit } */
+  adminListProjects: (params = {}) =>
+    request(`/api/projects/admin/list${toQuery(params)}`),
+  adminGetProject: (id) => request(`/api/projects/admin/${id}`),
+  // Product Used ধাপের তালিকা — params: { q, category, page }
+  adminProjectProducts: (params = {}) =>
+    request(`/api/projects/admin/products${toQuery(params)}`),
+  createProject: (data) =>
+    request("/api/projects", { method: "POST", body: JSON.stringify(data) }),
+  updateProject: (id, data) =>
+    request(`/api/projects/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    }),
+  deleteProject: (id) => request(`/api/projects/${id}`, { method: "DELETE" }),
+  duplicateProject: (id) =>
+    request(`/api/projects/${id}/duplicate`, { method: "POST" }),
+
   /* Cloudinary তে ফাইল তোলার অনুমতিপত্র.
-     kind: "image" | "video" | "document" */
+     kind: "image" | "video" | "document" | "project-image" */
   signUpload: (kind) =>
     request("/api/uploads/sign", {
       method: "POST",

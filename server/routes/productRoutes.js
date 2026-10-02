@@ -1,11 +1,13 @@
 import express from "express";
 import {
+  addProductView,
   adminGetProduct,
   adminListProducts,
   createProduct,
   deleteProduct,
   duplicateProduct,
   getAllProducts,
+  getCatalog,
   getProductById,
   updateProduct,
 } from "../controllers/productController.js";
@@ -34,9 +36,14 @@ router.get("/admin/list", ...canRead, adminListProducts);
 router.get("/admin/:id", ...canRead, adminGetProduct);
 
 router.get("/", getAllProducts);
+// সাইটের Products পাতার হালকা তালিকা — "/:id" এর উপরে থাকতেই হবে
+router.get("/catalog", getCatalog);
 router.post("/", ...canEdit, createProduct);
 
 router.post("/:id/duplicate", ...canEdit, duplicateProduct);
+
+// সাইটে পাতা খোলা হলে একবার গোনা — সবার জন্য খোলা, তবে IP ধরে সীমিত
+router.post("/:id/view", addProductView);
 
 router.get("/:id", getProductById);
 

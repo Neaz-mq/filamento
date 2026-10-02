@@ -18,8 +18,12 @@ const extensionOf = (name = "") => name.split(".").pop()?.toLowerCase() ?? "";
 
 /* তোলার আগেই পরীক্ষা — ভুল ধরন বা খুব বড় হলে Cloudinary পর্যন্ত
    যাওয়ার দরকার নেই. সমস্যা থাকলে বার্তা, না থাকলে "" */
+/* একই নিয়মের অন্য নাম — project এর ছবি আলাদা ফোল্ডারে যায়,
+   কিন্তু ধরন আর মাপের নিয়ম product এর ছবির মতোই */
+const SAME_RULE = { "project-image": "image" };
+
 export function checkFile(file, kind) {
-  const rule = UPLOADS[kind];
+  const rule = UPLOADS[SAME_RULE[kind] ?? kind];
   if (!file || !rule) return "Choose a file.";
 
   if (!rule.extensions.includes(extensionOf(file.name))) {

@@ -324,6 +324,170 @@
       "pageAriaLabel": "Go to page {{page}}"
     }
   },
+  "productsPage": {
+    "categoriesLabel": "Product categories",
+    "categoriesPrev": "Previous categories",
+    "categoriesNext": "More categories",
+    "categories": {
+      "all": "All Products",
+      "lampFixture": "Lamp/Fixture",
+      "luminaireConfigurator": "Luminaire Configurator",
+      "mountingBase": "Mounting Base",
+      "reflector": "Reflector",
+      "controlCap": "Control Cap",
+      "lampAccessory": "Lamp Accessory",
+      "reflectorAccessory": "Reflector Accessory",
+      "other": "Other"
+    },
+    "families": {
+      "lampFixture": "lamp / fixture",
+      "luminaireConfigurator": "luminaire configurator",
+      "mountingBase": "mounting base",
+      "reflector": "reflector",
+      "controlCap": "control cap",
+      "lampAccessory": "lamp accessory",
+      "reflectorAccessory": "reflector accessory",
+      "other": "parts & extras"
+    },
+    "resultCount_one": "{{count}} product found",
+    "resultCount_other": "{{count}} products found",
+    "loading": "Loading products…",
+    "error": "We couldn't load the products right now.",
+    "retry": "Try again",
+    "empty": "No products match your selection.",
+    "emptyHint": "Try another keyword, or remove a filter or two.",
+    "clearFilters": "Clear all filters",
+    "seeAll": "See all products",
+    "filters": {
+      "title": "Filters",
+      "reset": "Reset",
+      "hide": "Hide filters",
+      "searchLabel": "Search products",
+      "searchPlaceholder": "Search products",
+      "countLabel_one": "{{count}} product",
+      "countLabel_other": "{{count}} products",
+      "none": "There are no filters for this category yet.",
+      "show_one": "Show {{count}} product",
+      "show_other": "Show {{count}} products",
+      "groups": {
+        "power": "Power",
+        "cri": "CRI",
+        "cct": "CCT",
+        "lumens": "Lumens",
+        "termination": "Termination",
+        "controlModule": "Control Module"
+      },
+      "options": {
+        "upTo100w": "Up to 100W",
+        "over400w": "Over 400W",
+        "under10k": "Under 10K lm",
+        "over40k": "Over 40K lm",
+        "e39": "E39 Mogul Base",
+        "e26": "E26 Medium Base",
+        "hardwired": "Hardwired",
+        "cordPlug": "Cord & Plug",
+        "twistLock": "Twist-Lock Plug",
+        "nonDimming": "Non-dimming",
+        "dimming010v": "0–10V Dimming",
+        "bluetooth": "Bluetooth Wireless",
+        "occupancy": "Occupancy Sensor",
+        "daylight": "Daylight Sensor"
+      }
+    },
+    "sort": {
+      "label": "Sort by",
+      "labelColon": "Sort By:",
+      "default": "Default",
+      "featured": "Featured",
+      "newest": "Newest",
+      "popular": "Most Popular",
+      "nameAsc": "Name: A–Z",
+      "nameDesc": "Name: Z–A"
+    },
+    "pagination": {
+      "label": "Product pages",
+      "previous": "Previous",
+      "next": "Next",
+      "page": "Go to page {{page}}"
+    },
+    "detail": {
+      "back": "Back to products",
+      "moreProducts": "More products",
+      "previous": "Previous product",
+      "next": "Next product",
+      "gallery": "Product images",
+      "previousImage": "Previous image",
+      "nextImage": "Next image",
+      "showImage": "Show image {{number}} of {{total}}",
+      "imageAlt": "{{name}} — image {{number}} of {{total}}",
+      "specs": "Specs",
+      "contact": "Contact the Seller",
+      "featuresLabel": "Key features",
+      "tabsLabel": "Product information",
+      "notFoundTitle": "Product not found",
+      "notFoundText": "This product may have been renamed or is no longer available. Browse the full range to find what you need.",
+      "errorTitle": "Something went wrong",
+      "errorText": "We couldn't load this product right now. Please check your connection and try again.",
+      "browseAll": "Browse all products"
+    },
+    "tabs": {
+      "spec": "Full Specification",
+      "resources": "Resources & Downloads"
+    },
+    "spec": {
+      "navLabel": "Specification sections",
+      "seeAll": "See All",
+      "empty": "Detailed specifications for this product are on the way. Contact us and we'll send them right over.",
+      "hours": "Hours",
+      "default": "Default",
+      "required": "Required",
+      "groups": {
+        "components": "Components",
+        "applications": "Applications",
+        "general": "General",
+        "features": "Features",
+        "certifications": "Certifications",
+        "certificationsTitle": "World Wide Certifications",
+        "controlOptions": "Control Options",
+        "mechanical": "Mechanical",
+        "emergencyBattery": "Emergency Battery Option",
+        "lumenMaintenance": "Lumen Maintenance",
+        "electrical": "Electrical",
+        "ballastCompatibility": "Ballast Compatibility"
+      },
+      "steps": {
+        "lamp": "Lamp",
+        "mountingBase": "Mounting Base",
+        "reflector": "Reflector",
+        "controlCap": "Control Cap",
+        "lampAccessory": "Lamp Accessory",
+        "reflectorAccessory": "Reflector Accessory"
+      }
+    },
+    "resources": {
+      "document": "Document",
+      "video": "Product video {{number}}",
+      "videoLink": "Product video {{number}} ({{site}})",
+      "link": "Link",
+      "download": "Download {{name}} ({{format}})",
+      "open": "Open {{name}} in a new tab",
+      "empty": "Documents for this product are on the way.",
+      "engineerText": "Need a custom photometric study, DIALux file, or a bulk pricing sheet?",
+      "engineerLink": "Talk to an engineer"
+    },
+    "related": {
+      "title": "Related products",
+      "text": "Hand-picked alternatives in the {{family}} family.",
+      "compare": "Compare these"
+    },
+    "compare": {
+      "title": "Compare products",
+      "close": "Close comparison",
+      "category": "Category",
+      "series": "Series",
+      "certifications": "Certifications"
+    }
+  },
   "comingSoon": {
     "eyebrow": "Coming soon",
     "titleRest": "Coming to light soon.",

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, NavLink, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import filamentoLogo from "../assets/logo/filamento.png";
 import LanguageSwitcher from "./LanguageSwitcher";
@@ -9,8 +9,8 @@ import "./Navbar.css";
 /* label নয়, translation key — ভাষা বদলালে এই array অপরিবর্তিত
    থাকে, শুধু t() আলাদা লেখা ফেরত দেয় */
 const NAV_LINKS = [
-  { key: "nav.products", to: "/products" },
-  { key: "nav.projects", to: "/projects" },
+  // { key: "nav.products", to: "/products" },
+  // { key: "nav.projects", to: "/projects" },
   { key: "nav.application", to: "/application" },
   { key: "nav.company", to: "/company" },
   { key: "nav.shop", to: "/shop" },
@@ -39,8 +39,14 @@ function Navbar() {
 
   const close = () => setOpen(false);
 
-  // পাতা বদলালে menu বন্ধ — নাহলে নতুন পাতার উপর খোলা থেকে যেত
-  useEffect(close, [pathname]);
+  /* পাতা বদলালে menu বন্ধ — নাহলে নতুন পাতার উপর খোলা থেকে যেত.
+     effect এর বদলে render এর সময় আগের ঠিকানার সাথে তুলনা (React এর
+     নিয়ম — effect এ setState করলে একবার বাড়তি render হয়) */
+  const [lastPathname, setLastPathname] = useState(pathname);
+  if (pathname !== lastPathname) {
+    setLastPathname(pathname);
+    setOpen(false);
+  }
 
   /* মোবাইলে খোলা অবস্থায় ফোন ঘুরিয়ে landscape এ গেলে desktop layout
      চলে আসে, কিন্তু panel টা খোলা থেকে যেত — তাই বন্ধ করে দিচ্ছি */
@@ -120,10 +126,13 @@ function Navbar() {
         </Link>
 
         <nav className="navbar-links" aria-label={t("a11y.mainNav")}>
+          {/* NavLink — যে পাতায় আছি তার link এ aria-current="page" বসে
+              (Figma: Products পাতায় "Products" গাঢ়). /products/la1… তেও
+              Products গাঢ় থাকে */}
           {NAV_LINKS.map((link) => (
-            <Link key={link.to} to={localeLink(link.to)}>
+            <NavLink key={link.to} to={localeLink(link.to)}>
               {t(link.key)}
-            </Link>
+            </NavLink>
           ))}
         </nav>
 
@@ -159,9 +168,9 @@ function Navbar() {
       >
         <nav className="navbar-panel-links" aria-label={t("a11y.mainNav")}>
           {NAV_LINKS.map((link) => (
-            <Link key={link.to} to={localeLink(link.to)} onClick={close}>
+            <NavLink key={link.to} to={localeLink(link.to)} onClick={close}>
               {t(link.key)}
-            </Link>
+            </NavLink>
           ))}
         </nav>
 

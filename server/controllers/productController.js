@@ -4,6 +4,8 @@ import { logActivity } from "../lib/activity.js";
 import { destroyAsset } from "../lib/cloudinary.js";
 import {
   CATEGORIES,
+  COMPONENT_STEPS,
+  CONFIGURATOR,
   assetsOf,
   cleanProduct,
   missingForPublish,
@@ -72,12 +74,18 @@ const withDefaults = (doc) => ({
   color: doc.color ?? "",
   shortDescription: doc.shortDescription ?? "",
   status: doc.status === "published" ? "published" : "draft",
+  featured: doc.featured === true,
+  filters: doc.filters && typeof doc.filters === "object" ? doc.filters : {},
   stock: typeof doc.stock === "number" ? doc.stock : null,
   views: typeof doc.views === "number" ? doc.views : 0,
   images: Array.isArray(doc.images) ? doc.images : [],
   videoUrls: Array.isArray(doc.videoUrls) ? doc.videoUrls : [],
   keyFeatures: Array.isArray(doc.keyFeatures) ? doc.keyFeatures : [],
   specs: doc.specs && typeof doc.specs === "object" ? doc.specs : {},
+  components:
+    doc.category === CONFIGURATOR && doc.components && typeof doc.components === "object"
+      ? doc.components
+      : {},
   videos: Array.isArray(doc.videos) ? doc.videos : [],
   documents: Array.isArray(doc.documents) ? doc.documents : [],
   createdAt: doc.createdAt ?? null,
@@ -118,6 +126,103 @@ const rowShape = (doc) => {
     updatedAt: product.updatedAt,
   };
 };
+
+/* ---------------------------------------------------------------
+   Configurator এর option — database এ শুধু product এর id থাকে.
+   পড়ার সময় প্রতিটা option এ সেই product এর নাম, ছবি … (item)
+   জুড়ে দেওয়া হয়. সব product এর জন্য একটাই query.
+
+   publicOnly — সাইটে শুধু published অংশ যায়. default অংশটা draft
+   হলে প্রথম published টা default হয়, কোনো ধাপ ফাঁকা হলে বাদ.
+   admin panel এ সব যায়, সাথে status — draft আর মুছে ফেলা অংশ
+   (item: null) চিহ্নিত করে দেখানোর জন্য
+   --------------------------------------------------------------- */
+const componentIds = (components) =>
+  Object.values(components ?? {}).flatMap((step) =>
+    (step?.options ?? []).map((option) => option.product),
+  );
+
+async function withComponents(shapes, { publicOnly = false } = {}) {
+  const list = Array.isArray(shapes) ? shapes : [shapes];
+  const ids = [...new Set(list.flatMap((product) => componentIds(product.components)))]
+    .map(toObjectId)
+    .filter(Boolean);
+  if (!ids.length) return shapes;
+
+  const docs = await products()
+    .find(
+      { _id: { $in: ids } },
+      { projection: { name: 1, slug: 1, category: 1, status: 1, images: 1, shortDescription: 1 } },
+    )
+    .toArray();
+  const byId = new Map(docs.map((doc) => [doc._id.toString(), doc]));
+
+  for (const product of list) {
+    const resolved = {};
+    for (const [key, step] of Object.entries(product.components ?? {})) {
+      let options = (step?.options ?? []).map((option) => {
+        const doc = byId.get(option.product);
+        return {
+          ...option,
+          item: doc
+            ? {
+                id: doc._id.toString(),
+                name: doc.name ?? "",
+                slug: doc.slug ?? "",
+                category: doc.category,
+                status: doc.status === "published" ? "published" : "draft",
+                image: doc.images?.[0]?.url ?? "",
+                shortDescription: doc.shortDescription ?? "",
+              }
+            : null,
+        };
+      });
+
+      if (publicOnly) {
+        options = options
+          .filter((option) => option.item?.status === "published")
+          .map(({ item: { status: _status, ...item }, ...option }) => ({ ...option, item }));
+        if (!options.length) continue;
+        if (!options.some((option) => option.isDefault)) {
+          options[0] = { ...options[0], isDefault: true };
+        }
+      }
+
+      resolved[key] = { required: step?.required === true, options };
+    }
+    product.components = resolved;
+  }
+  return shapes;
+}
+
+/* লেখার আগে — option এর product গুলো সত্যিই আছে আর ঠিক ধাপের
+   category র কি না. মুছে ফেলা product চুপচাপ বাদ পড়ে (admin panel এ
+   সেগুলো আগেই "Removed" দেখায়); ভুল category হলে save হয় না —
+   ওটা শুধু হাতে বানানো request এ হতে পারে */
+async function checkComponents(components) {
+  const ids = [...new Set(componentIds(components))].map(toObjectId).filter(Boolean);
+  if (!ids.length) return null;
+
+  const docs = await products()
+    .find({ _id: { $in: ids } }, { projection: { name: 1, category: 1 } })
+    .toArray();
+  const byId = new Map(docs.map((doc) => [doc._id.toString(), doc]));
+
+  for (const [key, step] of Object.entries(components)) {
+    const info = COMPONENT_STEPS[key];
+    for (const option of step.options) {
+      const doc = byId.get(option.product);
+      if (doc && doc.category !== info.category) {
+        return `"${doc.name}" is not a ${info.label}. Remove it from the ${info.label} options.`;
+      }
+    }
+    step.options = step.options.filter((option) => byId.has(option.product));
+    if (step.options.length && !step.options.some((option) => option.isDefault)) {
+      step.options[0].isDefault = true;
+    }
+  }
+  return null;
+}
 
 const who = (admin) => ({
   id: admin._id,
@@ -197,26 +302,103 @@ export async function getAllProducts(req, res, next) {
       .limit(500)
       .toArray();
 
-    res.json({ products: docs.map(publicShape) });
+    res.json({
+      products: await withComponents(docs.map(publicShape), { publicOnly: true }),
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+/* GET /api/products/catalog — সাইটের Products পাতার তালিকা.
+
+   সব published product একবারে, কিন্তু হালকা করে: নাম, ছবি, category,
+   filter এর মান … — specs, video, document ছাড়া. খোঁজা, filter,
+   সাজানো আর পাতা ভাগ browser নিজেই করে, তাই প্রতিটা click এ server
+   এ যেতে হয় না আর filter এর পাশের সংখ্যাগুলো সাথে সাথে বদলায়.
+   (কয়েক শ product পর্যন্ত এটাই সবচেয়ে দ্রুত; অনেক হাজার হলে তখন
+   server এ পাতা ভাগ করা লাগবে) */
+export async function getCatalog(req, res, next) {
+  try {
+    const docs = await products()
+      .find(
+        { status: "published" },
+        {
+          projection: {
+            name: 1,
+            slug: 1,
+            category: 1,
+            series: 1,
+            color: 1,
+            shortDescription: 1,
+            images: 1,
+            filters: 1,
+            featured: 1,
+            views: 1,
+            createdAt: 1,
+            // Compare এর টেবিলে "Certifications" সারির জন্য — শুধু এই তালিকাটা
+            "specs.certifications.items": 1,
+          },
+        },
+      )
+      .sort({ createdAt: 1, _id: 1 })
+      .limit(2000)
+      .toArray();
+
+    // কয়েক মিনিট CDN এ জমা থাকতে পারে — নতুন publish ৫ মিনিটের মধ্যে আসে
+    res.set("Cache-Control", "public, max-age=60, s-maxage=300, stale-while-revalidate=600");
+    res.json({
+      products: docs.map((doc) => ({
+        id: doc._id.toString(),
+        name: doc.name ?? "",
+        slug: doc.slug ?? "",
+        category: CATEGORIES.includes(doc.category) ? doc.category : "other",
+        series: doc.series ?? "",
+        color: doc.color ?? "",
+        shortDescription: doc.shortDescription ?? "",
+        image: doc.images?.[0]?.url ?? "",
+        filters: doc.filters && typeof doc.filters === "object" ? doc.filters : {},
+        featured: doc.featured === true,
+        views: typeof doc.views === "number" ? doc.views : 0,
+        certifications: Array.isArray(doc.specs?.certifications?.items)
+          ? doc.specs.certifications.items.slice(0, 6)
+          : [],
+        createdAt: doc.createdAt ?? null,
+      })),
+    });
   } catch (error) {
     next(error);
   }
 }
 
 /* GET /api/products/:idOrSlug — /products/la1-high-bay এর মতো
-   ঠিকানা থেকেও খোঁজা যায় */
+   ঠিকানা থেকেও খোঁজা যায়.
+
+   ঠিক ওই slug না পেলে, ওই নাম দিয়ে শুরু হওয়া product খোঁজা হয়
+   ("la1-high-bay" → "la1-high-bay-linear-distribution") — পুরনো বা
+   ছোট করে লেখা link যেন ভেঙে না যায়. পাতা তখন ঠিকানাটা আসল slug এ
+   বদলে নেয় */
 export async function getProductById(req, res, next) {
   try {
     const { id } = req.params;
     const objectId = /^[a-f\d]{24}$/i.test(id) ? toObjectId(id) : null;
+    const slug = String(id).toLowerCase().slice(0, 120);
 
-    const doc = await products().findOne({
+    let doc = await products().findOne({
       status: "published",
-      ...(objectId ? { _id: objectId } : { slug: String(id).toLowerCase() }),
+      ...(objectId ? { _id: objectId } : { slug }),
     });
 
+    if (!doc && !objectId && /^[a-z0-9-]+$/.test(slug)) {
+      [doc] = await products()
+        .find({ status: "published", slug: { $regex: `^${escapeRegex(slug)}-` } })
+        .sort({ createdAt: 1, _id: 1 })
+        .limit(1)
+        .toArray();
+    }
+
     if (!doc) return res.status(404).json({ message: "Product not found" });
-    res.json({ product: publicShape(doc) });
+    res.json({ product: await withComponents(publicShape(doc), { publicOnly: true }) });
   } catch (error) {
     next(error);
   }
@@ -325,7 +507,7 @@ export async function adminGetProduct(req, res, next) {
     const doc = _id ? await products().findOne({ _id }) : null;
     if (!doc) return res.status(404).json({ message: "Product not found" });
 
-    res.json({ product: adminShape(doc) });
+    res.json({ product: await withComponents(adminShape(doc)) });
   } catch (error) {
     next(error);
   }
@@ -338,6 +520,9 @@ export async function createProduct(req, res, next) {
 
     const { value, error } = cleanProduct(req.body);
     if (error) return res.status(400).json({ message: error });
+
+    const wrongPart = await checkComponents(value.components);
+    if (wrongPart) return res.status(400).json({ message: wrongPart });
 
     if (value.status === "published") {
       const missing = missingForPublish(value);
@@ -368,7 +553,7 @@ export async function createProduct(req, res, next) {
       status: doc.status,
     });
 
-    res.status(201).json({ product: adminShape(doc) });
+    res.status(201).json({ product: await withComponents(adminShape(doc)) });
   } catch (error) {
     next(error);
   }
@@ -383,6 +568,11 @@ export async function updateProduct(req, res, next) {
 
     const { value, error } = cleanProduct(req.body, { partial: true });
     if (error) return res.status(400).json({ message: error });
+
+    if (value.components) {
+      const wrongPart = await checkComponents(value.components);
+      if (wrongPart) return res.status(400).json({ message: wrongPart });
+    }
 
     const merged = { ...withDefaults(existing), ...value };
 
@@ -430,7 +620,7 @@ export async function updateProduct(req, res, next) {
       { productId: doc._id.toString(), name: doc.name, status: doc.status },
     );
 
-    res.json({ product: adminShape(doc) });
+    res.json({ product: await withComponents(adminShape(doc)) });
   } catch (error) {
     next(error);
   }
@@ -477,13 +667,17 @@ export async function duplicateProduct(req, res, next) {
       slug: await uniqueSlug(name),
       category: source.category,
       series: source.series,
+      color: source.color,
       shortDescription: source.shortDescription,
       status: "draft",
+      featured: false,
+      filters: source.filters,
       stock: source.stock,
       images: source.images,
       videoUrls: source.videoUrls,
       keyFeatures: source.keyFeatures,
       specs: source.specs,
+      components: source.components,
       videos: source.videos,
       documents: source.documents,
       views: 0,
@@ -502,9 +696,61 @@ export async function duplicateProduct(req, res, next) {
       name: doc.name,
     });
 
-    res.status(201).json({ product: adminShape(doc) });
+    res.status(201).json({ product: await withComponents(adminShape(doc)) });
   } catch (error) {
     next(error);
   }
 }
 
+/* ---------------------------------------------------------------
+   POST /api/products/:idOrSlug/view — সাইটে product এর পাতা খোলা
+   হলে একবার গোনা. "Sort by: Most Popular" আর admin এর Total Views
+   এখান থেকেই আসে.
+
+   একই IP থেকে একই product ৩০ মিনিটে একবার — বারবার reload করে
+   সংখ্যা বাড়ানো যায় না. (memory তে থাকে, তাই পুরো সুরক্ষা নয় —
+   videoViewRoutes.js এর মতোই সহজ বাধা)
+   --------------------------------------------------------------- */
+const VIEW_WINDOW_MS = 30 * 60 * 1000;
+const MAX_TRACKED_VIEWS = 5000;
+const recentViews = new Map();
+
+const clientIp = (req) =>
+  req.headers["x-forwarded-for"]?.split(",")[0].trim() || req.ip || "unknown";
+
+const shouldCountView = (key, now) => {
+  const last = recentViews.get(key);
+  if (last && now - last < VIEW_WINDOW_MS) return false;
+  if (recentViews.size >= MAX_TRACKED_VIEWS) {
+    for (const [stored, time] of recentViews) {
+      if (now - time >= VIEW_WINDOW_MS) recentViews.delete(stored);
+    }
+    if (recentViews.size >= MAX_TRACKED_VIEWS) {
+      recentViews.delete(recentViews.keys().next().value);
+    }
+  }
+  recentViews.set(key, now);
+  return true;
+};
+
+export async function addProductView(req, res, next) {
+  try {
+    const { id } = req.params;
+    const objectId = /^[a-f\d]{24}$/i.test(id) ? toObjectId(id) : null;
+    const filter = {
+      status: "published",
+      ...(objectId ? { _id: objectId } : { slug: String(id).toLowerCase().slice(0, 120) }),
+    };
+
+    const doc = await products().findOne(filter, { projection: { _id: 1 } });
+    if (!doc) return res.status(404).json({ message: "Product not found" });
+
+    const counted = shouldCountView(`${clientIp(req)}:${doc._id}`, Date.now());
+    if (counted) await products().updateOne({ _id: doc._id }, { $inc: { views: 1 } });
+
+    res.set("Cache-Control", "no-store");
+    res.json({ counted });
+  } catch (error) {
+    next(error);
+  }
+}

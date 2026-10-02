@@ -20,7 +20,7 @@ import {
    Product এর নকশা — কোন category তে কোন Specification group,
    কোন ধরনের document, কত বড় লেখা চলবে
 
-   ✅ অন্য category র Figma (Lamp Accessory, Reflector Accessory …) এলে শুধু
+   ✅ কোনো category র Figma বদলালে শুধু
    এই ফাইলে ওই category র specGroups বদলাবেন — পাতার কোডে হাত
    দিতে হবে না.
 
@@ -49,6 +49,8 @@ export const LIMITS = {
   videoDescription: 300,
   documents: 30,
   documentName: 150,
+  componentOptions: 30,
+  componentCode: 24,
 };
 
 /* ---------------------------------------------------------------
@@ -106,6 +108,8 @@ export const FEATURE_ICONS = {
      textList    — বিবরণ + তালিকা (Reflector এর General).
                    descriptionRequired: true দিলে publish এর আগে
                    বিবরণ লাগবে, descriptionMax — কত অক্ষর
+     components  — Configurator এর ধাপ আর option (ComponentsEditor).
+                   এর তথ্য product.components এ থাকে, specs এ না
 
    columns: 2  — ছোট লেখা পাশাপাশি দুই কলামে (Applications, UL/DLC)
    --------------------------------------------------------------- */
@@ -180,10 +184,10 @@ const MOUNTING_BASE_GROUPS = [
   { id: "electrical", label: "Electrical", Icon: IconActivity, kind: "list" },
 ];
 
-/* Reflector আর Control Cap (Figma: General, Certifications,
-   Mechanical). General এ উপরে "Short Description *" আর নিচে
+/* Reflector, Control Cap আর Reflector Accessory (Figma: General,
+   Certifications, Mechanical). General এ উপরে "Short Description *" আর নিচে
    তালিকা — publish এর আগে বিবরণটা লাগবে (descriptionRequired).
-   দুই category র group একই, শুধু বিবরণের নমুনা লেখা আলাদা */
+   তিন category র group একই, শুধু বিবরণের নমুনা লেখা আলাদা */
 const describedGroups = (descriptionPlaceholder) => [
   {
     id: "general",
@@ -206,6 +210,19 @@ const CONTROL_CAP_GROUPS = describedGroups(
   "What the control cap does and which lamps and systems it works with…",
 );
 
+const REFLECTOR_ACCESSORY_GROUPS = describedGroups(
+  "What the accessory adds to the reflector and how it fits…",
+);
+
+/* Lamp Accessory আর Other (Figma: General, Certifications,
+   Mechanical) — তিনটাই সাধারণ তালিকা, General এ কোনো বিবরণ নেই,
+   Color ঘরও নেই. দুই category র group একই */
+const PLAIN_GROUPS = [
+  { id: "general", label: "General", Icon: IconSettings, kind: "list" },
+  { id: "certifications", label: "Certifications", Icon: IconAward, kind: "list", columns: 2 },
+  { id: "mechanical", label: "Mechanical", Icon: IconSettings, kind: "list" },
+];
+
 /* ---------------------------------------------------------------
    Color ঘরের পছন্দ (Figma: Mounting Base এ "White/Black").
    নতুন রং লাগলে এই তালিকায় যোগ করবেন
@@ -219,11 +236,50 @@ export const COLORS = [
   "Bronze",
 ];
 
-/* বাকি category গুলোর Figma এখনো আসেনি — ততদিন এই চারটা সাধারণ
-   group. নকশা এলে প্রতিটা category র নিজের তালিকা বসবে */
-const BASIC_GROUPS = [
-  { id: "general", label: "General", Icon: IconSettings, kind: "list" },
-  { id: "features", label: "Features", Icon: IconBolt, kind: "list" },
+/* ---------------------------------------------------------------
+   Luminaire Configurator — "নিজের মতো বানাও" fixture (Figma নেই,
+   বাকি category গুলোর নকশা মেনে বানানো)
+
+   গ্রাহক ধাপে ধাপে অংশ বাছে: Lamp → Mounting Base → Reflector → …
+   প্রতিটা ধাপে library র কয়েকটা product (option), তার একটা
+   default. "Required" ধাপে গ্রাহককে কিছু একটা বাছতেই হবে.
+
+   code — ordering code এর অংশ (LA1, HK, C7). সব default এর code
+   মিলে পুরো build এর code: LA1-HK-C7
+
+   ⚠️ server/lib/productSchema.js এর COMPONENT_STEPS এর সাথে মিলিয়ে
+   রাখা. required এখানে শুধু নতুন product এর শুরুর মান — admin
+   প্রতিটা ধাপে বদলাতে পারে
+   --------------------------------------------------------------- */
+export const CONFIGURATOR = "luminaire-configurator";
+
+export const COMPONENT_STEPS = [
+  { key: "lamp", category: "lamp-fixture", label: "Lamp", required: true },
+  { key: "mountingBase", category: "mounting-base", label: "Mounting Base", required: true },
+  { key: "reflector", category: "reflector", label: "Reflector", required: false },
+  { key: "controlCap", category: "control-cap", label: "Control Cap", required: false },
+  { key: "lampAccessory", category: "lamp-accessory", label: "Lamp Accessory", required: false },
+  {
+    key: "reflectorAccessory",
+    category: "reflector-accessory",
+    label: "Reflector Accessory",
+    required: false,
+  },
+];
+
+/* Configurator এর Specifications: প্রথমে Components (ধাপ আর
+   option), তারপর পুরো build এর General, Certifications, Mechanical.
+   আলাদা অংশের নিজের spec (wattage, মাপ …) ওই product এই থাকে */
+const CONFIGURATOR_GROUPS = [
+  { id: "components", label: "Components", Icon: IconLayers, kind: "components" },
+  {
+    id: "general",
+    label: "General",
+    Icon: IconSettings,
+    kind: "textList",
+    descriptionMax: 500,
+    descriptionPlaceholder: "What this build is for and how the parts fit together…",
+  },
   { id: "certifications", label: "Certifications", Icon: IconAward, kind: "list", columns: 2 },
   { id: "mechanical", label: "Mechanical", Icon: IconSettings, kind: "list" },
 ];
@@ -257,7 +313,7 @@ export const CATEGORIES = [
     label: "Luminaire Configurator",
     note: "Build-your-own fixtures made from a lamp, base and reflector.",
     image: cloudImage("v1789461131/card2_dxyfhj.webp"),
-    specGroups: BASIC_GROUPS,
+    specGroups: CONFIGURATOR_GROUPS,
   },
   {
     key: "mounting-base",
@@ -287,26 +343,103 @@ export const CATEGORIES = [
     label: "Lamp Accessory",
     note: "Cords, cables, rings and other parts for the lamp.",
     image: cloudImage("v1789461212/card3_rcubwu.webp"),
-    specGroups: BASIC_GROUPS,
+    specGroups: PLAIN_GROUPS,
   },
   {
     key: "reflector-accessory",
     label: "Reflector Accessory",
     note: "Lenses, guards and covers that fit on a reflector.",
     art: "lens",
-    specGroups: BASIC_GROUPS,
+    specGroups: REFLECTOR_ACCESSORY_GROUPS,
   },
   {
     key: "other",
     label: "Other",
     note: "Anything that does not fit the categories above.",
     art: "box",
-    specGroups: BASIC_GROUPS,
+    specGroups: PLAIN_GROUPS,
   },
 ];
 
 export const categoryOf = (key) =>
   CATEGORIES.find((category) => category.key === key) ?? CATEGORIES.at(-1);
+
+/* ---------------------------------------------------------------
+   সাইটের Products পাতার বাঁ পাশের Filters — প্রতিটা group এর মান.
+   server এ শুধু key যায়; লেখা (label) এখান থেকে.
+
+   ⚠️ একই তালিকা আরও দুই জায়গায়:
+     server/lib/productSchema.js         (FILTER_GROUPS — কোন মান চলবে)
+     client/src/pages/productCatalog.js  (সাইটের পাতা)
+   key একবার চালু হলে বদলাবেন না — পুরনো product এ সেটাই রাখা আছে
+   --------------------------------------------------------------- */
+export const FILTER_GROUPS = [
+  {
+    key: "power",
+    label: "Power",
+    options: [
+      { value: "up-to-100w", label: "Up to 100W" },
+      { value: "101-200w", label: "101–200W" },
+      { value: "201-300w", label: "201–300W" },
+      { value: "301-400w", label: "301–400W" },
+      { value: "over-400w", label: "Over 400W" },
+    ],
+  },
+  {
+    key: "cri",
+    label: "CRI",
+    options: [
+      { value: "70", label: "70" },
+      { value: "80", label: "80" },
+      { value: "90", label: "90" },
+    ],
+  },
+  {
+    key: "cct",
+    label: "CCT",
+    options: [
+      { value: "2200k", label: "2200K" },
+      { value: "2700k", label: "2700K" },
+      { value: "3000k", label: "3000K" },
+      { value: "3500k", label: "3500K" },
+      { value: "4000k", label: "4000K" },
+      { value: "5000k", label: "5000K" },
+    ],
+  },
+  {
+    key: "lumens",
+    label: "Lumens",
+    options: [
+      { value: "under-10k", label: "Under 10,000 lm" },
+      { value: "10k-20k", label: "10,000–20,000 lm" },
+      { value: "20k-30k", label: "20,000–30,000 lm" },
+      { value: "30k-40k", label: "30,000–40,000 lm" },
+      { value: "over-40k", label: "Over 40,000 lm" },
+    ],
+  },
+  {
+    key: "termination",
+    label: "Termination",
+    options: [
+      { value: "e39", label: "E39 Mogul Base" },
+      { value: "e26", label: "E26 Medium Base" },
+      { value: "hardwired", label: "Hardwired" },
+      { value: "cord-plug", label: "Cord & Plug" },
+      { value: "twist-lock", label: "Twist-Lock Plug" },
+    ],
+  },
+  {
+    key: "controlModule",
+    label: "Control Module",
+    options: [
+      { value: "non-dimming", label: "Non-dimming" },
+      { value: "0-10v", label: "0–10V Dimming" },
+      { value: "bluetooth", label: "Bluetooth Wireless" },
+      { value: "occupancy", label: "Occupancy Sensor" },
+      { value: "daylight", label: "Daylight Sensor" },
+    ],
+  },
+];
 
 /* ---------------------------------------------------------------
    Document এর ধরন — টেবিলের রঙিন pill

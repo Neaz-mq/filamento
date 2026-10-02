@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef } from "react";
+import { useEffect, useId, useLayoutEffect, useRef } from "react";
 import { moveItem, useSortable } from "./useSortable";
 import { LIMITS, serial } from "./catalog";
 import { IconClose, IconPencil, IconPlus, IconTrash } from "../icons";
@@ -9,8 +9,9 @@ import { IconClose, IconPencil, IconPlus, IconTrash } from "../icons";
    ListEditor  — "01. 17,226 to 32,604 Lumens" এর মতো লাইনের তালিকা
    TableEditor — Lumen Maintenance, Amps @ Line Voltage, Ballast
 
-   প্রতিটা ঘর সবসময় লেখার ঘর (input) — Figma তেও সেগুলো ঘরের মতো
-   দেখায়. ✏️ বোতাম সেই ঘরে cursor নিয়ে যায়.
+   প্রতিটা ঘর সবসময় লেখার ঘর — Figma তেও সেগুলো ঘরের মতো দেখায়.
+   ✏️ বোতাম সেই ঘরে cursor নিয়ে যায়. তালিকার ঘর লম্বা লেখায় নিচে
+   বেড়ে যায় (Figma: Lamp Accessory র General এর দুই লাইনের ঘর).
 
    দ্রুত লেখার জন্য:
      Enter      — ঠিক নিচে নতুন লাইন
@@ -35,6 +36,47 @@ function useFocusLater(rootRef) {
   return (selector) => {
     pending.current = selector;
   };
+}
+
+/* লেখা অনুযায়ী উঁচু হওয়া ঘর — এক লাইনে ধরলে 36px, বেশি হলে নিচে
+   বাড়ে. তালিকার ঘরে লাইন ভাঙা (Enter) চলে না, তাই paste করা
+   লেখার লাইন ভাঙাও ফাঁকা জায়গা হয়ে যায় */
+function GrowField({ value, onChange, ...props }) {
+  const ref = useRef(null);
+
+  const fit = () => {
+    const field = ref.current;
+    if (!field) return;
+    field.style.height = "auto";
+    const border = field.offsetHeight - field.clientHeight;
+    field.style.height = `${field.scrollHeight + border}px`;
+  };
+
+  useLayoutEffect(fit, [value]);
+
+  // পাতা চওড়া/সরু হলে লাইনের সংখ্যা বদলায় — তখনও মাপ ঠিক রাখা
+  useEffect(() => {
+    const field = ref.current;
+    if (!field || typeof ResizeObserver === "undefined") return undefined;
+    let width = field.clientWidth;
+    const observer = new ResizeObserver(() => {
+      if (field.clientWidth === width) return;
+      width = field.clientWidth;
+      fit();
+    });
+    observer.observe(field);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <textarea
+      ref={ref}
+      rows={1}
+      value={value}
+      onChange={(event) => onChange(event.target.value.replace(/\s*\r?\n\s*/g, " "))}
+      {...props}
+    />
+  );
 }
 
 export function AddButton({ children = "Add", onClick, disabled }) {
@@ -68,7 +110,7 @@ export function ListEditor({
   const add = (at = items.length) => {
     if (items.length >= max) return;
     onChange((list) => [...list.slice(0, at), "", ...list.slice(at)]);
-    focusLater(`[data-row="${at}"] input`);
+    focusLater(`[data-row="${at}"] .pd-field`);
   };
 
   const remove = (index) => {
@@ -94,13 +136,13 @@ export function ListEditor({
             >
               <button {...sort.handle(index, items.length)} />
               <span className="pd-serial">{serial(index)}</span>
-              <input
-                className="pd-field"
+              <GrowField
+                className="pd-field pd-field--grow"
                 value={item}
                 maxLength={maxLength}
                 placeholder={placeholder}
                 aria-label={`${title} ${index + 1}`}
-                onChange={(event) => setAt(index, event.target.value)}
+                onChange={(value) => setAt(index, value)}
                 onKeyDown={(event) => {
                   if (event.key === "Enter") {
                     event.preventDefault();
@@ -108,7 +150,7 @@ export function ListEditor({
                   } else if (event.key === "Backspace" && !item && items.length > 0) {
                     event.preventDefault();
                     remove(index);
-                    if (index > 0) focusLater(`[data-row="${index - 1}"] input`);
+                    if (index > 0) focusLater(`[data-row="${index - 1}"] .pd-field`);
                   }
                 }}
               />
@@ -126,7 +168,7 @@ export function ListEditor({
                   type="button"
                   className="pd-icon-btn pd-icon-btn--sm"
                   onClick={(event) =>
-                    event.currentTarget.closest("[data-row]")?.querySelector("input")?.focus()
+                    event.currentTarget.closest("[data-row]")?.querySelector(".pd-field")?.focus()
                   }
                   aria-label={`Edit ${title} ${index + 1}`}
                   title="Edit"

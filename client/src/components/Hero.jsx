@@ -38,19 +38,22 @@ const HERO_SRCSET = [480, 640, 960, 1280, 1600]
 const CARDS = [
   {
     id: "high-bay",
-    to: "/products/high-bay",
+    // High Bay গুলো Lamp/Fixture category তে — আগের /products/high-bay নামে কোনো product নেই
+    to: "/products?category=lamp-fixture",
     image:
       "https://res.cloudinary.com/dzi3u164c/image/upload/v1789539354/image_7_ep6gnv.png",
   },
   {
     id: "build-fixture",
-    to: "/build-fixture",
+    // নিজের মতো fixture বানানো = Luminaire Configurator category
+    to: "/products?category=luminaire-configurator",
     image:
       "https://res.cloudinary.com/dzi3u164c/image/upload/v1789461131/card2_dxyfhj.webp",
   },
   {
     id: "optional-parts",
-    to: "/products/parts",
+    // আলাদা অংশ (cord, cable, ring …) = Lamp Accessory category
+    to: "/products?category=lamp-accessory",
     image:
       "https://res.cloudinary.com/dzi3u164c/image/upload/v1789461212/card3_rcubwu.webp",
   },

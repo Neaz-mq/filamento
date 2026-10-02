@@ -1,0 +1,105 @@
+/* ===============================================================
+   Product card (Figma "Frame 313")
+
+   400 x 358, padding 24, radius 20, background rgba(235,235,236,.25)
+   ছবি 352 x 288 (অনুপাত 352/288), নাম Space Grotesk 700 20px/110%
+   মাউস দিলে background .75 (Figma "Frame 309")
+
+   card এর প্রস্থ grid ঠিক করে — ছবির উচ্চতা অনুপাত ধরে নিজে বদলায়,
+   তাই filter খোলা অবস্থায় 306 চওড়া card এও ছবি 258 x 211 হয়
+   (Figma র মতোই)
+   =============================================================== */
+
+.product-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  min-width: 0;
+  padding: 24px;
+  border-radius: 20px;
+  background: rgba(235, 235, 236, 0.25);
+  color: #373a3c;
+  text-decoration: none;
+  transition:
+    background-color 0.25s ease,
+    transform 0.2s ease;
+}
+
+.product-card:hover {
+  background: rgba(235, 235, 236, 0.75);
+}
+
+.product-card:active {
+  transform: scale(0.985);
+}
+
+.product-card:focus-visible {
+  outline: 2px solid #373a3c;
+  outline-offset: 3px;
+}
+
+.product-card-media {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  aspect-ratio: 352 / 288;
+}
+
+.product-card-media .product-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: transform 0.4s ease;
+}
+
+.product-card:hover .product-card-media .product-image {
+  transform: scale(1.03);
+}
+
+.product-card-name {
+  width: 100%;
+  margin: 0;
+  font-family: "Space Grotesk", var(--font-sans), sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 110%;
+  text-align: center;
+  color: #373a3c;
+  overflow-wrap: anywhere;
+}
+
+/* ছবি না থাকলে আঁকা ছবি — ছবির জায়গার মাঝখানে */
+.product-image--art {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.product-image--art svg {
+  width: 40%;
+  max-width: 120px;
+  height: auto;
+}
+
+/* ফোনে দুই কলাম — card ছোট, লেখাও ছোট */
+@media (max-width: 640px) {
+  .product-card {
+    padding: 12px;
+    border-radius: 16px;
+  }
+
+  .product-card-name {
+    font-size: 15px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .product-card,
+  .product-card-media .product-image {
+    transition: none;
+  }
+}

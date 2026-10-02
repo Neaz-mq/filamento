@@ -77,6 +77,11 @@
   color: #0b121a;
 }
 
+/* যে পাতায় আছি (NavLink এর aria-current) — Figma: গাঢ় লেখা */
+.navbar-links a[aria-current="page"] {
+  color: #0b121a;
+}
+
 /* ---------- actions ---------- */
 .navbar-actions {
   display: flex;
@@ -220,6 +225,12 @@
 
 .navbar-panel-links a:last-child {
   border-bottom: 0;
+}
+
+/* ফোনের menu তে যে পাতায় আছি — বাঁয়ে ছোট হলুদ দাগ */
+.navbar-panel-links a[aria-current="page"] {
+  box-shadow: inset 3px 0 0 #ffc107;
+  padding-left: 12px;
 }
 
 .navbar-panel-footer {

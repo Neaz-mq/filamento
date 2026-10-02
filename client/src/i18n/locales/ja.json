@@ -324,6 +324,167 @@
       "pageAriaLabel": "{{page}}ページ目へ"
     }
   },
+  "productsPage": {
+    "categoriesLabel": "製品カテゴリー",
+    "categoriesPrev": "前のカテゴリー",
+    "categoriesNext": "次のカテゴリー",
+    "categories": {
+      "all": "すべての製品",
+      "lampFixture": "ランプ／器具",
+      "luminaireConfigurator": "照明器具コンフィギュレーター",
+      "mountingBase": "取付ベース",
+      "reflector": "リフレクター",
+      "controlCap": "コントロールキャップ",
+      "lampAccessory": "ランプアクセサリー",
+      "reflectorAccessory": "リフレクターアクセサリー",
+      "other": "その他"
+    },
+    "families": {
+      "lampFixture": "ランプ／器具",
+      "luminaireConfigurator": "照明器具コンフィギュレーター",
+      "mountingBase": "取付ベース",
+      "reflector": "リフレクター",
+      "controlCap": "コントロールキャップ",
+      "lampAccessory": "ランプアクセサリー",
+      "reflectorAccessory": "リフレクターアクセサリー",
+      "other": "パーツ・その他"
+    },
+    "resultCount_other": "{{count}}件の製品が見つかりました",
+    "loading": "製品を読み込んでいます…",
+    "error": "現在、製品を読み込めませんでした。",
+    "retry": "再試行",
+    "empty": "条件に一致する製品がありません。",
+    "emptyHint": "別のキーワードを試すか、絞り込みをいくつか解除してください。",
+    "clearFilters": "すべての絞り込みを解除",
+    "seeAll": "すべての製品を見る",
+    "filters": {
+      "title": "絞り込み",
+      "reset": "リセット",
+      "hide": "絞り込みを閉じる",
+      "searchLabel": "製品を検索",
+      "searchPlaceholder": "製品を検索",
+      "countLabel_other": "{{count}}件",
+      "none": "このカテゴリーにはまだ絞り込み項目がありません。",
+      "show_other": "{{count}}件の製品を表示",
+      "groups": {
+        "power": "消費電力",
+        "cri": "演色性（CRI）",
+        "cct": "色温度（CCT）",
+        "lumens": "光束",
+        "termination": "接続方式",
+        "controlModule": "制御モジュール"
+      },
+      "options": {
+        "upTo100w": "100W以下",
+        "over400w": "400W超",
+        "under10k": "10K lm未満",
+        "over40k": "40K lm超",
+        "e39": "E39 モーグル口金",
+        "e26": "E26 口金",
+        "hardwired": "直結配線",
+        "cordPlug": "コード＆プラグ",
+        "twistLock": "ツイストロックプラグ",
+        "nonDimming": "調光なし",
+        "dimming010v": "0–10V 調光",
+        "bluetooth": "Bluetooth ワイヤレス",
+        "occupancy": "人感センサー",
+        "daylight": "昼光センサー"
+      }
+    },
+    "sort": {
+      "label": "並び替え",
+      "labelColon": "並び替え：",
+      "default": "標準",
+      "featured": "おすすめ",
+      "newest": "新着順",
+      "popular": "人気順",
+      "nameAsc": "名前：A–Z",
+      "nameDesc": "名前：Z–A"
+    },
+    "pagination": {
+      "label": "製品ページ",
+      "previous": "前へ",
+      "next": "次へ",
+      "page": "{{page}}ページへ移動"
+    },
+    "detail": {
+      "back": "製品一覧に戻る",
+      "moreProducts": "他の製品",
+      "previous": "前の製品",
+      "next": "次の製品",
+      "gallery": "製品画像",
+      "previousImage": "前の画像",
+      "nextImage": "次の画像",
+      "showImage": "画像 {{number}} / {{total}} を表示",
+      "imageAlt": "{{name}} — 画像 {{number}} / {{total}}",
+      "specs": "仕様",
+      "contact": "販売店に問い合わせる",
+      "featuresLabel": "主な特長",
+      "tabsLabel": "製品情報",
+      "notFoundTitle": "製品が見つかりません",
+      "notFoundText": "この製品は名称が変更されたか、現在取り扱いがない可能性があります。製品一覧からお探しください。",
+      "errorTitle": "問題が発生しました",
+      "errorText": "現在この製品を読み込めませんでした。接続を確認して、もう一度お試しください。",
+      "browseAll": "すべての製品を見る"
+    },
+    "tabs": {
+      "spec": "詳細仕様",
+      "resources": "資料・ダウンロード"
+    },
+    "spec": {
+      "navLabel": "仕様の項目",
+      "seeAll": "すべて表示",
+      "empty": "この製品の詳細仕様は準備中です。お問い合わせいただければすぐにお送りします。",
+      "hours": "時間",
+      "default": "標準",
+      "required": "必須",
+      "groups": {
+        "components": "構成部品",
+        "applications": "用途",
+        "general": "概要",
+        "features": "特長",
+        "certifications": "認証",
+        "certificationsTitle": "国際認証",
+        "controlOptions": "制御オプション",
+        "mechanical": "機械仕様",
+        "emergencyBattery": "非常用バッテリーオプション",
+        "lumenMaintenance": "光束維持率",
+        "electrical": "電気仕様",
+        "ballastCompatibility": "安定器の互換性"
+      },
+      "steps": {
+        "lamp": "ランプ",
+        "mountingBase": "取付ベース",
+        "reflector": "リフレクター",
+        "controlCap": "コントロールキャップ",
+        "lampAccessory": "ランプアクセサリー",
+        "reflectorAccessory": "リフレクターアクセサリー"
+      }
+    },
+    "resources": {
+      "document": "資料",
+      "video": "製品動画 {{number}}",
+      "videoLink": "製品動画 {{number}}（{{site}}）",
+      "link": "リンク",
+      "download": "{{name}}（{{format}}）をダウンロード",
+      "open": "{{name}}を新しいタブで開く",
+      "empty": "この製品の資料は準備中です。",
+      "engineerText": "カスタムの配光計算、DIALuxファイル、大量購入向けの価格表が必要ですか？",
+      "engineerLink": "エンジニアに相談する"
+    },
+    "related": {
+      "title": "関連製品",
+      "text": "{{family}}の中から厳選した代替製品です。",
+      "compare": "比較する"
+    },
+    "compare": {
+      "title": "製品の比較",
+      "close": "比較を閉じる",
+      "category": "カテゴリー",
+      "series": "シリーズ",
+      "certifications": "認証"
+    }
+  },
   "comingSoon": {
     "eyebrow": "近日公開",
     "titleRest": "まもなく点灯します。",

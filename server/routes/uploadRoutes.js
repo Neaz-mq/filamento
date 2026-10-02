@@ -6,11 +6,12 @@ import {
   signParams,
 } from "../lib/cloudinary.js";
 import { UPLOAD_ROOT } from "../lib/productSchema.js";
+import { PROJECT_UPLOAD_ROOT } from "../lib/projectSchema.js";
 
 /* ===============================================================
    POST /api/uploads/sign — Cloudinary তে ফাইল তোলার অনুমতিপত্র
 
-   body: { kind: "image" | "video" | "document" }
+   body: { kind: "image" | "video" | "document" | "project-image" }
 
    উত্তরে যা আসে সেটা নিয়ে browser সরাসরি Cloudinary তে ফাইল পাঠায়
    (client/src/admin/products/upload.js). সই এর মেয়াদ Cloudinary
@@ -33,6 +34,12 @@ const KINDS = {
     folder: `${UPLOAD_ROOT}/videos`,
     formats: "mp4,mov,webm,m4v",
   },
+  // Project এর ছবি — product এর থেকে আলাদা ফোল্ডারে
+  "project-image": {
+    resourceType: "image",
+    folder: `${PROJECT_UPLOAD_ROOT}/images`,
+    formats: "jpg,jpeg,png,webp,avif",
+  },
   /* document গুলো "raw" — Cloudinary ফাইলটা যেমন আছে তেমনই রাখে,
      PDF কে ছবি বানানোর চেষ্টা করে না. raw এ allowed_formats চলে না,
      তাই ধরন দেখা হয় browser এ (upload.js) */
@@ -49,7 +56,7 @@ router.post(
   requireAdmin,
   requireRole("owner", "admin"),
   (req, res) => {
-    const kind = KINDS[req.body?.kind];
+    const kind = Object.hasOwn(KINDS, req.body?.kind ?? "") ? KINDS[req.body.kind] : null;
     if (!kind) {
       return res.status(400).json({ message: "Unknown upload type." });
     }

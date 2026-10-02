@@ -371,6 +371,232 @@ const SAMPLES = [
       },
     ],
   },
+  /* Figma র Lamp Accessory — ছবি নেই, তাই draft (তালিকায় Lamp
+     Accessory category র ছবি দেখাবে) */
+  {
+    name: "VA6 Post Top House Side Shield",
+    shortDescription: '5" (136mm) Post Top House Side Shield Accessory',
+    category: "lamp-accessory",
+    stock: 150,
+    status: "draft",
+    images: [],
+    keyFeatures: [
+      { icon: "bolt", title: "Up to 50%", subtitle: "energy savings" },
+      { icon: "award", title: "UL, DLC", subtitle: "Certified" },
+      { icon: "shield", title: "5 Year", subtitle: "warranty" },
+      { icon: "factory", title: "Built for", subtitle: "Industrial" },
+    ],
+    specs: {
+      general: list(
+        "Creates a hard cutoff to one side of the light distribution pattern, eliminating unwanted light in the specified direction",
+        'Quick and easy installation - simply attach to 5" Post Top Reflector with supplied 3M VHB tape',
+        "*Does not come with Post Top Reflector or Post Top Lamp",
+      ),
+      certifications: list("UL", "DLC Premium"),
+      mechanical: list('Ø 5.20" (132mm) x 1.41" (36mm) x 1.24" (32mm)'),
+    },
+    videos: [
+      {
+        title: "Installation Guide",
+        description: "How the side shield attaches to the post top reflector.",
+        url: `${WP}uploads/2026/07/RH1_Animation_Final_02_compressed.mp4`,
+        thumbnail: "",
+      },
+    ],
+  },
+  /* Figma র Reflector Accessory — ছবি নেই, তাই draft. Figma র General
+     এর বিবরণে Reflector এর লেখা কপি হয়ে ছিল, তাই এখানে তালিকা থেকে
+     বানানো ছোট একটা বিবরণ */
+  {
+    name: '16"/41cm UGR Diffuser',
+    shortDescription: '16"/41cm UGR Diffuser + Metal Ring Reflector Accessory',
+    category: "reflector-accessory",
+    stock: 70,
+    status: "draft",
+    images: [],
+    keyFeatures: [
+      { icon: "bolt", title: "Up to 50%", subtitle: "energy savings" },
+      { icon: "award", title: "UL, DLC", subtitle: "Certified" },
+      { icon: "shield", title: "5 Year", subtitle: "warranty" },
+      { icon: "factory", title: "Built for", subtitle: "Industrial" },
+    ],
+    specs: {
+      general: {
+        description:
+          'UGR diffuser that snaps into the 16"/41cm reflector with the supplied metal ring. It widens the light distribution and hides the LEDs from view for lower glare.',
+        items: [
+          "Widens base luminaire distribution",
+          "Hides the LEDs from view",
+          "Quick and easy installation – simply snap into reflector with supplied metal ring",
+          "Does not come with reflector",
+        ],
+        tables: [],
+      },
+      certifications: list("UL", "DLC Premium"),
+      mechanical: list('Ø 15.94" (405mm) x 1.60" (41mm)'),
+    },
+    videos: [
+      {
+        title: "Installation Guide",
+        description: "How the diffuser snaps into the reflector.",
+        url: `${WP}uploads/2026/07/RH1_Animation_Final_02_compressed.mp4`,
+        thumbnail: "",
+      },
+    ],
+  },
+  /* Figma র Other — ছবি নেই, তাই draft (তালিকায় Other category র
+     আঁকা ছবি দেখাবে) */
+  {
+    name: "Safety Cable 2M with Grip",
+    shortDescription: "Fixture Safety Cable - 2 Meters with Grip",
+    category: "other",
+    stock: 200,
+    status: "draft",
+    images: [],
+    keyFeatures: [
+      { icon: "bolt", title: "Up to 50%", subtitle: "energy savings" },
+      { icon: "award", title: "UL, DLC", subtitle: "Certified" },
+      { icon: "shield", title: "5 Year", subtitle: "warranty" },
+      { icon: "factory", title: "Built for", subtitle: "Industrial" },
+    ],
+    specs: {
+      general: list(
+        '2m (78.74") Steel safety cable',
+        '31.75mm (1.25") Steel cable grip with 10mm (0.39") nut for length adjustment',
+        '50.8mm (2") Carabiner with twist lock on both ends of the cable',
+      ),
+      certifications: list("UL", "DLC Premium"),
+      mechanical: list('Ø 1.97" (50mm) x 5.83" (148mm)'),
+    },
+    videos: [
+      {
+        title: "Installation Guide",
+        description: "How to hang the fixture with the safety cable.",
+        url: `${WP}uploads/2026/07/RH1_Animation_Final_02_compressed.mp4`,
+        thumbnail: "",
+      },
+    ],
+  },
+  /* Luminaire Configurator — উপরের নমুনাগুলো দিয়েই বানানো একটা
+     "নিজের মতো বানাও" high bay. parts এ অংশের নাম আর ordering code;
+     যোগ করার সময় নাম থেকে আসল id খুঁজে বসানো হয় (তাই এটা সবার
+     শেষে). Figma নেই, তাই লেখাগুলো অংশগুলোর তথ্য থেকে বানানো */
+  {
+    name: "High Bay Configurator",
+    shortDescription:
+      "Build your own high bay — choose the lamp, mounting base, reflector and add-ons.",
+    category: "luminaire-configurator",
+    series: "High Bay Lights",
+    stock: null,
+    status: "draft",
+    images: [HIGH_BAY],
+    keyFeatures: [
+      { icon: "bolt", title: "Up to 50%", subtitle: "energy savings" },
+      { icon: "award", title: "UL, DLC", subtitle: "Certified" },
+      { icon: "shield", title: "5 Year", subtitle: "warranty" },
+      { icon: "settings", title: "Built to", subtitle: "your spec" },
+    ],
+    parts: {
+      lamp: {
+        required: true,
+        options: [
+          ["LA1 High Bay: Linear Distribution", "LA1"],
+          ["LS1 High Bay Series", "LS1"],
+          ["RH1 High Bay Series", "RH1"],
+        ],
+      },
+      mountingBase: { required: true, options: [["ADP Base - Hook Mount", "HK"]] },
+      reflector: { required: false, options: [['Cylinder 7"/18cm Reflector', "C7"]] },
+      controlCap: { required: false, options: [["Avi-On Bluetooth Control Cap", "BT"]] },
+      lampAccessory: { required: false, options: [["VA6 Post Top House Side Shield", "SS"]] },
+      reflectorAccessory: { required: false, options: [['16"/41cm UGR Diffuser', "UGR16"]] },
+    },
+    specs: {
+      general: {
+        description:
+          "Pick a Filamento lamp, the base that holds it and an optional reflector or add-on. Every part snaps together without tools, so one build can be changed later as the space changes.",
+        items: [
+          "Mix and match lamp, mounting base, reflector and accessories",
+          "Tool-free assembly — parts snap or twist into place",
+          "Each part is sold and replaceable on its own",
+        ],
+        tables: [],
+      },
+      certifications: list("UL", "DLC Premium"),
+      mechanical: list("Overall size depends on the chosen lamp and reflector"),
+    },
+    videos: [],
+  },
+];
+
+/* Configurator এর parts — অংশের নাম থেকে database এর id.
+   যে অংশ পাওয়া যায় না (মুছে ফেলা হয়েছে) সেটা বাদ, প্রথমটা default */
+async function partsToComponents(products, parts) {
+  const components = {};
+  for (const [key, step] of Object.entries(parts)) {
+    const options = [];
+    for (const [name, code] of step.options) {
+      const doc = await products.findOne({ slug: slugify(name) }, { projection: { _id: 1 } });
+      if (doc) {
+        options.push({ product: doc._id.toString(), code, isDefault: !options.length });
+      }
+    }
+    components[key] = { required: step.required, options };
+  }
+  return components;
+}
+
+/* সাইটের Products পাতার Filters — নমুনা product গুলোর মান.
+   (admin এ Product Info → Filters থেকে এগুলোই বাছা হয়) */
+const SAMPLE_FILTERS = {
+  "LA1 High Bay: Linear Distribution": {
+    power: ["101-200w", "201-300w", "301-400w"],
+    cri: ["80"],
+    cct: ["4000k", "5000k"],
+    lumens: ["10k-20k", "20k-30k", "30k-40k"],
+    termination: ["hardwired"],
+    controlModule: ["0-10v", "bluetooth"],
+  },
+  "LS1 High Bay Series": {
+    power: ["101-200w", "201-300w"],
+    cri: ["80", "90"],
+    cct: ["3000k", "4000k", "5000k"],
+    lumens: ["10k-20k", "20k-30k"],
+    termination: ["hardwired", "cord-plug"],
+    controlModule: ["0-10v"],
+  },
+  "RH1 High Bay Series": {
+    power: ["201-300w", "301-400w"],
+    cri: ["80"],
+    cct: ["4000k", "5000k"],
+    lumens: ["20k-30k", "30k-40k", "over-40k"],
+    termination: ["hardwired"],
+    controlModule: ["0-10v", "occupancy"],
+  },
+  "Aisle Lighter": {
+    power: ["up-to-100w", "101-200w"],
+    cri: ["80"],
+    cct: ["3500k", "4000k"],
+    lumens: ["under-10k", "10k-20k"],
+    termination: ["e39"],
+    controlModule: ["non-dimming"],
+  },
+  "High Bay Configurator": {
+    power: ["101-200w", "201-300w"],
+    cri: ["80"],
+    cct: ["2200k", "2700k", "4000k"],
+    lumens: ["10k-20k", "20k-30k"],
+    termination: ["e39", "e26"],
+    controlModule: ["bluetooth", "daylight"],
+  },
+  "Avi-On Bluetooth Control Cap": { controlModule: ["bluetooth"] },
+};
+
+// "Sort by: Featured" এ আগে আসে
+const SAMPLE_FEATURED = [
+  "LA1 High Bay: Linear Distribution",
+  "LS1 High Bay Series",
+  "RH1 High Bay Series",
 ];
 
 async function main() {
@@ -387,7 +613,12 @@ async function main() {
   const base = Date.now();
 
   for (const [index, sample] of SAMPLES.entries()) {
-    const { value, error } = cleanProduct(sample);
+    const { parts, ...fields } = sample;
+    if (parts) fields.components = await partsToComponents(products, parts);
+    if (SAMPLE_FILTERS[fields.name]) fields.filters = SAMPLE_FILTERS[fields.name];
+    if (SAMPLE_FEATURED.includes(fields.name)) fields.featured = true;
+
+    const { value, error } = cleanProduct(fields);
     if (error) throw new Error(`${sample.name}: ${error}`);
 
     const slug = slugify(value.name);

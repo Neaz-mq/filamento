@@ -25,6 +25,25 @@ const AdminSoon = lazy(() => import("./admin/AdminSoon"));
 const AdminUsers = lazy(() => import("./admin/AdminUsers"));
 const ProductLibrary = lazy(() => import("./admin/products/ProductLibrary"));
 const ProductEditor = lazy(() => import("./admin/products/ProductEditor"));
+const ProjectLibrary = lazy(() => import("./admin/projects/ProjectLibrary"));
+const ProjectEditor = lazy(() => import("./admin/projects/ProjectEditor"));
+
+/* Products এর দুই পাতা — lazy, যাতে Home এর দর্শকের browser এ এদের
+   কোড নামে না (মূল bundle হালকা থাকে). পাতায় ঢুকলেই নামে */
+const Products = lazy(() => import("./pages/Products"));
+const ProductDetail = lazy(() => import("./pages/ProductDetail"));
+
+/* lazy পাতা নামার ফাঁকে — navbar আর footer এর মাঝে ফাঁকা জায়গা,
+   যাতে footer লাফিয়ে উপরে উঠে না আসে */
+function PageBoot() {
+  return <div style={{ minHeight: "70vh" }} aria-busy="true" />;
+}
+
+const lazyPage = (Page) => (
+  <Suspense fallback={<PageBoot />}>
+    <Page />
+  </Suspense>
+);
 
 /* নতুন Home (Figma র দ্বিতীয় landing page) — এটাও lazy. মূল পাতার
    দর্শকের browser এ এর কোড, CSS আর Manrope font কিছুই নামে না */
@@ -63,7 +82,6 @@ function HomeTwoBoot() {
    ✅ কোনোটা তৈরি হলে এখান থেকে নামটা মুছে নিচে ADMIN_ROUTE এর
    children এ আসল component দিয়ে সারি যোগ করবেন */
 const ADMIN_SOON = [
-  "projects",
   "application",
   "company",
   "shop",
@@ -154,7 +172,7 @@ function AdminCrash() {
    আসল component দিয়ে যোগ করবেন
    --------------------------------------------------------------- */
 const COMING_SOON = [
-  { path: "products", titleKey: "nav.products" },
+  // "products" (তালিকা আর product এর পাতা) এখন আসল পাতা — নিচে PAGES এ।
   // "projects" (তালিকা) এখন আসল পাতা — নিচে PAGES এ।
   // Testimonial এর "Project" link — /projects/marcus-cold-storage ইত্যাদি,
   // এই একক প্রজেক্ট বিস্তারিত পাতাটা এখনো বানানো হয়নি
@@ -184,8 +202,10 @@ function ContactRedirect() {
    দরকার নেই, নিচের map নিজেই তিনটা বানিয়ে নেয় */
 const PAGES = [
   { index: true, element: <Home /> },
-  // { path: "products", element: <Products /> },
-  // { path: "products/:slug", element: <ProductDetail /> },
+  /* Products — তালিকা (/products?category=…&cct=…) আর একটা product
+     এর পাতা (/products/la1-high-bay-linear-distribution) */
+  { path: "products", element: lazyPage(Products) },
+  { path: "products/:slug", element: lazyPage(ProductDetail) },
   { path: "projects", element: <Projects /> },
   { path: "contact", element: <ContactRedirect /> },
   ...COMING_SOON.map(({ path, titleKey }) => ({
@@ -239,6 +259,10 @@ const ADMIN_ROUTE = {
            পুরনো (/products/<id>) product এর চার ধাপের পাতা */
         { path: "products", element: <ProductLibrary /> },
         { path: "products/:id", element: <ProductEditor /> },
+        /* Project — তালিকা, আর নতুন (/projects/new) বা পুরনো
+           (/projects/<id>) project এর তিন ধাপের পাতা */
+        { path: "projects", element: <ProjectLibrary /> },
+        { path: "projects/:id", element: <ProjectEditor /> },
         ...ADMIN_SOON.map((path) => ({ path, element: <AdminSoon /> })),
       ],
     },

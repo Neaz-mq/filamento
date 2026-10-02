@@ -1,0 +1,1049 @@
+/* ===============================================================
+   Projects পাতার চেহারা — Figma র "Project Dashboard"
+
+   বেশিরভাগ জিনিস (card, বোতাম, ঘর, টেবিল, ধাপের সারি, modal)
+   products.css এর "pd-" class থেকেই আসে — একই পরিবার. এখানে শুধু
+   Project এর নিজস্ব অংশ, সব "pj-" দিয়ে শুরু.
+
+   মাপ ঠিক হয় পাশের অংশের চওড়া দেখে (@container adm-main)
+   =============================================================== */
+
+/* ---------------------------------------------------------------
+   ছোট জিনিস — ছবি, অবস্থা, category
+   --------------------------------------------------------------- */
+.pj-thumb {
+  display: grid;
+  place-items: center;
+  flex: none;
+  overflow: hidden;
+  border-radius: 10px;
+  background: rgba(235, 235, 236, 0.6);
+  color: var(--pd-grey);
+}
+
+.pj-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.pj-thumb--empty {
+  outline: 1px dashed rgba(55, 58, 60, 0.18);
+  outline-offset: -1px;
+}
+
+.pj-status {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 80px;
+  padding: 6px;
+  border-radius: 100px;
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.pj-status--green {
+  background: rgba(34, 197, 94, 0.1);
+  color: #16a34a;
+}
+
+.pj-status--yellow {
+  background: rgba(247, 190, 0, 0.12);
+  color: #a37b00;
+}
+
+.pj-status--grey {
+  background: rgba(55, 58, 60, 0.07);
+  color: rgba(55, 58, 60, 0.7);
+}
+
+.pj-cat {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 6px;
+  border-radius: 100px;
+  background: rgba(20, 71, 230, 0.1);
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 15px;
+  color: #1447e6;
+  white-space: nowrap;
+}
+
+.pj-dot {
+  width: 8px;
+  height: 8px;
+  flex: none;
+  border-radius: 50%;
+}
+
+/* ---------------------------------------------------------------
+   Project Overview আর Projects by Location
+   --------------------------------------------------------------- */
+.pj-overview {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+@container adm-main (max-width: 820px) {
+  .pj-overview {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.pj-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+  padding: 24px;
+  background: #ffffff;
+  border: 1px solid var(--pd-line);
+  border-radius: var(--pd-radius);
+}
+
+.pj-panel-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-weight: 600;
+  font-size: 13px;
+  line-height: 16px;
+  color: var(--adm-ink);
+}
+
+.pj-overview-body {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.pj-donut {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  flex: none;
+}
+
+.pj-donut svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.pj-donut circle {
+  fill: none;
+  stroke-width: 12;
+}
+
+.pj-donut .pj-donut-base {
+  stroke: #ebebec;
+}
+
+.pj-donut-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 2px;
+}
+
+.pj-donut-center strong {
+  font-family: var(--adm-font);
+  font-weight: 700;
+  font-size: 22px;
+  line-height: 1;
+}
+
+.pj-donut-center span {
+  font-weight: 500;
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--adm-ink-50);
+}
+
+.pj-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pj-legend-row,
+.pj-place {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 5px 8px;
+  margin: 0 -8px;
+  box-sizing: content-box;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  font: 600 12px / 15px var(--adm-font-ui);
+  color: var(--adm-ink);
+  text-align: left;
+}
+
+button.pj-legend-row,
+button.pj-place {
+  cursor: pointer;
+}
+
+button.pj-legend-row:hover,
+button.pj-place:hover {
+  background: var(--pd-soft);
+}
+
+.pj-legend-row.is-on,
+.pj-place.is-on {
+  background: rgba(247, 190, 0, 0.12);
+}
+
+.pj-legend-row:focus-visible,
+.pj-place:focus-visible {
+  outline: 2px solid var(--adm-ink);
+  outline-offset: -2px;
+}
+
+.pj-legend-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.pj-legend-value {
+  white-space: nowrap;
+}
+
+.pj-location-body {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: center;
+  gap: 16px;
+}
+
+.pj-map {
+  display: grid;
+  place-items: center;
+  height: 120px;
+  border-radius: 8px;
+  background: rgba(235, 235, 236, 0.5);
+  color: var(--adm-ink);
+}
+
+.pj-places {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pj-place {
+  padding-top: 3px;
+  padding-bottom: 3px;
+}
+
+.pj-place span {
+  overflow: hidden;
+  font-weight: 400;
+  color: var(--adm-ink-50);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pj-places-empty {
+  margin: 0;
+  font-size: 12px;
+  color: var(--adm-ink-50);
+}
+
+@container adm-main (max-width: 460px) {
+  .pj-overview-body {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .pj-donut {
+    align-self: center;
+  }
+
+  .pj-location-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .pj-map {
+    height: 72px;
+  }
+}
+
+/* ---------------------------------------------------------------
+   তালিকা
+   --------------------------------------------------------------- */
+.pj-library {
+  gap: 4px;
+}
+
+.pj-tools {
+  justify-content: flex-end;
+}
+
+.pj-tools .pd-search {
+  width: 280px;
+  max-width: 100%;
+  margin-right: auto;
+}
+
+@container adm-main (max-width: 820px) {
+  .pj-tools .pd-search {
+    width: 100%;
+  }
+}
+
+/* Product Used এর খোঁজার ঘর পুরো চওড়া — উপরের নিয়মের চেয়ে নির্দিষ্ট */
+.pj-picker .pj-picker-search {
+  width: 100%;
+}
+
+.pj-project-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+}
+
+.pj-project-cell:hover .pj-project-name {
+  text-decoration: underline;
+}
+
+.pj-project-cell:focus-visible {
+  outline: 2px solid var(--adm-ink);
+  outline-offset: 4px;
+  border-radius: 8px;
+}
+
+.pj-project-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.pj-project-name {
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: var(--adm-ink);
+}
+
+.pj-ref {
+  font-size: 12px;
+  line-height: 1.2;
+  color: var(--adm-ink-70);
+}
+
+.pj-cell-strong {
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 1.2;
+  color: var(--adm-ink);
+}
+
+.pj-more {
+  font-weight: 400;
+  color: var(--adm-ink-50);
+}
+
+.pj-when {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 15px;
+  white-space: nowrap;
+}
+
+.pj-table tbody td {
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+
+.pj-table tbody td:first-child {
+  padding-left: 12px;
+}
+
+/* ---------------------------------------------------------------
+   Add / Edit — মাথা আর Review
+   --------------------------------------------------------------- */
+.pj-head-ref {
+  font-weight: 500;
+  font-size: 12px;
+  color: var(--adm-ink-50);
+}
+
+.pj-stage {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.pj-stage legend {
+  margin-bottom: 8px;
+}
+
+.pj-stage-choice {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--pd-line);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.pj-stage-choice input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+
+.pj-stage-choice .pj-dot {
+  margin-top: 4px;
+}
+
+.pj-stage-choice span:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pj-stage-choice strong {
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.pj-stage-choice small {
+  font-size: 11px;
+  line-height: 1.3;
+  color: var(--adm-ink-50);
+}
+
+.pj-stage-choice.is-on {
+  border-color: var(--adm-ink);
+  background: rgba(247, 190, 0, 0.06);
+}
+
+.pj-stage-choice:has(input:focus-visible) {
+  box-shadow: 0 0 0 3px rgba(247, 190, 0, 0.35);
+}
+
+@container adm-main (max-width: 420px) {
+  .pj-stage {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ---------------------------------------------------------------
+   ধাপ ১ — ঘরের ভেতরের icon
+   --------------------------------------------------------------- */
+.pj-field-icon {
+  flex: none;
+  color: var(--pd-grey);
+  pointer-events: none;
+}
+
+.pj-field-note {
+  font-size: 11px;
+  line-height: 1.3;
+  color: var(--adm-ink-50);
+}
+
+/* তারিখ — browser এর নিজের ছোট calendar লুকিয়ে পুরো ঘরটাকেই
+   চাপার জায়গা বানানো; Figma র calendar icon টা দেখায় */
+.pj-date {
+  position: relative;
+}
+
+.pj-date input {
+  min-width: 0;
+}
+
+.pj-date input::-webkit-calendar-picker-indicator {
+  position: absolute;
+  inset: 0;
+  width: auto;
+  height: auto;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.pj-date input.is-empty {
+  color: rgba(55, 58, 60, 0.5);
+}
+
+/* ---------------------------------------------------------------
+   ধাপ ২ — Challenge, Solution, Results
+   --------------------------------------------------------------- */
+.pj-story {
+  padding: 24px;
+}
+
+.pj-story-hint {
+  margin: 0;
+  font-size: 12px;
+  line-height: 15px;
+  color: rgba(55, 58, 60, 0.5);
+}
+
+.pj-story-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 19px;
+  color: var(--adm-ink);
+}
+
+.pj-story-num {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  flex: none;
+  border-radius: 14px;
+  background: var(--adm-yellow);
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 16px;
+  color: #ffffff;
+}
+
+/* লেখার সাথে বড় হয় (নতুন browser এ), পুরোটা একবারে দেখা যায় */
+.pj-story-text {
+  field-sizing: content;
+  min-height: 130px;
+  max-height: 520px;
+  padding: 16px 16px 0;
+  font-size: 12px;
+  line-height: 20px;
+}
+
+.pj-solution {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pj-solution-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--pd-line);
+  border-radius: 8px;
+}
+
+.pj-solution-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.pj-solution-text strong {
+  font-weight: 500;
+  font-size: 13px;
+  line-height: 16px;
+}
+
+.pj-solution-text span {
+  font-size: 11px;
+  line-height: 16px;
+  color: var(--adm-ink-50);
+}
+
+/* + Add Feature / + Add Product — ভাঙা রেখার বোতাম */
+.pj-dashed-btn {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  min-height: 38px;
+  padding: 8px 12px;
+  border: 1px dashed rgba(55, 58, 60, 0.2);
+  border-radius: 8px;
+  background: none;
+  font: 500 12px / 15px var(--adm-font-ui);
+  color: var(--adm-ink);
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.pj-dashed-btn:hover:not(:disabled) {
+  border-color: var(--adm-ink);
+  background: var(--pd-soft);
+}
+
+.pj-dashed-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pj-dashed-btn:focus-visible {
+  outline: 2px solid var(--adm-ink);
+  outline-offset: 2px;
+}
+
+/* ডান পাশ — Highlights আর Call to Action আলাদা দুইটা card */
+.pj-side {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pj-side-block {
+  gap: 16px;
+}
+
+.pj-highlights {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pj-highlight {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 38px;
+  padding: 0 10px 0 12px;
+  border: 1px solid var(--pd-line);
+  border-radius: 8px;
+  background: #ffffff;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.pj-highlight:focus-within {
+  border-color: var(--adm-ink);
+  box-shadow: 0 0 0 3px rgba(247, 190, 0, 0.25);
+}
+
+.pj-highlight input {
+  flex: 1;
+  min-width: 0;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: 500 12px / 15px var(--adm-font-ui);
+  color: var(--adm-ink);
+  outline: none;
+}
+
+.pj-highlight-tick {
+  flex: none;
+  color: var(--adm-yellow);
+}
+
+/* মোছার বোতাম — mouse থাকলে শুধু সারির উপর গেলে দেখায় */
+.pj-highlight-x {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  flex: none;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: var(--adm-red);
+  cursor: pointer;
+}
+
+.pj-highlight-x:hover {
+  background: rgba(239, 68, 68, 0.08);
+}
+
+.pj-highlight-x:focus-visible {
+  outline: 2px solid var(--adm-ink);
+}
+
+@media (hover: hover) {
+  .pj-highlight-x {
+    opacity: 0;
+  }
+
+  .pj-highlight:hover .pj-highlight-x,
+  .pj-highlight:focus-within .pj-highlight-x {
+    opacity: 1;
+  }
+}
+
+.pj-cta-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pj-cta-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+@container adm-main (max-width: 380px) {
+  .pj-cta-fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.pd-input.is-bad {
+  border-color: var(--adm-red);
+}
+
+.pj-cta-switch {
+  justify-content: space-between;
+  width: 100%;
+  font-weight: 400;
+  color: var(--adm-ink);
+}
+
+/* ---------------------------------------------------------------
+   ধাপ ৩ — Product Used
+   --------------------------------------------------------------- */
+.pj-picker {
+  gap: 20px;
+}
+
+.pj-picker-search {
+  height: 34px;
+}
+
+.pj-split {
+  display: grid;
+  grid-template-columns: 200px minmax(0, 1fr);
+  gap: 16px;
+  min-width: 0;
+}
+
+.pj-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.pj-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 36px;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  font: 500 12px / 15px var(--adm-font-ui);
+  color: var(--adm-ink);
+  text-align: left;
+  cursor: pointer;
+}
+
+.pj-group svg {
+  flex: none;
+  color: var(--pd-grey);
+}
+
+.pj-group:hover:not(.is-on) {
+  background: var(--pd-soft);
+}
+
+.pj-group.is-on {
+  background: rgba(247, 190, 0, 0.1);
+}
+
+.pj-group.is-on::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 4px;
+  height: 16px;
+  border-radius: 2px;
+  background: var(--adm-yellow);
+  transform: translateY(-50%);
+}
+
+.pj-group.is-on svg {
+  color: var(--adm-yellow);
+}
+
+.pj-group:focus-visible {
+  outline: 2px solid var(--adm-ink);
+  outline-offset: -2px;
+}
+
+.pj-group-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pj-group-count {
+  flex: none;
+  font-weight: 400;
+  color: var(--pd-grey);
+}
+
+.pj-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.pj-option-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 420px;
+  margin: 0;
+  padding: 0 2px 2px 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  list-style: none;
+}
+
+.pj-option-list:empty {
+  display: none;
+}
+
+.pj-option-list.is-refreshing {
+  opacity: 0.55;
+}
+
+.pj-option,
+.pj-used-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--pd-line);
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.pj-option {
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.pj-option:hover {
+  border-color: rgba(0, 0, 0, 0.15);
+}
+
+.pj-option.is-on {
+  border-color: rgba(247, 190, 0, 0.55);
+  background: rgba(247, 190, 0, 0.05);
+}
+
+.pj-option.is-full {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.pj-option:has(input:focus-visible) {
+  box-shadow: 0 0 0 3px rgba(247, 190, 0, 0.35);
+}
+
+.pj-option-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.pj-option-name {
+  overflow: hidden;
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 15px;
+  color: var(--adm-ink);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pj-option-sub {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  line-height: 13px;
+  color: var(--pd-grey);
+}
+
+/* tick-square — Figma র হলুদ বাক্স */
+.pj-check {
+  display: grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  flex: none;
+  border: 1.5px solid var(--pd-grey);
+  border-radius: 5px;
+  color: #ffffff;
+}
+
+.pj-option.is-on .pj-check {
+  border-color: var(--adm-yellow);
+  background: var(--adm-yellow);
+}
+
+.pj-more-btn {
+  align-self: center;
+}
+
+.pj-picker-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--pd-line);
+}
+
+.pj-picked {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 15px;
+}
+
+.pj-picked-badge {
+  min-width: 24px;
+  padding: 2px 8px;
+  border-radius: 100px;
+  background: var(--adm-yellow);
+  font-size: 11px;
+  line-height: 13px;
+  text-align: center;
+}
+
+.pj-picked-full {
+  color: var(--adm-ink-50);
+}
+
+.pj-used {
+  gap: 16px;
+  padding: 24px;
+  outline: none;
+}
+
+.pj-used-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pj-used-item.is-missing {
+  border-style: dashed;
+}
+
+.pj-used-empty {
+  margin: 0;
+  padding: 20px 12px;
+  border-radius: 8px;
+  background: var(--pd-soft);
+  font-size: 12px;
+  color: var(--adm-ink-50);
+  text-align: center;
+}
+
+/* সরু জায়গায় category গুলো উপরে পাশাপাশি, সরানো যায় */
+@container adm-main (max-width: 640px) {
+  .pj-split {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .pj-groups {
+    flex-direction: row;
+    gap: 6px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding-bottom: 2px;
+  }
+
+  .pj-group {
+    width: auto;
+    flex: none;
+    border: 1px solid var(--pd-line);
+    border-radius: 100px;
+  }
+
+  .pj-group.is-on::before {
+    display: none;
+  }
+
+  .pj-group.is-on {
+    border-color: rgba(247, 190, 0, 0.6);
+  }
+
+  .pj-group-name {
+    overflow: visible;
+  }
+
+  .pj-option-list {
+    max-height: 360px;
+  }
+}
