@@ -517,21 +517,25 @@
 }
 
 /* ---------------------------------------------------------------
-   উপরের header
+   উপরের header — Figma: 40 উঁচু সারি
+     বাঁয়ে  search (318 চওড়া গোল ঘর)
+     ডানে   ☀ 40 · 🔔 40 (হলুদ সংখ্যা) · হলুদ গোল + নাম/ভূমিকা
    --------------------------------------------------------------- */
 .adm-topbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 24px;
+  gap: 16px;
   min-height: 40px;
+  /* Figma: frame এর উপরে 20 — .adm-app এর 16 এর সাথে আরও 4 */
   padding-top: 4px;
 }
 
 .adm-topbar-left {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
+  flex: 1;
   min-width: 0;
 }
 
@@ -542,25 +546,19 @@
   flex: none;
 }
 
-.adm-greet {
-  margin: 0;
-  font-family: var(--adm-font);
-  font-weight: 400;
+/* যে পাতা নিজে শিরোনাম আঁকে না (Users, Leads …) — header এর নিচে */
+.adm-page-heading {
+  margin: 8px 0 0;
+  font-family: var(--adm-font-ui);
+  font-weight: 500;
   font-size: 30px;
   line-height: 1.1;
   letter-spacing: -0.01em;
-  color: var(--adm-ink-70);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.adm-greet strong {
-  font-weight: 700;
   color: var(--adm-ink);
 }
 
 .adm-icon-btn {
+  position: relative;
   display: grid;
   place-items: center;
   width: 40px;
@@ -584,10 +582,55 @@
   outline-offset: 2px;
 }
 
-/* যেগুলো এখনো কাজ করে না — শুধু দেখার জিনিস, চাপা যায় না */
-.adm-icon-btn--flat {
+/* যেগুলো এখনো কাজ করে না (☀) — শুধু দেখার জিনিস, চাপা যায় না */
+.adm-icon-btn--flat,
+.adm-icon-btn--flat:hover {
   cursor: default;
-  color: var(--adm-ink-70);
+  background: var(--adm-panel);
+}
+
+/* 🔔 এর হলুদ সংখ্যা — Figma: 14 × 14, left 27, top -1 */
+.adm-bell-count {
+  position: absolute;
+  top: -1px;
+  left: 27px;
+  display: grid;
+  place-items: center;
+  min-width: 14px;
+  height: 14px;
+  box-sizing: border-box;
+  padding: 0 3px;
+  border-radius: 100px;
+  background: var(--adm-yellow);
+  font-family: var(--adm-font-ui);
+  font-weight: 500;
+  font-size: 8px;
+  line-height: 1;
+  color: #ffffff;
+}
+
+/* নিজের নাম — হলুদ গোল + নাম আর ভূমিকা (Figma: 122 চওড়া, gap 8) */
+.adm-user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 220px;
+  padding: 0 6px 0 0;
+  border: 0;
+  border-radius: 100px;
+  background: none;
+  color: var(--adm-ink);
+  text-align: left;
+  cursor: pointer;
+}
+
+.adm-user:focus-visible {
+  outline: 2px solid var(--adm-ink);
+  outline-offset: 2px;
+}
+
+.adm-user:hover .adm-avatar {
+  background: var(--adm-yellow-dark);
 }
 
 .adm-avatar {
@@ -596,124 +639,106 @@
   width: 40px;
   height: 40px;
   flex: none;
-  padding: 0;
-  border: 0;
   border-radius: 100px;
   background: var(--adm-yellow);
-  font-family: var(--adm-font);
-  font-weight: 700;
-  font-size: 16px;
   color: #ffffff;
-  cursor: pointer;
   transition: background 0.15s ease;
 }
 
-.adm-avatar:hover {
-  background: var(--adm-yellow-dark);
+.adm-user-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
 }
 
-.adm-avatar:focus-visible {
-  outline: 2px solid var(--adm-ink);
-  outline-offset: 2px;
+.adm-user-name {
+  overflow: hidden;
+  font-family: var(--adm-font-ui);
+  font-weight: 600;
+  font-size: 13px;
+  line-height: 16px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--adm-ink);
+}
+
+.adm-user-role {
+  font-family: var(--adm-font-ui);
+  font-weight: 400;
+  font-size: 11px;
+  line-height: 13px;
+  white-space: nowrap;
+  color: rgba(55, 58, 60, 0.75);
 }
 
 /* ---------------------------------------------------------------
-   উপরের search
-
-   বন্ধ অবস্থায় শুধু একটা গোল বোতাম. চাপলে সেটাই পাশে বেড়ে পুরো
-   ঘর হয়ে যায় — নতুন কিছু বসে না, তাই ঝাঁকি লাগে না
+   উপরের search — Figma: 318 × 40, সাদা-স্বচ্ছ, পাতলা দাগ, গোল
    --------------------------------------------------------------- */
 .adm-search {
   position: relative;
-  flex: none;
+  flex: 0 1 318px;
+  min-width: 0;
 }
 
 .adm-search-box {
-  position: relative;
   display: flex;
   align-items: center;
   gap: 8px;
   box-sizing: border-box;
-  width: 40px;
+  width: 100%;
   height: 40px;
-  padding: 0 10px;
+  padding: 0 8px 0 12px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
   border-radius: 100px;
   background: var(--adm-panel);
-  overflow: hidden;
   transition:
-    width 0.22s ease,
-    padding 0.22s ease,
     background 0.15s ease,
+    border-color 0.15s ease,
     box-shadow 0.15s ease;
 }
 
-.adm-search:not(.is-open) .adm-search-box:hover {
+.adm-search-box:hover {
   background: #ffffff;
 }
 
-.adm-search.is-open .adm-search-box {
-  width: min(320px, 52vw);
-  padding: 0 6px 0 14px;
-  background: var(--adm-card);
-  box-shadow:
-    0 0 0 1px var(--adm-line-2),
-    0 10px 26px -18px rgba(11, 18, 26, 0.5);
+.adm-search-box:focus-within {
+  background: #ffffff;
+  border-color: var(--adm-line-2);
+  box-shadow: 0 10px 26px -18px rgba(11, 18, 26, 0.5);
 }
 
 .adm-search-icon {
   display: grid;
   place-items: center;
-  width: 20px;
   flex: none;
-  color: var(--adm-ink-70);
+  color: #000000;
 }
 
 .adm-search-input {
   flex: 1;
   min-width: 0;
   height: 100%;
+  padding: 0;
   border: 0;
   background: none;
   outline: none;
   font-family: var(--adm-font-ui);
-  font-weight: 500;
-  /* ফোনে 16px এর কম হলে ঘর ছুঁলেই পাতা zoom করে ফেলে */
-  font-size: 16px;
+  font-weight: 400;
+  font-size: 14px;
   color: var(--adm-ink);
-  opacity: 0;
-  transition: opacity 0.15s ease;
-}
-
-.adm-search.is-open .adm-search-input {
-  opacity: 1;
 }
 
 .adm-search-input::placeholder {
-  color: var(--adm-ink-50);
-  font-weight: 400;
-}
-
-/* বন্ধ অবস্থায় পুরো গোলটার উপর স্বচ্ছ বোতাম */
-.adm-search-open {
-  position: absolute;
-  inset: 0;
-  padding: 0;
-  border: 0;
-  border-radius: 100px;
-  background: none;
-  cursor: pointer;
-}
-
-.adm-search-open:focus-visible {
-  outline: 2px solid var(--adm-ink);
-  outline-offset: 2px;
+  color: rgba(0, 0, 0, 0.7);
+  opacity: 1;
 }
 
 .adm-search-x {
   display: grid;
   place-items: center;
-  width: 28px;
-  height: 28px;
+  width: 26px;
+  height: 26px;
   flex: none;
   padding: 0;
   border: 0;
@@ -731,15 +756,24 @@
 .adm-search-panel {
   position: absolute;
   top: calc(100% + 8px);
-  right: 0;
+  left: 0;
   z-index: 45;
-  width: min(360px, 92vw);
+  width: max(100%, 360px);
+  max-width: calc(100vw - 24px);
+  max-height: min(520px, calc(100dvh - 120px));
+  overflow-y: auto;
   box-sizing: border-box;
   padding: 8px;
   background: var(--adm-card);
   border: 1px solid var(--adm-line-2);
   border-radius: 16px;
   box-shadow: 0 20px 44px -24px rgba(11, 18, 26, 0.45);
+}
+
+.adm-search-group + .adm-search-group {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid var(--adm-line);
 }
 
 .adm-search-head {
@@ -839,11 +873,143 @@
   text-align: center;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .adm-search-box,
-  .adm-search-input {
-    transition: none;
-  }
+/* ---------------------------------------------------------------
+   🔔 খোলার তালিকা
+   --------------------------------------------------------------- */
+.adm-notes {
+  width: 360px;
+  max-width: calc(100vw - 24px);
+}
+
+.adm-notes-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px 10px;
+}
+
+.adm-notes-title {
+  margin: 0;
+  font-family: var(--adm-font-ui);
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--adm-ink);
+}
+
+.adm-notes-new {
+  padding: 3px 8px;
+  border-radius: 100px;
+  background: #fef5d9;
+  font-family: var(--adm-font-ui);
+  font-weight: 500;
+  font-size: 11px;
+  color: #a37a00;
+  white-space: nowrap;
+}
+
+.adm-notes-empty {
+  margin: 4px 8px 10px;
+  font-family: var(--adm-font-ui);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--adm-ink-70);
+}
+
+.adm-notes-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 360px;
+  overflow-y: auto;
+}
+
+.adm-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px;
+  border-radius: 10px;
+  text-decoration: none;
+  color: var(--adm-ink);
+}
+
+.adm-note:hover {
+  background: rgba(55, 58, 60, 0.05);
+}
+
+.adm-note:focus-visible {
+  outline: 2px solid var(--adm-ink);
+  outline-offset: -2px;
+}
+
+.adm-note-icon {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  flex: none;
+  border-radius: 100px;
+  background: rgba(55, 58, 60, 0.06);
+}
+
+/* এখনো দেখা হয়নি — হলুদ ঘর */
+.adm-note.is-fresh .adm-note-icon {
+  background: rgba(247, 190, 0, 0.15);
+  color: #a37a00;
+}
+
+.adm-note-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.adm-note-title {
+  font-family: var(--adm-font-ui);
+  font-weight: 500;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.adm-note-sub {
+  overflow: hidden;
+  font-family: var(--adm-font-ui);
+  font-size: 12px;
+  line-height: 1.4;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--adm-ink-50);
+}
+
+.adm-note-time {
+  flex: none;
+  font-family: var(--adm-font-ui);
+  font-size: 11px;
+  line-height: 1.6;
+  color: var(--adm-ink-50);
+}
+
+.adm-notes-all {
+  display: block;
+  margin: 6px 0 0;
+  padding: 10px 8px 6px;
+  border-top: 1px solid var(--adm-line);
+  font-family: var(--adm-font-ui);
+  font-weight: 500;
+  font-size: 13px;
+  text-align: center;
+  text-decoration: none;
+  color: var(--adm-ink);
+}
+
+.adm-notes-all:hover {
+  text-decoration: underline;
 }
 
 /* ---------------------------------------------------------------
@@ -2084,10 +2250,6 @@
     padding: 12px;
   }
 
-  .adm-greet {
-    font-size: 22px;
-  }
-
   .adm-overview-title {
     font-size: 20px;
   }
@@ -2106,25 +2268,37 @@
   }
 }
 
-/* search খোলা থাকলে ছোট পর্দায় অভিবাদনটা সরে যায় — নাহলে ঘরটার
-   জন্য জায়গা থাকত না. :has() না চিনলে লেখাটা শুধু কেটে যাবে,
-   ভাঙবে না */
+/* ছোট পর্দায় নামের লেখা সরে যায় (শুধু হলুদ গোল থাকে) — search এর
+   জন্য জায়গা লাগে. মেনু খুললে নাম আর ভূমিকা ভেতরে লেখা আছে */
 @media (max-width: 760px) {
-  .adm-topbar:has(.adm-search.is-open) .adm-greet {
+  .adm-user-text {
     display: none;
   }
 
-  .adm-search.is-open .adm-search-box {
-    width: min(320px, 68vw);
+  .adm-user {
+    padding: 0;
+  }
+
+  .adm-page-heading {
+    font-size: 24px;
   }
 }
 
-/* ফোনে তালিকাটা search ঘরের ডান কিনারায় বসালে বাঁ পাশ পর্দার
-   বাইরে চলে যেত — তাই ওখানে দুই কিনারা ধরে বসানো হয় */
+/* ফোনে তালিকাটা search ঘরের নিচে বসালে ডান পাশ পর্দার বাইরে চলে
+   যেত — তাই ওখানে দুই কিনারা ধরে বসানো হয় */
 @media (max-width: 480px) {
   .adm-search-panel {
     position: fixed;
-    top: 60px;
+    top: 64px;
+    left: 12px;
+    right: 12px;
+    width: auto;
+    max-width: none;
+  }
+
+  .adm-notes {
+    position: fixed;
+    top: 64px;
     left: 12px;
     right: 12px;
     width: auto;
@@ -2132,14 +2306,10 @@
 }
 
 @media (max-width: 560px) {
-  /* ফোনে উপরের জায়গা কম — 🔔 এমনিতেও কাজ করে না, তাই সরানো হলো
-     যেন অভিবাদনের নামটা কাটা না পড়ে. search থাকে, ওটা কাজের */
-  .adm-icon-btn--flat {
+  /* ফোনে উপরের জায়গা কম — ☀ এখনো কাজ করে না, তাই সরানো হলো.
+     search, 🔔 আর নিজের মেনু থাকে, ওগুলো কাজের */
+  .adm-theme {
     display: none;
-  }
-
-  .adm-greet {
-    font-size: 19px;
   }
 
   .adm-chip {

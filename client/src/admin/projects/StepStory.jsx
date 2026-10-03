@@ -40,21 +40,29 @@ function StoryCard({ number, title, hint, children, titleId }) {
   );
 }
 
-function StoryText({ value, onChange, placeholder, canEdit, label }) {
+function StoryText({
+  value,
+  onChange,
+  placeholder,
+  canEdit,
+  label,
+  max = PROJECT_LIMITS.story,
+  rows = 6,
+}) {
   return (
     <span className="pd-textarea-box pj-story-box">
       <textarea
-        className="pd-textarea pj-story-text"
-        rows={6}
+        className={`pd-textarea pj-story-text${rows < 4 ? " pj-story-text--short" : ""}`}
+        rows={rows}
         value={value}
-        maxLength={PROJECT_LIMITS.story}
+        maxLength={max}
         placeholder={placeholder}
         aria-label={label}
         readOnly={!canEdit}
         onChange={(event) => onChange(event.target.value)}
       />
       <span className="pd-count">
-        {value.length} / {PROJECT_LIMITS.story}
+        {value.length} / {max}
       </span>
     </span>
   );
@@ -348,6 +356,16 @@ function StepStory({ project, setProject, errors = {}, canEdit }) {
           titleId={ids.solution}
           hint="Describe the lighting solution Filamento provided — one card per key part of it."
         >
+          {/* উপরের ছোট বিবরণ (ঐচ্ছিক) — সাইটে "The Solution" এর ঠিক নিচে */}
+          <StoryText
+            label="Solution summary"
+            value={project.solutionIntro ?? ""}
+            onChange={setField("solutionIntro")}
+            canEdit={canEdit}
+            max={PROJECT_LIMITS.solutionIntro}
+            rows={2}
+            placeholder="Summary (optional) — e.g. Filamento provided a complete LED lighting solution designed to meet the center's performance and efficiency goals."
+          />
           {solution.length > 0 && (
             <ul className="pj-solution">
               {solution.map((item, index) => {

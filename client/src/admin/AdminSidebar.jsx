@@ -37,7 +37,7 @@ function NavRow({ to, label, Icon, badge, end }) {
   );
 }
 
-function AdminSidebar({ railed, onToggle, onExpand }) {
+function AdminSidebar({ railed, onToggle, onExpand, badges = {} }) {
   const { signOut } = useAdminAuth();
   const location = useLocation();
 
@@ -125,15 +125,17 @@ function AdminSidebar({ railed, onToggle, onExpand }) {
         )}
 
         {NAV_GROUPS[0].items.map((item) => (
-          <NavRow key={item.to} {...item} />
+          <NavRow key={item.to} {...item} badge={badges[item.to]} />
         ))}
       </div>
 
       {NAV_GROUPS.slice(1).map((group) => (
         <div className="adm-side-group" key={group.id}>
           <p className="adm-side-label">{group.label}</p>
+          {/* badges — বাইরে থেকে আসা আসল সংখ্যা (যেমন উত্তর না দেওয়া
+              lead). সংখ্যা না থাকলে কিছু দেখায় না */}
           {group.items.map((item) => (
-            <NavRow key={item.to} {...item} />
+            <NavRow key={item.to} {...item} badge={badges[item.to]} />
           ))}
         </div>
       ))}

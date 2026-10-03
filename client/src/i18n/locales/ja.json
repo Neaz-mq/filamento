@@ -293,7 +293,7 @@
     "title": "プロジェクト",
     "subhead": "Filamentoの照明を導入いただいている施設をご紹介します — 冷蔵倉庫からコンベンションセンターまで、全米各地で稼働中です。",
     "search": {
-      "placeholder": "プロジェクト名、都市、用途で検索...",
+      "placeholder": "プロジェクト名、都市、製品、用途で検索...",
       "ariaLabel": "プロジェクトを検索",
       "environmentLabel": "すべての用途",
       "environmentAriaLabel": "用途で絞り込む"
@@ -312,7 +312,8 @@
       "office": "オフィス",
       "retail": "小売",
       "streetLights": "街路灯",
-      "warehouse": "倉庫"
+      "warehouse": "倉庫",
+      "other": "その他"
     },
     "viewProject": "{{name}}のプロジェクトを見る",
     "empty": "条件に一致するプロジェクトが見つかりませんでした。",
@@ -321,8 +322,42 @@
     "pagination": {
       "previous": "前へ",
       "next": "次へ",
-      "pageAriaLabel": "{{page}}ページ目へ"
-    }
+      "pageAriaLabel": "{{page}}ページ目へ",
+      "ariaLabel": "プロジェクトのページ"
+    },
+    "loading": "プロジェクトを読み込んでいます…",
+    "error": "現在、プロジェクトを読み込めませんでした。",
+    "retry": "再試行",
+    "detail": {
+      "allProjects": "すべてのプロジェクト",
+      "loading": "プロジェクトを読み込んでいます…",
+      "notFoundTitle": "プロジェクトが見つかりません",
+      "notFoundText": "このプロジェクトは名称が変更されたか、掲載が終了した可能性があります。プロジェクト一覧から類似の事例をご覧ください。",
+      "errorTitle": "問題が発生しました",
+      "errorText": "現在このプロジェクトを読み込めませんでした。接続を確認して、もう一度お試しください。",
+      "browseAll": "すべてのプロジェクトを見る",
+      "gallery": "プロジェクト写真",
+      "previousImage": "前の写真",
+      "nextImage": "次の写真",
+      "showImage": "写真 {{number}} / {{total}} を表示",
+      "imageAlt": "{{name}} — 写真 {{number}} / {{total}}",
+      "keyFacts": "主なデータ",
+      "challenge": "課題",
+      "solution": "ソリューション",
+      "results": "成果",
+      "highlights": "ハイライト",
+      "planSimilar": "同様のプロジェクトを相談する",
+      "productsUsed": "使用製品",
+      "productsUsedText": "このプロジェクトで採用された照明ソリューションです。",
+      "viewAllProducts": "すべての製品を見る",
+      "previous": "前へ",
+      "next": "次へ",
+      "moreProjects": "他のプロジェクト"
+    },
+    "categoriesPrev": "前のカテゴリー",
+    "categoriesNext": "次のカテゴリー",
+    "railPrev": "前のプロジェクト",
+    "railNext": "次のプロジェクト"
   },
   "productsPage": {
     "categoriesLabel": "製品カテゴリー",
@@ -629,6 +664,70 @@
       "subscribe": "登録する",
       "subscribed": "ご登録ありがとうございます。",
       "subscribeError": "現在登録できません。もう一度お試しください。"
+    }
+  },
+  "findRep": {
+    "metaTitle": "販売代理店を探す",
+    "hero": {
+      "label": "購入方法",
+      "title": "購入方法：販売代理店を探す",
+      "intro": "製品やサービスにご興味をお持ちですか？お近くの販売代理店にお問い合わせください。下記にお住まいの地域が見つからない場合は、<sales>Sales@Filamento.com</sales>・<phone>+1 (408) 475-0038</phone>（北米）、または <intl>Ella@Filamento.com</intl>（アジア太平洋地域・ヨーロッパ）までご連絡ください。",
+      "lightCaption": "精密な光 · 地域の専門知識",
+      "lightDetail": "5つの市場で地域サポート",
+      "regions": "地域"
+    },
+    "regions": {
+      "usa": "米国/PR",
+      "europe": "ヨーロッパ",
+      "asia": "アジア",
+      "canada": "カナダ",
+      "mexico": "メキシコ"
+    },
+    "directory": {
+      "label": "販売代理店一覧",
+      "title": "地域の照明エキスパートを探す",
+      "description": "会社名または担当者名で検索し、地域とエリアを選ぶと連絡先が表示されます。",
+      "status_other": "{{count}}エリア · {{region}}",
+      "searchLabel": "販売代理店を検索",
+      "searchPlaceholder": "会社名または担当者名で検索",
+      "clearSearch": "検索をクリア",
+      "selectorLabel": "選択中のエリア",
+      "selectorNone": "エリアはまだありません",
+      "regionsLabel": "地域",
+      "chooseTerritory": "{{region}}のエリアを選択",
+      "locations_other": "{{count}}か所",
+      "noTerritories": "{{region}}にはまだ登録エリアがありません。Filamentoに直接お問い合わせいただければ、最適なパートナーをご紹介します。"
+    },
+    "results": {
+      "title": "{{place}}の販売代理店",
+      "exactCount_other": "完全一致 {{count}}件",
+      "noExact": "このエリアの代理店はまだありません",
+      "nearbyCount_other": "近隣の代理店 {{count}}件",
+      "sortedProximity": "近い順",
+      "sortedName": "名前順",
+      "searchTitle": "「{{query}}」の検索結果",
+      "searchCount_other": "{{count}}件の販売代理店",
+      "searchEmpty": "「{{query}}」に一致する販売代理店はありません。別の会社名や氏名で検索するか、下記からFilamentoへ直接ご連絡ください。",
+      "moreTerritories": "ほか{{count}}件",
+      "selectedBadge": "選択中",
+      "directBadge": "直接",
+      "fallbackPerson": "Filamento 営業チーム",
+      "email": "メール",
+      "call": "電話",
+      "emailAria": "{{name}}にメール",
+      "callAria": "{{name}}に電話",
+      "opensMap": "（Google マップで開く）"
+    },
+    "contact": {
+      "label": "直接のお問い合わせ",
+      "title": "どこに連絡すべきかお迷いですか？",
+      "description": "製品のご相談、プロジェクトのサポート、各地域の代理店のご紹介まで、Filamentoが直接対応します。",
+      "emailSales": "営業にメール",
+      "callCompany": "本社に電話",
+      "northAmerica": "北米",
+      "sales": "営業",
+      "headquarters": "本社",
+      "tagline": "Seeing is believing"
     }
   }
 }

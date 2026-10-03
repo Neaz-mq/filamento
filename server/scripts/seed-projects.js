@@ -4,9 +4,10 @@ import { cleanProject, projectSlug } from "../lib/projectSchema.js";
 import { nextProjectCode } from "../controllers/projectController.js";
 
 /* ===============================================================
-   নমুনা project — Figma র Project Library র সারিগুলো, আর "Sports
-   Arena Lighting" এ Add New Project পাতার পুরো গল্প (The Kroc
-   Center: Challenge, Solution, Results, Highlights)
+   নমুনা project — সাইটের Figma র তিনটা project (Salvation Army Kroc
+   Center, Hong Kong Asia World Expo, Barn XO — পুরো গল্প সহ), Figma র
+   Project Library র সারিগুলো, আর "Sports Arena Lighting" এ Add New
+   Project পাতার গল্প
 
    server ফোল্ডারে:
      npm run seed-projects            নমুনাগুলো যোগ করে
@@ -35,10 +36,181 @@ const FACTORY = unsplash("photo-1496247749665-49cf5b1022e9");
 const DISTRIBUTION = unsplash("photo-1721937718756-3bfec49f42a2");
 const STREET = unsplash("photo-1743369673059-cae28a9a8c9c");
 const GYM = unsplash("photo-1559369064-c4d65141e408");
+const RETAIL = unsplash("photo-1761207300250-a71b2ff68b99");
+const CONFERENCE = unsplash("photo-1652084868625-2d1a886f4189");
+
+/* সাইটের Project Details এর Figma র হলুদ বোতাম */
+const PLAN_CTA = { text: "Plan a similar project", link: "/contact", newTab: false };
 
 const CTA = { text: "Explore Products", link: "/products", newTab: false };
 
 const SAMPLES = [
+  /* ---- সাইটের Figma র তিনটা project (Projects Details পাতা) ----
+     ক্রম: Kroc → Hong Kong → Barn XO (তারিখ নতুন থেকে পুরনো), তাই
+     সাইটে "Previous / Next" Figma র মতোই মেলে */
+  {
+    title: "Salvation Army Kroc Center",
+    company: "The Salvation Army Kroc Center",
+    shortDescription:
+      "Gyms, pools and fitness areas moved to Filamento LED — uniform, glare-free light with up to 50% less energy.",
+    projectType: "gymnasium",
+    category: "sports",
+    location: "Salem, OR",
+    date: "2026-06-20",
+    status: "completed",
+    images: [FITNESS, GYM, ARENA],
+    keyFeatures: [
+      { icon: "area", title: "50,000", subtitle: "SQ FT Facility" },
+      { icon: "gauge", title: "50%", subtitle: "Energy savings" },
+      { icon: "timer", title: "100,000+ hrs", subtitle: "LED lifetime" },
+    ],
+    challenge:
+      "The Kroc Center required a lighting solution that could deliver exceptional visibility for a variety of activities while helping to reduce energy use and maintenance costs.\n\nThe facility needed uniform illumination for gymnasiums, aquatic fitness spaces and common areas.",
+    solutionIntro:
+      "Filamento provided a complete LED lighting solution designed to meet the center's performance and efficiency goals.",
+    solution: [
+      {
+        icon: "sun",
+        title: "Uniform, Glare-Free Light",
+        description:
+          "High-performance LED high bays and panels deliver consistent, comfortable light across all spaces.",
+      },
+      {
+        icon: "bolt",
+        title: "Energy Efficient",
+        description: "Up to 50% energy savings compared to previous lighting.",
+      },
+      {
+        icon: "settings",
+        title: "Low Maintenance",
+        description: "Long-life LEDs and robust design reduce maintenance and operating costs.",
+      },
+      {
+        icon: "grid",
+        title: "Versatile Application",
+        description: "Ideal for gymnasiums, fitness areas, pools, offices and public spaces.",
+      },
+    ],
+    results:
+      "The Kroc Center now enjoys excellent visibility, a better experience for visitors, and significantly lower energy and maintenance costs.\n\nThe lighting system supports the center's mission to serve the community with a safe, welcoming and sustainable environment.\n\nThe result: efficient, reliable lighting that makes a difference.",
+    highlights: [
+      "Consistent illumination for large spaces",
+      "Uniform lighting for better visibility and appeal",
+      "Lower energy consumption",
+      "Fewer bulb replacements and lower costs",
+      "Easy and simple maintenance",
+    ],
+    cta: PLAN_CTA,
+    products: ["High Bay Configurator", '16"/41cm UGR Diffuser', "ADP Base - Hook Mount"],
+  },
+  {
+    title: "Hong Kong Asia World Expo",
+    company: "AsiaWorld-Expo",
+    shortDescription:
+      "A 50,000-seat expo venue swapped its old HID system for high-CRI LED with easy bulb-level maintenance.",
+    projectType: "conventionCenter",
+    category: "commercial",
+    location: "Hong Kong",
+    date: "2026-06-18",
+    status: "completed",
+    images: [ARENA, CONFERENCE, WAREHOUSE],
+    keyFeatures: [
+      { icon: "users", title: "50,000", subtitle: "Event capacity" },
+      { icon: "gauge", title: "50%", subtitle: "Energy savings" },
+      { icon: "timer", title: "100,000+ hrs", subtitle: "LED lifetime" },
+    ],
+    challenge:
+      "Asia World Expo faced inconsistent lighting, high maintenance demands, and limited control flexibility with its outdated HID system.\n\nWith capacity for up to 50,000 attendees, the venue needed uniform, high-quality lighting for large-scale events.\n\nFrequent bulb replacements and costly maintenance also created unnecessary downtime between events.",
+    solutionIntro:
+      "Filamento upgraded the venue with high-performance LED lighting designed for uniform illumination, easy maintenance, and flexible control.",
+    solution: [
+      {
+        icon: "sun",
+        title: "Excellent Quality of Light",
+        description:
+          "High-CRI LED lighting delivers consistent, accurate illumination across the venue.",
+      },
+      {
+        icon: "settings",
+        title: "Short Maintenance Downtime",
+        description:
+          "Individual bulb replacement reduces maintenance time and operational disruption.",
+      },
+      {
+        icon: "grid",
+        title: "Flexible Control Upgrades",
+        description:
+          "Flexible controls make future system upgrades easier without replacing entire fixtures.",
+      },
+    ],
+    results:
+      "The LED upgrade delivered more uniform lighting, lower energy use, and faster maintenance across the venue.\n\nIndividual bulb replacement reduced downtime, while flexible controls improved long-term operational efficiency.\n\nThe result: a reliable, efficient, and future-ready lighting system.",
+    highlights: [
+      "Uniform illumination across large spaces",
+      "Improved visual clarity and coverage",
+      "Up to 50% energy savings",
+      "Reduced maintenance downtime",
+      "Easy bulb-level replacement",
+    ],
+    cta: PLAN_CTA,
+    products: ["LS1 High Bay Series", "LA1 High Bay: Linear Distribution"],
+  },
+  {
+    title: "Barn XO",
+    company: "Barn XO",
+    shortDescription:
+      "A warm, low-glare LED scheme for a dining and events space that wanted to look as good as it feels.",
+    projectType: "retail",
+    category: "hospitality",
+    location: "Chicago, Illinois",
+    date: "2026-06-16",
+    status: "completed",
+    images: [BARN, RETAIL],
+    keyFeatures: [
+      { icon: "users", title: "10,000", subtitle: "Event capacity" },
+      { icon: "gauge", title: "50%", subtitle: "Energy savings" },
+      { icon: "timer", title: "100,000+ hrs", subtitle: "LED lifetime" },
+    ],
+    challenge:
+      "Barn XO needed a lighting solution that could enhance the aesthetic of their unique space while providing excellent illumination for dining, events, and entertainment.\n\nThe goal was to create a warm, inviting atmosphere while minimizing energy consumption and maintenance requirements.",
+    solutionIntro:
+      "Filamento delivered a custom LED lighting solution that complements the design while ensuring superior performance.",
+    solution: [
+      {
+        icon: "sun",
+        title: "Warm & Inviting Ambiance",
+        description:
+          "Carefully selected LED fixtures create a welcoming atmosphere perfect for any occasion.",
+      },
+      {
+        icon: "bolt",
+        title: "Energy Efficient",
+        description: "Up to 50% energy savings compared to previous lighting.",
+      },
+      {
+        icon: "settings",
+        title: "Low Maintenance",
+        description: "Long-life LEDs reduce maintenance needs and operational costs.",
+      },
+      {
+        icon: "grid",
+        title: "Versatile Lighting",
+        description: "Flexible lighting for dining, events, stage and architectural highlights.",
+      },
+    ],
+    results:
+      "Barn XO now enjoys beautiful, reliable lighting that enhances every experience while reducing energy use and maintenance.\n\nThe lighting solution supports their mission to deliver memorable experiences in a space that stands out.\n\nThe result: a space that shines as bright as the experiences it creates.",
+    highlights: ["Uniform lighting", "Low-glare", "Easy installation"],
+    cta: PLAN_CTA,
+    products: [
+      "High Bay Configurator",
+      'Cylinder 7"/18cm Reflector',
+      "ADP Base - Hook Mount",
+      "VA6 Post Top House Side Shield",
+    ],
+  },
+
+  /* ---- admin এর Project Library র Figma র সারিগুলো ---- */
   {
     title: "Warehouse Lighting Upgrade",
     company: "Lone Star Logistics",
@@ -278,3 +450,4 @@ main()
     process.exitCode = 1;
   })
   .finally(() => closeDB());
+ 

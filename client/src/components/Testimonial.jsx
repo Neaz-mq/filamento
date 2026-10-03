@@ -30,11 +30,15 @@ import "./Testimonial.css";
 const PLACEHOLDER_AVATAR =
   "https://res.cloudinary.com/dzi3u164c/image/upload/v1789637818/a73e9b59e7a15dc477a605d52bd4add7b91a67a9_pewd5s.jpg";
 
+/* projectTo — এখন Projects পাতার ওই ধরনের project এর তালিকায় যায়
+   (আগের /projects/marcus-cold-storage এর মতো ঠিকানায় কোনো আসল project
+   নেই, "not found" দেখাত). admin এ এই গ্রাহকদের project যোগ হলে এখানে
+   তার ঠিকানা বসাবেন: "/projects/<slug>" */
 const TESTIMONIALS = [
-  { id: "marcus", rating: 4.5, projectTo: "/projects/marcus-cold-storage", avatar: PLACEHOLDER_AVATAR },
-  { id: "frank", rating: 4.0, projectTo: "/projects/frank-distribution-center", avatar: PLACEHOLDER_AVATAR },
-  { id: "david", rating: 4.8, projectTo: "/projects/david-manufacturing-plant", avatar: PLACEHOLDER_AVATAR },
-  { id: "elena", rating: 4.6, projectTo: "/projects/elena-warehouse-retrofit", avatar: PLACEHOLDER_AVATAR },
+  { id: "marcus", rating: 4.5, projectTo: "/projects?category=coldStorage", avatar: PLACEHOLDER_AVATAR },
+  { id: "frank", rating: 4.0, projectTo: "/projects?category=distributionCenter", avatar: PLACEHOLDER_AVATAR },
+  { id: "david", rating: 4.8, projectTo: "/projects?category=manufacturing", avatar: PLACEHOLDER_AVATAR },
+  { id: "elena", rating: 4.6, projectTo: "/projects?category=warehouse", avatar: PLACEHOLDER_AVATAR },
 ];
 
 /* Figma: 32px বৃত্তের ভেতরে তীর — 10.5px লম্বা, 45° ঘোরানো,

@@ -138,7 +138,13 @@ export const api = {
   duplicateProduct: (id) =>
     request(`/api/products/${id}/duplicate`, { method: "POST" }),
 
-  /* ---------- Project ----------
+  /* ---------- Project (সাইট) ----------
+     শুধু Completed আর In Progress project — draft কখনো আসে না */
+  getProjects: () => request("/api/projects"),
+  // id অথবা slug (/projects/barn-xo)
+  getProject: (id) => request(`/api/projects/${encodeURIComponent(id)}`),
+
+  /* ---------- Project (admin) ----------
      তালিকার params: { q, status, category, sort, page, limit } */
   adminListProjects: (params = {}) =>
     request(`/api/projects/admin/list${toQuery(params)}`),
@@ -173,6 +179,12 @@ export const api = {
       body: JSON.stringify(data),
     }),
   listQuoteRequests: () => request("/api/quote-requests"),
+
+  /* ---------- Admin Dashboard ----------
+     days: 7 | 30 | 90 | 365 — card এর "↑ %" কত দিনের তুলনা */
+  adminOverview: (days = 30) => request(`/api/admin/overview${toQuery({ days })}`),
+  // 🔔 আর বাঁ মেনুর Leads এর সংখ্যা — নতুন quote request
+  adminNotifications: () => request("/api/admin/notifications"),
 
   /* ---------- Newsletter (নতুন Home এর footer) ---------- */
   subscribeNewsletter: (email, locale) =>

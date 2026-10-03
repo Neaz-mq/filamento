@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
-import { RequireAdmin, useAdminAuth } from "./AdminAuth";
+import { RequireAdmin } from "./AdminAuth";
 import AdminSidebar from "./AdminSidebar";
 import AdminSearch from "./AdminSearch";
 import AdminUserMenu from "./AdminUserMenu";
+import AdminNotifications from "./AdminNotifications";
+import { useLeadAlerts } from "./useLeadAlerts";
 import { homeSections } from "./dashboardData";
-import { IconBell, IconMenu } from "./icons";
+import { IconMenu, IconSun } from "./icons";
 
 /* ===============================================================
    Admin এর বাইরের কাঠামো — বাঁয়ে মেনু, উপরে header, ডানে পাতা
@@ -48,9 +50,9 @@ const TITLES = {
   "/admin/settings": "Settings",
 };
 
-/* যে পাতাগুলোর নিজের বড় শিরোনাম আছে (Figma তে header এ কিছু লেখা
-   নেই) — সেখানে header এর বাঁ পাশ ফাঁকা থাকে, একই নাম দুইবার
-   দেখায় না */
+/* যে পাতাগুলোর নিজের বড় শিরোনাম আছে — সেখানে header এর নিচে
+   আলাদা শিরোনাম বসে না, একই নাম দুইবার দেখায় না.
+   Dashboard ("Welcome Back") আর Projects ও নিজের শিরোনাম আঁকে */
 const OWN_HEADING = ["/admin/products"];
 
 function pageTitle(pathname) {
@@ -66,12 +68,17 @@ function pageTitle(pathname) {
     return section ? section.name : "Home";
   }
 
-  return null; // dashboard — তখন অভিবাদন দেখানো হয়
+  return null; // dashboard আর projects — নিজের শিরোনাম নিজেই আঁকে
 }
 
 function AdminShell() {
-  const { admin } = useAdminAuth();
   const location = useLocation();
+
+  /* নতুন quote request — 🔔 আর বাঁ মেনুর Leads এর সংখ্যা.
+     প্রতি মিনিটে একবার, শুধু tab চোখের সামনে থাকলে */
+  const alerts = useLeadAlerts();
+  const leadBadge =
+    alerts?.canSeeLeads && alerts.newCount > 0 ? alerts.newCount : undefined;
 
   /* দুইটা আলাদা অবস্থা, কারণ বড় আর ছোট পর্দায় মেনুর আচরণ আলাদা:
 
@@ -140,6 +147,7 @@ function AdminShell() {
           railed={railed}
           onToggle={toggleNav}
           onExpand={() => setRailed(false)}
+          badges={{ "/admin/leads": leadBadge }}
         />
       </div>
 
@@ -154,6 +162,7 @@ function AdminShell() {
       )}
 
       <div className="adm-main">
+        {/* Figma: বাঁয়ে search, ডানে ☀ 🔔 আর নিজের নাম — সব পাতায় একই */}
         <header className="adm-topbar">
           <div className="adm-topbar-left">
             {/* ☰ শুধু ছোট পর্দায় — বড় পর্দায় মেনুর নিজের বোতামই
@@ -168,31 +177,30 @@ function AdminShell() {
               <IconMenu />
             </button>
 
-            {title !== "" && (
-              <h1 className="adm-greet">
-                {title ? (
-                  title
-                ) : (
-                  <>
-                    Welcome Back, <strong>{admin?.name}</strong>
-                  </>
-                )}
-              </h1>
-            )}
+            <AdminSearch />
           </div>
 
           <div className="adm-topbar-right">
-            <AdminSearch />
-
-            {/* 🔔 এখনো কাজ করে না — বিজ্ঞপ্তি পরে */}
-            <span className="adm-icon-btn adm-icon-btn--flat" aria-hidden="true">
-              <IconBell size={18} />
+            {/* ☀ — dark mode এখনো তৈরি হয়নি. বোতাম না বানিয়ে শুধু
+                icon, যাতে চাপলে কিছু না হওয়ার মতো ভুল না হয়.
+                (পুরো admin এর প্রায় ৩০০টা রঙ বদলাতে হবে — আলাদা কাজ) */}
+            <span
+              className="adm-icon-btn adm-icon-btn--flat adm-theme"
+              title="Dark mode — coming soon"
+              aria-hidden="true"
+            >
+              <IconSun size={20} />
             </span>
 
-            {/* গোল বোতাম — চাপলে Dashboard / View site / Sign out */}
+            <AdminNotifications data={alerts} />
+
+            {/* নাম + গোল ছবি — চাপলে Dashboard / View site / Sign out */}
             <AdminUserMenu />
           </div>
         </header>
+
+        {/* পাতার শিরোনাম — যে পাতা নিজে শিরোনাম আঁকে না, শুধু সেখানে */}
+        {title && <h1 className="adm-page-heading">{title}</h1>}
 
         <Outlet />
       </div>

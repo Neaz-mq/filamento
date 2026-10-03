@@ -4,7 +4,7 @@ import { useAdminAuth } from "./AdminAuth";
 import { IconDashboard, IconLogout, IconPerson, IconShare } from "./icons";
 
 /* ===============================================================
-   উপরের ডান পাশের গোল বোতাম — চাপলে ছোট মেনু
+   উপরের ডান পাশের নাম আর গোল ছবি — চাপলে ছোট মেনু
 
    ভেতরে: কে ঢুকেছে, কোন ভূমিকায়, Dashboard এ ফেরা, সাইট দেখা,
    আর বেরিয়ে যাওয়া.
@@ -15,6 +15,13 @@ import { IconDashboard, IconLogout, IconPerson, IconShare } from "./icons";
 
 const ROLE_TEXT = {
   owner: "Owner · super admin",
+  admin: "Admin",
+  editor: "Editor",
+};
+
+// বোতামের পাশের ছোট লেখা — Figma: "Super Admin"
+const ROLE_SHORT = {
+  owner: "Super Admin",
   admin: "Admin",
   editor: "Editor",
 };
@@ -58,16 +65,25 @@ function AdminUserMenu() {
 
   return (
     <div className="adm-menu-wrap" ref={wrapRef}>
+      {/* Figma: হলুদ গোল + নাম আর ভূমিকা. পুরোটাই একটা বোতাম */}
       <button
         type="button"
         ref={buttonRef}
-        className="adm-avatar"
+        className="adm-user"
         onClick={() => setOpen((value) => !value)}
         aria-haspopup="menu"
         aria-expanded={open}
         aria-label={`Account: ${name}`}
       >
-        <IconPerson size={18} />
+        <span className="adm-avatar" aria-hidden="true">
+          <IconPerson size={18} />
+        </span>
+        <span className="adm-user-text" aria-hidden="true">
+          <span className="adm-user-name">{name}</span>
+          <span className="adm-user-role">
+            {ROLE_SHORT[admin?.role] || admin?.role}
+          </span>
+        </span>
       </button>
 
       {open && (

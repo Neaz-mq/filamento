@@ -1,0 +1,1139 @@
+/* ===============================================================
+   PROJECT DETAILS (Figma "Projects Details")
+
+   Frame 355   1408, background rgba(235,235,236,.25), radius 40,
+               নিচে 64 ফাঁক
+     hero      1408 x 540, radius 40, নিচে কালো আভা (60% → 100%)
+               ভেতরে 1240 চওড়া, উপরে-নিচে 48 ফাঁক
+     সংখ্যার বার 1240 x 134, সাদা, border #E1E5EA, নিচের কোণ 40
+     দুই কলাম  760 + gap 32 + 448
+   Frame 479   আগের/পরের card 604 x 134, gap 32, উপরে 32 নিচে 100
+
+   রং: লেখা #0B121A (আর .75 / .5 / .25), হলুদ #FFC107, রেখা #E1E5EA
+   =============================================================== */
+
+.section.pjd {
+  --pjd-ink: #0b121a;
+  --pjd-ink-75: rgba(11, 18, 26, 0.75);
+  --pjd-ink-50: rgba(11, 18, 26, 0.5);
+  --pjd-ink-25: rgba(11, 18, 26, 0.25);
+  --pjd-line: #e1e5ea;
+  --pjd-yellow: #ffc107;
+  --pjd-light: #e1e5ea;
+
+  /* hero পুরো চওড়া, তাই section এর পাশের ফাঁক এখানে নেই — ভেতরের
+     অংশে (.pjd-body) আলাদা করে বসে */
+  padding: 0 0 var(--section-pad-y);
+  background: rgba(235, 235, 236, 0.25);
+  color: var(--pjd-ink);
+  font-family: "Inter", var(--font-sans), sans-serif;
+}
+
+/* ---------------------------------------------------------------
+   hero
+   --------------------------------------------------------------- */
+.pjd-hero {
+  position: relative;
+  height: 540px;
+  overflow: hidden;
+  border-radius: var(--section-radius);
+  background: #0b121a;
+  isolation: isolate;
+}
+
+.pjd-hero.is-loading {
+  background: rgba(235, 235, 236, 0.9);
+  animation: pjd-pulse 1.4s ease-in-out infinite;
+}
+
+.pjd-hero-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+  animation: pjd-fade 0.45s ease-out;
+  user-select: none;
+}
+
+/* Figma র নিচের কালো আভা (60% → 90%). উপরে হালকা একটু আভা বাড়তি —
+   সাদা ছাদের ছবিতেও "ALL PROJECTS" যেন পড়া যায় */
+.pjd-hero-shade {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(11, 18, 26, 0.35) 0%, rgba(11, 18, 26, 0) 22%),
+    linear-gradient(
+      180deg,
+      rgba(11, 18, 26, 0) 60%,
+      rgba(11, 18, 26, 0.75) 75%,
+      rgba(11, 18, 26, 0.9) 100%
+    );
+  pointer-events: none;
+}
+
+/* ভেতরের অংশ 1240 এ — বড় পর্দায় দুই পাশে সমান ফাঁক */
+.pjd-hero-inner {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 32px;
+  padding: 48px max(var(--section-pad-x), calc((100% - var(--content-max)) / 2));
+}
+
+.pjd-back {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 8px;
+  font-family: "Space Grotesk", var(--font-sans), sans-serif;
+  font-weight: 400;
+  font-size: 20px;
+  line-height: 26px;
+  text-transform: uppercase;
+  color: var(--pjd-light);
+  text-decoration: none;
+  transition:
+    color 0.2s ease,
+    gap 0.2s ease;
+}
+
+.pjd-back:hover {
+  gap: 12px;
+  color: #ffffff;
+}
+
+.pjd-back:focus-visible,
+.pjd-thumb:focus-visible,
+.pjd-gallery-arrow:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 3px;
+}
+
+.pjd-hero-bottom {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px 32px;
+}
+
+.pjd-hero-info {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+  max-width: 634px;
+}
+
+.pjd-hero-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Figma "CTA Button": হলুদ, padding 6 10, radius 100, SG 500 20/26 */
+.pjd-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 100px;
+  background: var(--pjd-yellow);
+  font-family: "Space Grotesk", var(--font-sans), sans-serif;
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 26px;
+  color: var(--pjd-ink);
+}
+
+.pjd-location {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  font-family: "Space Grotesk", var(--font-sans), sans-serif;
+  font-weight: 400;
+  font-size: 20px;
+  line-height: 26px;
+  color: rgba(225, 229, 234, 0.75);
+}
+
+.pjd-location svg {
+  flex: none;
+}
+
+.pjd-title {
+  margin: 0;
+  font-family: "Space Grotesk", var(--font-sans), sans-serif;
+  font-weight: 700;
+  font-size: 42px;
+  line-height: 100%;
+  color: var(--pjd-light);
+  overflow-wrap: anywhere;
+}
+
+/* ছোট ছবির সারি — Figma "Frame 104": ‹ [100x72 ×3, gap 10] ›, gap 20 */
+.pjd-gallery {
+  display: flex;
+  align-items: center;
+  flex: none;
+  gap: 20px;
+}
+
+.pjd-gallery-arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--pjd-light);
+  cursor: pointer;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+.pjd-gallery-arrow:hover:not(:disabled) {
+  transform: scale(1.15);
+}
+
+.pjd-gallery-arrow:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.pjd-gallery-list {
+  display: flex;
+  gap: 10px;
+  /* ৩টা ছবি দেখায়, বাকিগুলো সরিয়ে দেখা যায় */
+  max-width: 320px;
+  margin: 0;
+  padding: 2px;
+  list-style: none;
+  overflow-x: auto;
+  scrollbar-width: none;
+  scroll-snap-type: x proximity;
+}
+
+.pjd-gallery-list::-webkit-scrollbar {
+  display: none;
+}
+
+.pjd-gallery-list > li {
+  flex: none;
+  scroll-snap-align: start;
+}
+
+.pjd-thumb {
+  display: block;
+  width: 100px;
+  height: 72px;
+  padding: 0;
+  overflow: hidden;
+  border: 1.5px solid #ebebec;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.pjd-thumb:hover {
+  transform: translateY(-2px);
+}
+
+.pjd-thumb.is-active {
+  border-color: #f7be00;
+}
+
+.pjd-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ---------------------------------------------------------------
+   hero এর নিচের অংশ
+   --------------------------------------------------------------- */
+.pjd-body {
+  padding-inline: var(--section-pad-x);
+}
+
+.pjd-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+}
+
+/* সংখ্যার বার — Figma "Frame 386/62": padding 32 48, gap 48,
+   মাঝে 2px দাগ (68 উঁচু) */
+.pjd-stats {
+  display: flex;
+  align-items: center;
+  gap: 48px;
+  margin: 0;
+  padding: 32px 48px;
+  list-style: none;
+  background: #ffffff;
+  border: 1px solid var(--pjd-line);
+  border-top: 0;
+  border-radius: 0 0 40px 40px;
+  box-shadow: 0 2px 4px rgba(225, 229, 234, 0.25);
+}
+
+.pjd-stat {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  gap: 24px;
+  min-width: 0;
+  min-height: 68px;
+}
+
+.pjd-stat + .pjd-stat {
+  padding-left: 48px;
+  border-left: 2px solid var(--pjd-ink-25);
+}
+
+.pjd-stat-icon {
+  display: inline-flex;
+  flex: none;
+  color: var(--pjd-yellow);
+}
+
+.pjd-stat-text {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+.pjd-stat-text strong {
+  font-weight: 700;
+  font-size: 32px;
+  line-height: 39px;
+  color: var(--pjd-ink);
+  overflow-wrap: anywhere;
+}
+
+.pjd-stat-text span {
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 19px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--pjd-ink-50);
+}
+
+/* ৫টা বা বেশি — সারিতে না ধরলে নিচে নামে, তখন দাগ থাকে না */
+.pjd-stats.is-wrap {
+  flex-wrap: wrap;
+  row-gap: 24px;
+}
+
+.pjd-stats.is-wrap .pjd-stat {
+  flex: 1 1 240px;
+  padding-left: 0;
+  border-left: 0;
+}
+
+/* ---------------------------------------------------------------
+   দুই কলাম — 760 + 448
+   --------------------------------------------------------------- */
+.pjd-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 760fr) minmax(0, 448fr);
+  gap: 32px;
+  align-items: start;
+}
+
+.pjd-columns.is-single {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.pjd-columns.is-single .pjd-aside {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  align-items: start;
+}
+
+/* 01 · 02 · 03 — Figma "Frame 480": বাঁয়ে 16, gap 48, নম্বরের কলাম 24 */
+.pjd-story {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pjd-step {
+  display: flex;
+  gap: 48px;
+  padding-left: 16px;
+}
+
+.pjd-step-rail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: none;
+  gap: 20px;
+  width: 24px;
+  padding-top: 4px;
+}
+
+.pjd-step-number {
+  font-family: "Space Grotesk", var(--font-sans), sans-serif;
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 110%;
+  color: var(--pjd-yellow);
+}
+
+.pjd-step-line {
+  flex: 1;
+  width: 1px;
+  min-height: 24px;
+  background: var(--pjd-yellow);
+}
+
+.pjd-step-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 12px;
+  min-width: 0;
+}
+
+.pjd-step-title {
+  margin: 0 0 4px;
+  font-family: "Space Grotesk", var(--font-sans), sans-serif;
+  font-weight: 700;
+  font-size: 24px;
+  line-height: 110%;
+  text-transform: uppercase;
+  color: var(--pjd-ink);
+}
+
+.pjd-text {
+  margin: 0;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 160%;
+  color: var(--pjd-ink-75);
+  overflow-wrap: anywhere;
+}
+
+/* "The result: …" — Figma র শেষ লাইন মোটা */
+.pjd-text--strong {
+  font-weight: 700;
+  color: var(--pjd-ink);
+}
+
+/* The Solution এর অংশ — 48px কালো বৃত্তে icon, পাশে লেখা */
+.pjd-solution {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pjd-solution-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.pjd-solution-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 48px;
+  height: 48px;
+  border-radius: 999px;
+  background: var(--pjd-ink);
+  box-shadow: 0 0 10px rgba(11, 18, 26, 0.1);
+  color: var(--pjd-light);
+}
+
+.pjd-solution-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  min-width: 0;
+  min-height: 48px;
+  font-size: 16px;
+  line-height: 120%;
+}
+
+.pjd-solution-text strong {
+  font-weight: 700;
+  color: var(--pjd-ink);
+}
+
+.pjd-solution-text span {
+  font-weight: 500;
+  line-height: 140%;
+  color: var(--pjd-ink-75);
+}
+
+/* ---------------------------------------------------------------
+   ডানের card — Figma "Frame 397/460": rgba(235,235,236,.5),
+   radius 30, padding 24, gap 24
+   --------------------------------------------------------------- */
+.pjd-aside {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-width: 0;
+}
+
+.pjd-card {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-width: 0;
+  padding: 24px;
+  border-radius: 30px;
+  background: rgba(235, 235, 236, 0.5);
+}
+
+.pjd-card-head {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pjd-card-title {
+  margin: 0;
+  font-family: "Space Grotesk", var(--font-sans), sans-serif;
+  font-weight: 700;
+  font-size: 24px;
+  line-height: 100%;
+  text-transform: uppercase;
+  color: var(--pjd-ink);
+}
+
+.pjd-card-text {
+  margin: 0;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 160%;
+  color: var(--pjd-ink-75);
+}
+
+.pjd-highlights {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pjd-highlights li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 140%;
+  color: var(--pjd-ink-75);
+}
+
+.pjd-highlights svg {
+  flex: none;
+  color: var(--pjd-yellow);
+}
+
+.pjd-highlights span {
+  padding-top: 1px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* হলুদ বোতাম — Figma: 64 উঁচু, border #E1E5EA, radius 20, 14.5px 500 */
+.pjd-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 64px;
+  padding: 10px 20px;
+  border: 1px solid var(--pjd-line);
+  border-radius: 20px;
+  background: var(--pjd-yellow);
+  box-sizing: border-box;
+  font-weight: 500;
+  font-size: 14.5px;
+  line-height: 18px;
+  text-align: center;
+  color: var(--pjd-ink);
+  text-decoration: none;
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.pjd-cta:hover {
+  background: #f2b600;
+}
+
+.pjd-cta:active {
+  transform: scale(0.98);
+}
+
+.pjd-cta svg {
+  flex: none;
+  transition: transform 0.2s ease;
+}
+
+.pjd-cta:hover svg {
+  transform: translateX(3px);
+}
+
+.pjd-cta:focus-visible,
+.pjd-product:focus-visible,
+.pjd-neighbour:focus-visible {
+  outline: 2px solid var(--pjd-ink);
+  outline-offset: 3px;
+}
+
+/* Products Used — ছবি 110 x 110 (radius 20, padding 8), পাশে নাম আর বিবরণ */
+.pjd-products {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pjd-product {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  border-radius: 20px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.pjd-product-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 110px;
+  height: 110px;
+  padding: 8px;
+  border: 1px solid #ebebec;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.25);
+  box-sizing: border-box;
+  transition: background-color 0.2s ease;
+}
+
+.pjd-product:hover .pjd-product-image {
+  background: rgba(255, 255, 255, 0.85);
+}
+
+.pjd-product-image .product-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.pjd-product-image .product-image--art svg {
+  width: 70%;
+}
+
+.pjd-product-text {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.pjd-product-text strong {
+  font-family: "Space Grotesk", var(--font-sans), sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 120%;
+  color: var(--pjd-ink);
+  overflow-wrap: anywhere;
+}
+
+.pjd-product:hover .pjd-product-text strong {
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
+}
+
+.pjd-product-text span {
+  display: -webkit-box;
+  overflow: hidden;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 160%;
+  color: var(--pjd-ink-75);
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+}
+
+/* ---------------------------------------------------------------
+   আগের / পরের project — Figma "Frame 479": উপরে 32, নিচে 100,
+   card 604 x 134, border #E1E5EA, radius 30, padding 16
+   --------------------------------------------------------------- */
+.section.pjd-neighbours {
+  padding: 32px var(--section-pad-x) clamp(48px, 7vw, 100px);
+  background: transparent;
+  font-family: "Inter", var(--font-sans), sans-serif;
+}
+
+.pjd-neighbours-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 32px;
+}
+
+.pjd-neighbour {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid var(--pjd-line, #e1e5ea);
+  border-radius: 30px;
+  background: #ffffff;
+  color: inherit;
+  text-decoration: none;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.pjd-neighbour:hover {
+  border-color: rgba(11, 18, 26, 0.25);
+  box-shadow: 0 6px 20px rgba(11, 18, 26, 0.06);
+  transform: translateY(-2px);
+}
+
+.pjd-neighbour--next {
+  flex-direction: row-reverse;
+  text-align: right;
+}
+
+.pjd-neighbour-image {
+  flex: none;
+  width: 150px;
+  height: 100px;
+  border-radius: 20px;
+  object-fit: cover;
+  background: #ebebec;
+}
+
+.pjd-neighbour-text {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 8px;
+  min-width: 0;
+}
+
+.pjd-neighbour-label {
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 160%;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(11, 18, 26, 0.5);
+}
+
+.pjd-neighbour-name {
+  display: -webkit-box;
+  overflow: hidden;
+  font-weight: 600;
+  font-size: 24px;
+  line-height: 160%;
+  color: #0b121a;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+.pjd-neighbour-gap {
+  display: block;
+}
+
+/* ---------------------------------------------------------------
+   নামার সময় / না পেলে
+   --------------------------------------------------------------- */
+.pjd-skeletons {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pjd-skeleton {
+  display: block;
+  border-radius: 20px;
+  background: rgba(235, 235, 236, 0.8);
+  animation: pjd-pulse 1.4s ease-in-out infinite;
+}
+
+.pjd-skeleton--bar {
+  height: 134px;
+  border-radius: 0 0 40px 40px;
+}
+
+.pjd-skeleton--text {
+  width: min(560px, 100%);
+  height: 22px;
+}
+
+.section.pjd-message-section {
+  font-family: "Inter", var(--font-sans), sans-serif;
+}
+
+.pjd-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: clamp(48px, 8vw, 96px) 16px;
+  border: 1px dashed #e1e5ea;
+  border-radius: 24px;
+  text-align: center;
+}
+
+.pjd-message h1 {
+  margin: 0;
+  font-family: "Space Grotesk", var(--font-sans), sans-serif;
+  font-weight: 700;
+  font-size: clamp(26px, 3vw, 36px);
+  line-height: 1.2;
+  color: #0b121a;
+}
+
+.pjd-message p {
+  max-width: 460px;
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.6;
+  color: rgba(11, 18, 26, 0.5);
+}
+
+.pjd-message-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.pjd-message-button {
+  display: inline-flex;
+  align-items: center;
+  padding: 12px 24px;
+  border: 0;
+  border-radius: 100px;
+  background: #373a3c;
+  font-family: inherit;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 17px;
+  color: #ffffff;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.pjd-message-button.is-yellow {
+  background: #ffc107;
+  color: #0b121a;
+}
+
+@keyframes pjd-pulse {
+  50% {
+    opacity: 0.55;
+  }
+}
+
+@keyframes pjd-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+/* ---------------------------------------------------------------
+   ছোট পর্দা
+   --------------------------------------------------------------- */
+@media (max-width: 1180px) {
+  .pjd-stats {
+    gap: 28px;
+    padding: 28px 32px;
+  }
+
+  .pjd-stat {
+    gap: 16px;
+  }
+
+  .pjd-stat + .pjd-stat {
+    padding-left: 28px;
+  }
+
+  .pjd-stat-icon svg {
+    width: 48px;
+    height: 48px;
+  }
+
+  .pjd-stat-text strong {
+    font-size: 26px;
+    line-height: 32px;
+  }
+
+  .pjd-stat-text span {
+    font-size: 14px;
+  }
+}
+
+/* tablet — ডানের card গুলো নিচে, পাশাপাশি */
+@media (max-width: 1023px) {
+  .pjd-columns {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 40px;
+  }
+
+  .pjd-aside {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    align-items: start;
+  }
+}
+
+@media (max-width: 760px) {
+  .pjd-hero {
+    height: auto;
+    min-height: 520px;
+  }
+
+  .pjd-hero-inner {
+    padding: 24px var(--section-pad-x);
+    gap: 24px;
+  }
+
+  .pjd-hero-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .pjd-back {
+    font-size: 16px;
+    line-height: 22px;
+  }
+
+  .pjd-back svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .pjd-badge,
+  .pjd-location {
+    font-size: 16px;
+    line-height: 22px;
+  }
+
+  .pjd-badge {
+    padding: 4px 10px;
+  }
+
+  .pjd-location svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .pjd-title {
+    font-size: clamp(28px, 8vw, 36px);
+    line-height: 110%;
+  }
+
+  .pjd-gallery {
+    gap: 12px;
+    max-width: 100%;
+  }
+
+  .pjd-gallery-list {
+    max-width: calc(100vw - 2 * var(--section-pad-x) - 72px);
+  }
+
+  .pjd-thumb {
+    width: 84px;
+    height: 60px;
+    border-radius: 16px;
+  }
+
+  /* সংখ্যাগুলো একটার নিচে আরেকটা, মাঝে আড়াআড়ি দাগ */
+  .pjd-stats {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+    padding: 20px 24px;
+    border-radius: 0 0 28px 28px;
+  }
+
+  .pjd-stat {
+    min-height: 0;
+  }
+
+  .pjd-stat + .pjd-stat {
+    padding-top: 16px;
+    padding-left: 0;
+    border-top: 1px solid rgba(11, 18, 26, 0.12);
+    border-left: 0;
+  }
+
+  .pjd-stats.is-wrap .pjd-stat {
+    flex-basis: auto;
+  }
+
+  .pjd-stat-icon svg {
+    width: 40px;
+    height: 40px;
+  }
+
+  .pjd-stat-text {
+    gap: 4px;
+  }
+
+  .pjd-stat-text strong {
+    font-size: 24px;
+    line-height: 30px;
+  }
+
+  .pjd-stat-text span {
+    font-size: 13px;
+  }
+
+  .pjd-inner {
+    gap: 36px;
+  }
+
+  .pjd-story {
+    gap: 28px;
+  }
+
+  .pjd-step {
+    gap: 16px;
+    padding-left: 0;
+  }
+
+  .pjd-step-title {
+    font-size: 21px;
+  }
+
+  .pjd-solution-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .pjd-solution-text {
+    min-height: 40px;
+  }
+
+  .pjd-aside {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .pjd-card {
+    padding: 20px;
+    border-radius: 24px;
+  }
+
+  .pjd-card-title {
+    font-size: 21px;
+  }
+
+  .pjd-cta {
+    min-height: 56px;
+  }
+
+  .pjd-product-image {
+    width: 88px;
+    height: 88px;
+  }
+
+  .pjd-product-text {
+    gap: 6px;
+  }
+
+  .pjd-product-text strong {
+    font-size: 17px;
+  }
+
+  .pjd-product-text span {
+    font-size: 14px;
+  }
+
+  .pjd-neighbours-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .pjd-neighbour-gap {
+    display: none;
+  }
+
+  .pjd-neighbour {
+    gap: 14px;
+    padding: 12px;
+    border-radius: 24px;
+  }
+
+  .pjd-neighbour-image {
+    width: 96px;
+    height: 68px;
+    border-radius: 14px;
+  }
+
+  .pjd-neighbour-label {
+    font-size: 12px;
+    letter-spacing: 0.15em;
+  }
+
+  .pjd-neighbour-name {
+    font-size: 18px;
+    line-height: 140%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pjd-hero.is-loading,
+  .pjd-hero-image,
+  .pjd-skeleton {
+    animation: none;
+  }
+
+  .pjd-back,
+  .pjd-thumb,
+  .pjd-gallery-arrow,
+  .pjd-cta,
+  .pjd-cta svg,
+  .pjd-neighbour {
+    transition: none;
+  }
+}

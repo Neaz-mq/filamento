@@ -1,34 +1,37 @@
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { api } from "../lib/api";
 import { SEARCH_ITEMS } from "./navItems";
-import { IconClose, IconSearch } from "./icons";
+import { IconBox, IconClose, IconFolder, IconSearch } from "./icons";
 
 /* ===============================================================
-   উপরের search
+   উপরের search — Figma: "Search everything…" লেখা গোল ঘর (318 চওড়া)
 
-   গোল বোতামে চাপলে ঘরটা পাশে খুলে যায়, আর নিচে মিলে যাওয়া
-   পাতাগুলোর তালিকা নামে. Enter চাপলে বা সারিতে চাপলে সেই পাতায়
-   চলে যায়.
+   কী কী খোঁজে:
+     Pages    — admin এর সব পাতা আর Home পাতার অংশগুলো (এই browser এ)
+     Products — নাম, series বা slug মিললে (server থেকে, draft সহ)
+     Projects — নাম বা company মিললে (server থেকে, draft সহ)
 
-   এখন শুধু admin এর পাতাগুলো খোঁজে — মেনুতে যা যা আছে, সাথে Home
-   পাতার আলাদা অংশগুলো. পরে product বা lead এর ভেতরে খোঁজা যোগ
-   করতে হলে navItems.js এর তালিকাটা বড় করলেই হবে.
+   ২ অক্ষরের কম লিখলে শুধু Pages — server এ অযথা request যায় না.
+   টাইপ থামার 250ms পরে server এ খোঁজে.
 
-   keyboard: Ctrl/⌘ + K খোলে, ↑ ↓ নাড়ে, Enter যায়, Esc বন্ধ করে
+   keyboard: Ctrl/⌘ + K যেখান থেকেই হোক এখানে আনে, ↑ ↓ নাড়ে,
+   Enter খোলে, Esc বন্ধ করে
    =============================================================== */
 
 // কিছু না লিখলে যেগুলো আগে দেখানো হয়
-const SUGGESTED = ["/admin", "/admin/products", "/admin/leads", "/admin/users"];
+const SUGGESTED = ["/admin", "/admin/products", "/admin/projects", "/admin/leads"];
 
-const startItems = SUGGESTED.map((to) =>
-  SEARCH_ITEMS.find((item) => item.to === to),
-).filter(Boolean);
+const startItems = SUGGESTED.map((to) => SEARCH_ITEMS.find((item) => item.to === to)).filter(
+  Boolean,
+);
 
-/* মিল বের করা.
+const REMOTE_MIN = 2;
+const REMOTE_DELAY = 250;
+const PER_GROUP = 4;
 
-   লেখাটা শব্দে ভাগ করে প্রতিটা শব্দ আলাদা করে মেলানো হয় — তাই
-   "hero image" লিখলেও Hero Section পাওয়া যায় (বর্ণনায় "image"
-   আছে). সব শব্দ না মিললে সেই পাতা বাদ */
+/* মিল বের করা — লেখাটা শব্দে ভাগ করে প্রতিটা শব্দ আলাদা করে
+   মেলানো হয়, তাই "hero image" লিখলেও Hero Section পাওয়া যায় */
 function rank(item, terms) {
   const label = item.label.toLowerCase();
   const hay = `${label} ${item.group} ${item.keywords || ""}`.toLowerCase();
@@ -43,14 +46,14 @@ function rank(item, terms) {
   return score;
 }
 
-function search(query) {
-  const terms = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
+function searchPages(query) {
+  const terms = query.toLowerCase().split(/\s+/).filter(Boolean);
   if (!terms.length) return startItems;
 
   return SEARCH_ITEMS.map((item) => ({ item, score: rank(item, terms) }))
     .filter((row) => row.score > 0)
     .sort((a, b) => b.score - a.score)
-    .slice(0, 8)
+    .slice(0, 6)
     .map((row) => row.item);
 }
 
@@ -61,44 +64,120 @@ function AdminSearch() {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [active, setActive] = useState(0);
+  // server এর উত্তর — কোন লেখার জন্য, সেটা সহ (পুরনো ধীর উত্তর নতুনটাকে ঢাকে না)
+  const [remote, setRemote] = useState({ query: "", products: [], projects: [] });
 
   const wrapRef = useRef(null);
   const inputRef = useRef(null);
-  const buttonRef = useRef(null);
 
-  const results = useMemo(() => search(query), [query]);
+  const term = query.trim();
+  const wantsRemote = term.length >= REMOTE_MIN;
 
-  // লেখা বদলালে বাছাইটা আবার প্রথম সারিতে
+  /* ---------- server এ product আর project খোঁজা ---------- */
   useEffect(() => {
-    setActive(0);
-  }, [query]);
+    if (!wantsRemote) return undefined;
+    let alive = true;
 
-  const close = (focusButton = false) => {
+    const timer = window.setTimeout(() => {
+      Promise.all([
+        api.adminListProducts({ q: term, limit: 5 }).catch(() => null),
+        api.adminListProjects({ q: term, limit: 5 }).catch(() => null),
+      ]).then(([products, projects]) => {
+        if (!alive) return;
+        setRemote({
+          query: term,
+          products: (products?.items ?? []).slice(0, PER_GROUP),
+          projects: (projects?.items ?? []).slice(0, PER_GROUP),
+        });
+      });
+    }, REMOTE_DELAY);
+
+    return () => {
+      alive = false;
+      window.clearTimeout(timer);
+    };
+  }, [term, wantsRemote]);
+
+  const remoteReady = wantsRemote && remote.query === term;
+
+  /* ---------- সব ফল এক তালিকায় — ↑ ↓ এক থেকে আরেক দলে যায় ---------- */
+  const groups = useMemo(() => {
+    const list = [
+      {
+        id: "pages",
+        title: term ? "Pages" : "Jump to",
+        rows: searchPages(term).map((item) => ({
+          key: `page:${item.to}`,
+          to: item.to,
+          label: item.label,
+          note: item.group,
+          Icon: item.Icon,
+        })),
+      },
+    ];
+
+    if (remoteReady) {
+      list.push({
+        id: "products",
+        title: "Products",
+        rows: remote.products.map((item) => ({
+          key: `product:${item.id}`,
+          to: `/admin/products/${item.id}`,
+          label: item.name || "Untitled product",
+          note: item.status === "published" ? "Published" : "Draft",
+          Icon: IconBox,
+        })),
+      });
+      list.push({
+        id: "projects",
+        title: "Projects",
+        rows: remote.projects.map((item) => ({
+          key: `project:${item.id}`,
+          to: `/admin/projects/${item.id}`,
+          label: item.title || "Untitled project",
+          note: item.status === "draft" ? "Draft" : "Live",
+          Icon: IconFolder,
+        })),
+      });
+    }
+
+    return list.filter((group) => group.rows.length);
+  }, [term, remoteReady, remote]);
+
+  const rows = groups.flatMap((group) => group.rows);
+  // প্রতিটা দলের প্রথম সারি পুরো তালিকার কত নম্বরে
+  const starts = groups.map((_, at) =>
+    groups.slice(0, at).reduce((sum, group) => sum + group.rows.length, 0),
+  );
+  const safeActive = Math.min(active, Math.max(rows.length - 1, 0));
+
+  const close = ({ blur = false } = {}) => {
     setOpen(false);
     setQuery("");
-    if (focusButton) buttonRef.current?.focus();
+    setActive(0);
+    if (blur) inputRef.current?.blur();
   };
-
-  // খুললেই কার্সার ঘরে
-  useEffect(() => {
-    if (open) inputRef.current?.focus();
-  }, [open]);
 
   // বাইরে চাপলে বন্ধ
   useEffect(() => {
     if (!open) return undefined;
     const onPointerDown = (event) => {
-      if (!wrapRef.current?.contains(event.target)) close();
+      if (!wrapRef.current?.contains(event.target)) {
+        setOpen(false);
+        setQuery("");
+        setActive(0);
+      }
     };
     document.addEventListener("pointerdown", onPointerDown);
     return () => document.removeEventListener("pointerdown", onPointerDown);
   }, [open]);
 
-  // Ctrl/⌘ + K — যেখান থেকেই হোক search খোলে
+  // Ctrl/⌘ + K — যেখান থেকেই হোক search এ
   useEffect(() => {
     const onKey = (event) => {
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
         event.preventDefault();
+        inputRef.current?.focus();
         setOpen(true);
       }
     };
@@ -106,41 +185,40 @@ function AdminSearch() {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  const go = (item) => {
-    if (!item) return;
-    navigate(item.to);
-    close();
+  const go = (row) => {
+    if (!row) return;
+    navigate(row.to);
+    close({ blur: true });
   };
 
   const onKeyDown = (event) => {
     if (event.key === "Escape") {
       event.preventDefault();
-      close(true);
+      close({ blur: true });
       return;
     }
+    if (!open) setOpen(true);
     if (event.key === "ArrowDown") {
       event.preventDefault();
-      setActive((index) => (index + 1) % Math.max(results.length, 1));
+      setActive((safeActive + 1) % Math.max(rows.length, 1));
       return;
     }
     if (event.key === "ArrowUp") {
       event.preventDefault();
-      setActive((index) =>
-        index === 0 ? Math.max(results.length - 1, 0) : index - 1,
-      );
+      setActive(safeActive === 0 ? Math.max(rows.length - 1, 0) : safeActive - 1);
       return;
     }
     if (event.key === "Enter") {
       event.preventDefault();
-      go(results[active]);
+      go(rows[safeActive]);
     }
   };
 
   return (
-    <div className={open ? "adm-search is-open" : "adm-search"} ref={wrapRef}>
+    <div className={open ? "adm-search is-open" : "adm-search"} ref={wrapRef} role="search">
       <div className="adm-search-box">
         <span className="adm-search-icon" aria-hidden="true">
-          <IconSearch size={20} />
+          <IconSearch size={18} />
         </span>
 
         <input
@@ -148,94 +226,89 @@ function AdminSearch() {
           className="adm-search-input"
           type="text"
           value={query}
-          onChange={(event) => setQuery(event.target.value)}
+          onChange={(event) => {
+            setQuery(event.target.value);
+            setActive(0);
+            setOpen(true);
+          }}
+          onFocus={() => setOpen(true)}
           onKeyDown={onKeyDown}
-          placeholder="Search pages…"
+          placeholder="Search everything…"
           autoComplete="off"
           spellCheck="false"
           maxLength={60}
-          /* বন্ধ অবস্থায় ঘরটা চোখে নেই, তাই Tab এ এখানে থামে না */
-          tabIndex={open ? 0 : -1}
-          aria-hidden={!open}
           role="combobox"
           aria-expanded={open}
           aria-controls={listId}
           aria-autocomplete="list"
-          aria-activedescendant={
-            open && results[active] ? `${listId}-${active}` : undefined
-          }
-          aria-label="Search admin pages"
+          aria-activedescendant={open && rows[safeActive] ? `${listId}-${safeActive}` : undefined}
+          aria-label="Search pages, products and projects"
+          title="Search (Ctrl + K)"
         />
 
-        {open ? (
+        {query && (
           <button
             type="button"
             className="adm-search-x"
-            onClick={() => close(true)}
-            aria-label="Close search"
+            onClick={() => {
+              setQuery("");
+              setActive(0);
+              inputRef.current?.focus();
+            }}
+            aria-label="Clear search"
           >
-            <IconClose size={18} />
+            <IconClose size={16} />
           </button>
-        ) : (
-          /* বন্ধ অবস্থায় পুরো গোলটার উপর একটা স্বচ্ছ বোতাম — এতে
-             খোলা-বন্ধ হওয়ার সময় গঠন বদলায় না, তাই ঘরটা ঝাঁকি ছাড়া
-             পাশে খুলতে পারে */
-          <button
-            type="button"
-            ref={buttonRef}
-            className="adm-search-open"
-            onClick={() => setOpen(true)}
-            aria-label="Search pages"
-            aria-expanded={false}
-          />
         )}
       </div>
 
       {open && (
         <div className="adm-search-panel">
-          <p className="adm-search-head">
-            {query.trim() ? "Pages" : "Jump to"}
-          </p>
+          <div id={listId} role="listbox" aria-label="Search results">
+            {groups.map((group, groupAt) => (
+              <div className="adm-search-group" key={group.id} role="group" aria-label={group.title}>
+                <p className="adm-search-head" aria-hidden="true">
+                  {group.title}
+                </p>
+                <ul className="adm-search-list" role="presentation">
+                  {group.rows.map((row, rowAt) => {
+                    const at = starts[groupAt] + rowAt;
+                    const Icon = row.Icon;
+                    return (
+                      <li key={row.key} role="presentation">
+                        <button
+                          type="button"
+                          id={`${listId}-${at}`}
+                          role="option"
+                          aria-selected={at === safeActive}
+                          tabIndex={-1}
+                          className={at === safeActive ? "adm-search-row is-active" : "adm-search-row"}
+                          onMouseMove={() => setActive(at)}
+                          onClick={() => go(row)}
+                        >
+                          <span className="adm-search-row-icon">
+                            <Icon size={18} />
+                          </span>
+                          <span className="adm-search-row-text">{row.label}</span>
+                          <span className="adm-search-row-group">{row.note}</span>
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            ))}
+          </div>
 
-          <ul className="adm-search-list" id={listId} role="listbox">
-            {results.map((item, index) => {
-              const Icon = item.Icon;
-              return (
-                <li key={item.to}>
-                  <button
-                    type="button"
-                    id={`${listId}-${index}`}
-                    role="option"
-                    aria-selected={index === active}
-                    className={
-                      index === active
-                        ? "adm-search-row is-active"
-                        : "adm-search-row"
-                    }
-                    onMouseMove={() => setActive(index)}
-                    onClick={() => go(item)}
-                  >
-                    <span className="adm-search-row-icon">
-                      <Icon size={18} />
-                    </span>
-                    <span className="adm-search-row-text">{item.label}</span>
-                    <span className="adm-search-row-group">{item.group}</span>
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
+          {wantsRemote && !remoteReady && <p className="adm-search-empty">Searching products and projects…</p>}
 
-          {!results.length && (
-            <p className="adm-search-empty">
-              No page matches “{query.trim()}”.
-            </p>
+          {remoteReady && !rows.length && (
+            <p className="adm-search-empty">Nothing matches “{term}”.</p>
           )}
 
           <p className="adm-search-foot">
             <kbd>↑</kbd>
-            <kbd>↓</kbd> to move · <kbd>Enter</kbd> to open · <kbd>Esc</kbd> to
-            close
+            <kbd>↓</kbd> to move · <kbd>Enter</kbd> to open · <kbd>Esc</kbd> to close
           </p>
         </div>
       )}

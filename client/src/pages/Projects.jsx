@@ -2,6 +2,15 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useLocaleLink } from "../i18n/useLocaleLink";
+import {
+  PROJECT_TYPES,
+  fallbackPhoto,
+  photoSrcSet,
+  photoUrl,
+  projectPhotos,
+  rememberListSearch,
+  useProjectList,
+} from "./projectCatalog";
 import "./Projects.css";
 
 /* ===============================================================
@@ -22,14 +31,15 @@ import "./Projects.css";
    ✅ project details এ যাওয়ার লিংক এখন শুধু খোলা card এর ↗ বোতামে।
    card এর বাকি অংশে ক্লিক করলে শুধু card খোলে, কোথাও যায় না।
 
-   ⚠️ backend/CMS এখনো নেই — তাই PROJECTS array এ হাতে বসানো ডেটা।
-   admin থেকে project যোগ/বাদ দেওয়া চালু হলে এই array টা বাদ দিয়ে
-   API থেকে আনলেই বাকি সব (search, filter, pagination) এমনিই কাজ
-   করবে — নিচের UI কোড ডেটার উৎস নিয়ে মাথা ঘামায় না।
+   ডেটা: admin panel এর Projects থেকে (GET /api/projects) — শুধু
+   Completed আর In Progress, draft কখনো আসে না. ক্রম: তারিখ (নতুন আগে).
+   pill আর dropdown এ শুধু সেই Project Type গুলো আসে যেগুলোতে অন্তত
+   একটা project আছে.
 
-   ছবি: Unsplash থেকে — নিচের CATEGORY_PHOTOS দেখুন। একই ছবি collapsed অবস্থায়
-   298 x 450 (portrait) আর expanded অবস্থায় 612 x 358 (landscape) এ
-   object-fit: cover দিয়ে কাটা হয়।
+   ছবি: project এর প্রথম ছবি. না থাকলে বা নামতে না পারলে Project Type
+   এর একটা নমুনা ছবি (pages/projectCatalog.js). একই ছবি collapsed
+   অবস্থায় 298 x 450 (portrait) আর expanded অবস্থায় 612 x 358
+   (landscape) এ object-fit: cover দিয়ে কাটা হয়।
    =============================================================== */
 
 const PAGE_SIZE = 10;
@@ -40,303 +50,26 @@ const PAGE_SIZE = 10;
    পাতায় এর চেয়ে কম card থাকলে নিচের `active` হিসাবটা শেষেরটা ধরে */
 const DEFAULT_ACTIVE_INDEX = 2;
 
-/* project এর ছবি — Unsplash (Unsplash License: বিনা খরচে ব্যবহার করা যায়)।
-   প্রতিটা category এর জন্য প্রাসঙ্গিক ছবি নিচের CATEGORY_PHOTOS এ। একই
-   category তে একের বেশি project থাকলে ছবিগুলো ঘুরিয়ে-ফিরিয়ে বসে।
-   ✅ ছবি বদলাতে চাইলে শুধু এখানে photo id বদলান — বাকি সব নিজে মেলে।
-
-   photo id = images.unsplash.com/ এর পরের অংশ (যেমন "photo-1465848059293-...")।
-   auto=format  — ব্রাউজার অনুযায়ী সেরা format (WebP/AVIF)
-   fit=crop&w=  — নির্দিষ্ট প্রস্থে নামায় */
-/* নিজেদের ছবি — Cloudinary (Fixtures.jsx এর মতোই, একই account)।
-   f_auto,q_auto  — ব্রাউজার অনুযায়ী সেরা format আর মান
-   c_limit,w_     — নির্দিষ্ট প্রস্থে নামায়, ছোট ছবি কখনো বড় করে না */
-const OWN_PHOTOS = {
-  arena: "v1789985331/be5360cb5806dd39ba58c23000d7201a66b3447a_wl2fwe.jpg",
-  barn: "v1789985339/3041207c74d5ee01e3921128797d9c9614c8156d_adbdcq.jpg",
-  fitness: "v1789985350/55103d210a35d777640fc5b5351acecee6d9580e_uvrmn1.jpg",
-};
-
-const CATEGORY_PHOTOS = {
-  // Le Toan — airport terminal
-  airport: ["photo-1579695779019-7fe42ce31317"],
-  // Omar Ramadan — car showroom
-  automotiveDealership: ["photo-1761738217531-44a249d1dc87"],
-  // Shifaz Abdul Hakkim — Expo convention complex
-  conventionCenter: [OWN_PHOTOS.arena, "photo-1652084868625-2d1a886f4189"],
-  // Patrick Schöpflin — indoor basketball court
-  gymnasium: [OWN_PHOTOS.fitness, "photo-1559369064-c4d65141e408"],
-  // Ant Rozetsky — large industrial factory interior
-  manufacturing: ["photo-1496247749665-49cf5b1022e9"],
-  // Spl Interiors, Arlington Research — modern offices
-  office: ["photo-1747992021633-762a63985d01", "photo-1560264280-88b68371db39"],
-  // Tanya Barrow — retail store shelving
-  retail: [OWN_PHOTOS.barn, "photo-1761207300250-a71b2ff68b99"],
-  // Alberto Rodríguez — warehouse with pallets
-  warehouse: ["photo-1684695749267-233af13276d0"],
-  // Arlington Research — open workspace (conference/office feel)
-  conferenceCenter: ["photo-1560264280-88b68371db39"],
-  // Alberto Rodríguez — warehouse (cold storage racking)
-  coldStorage: ["photo-1684695749267-233af13276d0"],
-  // Ashley (@ashleynva) — distribution warehouse with forklift
-  distributionCenter: ["photo-1721937718756-3bfec49f42a2"],
-  // BehindTheTmuna — street light at night
-  streetLights: ["photo-1743369673059-cae28a9a8c9c"],
-};
-
-/* "v1789985331/..." দিয়ে শুরু হলে Cloudinary, নাহলে Unsplash */
-const isOwnPhoto = (id) => /^v\d+\//.test(id);
-
-const photoUrl = (id, width) =>
-  isOwnPhoto(id)
-    ? `https://res.cloudinary.com/dzi3u164c/image/upload/c_limit,w_${width},f_auto,q_auto/${id}`
-    : `https://images.unsplash.com/${id}?auto=format&fit=crop&q=75&w=${width}`;
-
 /* srcset — খোলা card 612px, retina তে ~1224px লাগে। ফোনে card পুরো
    প্রস্থ, তাই 100vw */
 const PHOTO_WIDTHS = [800, 1200, 1600];
-const photoSrcSet = (id) =>
-  PHOTO_WIDTHS.map((w) => `${photoUrl(id, w)} ${w}w`).join(", ");
 const PHOTO_SIZES = "(max-width: 640px) 100vw, 612px";
 
-/* category — projects.categories.<key> এর সাথে মেলে, আর Footer.jsx
-   এর COLUMNS["projects"].links এর সাথেও (?category=xxx) মিলিয়ে
-   রাখা, যাতে footer এর link থেকে সরাসরি সঠিক filter এ আসে */
-const PROJECT_LIST = [
-  {
-    slug: "denver-regional-airport",
-    name: "Denver Regional Airport",
-    city: "Denver, Colorado",
-    category: "airport",
-  },
-  {
-    slug: "barn-xo",
-    name: "Barn XO",
-    city: "Chicago, Illinois",
-    category: "retail",
-  },
-  {
-    slug: "westside-auto-gallery",
-    name: "Westside Auto Gallery",
-    city: "Austin, Texas",
-    category: "automotiveDealership",
-  },
-  {
-    slug: "main-street-lighting-retrofit",
-    name: "Main Street Lighting Retrofit",
-    city: "Raleigh, North Carolina",
-    category: "streetLights",
-  },
-  {
-    slug: "lakeside-convention-center",
-    name: "Lakeside Convention Center",
-    city: "Cleveland, Ohio",
-    category: "conventionCenter",
-  },
-  {
-    slug: "central-high-gymnasium",
-    name: "Central High Gymnasium",
-    city: "Columbus, Ohio",
-    category: "gymnasium",
-  },
-  {
-    // Testimonial.jsx এর "David R." এর quote এই প্রজেক্টের কথাই বলছে
-    slug: "david-manufacturing-plant",
-    name: "David's Manufacturing Plant",
-    city: "Detroit, Michigan",
-    category: "manufacturing",
-  },
-  {
-    slug: "harborview-office-park",
-    name: "Harborview Office Park",
-    city: "Seattle, Washington",
-    category: "office",
-  },
-  {
-    // Testimonial.jsx এর "Elena M." এর quote
-    slug: "elena-warehouse-retrofit",
-    name: "Elena's Warehouse Retrofit",
-    city: "Phoenix, Arizona",
-    category: "warehouse",
-  },
-  {
-    slug: "riverside-conference-center",
-    name: "Riverside Conference Center",
-    city: "Portland, Oregon",
-    category: "conferenceCenter",
-  },
-  {
-    // Testimonial.jsx এর "Marcus L." এর quote
-    slug: "marcus-cold-storage",
-    name: "Marcus Cold Storage Facility",
-    city: "Minneapolis, Minnesota",
-    category: "coldStorage",
-  },
-  {
-    // Testimonial.jsx এর "Frank S." এর quote
-    slug: "frank-distribution-center",
-    name: "Frank's Distribution Center",
-    city: "Dallas, Texas",
-    category: "distributionCenter",
-  },
-  {
-    slug: "downtown-street-lighting-upgrade",
-    name: "Downtown Street Lighting Upgrade",
-    city: "Sacramento, California",
-    category: "streetLights",
-  },
-  {
-    slug: "lakeshore-regional-airport",
-    name: "Lakeshore Regional Airport",
-    city: "Madison, Wisconsin",
-    category: "airport",
-  },
-  {
-    slug: "union-square-retail-center",
-    name: "Union Square Retail Center",
-    city: "San Francisco, California",
-    category: "retail",
-  },
-  {
-    slug: "precision-auto-works",
-    name: "Precision Auto Works",
-    city: "Miami, Florida",
-    category: "automotiveDealership",
-  },
-  {
-    slug: "harborline-warehouse-expansion",
-    name: "Harborline Warehouse Expansion",
-    city: "Baltimore, Maryland",
-    category: "warehouse",
-  },
-  {
-    slug: "bayfront-convention-hall",
-    name: "Bayfront Convention Hall",
-    city: "Tampa, Florida",
-    category: "conventionCenter",
-  },
-  {
-    slug: "riverbend-athletic-center",
-    name: "Riverbend Athletic Center",
-    city: "Omaha, Nebraska",
-    category: "gymnasium",
-  },
-  {
-    slug: "riverfront-manufacturing-annex",
-    name: "Riverfront Manufacturing Annex",
-    city: "Pittsburgh, Pennsylvania",
-    category: "manufacturing",
-  },
-  {
-    slug: "meridian-tech-campus",
-    name: "Meridian Tech Campus",
-    city: "San Jose, California",
-    category: "office",
-  },
-  {
-    slug: "gateway-storage-facility",
-    name: "Gateway Storage Facility",
-    city: "Houston, Texas",
-    category: "warehouse",
-  },
-  {
-    slug: "summit-conference-hall",
-    name: "Summit Conference Hall",
-    city: "Kansas City, Missouri",
-    category: "conferenceCenter",
-  },
-  {
-    slug: "glacier-cold-chain-depot",
-    name: "Glacier Cold Chain Depot",
-    city: "Boise, Idaho",
-    category: "coldStorage",
-  },
-  {
-    slug: "crossroads-distribution-hub",
-    name: "Crossroads Distribution Hub",
-    city: "Memphis, Tennessee",
-    category: "distributionCenter",
-  },
-  {
-    slug: "summit-air-cargo-hub",
-    name: "Summit Air Cargo Hub",
-    city: "Louisville, Kentucky",
-    category: "airport",
-  },
-  {
-    slug: "maple-street-marketplace",
-    name: "Maple Street Marketplace",
-    city: "Atlanta, Georgia",
-    category: "retail",
-  },
-  {
-    slug: "northgate-motors-showroom",
-    name: "Northgate Motors Showroom",
-    city: "Charlotte, North Carolina",
-    category: "automotiveDealership",
-  },
-  {
-    slug: "ironbridge-fabrication-works",
-    name: "Ironbridge Fabrication Works",
-    city: "Milwaukee, Wisconsin",
-    category: "manufacturing",
-  },
-  {
-    slug: "cascade-corporate-tower",
-    name: "Cascade Corporate Tower",
-    city: "Salt Lake City, Utah",
-    category: "office",
-  },
-  // পাতা ৪ — এই তিনটায় নিজেদের Cloudinary ছবি সরাসরি বসানো (photo)
-  {
-    slug: "metro-arena-lighting-retrofit",
-    name: "Metro Arena Lighting Retrofit",
-    city: "Indianapolis, Indiana",
-    category: "conventionCenter",
-    photo: OWN_PHOTOS.arena,
-  },
-  {
-    slug: "summit-fitness-club",
-    name: "Summit Fitness Club",
-    city: "Scottsdale, Arizona",
-    category: "gymnasium",
-    photo: OWN_PHOTOS.fitness,
-  },
-  {
-    slug: "barn-and-table-marketplace",
-    name: "Barn & Table Marketplace",
-    city: "Nashville, Tennessee",
-    category: "retail",
-    photo: OWN_PHOTOS.barn,
-  },
-];
+/* ছবি নামতে না পারলে (মুছে ফেলা, ভুল link) Project Type এর নমুনা ছবি —
+   একবারই, যাতে নমুনাটাও না নামলে বারবার চেষ্টা না করে */
+function fallbackOnError(type) {
+  return (event) => {
+    const img = event.currentTarget;
+    if (img.dataset.fallback) return;
+    img.dataset.fallback = "1";
+    img.removeAttribute("srcset");
+    img.src = photoUrl(fallbackPhoto(type), 1200);
+  };
+}
 
-/* প্রতিটা project এ তার category এর ছবি বসানো — একই category তে
-   একাধিক ছবি থাকলে (যেমন office) ক্রমানুসারে ঘুরে-ফিরে */
-const photoCounter = {};
-const PROJECTS = PROJECT_LIST.map((project) => {
-  const photos = CATEGORY_PHOTOS[project.category] || CATEGORY_PHOTOS.office;
-  const n = photoCounter[project.category] || 0;
-  photoCounter[project.category] = n + 1;
-  return { ...project, photo: project.photo || photos[n % photos.length] };
-});
-
-/* pill এর ক্রম — screenshot এর মতোই, "All Projects" সবার আগে */
-const CATEGORY_ORDER = [
-  "all",
-  "airport",
-  "automotiveDealership",
-  "conventionCenter",
-  "gymnasium",
-  "manufacturing",
-  "office",
-  "retail",
-  "warehouse",
-  "conferenceCenter",
-  "coldStorage",
-  "distributionCenter",
-  "streetLights",
-];
+/* now() — React এর নিয়মে render এর ভেতরে "সময়" পড়া যায়
+   না; এগুলো শুধু event আর timer এ চলে, তাই আলাদা করে রাখা */
+const now = () => performance.now();
 
 /* ---------------------------------------------------------------
    আইকন — মাপ আর stroke Figma র CSS থেকে
@@ -545,8 +278,9 @@ function Projects() {
   const initialCategory = searchParams.get("category") || "all";
   const [query, setQuery] = useState(searchParams.get("q") || "");
   const [category, setCategory] = useState(
-    CATEGORY_ORDER.includes(initialCategory) ? initialCategory : "all"
+    PROJECT_TYPES.includes(initialCategory) ? initialCategory : "all"
   );
+  const { status, projects: liveProjects, retry } = useProjectList();
   const [page, setPage] = useState(1);
   // এই পাতার কোন card টা এখন বড় (expanded) — hover/focus/tap এ বদলায়।
   // শুরুতে Figma র মতো তৃতীয় card টা খোলা; মাউস সরিয়ে নিলেও শেষ
@@ -584,7 +318,10 @@ function Projects() {
     const next = new URLSearchParams();
     if (query.trim()) next.set("q", query.trim());
     if (category !== "all") next.set("category", category);
-    setSearchParams(next, { replace: true });
+    setSearchParams(next, { replace: true, preventScrollReset: true });
+    // Project Details এর "All projects" এই filter এই ফেরে
+    const search = next.toString();
+    rememberListSearch(search ? `?${search}` : "");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query, category]);
 
@@ -611,28 +348,65 @@ function Projects() {
     resetRail();
   }
 
+  /* server এর project → card এর আকার. search — খোঁজার জন্য সব লেখা
+     একসাথে: নাম, শহর, কোম্পানি, বিবরণ, ব্যবহার করা product এর নাম
+     (তাই "LS1" বা "high bay" লিখলেও project পাওয়া যায়) */
+  const projects = useMemo(
+    () =>
+      liveProjects.map((project) => {
+        const type = PROJECT_TYPES.includes(project.projectType) ? project.projectType : "other";
+        return {
+          id: project.id,
+          slug: project.slug || project.id,
+          name: project.title,
+          city: project.location,
+          category: type,
+          photo: projectPhotos(project)[0],
+          search: [
+            project.title,
+            project.location,
+            project.company,
+            project.shortDescription,
+            project.projectTypeLabel,
+            ...(project.products ?? []).map((item) => `${item.name} ${item.series}`),
+          ]
+            .join(" ")
+            .toLowerCase(),
+        };
+      }),
+    [liveProjects]
+  );
+
   const counts = useMemo(() => {
-    const map = { all: PROJECTS.length };
-    for (const project of PROJECTS) {
+    const map = { all: projects.length };
+    for (const project of projects) {
       map[project.category] = (map[project.category] || 0) + 1;
     }
     return map;
-  }, []);
+  }, [projects]);
+
+  /* pill এর ক্রম — "All Projects" আগে, তারপর যে type এ project আছে.
+     ঠিকানায় বাছা type এ project না থাকলেও সেটা দেখায়, যাতে দর্শক
+     বোঝে কেন তালিকা খালি */
+  const categoryOrder = useMemo(
+    () => [
+      "all",
+      ...PROJECT_TYPES.filter((id) => counts[id] > 0 || (id === category && status === "ready")),
+    ],
+    [counts, category, status]
+  );
 
   const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    return PROJECTS.filter((project) => {
+    const words = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
+    return projects.filter((project) => {
       const matchesCategory = category === "all" || project.category === category;
       if (!matchesCategory) return false;
-      if (!q) return true;
+      if (!words.length) return true;
       const categoryLabel = t(`projects.categories.${project.category}`).toLowerCase();
-      return (
-        project.name.toLowerCase().includes(q) ||
-        project.city.toLowerCase().includes(q) ||
-        categoryLabel.includes(q)
-      );
+      const text = `${project.search} ${categoryLabel}`;
+      return words.every((word) => text.includes(word));
     });
-  }, [query, category, t]);
+  }, [projects, query, category, t]);
 
   const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const safePage = Math.min(page, pageCount);
@@ -643,14 +417,17 @@ function Projects() {
   const hasResults = visible.length > 0;
 
   const tabEdges = useScrollEdges(tabsRef);
+  // rail এর দুই পাশের বড় তীর — শুরুতে বাঁ তীর, শেষে ডান তীর ধূসর
+  const railEdges = useScrollEdges(railRef, hasResults);
 
   // পাতা/filter বদলে card কমে গেলে (যেমন শেষ পাতায় ২টা) activeIndex
   // নাগালের বাইরে থেকে যেত — উপরের `active` ঠিক দেখালেও state টা আলাদা
   // থাকত, ফলে openCard এর `index === active` তুলনা মিলত না আর তীর
-  // চুপচাপ কিছুই করত না। তাই state কেই সীমার ভেতরে টেনে আনা
-  useEffect(() => {
-    setActiveIndex((prev) => Math.min(prev, Math.max(visible.length - 1, 0)));
-  }, [visible.length]);
+  // চুপচাপ কিছুই করত না। তাই state কেই সীমার ভেতরে টেনে আনা — render
+  // এর সময়ই (effect এ করলে একবার বাড়তি render হতো)
+  if (activeIndex !== active && visible.length > 0) {
+    setActiveIndex(active);
+  }
 
   // তীর/ক্লিক/focus এ card বদলালে, transition শেষে ডানে/বাঁয়ে কেটে থাকলে
   // rail কে সরিয়ে card টাকে content এর ভেতরে আনা। hover এ কখনো নয়,
@@ -680,7 +457,7 @@ function Projects() {
       else if (overLeft < -1) delta = overLeft;
 
       if (delta !== 0) {
-        autoScrollAt.current = performance.now();
+        autoScrollAt.current = now();
         rail.scrollBy({ left: delta, behavior: prefersReducedMotion() ? "auto" : "smooth" });
       }
     }, CARD_TRANSITION_MS);
@@ -708,14 +485,14 @@ function Projects() {
 
   // টানা চলছে, বা এইমাত্র scroll থেমেছে (momentum/trackpad সহ)
   function isSliding() {
-    return isDragging.current || performance.now() - lastScrollAt.current < SLIDE_SETTLE_MS;
+    return isDragging.current || now() - lastScrollAt.current < SLIDE_SETTLE_MS;
   }
 
   function handlePointerEnter(event, index) {
     // touch এ hover নেই — সেখানে tap (onClick) দিয়ে খোলে
     if (event.pointerType !== "mouse") return;
     if (index === active) return;
-    if (performance.now() - autoScrollAt.current < CARD_TRANSITION_MS + 200) return;
+    if (now() - autoScrollAt.current < CARD_TRANSITION_MS + 200) return;
     if (isSliding()) return;
     clearTimeout(hoverTimer.current);
     hoverTimer.current = setTimeout(() => {
@@ -733,7 +510,7 @@ function Projects() {
     clearTimeout(hoverTimer.current);
     if (index === active) return;
     revealOnChange.current = true;
-    autoScrollAt.current = performance.now();
+    autoScrollAt.current = now();
     setIsNavigating(true);
     clearTimeout(navigateLockTimer.current);
     navigateLockTimer.current = setTimeout(() => setIsNavigating(false), CARD_TRANSITION_MS);
@@ -748,13 +525,29 @@ function Projects() {
     []
   );
 
+  /* rail এর তীর — একবারে দুইটা বন্ধ card এর সমান সরে (Figma "Button":
+     48px গোল তীর, দুই পাশে). টানার মতোই hover এ card খোলা কিছুক্ষণ
+     বন্ধ থাকে (scroll event থেকে), তাই সরার মাঝে card লাফায় না */
+  function slideRail(direction) {
+    const rail = railRef.current;
+    const track = rail?.firstElementChild;
+    if (!rail || !track) return;
+    clearTimeout(hoverTimer.current);
+    const gap = parseFloat(getComputedStyle(track).columnGap) || 0;
+    const step = (cssWidth(rail, "--pj-card-w") + gap) * 2;
+    rail.scrollBy({
+      left: direction * Math.min(step, rail.clientWidth * 0.8),
+      behavior: prefersReducedMotion() ? "auto" : "smooth",
+    });
+  }
+
   function scrollTabsBy(amount) {
     tabsRef.current?.scrollBy({ left: amount, behavior: "smooth" });
   }
 
-  // তীর নেই — card গুলো শুধু slider: touch এ আঙুলে টানা, trackpad এ
-  // swipe, আর মাউসে চেপে ধরে টানা। ছাড়ার পর হালকা momentum থাকে,
-  // তাই থামাটা আচমকা নয়
+  // card গুলো slider: touch এ আঙুলে টানা, trackpad এ swipe, মাউসে চেপে
+  // ধরে টানা, আর বড় পর্দায় দুই পাশের তীর (slideRail). ছাড়ার পর হালকা
+  // momentum থাকে, তাই থামাটা আচমকা নয়
   const dragMoved = useRef(false);
   useEffect(() => {
     const rail = railRef.current;
@@ -771,7 +564,7 @@ function Projects() {
     const stopMomentum = () => cancelAnimationFrame(raf);
 
     const onScroll = () => {
-      lastScrollAt.current = performance.now();
+      lastScrollAt.current = now();
       // scroll চলাকালীন অপেক্ষায় থাকা hover-open বাতিল
       clearTimeout(hoverTimer.current);
     };
@@ -784,7 +577,7 @@ function Projects() {
       startX = event.clientX;
       startLeft = rail.scrollLeft;
       lastX = event.clientX;
-      lastT = performance.now();
+      lastT = now();
       velocity = 0;
     };
 
@@ -799,11 +592,11 @@ function Projects() {
       }
       if (!dragMoved.current) return;
 
-      const now = performance.now();
-      const dt = now - lastT;
+      const time = now();
+      const dt = time - lastT;
       if (dt > 0) velocity = 0.7 * velocity + 0.3 * ((lastX - event.clientX) / dt);
       lastX = event.clientX;
-      lastT = now;
+      lastT = time;
 
       rail.scrollLeft = startLeft - dx;
     };
@@ -812,11 +605,11 @@ function Projects() {
       if (!down) return;
       down = false;
       rail.classList.remove("is-dragging");
-      lastScrollAt.current = performance.now();
+      lastScrollAt.current = now();
 
       const wasDragging = dragMoved.current;
       // ছাড়ার আগে অনেকক্ষণ থেমে থাকলে momentum নেই
-      if (!wasDragging || performance.now() - lastT > 80 || prefersReducedMotion()) {
+      if (!wasDragging || now() - lastT > 80 || prefersReducedMotion()) {
         isDragging.current = false;
         return;
       }
@@ -826,7 +619,7 @@ function Projects() {
         const before = rail.scrollLeft;
         rail.scrollLeft += v;
         v *= 0.94;
-        lastScrollAt.current = performance.now();
+        lastScrollAt.current = now();
         if (Math.abs(v) > 0.4 && rail.scrollLeft !== before) {
           raf = requestAnimationFrame(step);
         } else {
@@ -888,7 +681,7 @@ function Projects() {
                 aria-label={t("projects.search.environmentAriaLabel")}
               >
                 <option value="all">{t("projects.search.environmentLabel")}</option>
-                {CATEGORY_ORDER.filter((id) => id !== "all").map((id) => (
+                {categoryOrder.filter((id) => id !== "all").map((id) => (
                   <option key={id} value={id}>
                     {t(`projects.categories.${id}`)}
                   </option>
@@ -913,7 +706,7 @@ function Projects() {
             </button>
 
             <div className="projects-tabs" ref={tabsRef} role="tablist">
-              {CATEGORY_ORDER.map((id) => (
+              {categoryOrder.map((id) => (
                 <button
                   key={id}
                   type="button"
@@ -941,7 +734,25 @@ function Projects() {
         </div>
 
         <div className="projects-gallery">
-          {hasResults ? (
+          {status === "loading" ? (
+            <div className="projects-loading" aria-busy="true">
+              <span className="sr-only">{t("projects.loading")}</span>
+              {Array.from({ length: 4 }, (_, index) => (
+                <span
+                  key={index}
+                  className={`projects-skeleton${index === 2 ? " is-wide" : ""}`}
+                  aria-hidden="true"
+                />
+              ))}
+            </div>
+          ) : status === "error" ? (
+            <div className="projects-empty" role="alert">
+              <p>{t("projects.error")}</p>
+              <button type="button" className="projects-empty-clear" onClick={retry}>
+                {t("projects.retry")}
+              </button>
+            </div>
+          ) : hasResults ? (
             <div className="projects-stage">
               <div
                 className="projects-rail"
@@ -962,7 +773,7 @@ function Projects() {
                 >
                   {visible.map((project, index) => (
                     <li
-                      key={project.slug}
+                      key={project.id}
                       className={`projects-card${index === active ? " is-active" : ""}`}
                       onPointerEnter={(event) => handlePointerEnter(event, index)}
                       onPointerLeave={handlePointerLeave}
@@ -972,8 +783,9 @@ function Projects() {
                       <div className="projects-card-media">
                         <img
                           src={photoUrl(project.photo, 1200)}
-                          srcSet={photoSrcSet(project.photo)}
+                          srcSet={photoSrcSet(project.photo, PHOTO_WIDTHS)}
                           sizes={PHOTO_SIZES}
+                          onError={fallbackOnError(project.category)}
                           alt=""
                           width="1200"
                           height="900"
@@ -1016,6 +828,32 @@ function Projects() {
                   ))}
                 </ul>
               </div>
+
+              {/* Figma "Button" — rail এর দুই পাশে 48px গোল তীর. ফোনে
+                  লুকানো, সেখানে আঙুলে টেনে সরানো হয়. সব card একসাথে
+                  দেখা গেলে (সরানোর কিছু নেই) তীরও নেই */}
+              {!(railEdges.atStart && railEdges.atEnd) && (
+                <>
+                  <button
+                    type="button"
+                    className="projects-rail-arrow is-prev"
+                    onClick={() => slideRail(-1)}
+                    disabled={railEdges.atStart}
+                    aria-label={t("projects.railPrev")}
+                  >
+                    <Chevron direction="left" width={9} height={16} />
+                  </button>
+                  <button
+                    type="button"
+                    className="projects-rail-arrow is-next"
+                    onClick={() => slideRail(1)}
+                    disabled={railEdges.atEnd}
+                    aria-label={t("projects.railNext")}
+                  >
+                    <Chevron direction="right" width={9} height={16} />
+                  </button>
+                </>
+              )}
             </div>
           ) : (
             <div className="projects-empty">
@@ -1035,9 +873,10 @@ function Projects() {
             </div>
           )}
 
-          {/* pagination — Figma "Group 5": মাঝখানে, gap 8 */}
-          {pageCount > 1 && (
-            <nav className="projects-pagination" aria-label="Projects pagination">
+          {/* pagination — Figma "Group 5": মাঝখানে, gap 8. Figma র মতো
+              সবসময় দেখায় (এক পাতা হলেও) — তখন Previous/Next ধূসর */}
+          {status === "ready" && hasResults && (
+            <nav className="projects-pagination" aria-label={t("projects.pagination.ariaLabel")}>
               <button
                 type="button"
                 className="projects-pagination-side"

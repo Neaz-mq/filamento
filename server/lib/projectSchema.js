@@ -70,6 +70,7 @@ export const PROJECT_LIMITS = {
   shortDescription: 200,
   location: 100,
   story: 2000,
+  solutionIntro: 500,
   images: 12,
   videoUrls: 10,
   keyFeatures: 8,
@@ -290,6 +291,8 @@ const FIELDS = {
   videoUrls: cleanVideoUrls,
   keyFeatures: cleanFeatures,
   challenge: (v) => story(v, "The Challenge"),
+  // The Solution এর উপরের ছোট বিবরণ (ঐচ্ছিক) — সাইটে শিরোনামের নিচে
+  solutionIntro: (v) => line(v, PROJECT_LIMITS.solutionIntro, "Solution summary"),
   solution: cleanSolution,
   results: (v) => story(v, "The Results"),
   highlights: cleanHighlights,

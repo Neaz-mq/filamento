@@ -1,6 +1,7 @@
 import { ObjectId } from "mongodb";
 import { getDB } from "../config/db.js";
 import { logActivity } from "../lib/activity.js";
+import { recordProductView } from "../lib/reporting.js";
 import { destroyAsset } from "../lib/cloudinary.js";
 import {
   CATEGORIES,
@@ -746,7 +747,11 @@ export async function addProductView(req, res, next) {
     if (!doc) return res.status(404).json({ message: "Product not found" });
 
     const counted = shouldCountView(`${clientIp(req)}:${doc._id}`, Date.now());
-    if (counted) await products().updateOne({ _id: doc._id }, { $inc: { views: 1 } });
+    if (counted) {
+      await products().updateOne({ _id: doc._id }, { $inc: { views: 1 } });
+      // Dashboard এর "Product Activity" আর "Top Performing" এর দিনের হিসাব
+      await recordProductView(doc._id);
+    }
 
     res.set("Cache-Control", "no-store");
     res.json({ counted });

@@ -16,7 +16,8 @@ import {
 
    MongoDB collection: quote_requests
      { name, company, phone, email, facilityType, projectSize,
-       details, locale, source, status: "new", ip, userAgent, createdAt }
+       details, locale, source, location: { city, region, country } | null,
+       status: "new", ip, userAgent, createdAt }
 
    collection আগে থেকে বানাতে হবে না — প্রথম form জমা হলেই তৈরি হয়
    =============================================================== */
@@ -69,6 +70,36 @@ const ensureIndexes = () => {
     });
   }
   return indexesReady;
+};
+
+/* গ্রাহক কোথা থেকে — Dashboard এর Recent Leads এর "Location".
+
+   Vercel প্রতিটা request এ দর্শকের শহর/দেশ header এ বসিয়ে দেয়
+   (IP থেকে আন্দাজ, তাই মোটামুটি). Vercel এর বাইরে (যেমন নিজের
+   কম্পিউটারে) এগুলো থাকে না — তখন location ফাঁকা থাকে আর
+   Dashboard এ "—" দেখায়. form এ আলাদা ঘর যোগ করা হয়নি, যাতে
+   গ্রাহকের কাজ না বাড়ে */
+const geoHeader = (req, name, max) => {
+  const raw = req.headers[name];
+  if (typeof raw !== "string" || !raw) return "";
+  try {
+    // শহরের নাম URL-encoded আসে ("S%C3%A3o%20Paulo")
+    return decodeURIComponent(raw).trim().slice(0, max);
+  } catch {
+    return "";
+  }
+};
+
+const locationOf = (req) => {
+  const location = {
+    city: geoHeader(req, "x-vercel-ip-city", 80),
+    region: geoHeader(req, "x-vercel-ip-country-region", 10),
+    // দুই অক্ষরের দেশের code ("US") — বাকি কিছু এলে বাদ
+    country: /^[A-Z]{2}$/.test(geoHeader(req, "x-vercel-ip-country", 2))
+      ? geoHeader(req, "x-vercel-ip-country", 2)
+      : "",
+  };
+  return location.city || location.country ? location : null;
 };
 
 /* লেখা নেওয়া — string না হলে বা খুব লম্বা হলে ফাঁকা/কাটা */
@@ -132,7 +163,8 @@ router.post("/", requireSameOrigin, async (req, res, next) => {
 
     await collection.insertOne({
       ...request,
-      // Leads পাতায় "New / Contacted / Closed" এর জন্য
+      location: locationOf(req),
+      // Leads পাতায় "New / Contacted / Qualified / Closed" এর জন্য
       status: "new",
       ip,
       userAgent: String(req.headers["user-agent"] ?? "").slice(0, 300),

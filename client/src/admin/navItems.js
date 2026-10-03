@@ -1,11 +1,11 @@
-import { counts, homeSections } from "./dashboardData";
+import { homeSections } from "./dashboardData";
 import {
   IconBag,
-  // IconBox,
+  IconBox,
   IconCard,
   IconClock,
   IconDashboard,
-  // IconFolder,
+  IconFolder,
   IconHeart,
   IconLayers,
   IconPages,
@@ -91,14 +91,12 @@ export const NAV_GROUPS = [
         to: "/admin/leads",
         label: "Leads",
         Icon: IconUserOctagon,
-        badge: counts.leads,
         keywords: "enquiry contact quote request customer",
       },
       {
         to: "/admin/testimonials",
         label: "Testimonials",
         Icon: IconHeart,
-        badge: counts.testimonials,
         keywords: "review rating client feedback",
       },
     ],

@@ -1,0 +1,1236 @@
+/* ===============================================================
+   SHOP / FIND A REPRESENTATIVE — Figma র ৩ অংশ
+
+   Hero (Frame 285)        1408, #EBEBEC, radius 40,
+                           padding 32+66 / 84 / 64, copy 755 — gap 72 — আলো 413
+   Directory (Frame 507)   padding 0 84, ভেতরে gap 48:
+                           heading 133 → finder 751 → result heading 53 → card 329
+   Direct contact          #373A3C card, radius 20, padding 42 48, gap 56
+
+   1440 পর্দায় 1240 content — বাকি সব প্রস্থে নিচের media query
+   =============================================================== */
+
+.find-rep {
+  --fr-surface: #ebebec;
+  --fr-ink: #373a3c;
+  --fr-ink-75: rgba(55, 58, 60, 0.75);
+  --fr-line: #ebebec;
+  --fr-yellow: #f7be00;
+  --fr-yellow-15: rgba(247, 190, 0, 0.15);
+  --fr-mute: #c1c2c3;
+  --fr-shadow: 0 12px 28px rgba(235, 235, 236, 0.5);
+
+  color: var(--fr-ink);
+  font-family: "Inter", var(--font-sans), sans-serif;
+}
+
+.find-rep a {
+  color: inherit;
+}
+
+/* হলুদ চৌকো + বড় হাতের লেবেল — Figma "Section label" */
+.fr-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 15px;
+  text-transform: uppercase;
+  letter-spacing: 0;
+  color: var(--fr-ink-75);
+}
+
+.fr-label.is-yellow {
+  color: var(--fr-yellow);
+}
+
+.fr-label-mark {
+  flex: none;
+  width: 7px;
+  height: 7px;
+  background: var(--fr-yellow);
+}
+
+/* ---------------------------------------------------------------
+   ১. Hero
+   --------------------------------------------------------------- */
+.section.fr-hero {
+  position: relative;
+  overflow: hidden; /* তির্যক আলোর রেখা card এর কোণে কেটে যায় */
+  /* Figma: frame এর উপরে 32 + hero র 66 = 98, নিচে 64 */
+  padding-top: clamp(48px, 6.96vw, 98px);
+  padding-bottom: var(--section-pad-y);
+  background: var(--fr-surface);
+}
+
+.fr-hero-inner {
+  display: flex;
+  align-items: center;
+  gap: clamp(32px, 5.11vw, 72px);
+}
+
+.fr-hero-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 24px;
+  flex: 0 1 755px;
+  min-width: 0;
+}
+
+.fr-hero-title {
+  margin: 0;
+  font-family: "Space Grotesk", var(--font-sans), sans-serif;
+  font-size: clamp(36px, 4.55vw, 64px);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0;
+  color: var(--fr-ink);
+  text-wrap: balance;
+}
+
+.fr-hero-intro {
+  max-width: 710px;
+  margin: 0;
+  font-size: clamp(16px, 1.25vw, 18px);
+  line-height: 1.6;
+  color: var(--fr-ink-75);
+}
+
+.fr-hero-intro a {
+  color: var(--fr-ink);
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-color: rgba(55, 58, 60, 0.3);
+  text-underline-offset: 3px;
+  overflow-wrap: anywhere;
+  transition: text-decoration-color 0.2s ease;
+}
+
+.fr-hero-intro a:hover {
+  text-decoration-color: var(--fr-yellow);
+}
+
+/* Figma "Light study" — 413 x 378. ভেতরের সব মাপ % এ, তাই ছোট
+   পর্দায় একই অনুপাতে ছোট হয় */
+.fr-light {
+  position: relative;
+  flex: 1 1 413px;
+  max-width: 413px;
+  aspect-ratio: 413 / 378;
+  isolation: isolate;
+}
+
+.fr-light > span {
+  position: absolute;
+  box-sizing: border-box;
+}
+
+/* left 27.72 / top -87.39 / 154 x 530.62, 22° ঘোরানো */
+.fr-light-beam {
+  left: 6.71%;
+  top: -23.12%;
+  width: 37.29%;
+  height: 140.38%;
+  background: linear-gradient(
+    180deg,
+    rgba(235, 235, 236, 0) 0%,
+    rgba(193, 194, 195, 0.25) 50%,
+    rgba(235, 235, 236, 0) 100%
+  );
+  transform: rotate(22deg);
+  z-index: 0;
+}
+
+/* 250 — Figma তে এটা auto layout এ মাঝখানে, তাই ring এর সাথে
+   একদম এক কেন্দ্রে নয় (উপরের কিনারা দুটোরই 64 তে) */
+.fr-light-halo {
+  left: 19.73%;
+  top: 16.93%;
+  width: 60.53%;
+  aspect-ratio: 1;
+  border: 1px solid var(--fr-yellow);
+  border-radius: 50%;
+  opacity: 0.2;
+  z-index: 1;
+}
+
+/* 180 — left 127, top 64 */
+.fr-light-ring {
+  left: 30.75%;
+  top: 16.93%;
+  width: 43.58%;
+  aspect-ratio: 1;
+  border: 2px solid var(--fr-yellow);
+  border-radius: 50%;
+  opacity: 0.72;
+  z-index: 2;
+}
+
+/* 66 — left 184, top 121 (ring এর ঠিক মাঝখানে) */
+.fr-light-aperture {
+  left: 44.55%;
+  top: 32.01%;
+  width: 15.98%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--fr-yellow);
+  opacity: 0.95;
+  box-shadow: 0 0 32px rgba(231, 168, 50, 0.333);
+  z-index: 3;
+}
+
+.fr-light-caption {
+  left: 24px;
+  bottom: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  z-index: 4;
+}
+
+.fr-light-caption-title {
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 13px;
+  text-transform: uppercase;
+  color: var(--fr-yellow);
+}
+
+.fr-light-caption-detail {
+  font-size: 12px;
+  line-height: 15px;
+  color: var(--fr-ink);
+}
+
+.fr-light-count {
+  right: 24px;
+  top: 22px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+  z-index: 5;
+}
+
+.fr-light-count-value {
+  font-size: 28px;
+  font-weight: 500;
+  line-height: 34px;
+  color: var(--fr-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.fr-light-count-label {
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 12px;
+  text-transform: uppercase;
+  color: var(--fr-ink-75);
+}
+
+/* ---------------------------------------------------------------
+   ২. Directory
+   --------------------------------------------------------------- */
+.section.fr-directory {
+  padding-top: clamp(32px, 4.5vw, 64px);
+  padding-bottom: 0;
+  background: transparent;
+}
+
+.fr-directory-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+}
+
+.fr-directory-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 24px;
+}
+
+.fr-directory-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 760px;
+  min-width: 0;
+}
+
+.fr-directory-title {
+  margin: 0;
+  font-size: clamp(28px, 2.5vw, 36px);
+  font-weight: 700;
+  line-height: 1.22;
+  color: var(--fr-ink);
+}
+
+.fr-directory-desc {
+  max-width: 650px;
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--fr-ink-75);
+}
+
+/* Figma "Directory status" — pill */
+.fr-status {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  padding: 10px 14px;
+  border: 1px solid var(--fr-line);
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 16px;
+  color: var(--fr-ink);
+  white-space: nowrap;
+}
+
+.fr-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--fr-yellow);
+}
+
+/* Figma "Finder controls" */
+.fr-finder {
+  background: rgba(255, 255, 255, 0.25);
+  border: 1px solid var(--fr-line);
+  border-radius: 20px;
+  box-shadow: var(--fr-shadow);
+}
+
+/* খোঁজার ঘর (776) + territory বাছাই (400), gap 16, padding 24 */
+.fr-search-row {
+  position: relative;
+  display: flex;
+  gap: 16px;
+  padding: 24px;
+}
+
+.fr-search {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  height: 54px;
+  padding: 0 18px;
+  background: #fff;
+  border: 1px solid var(--fr-line);
+  border-radius: 12px;
+  color: var(--fr-ink-75);
+  cursor: text;
+  transition: border-color 0.2s ease;
+}
+
+/* লেখা থাকলে ডানে clear বোতামের জায়গা (24 + 12) */
+.fr-search.has-query {
+  padding-right: 48px;
+}
+
+.fr-search:focus-within {
+  border-color: var(--fr-ink);
+}
+
+.fr-search svg {
+  flex: none;
+}
+
+.fr-search input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  font: inherit;
+  font-size: 15px;
+  line-height: 18px;
+  color: var(--fr-ink);
+}
+
+.fr-search input::placeholder {
+  color: var(--fr-ink-75);
+  opacity: 1;
+}
+
+/* browser এর নিজের ✕ লুকানো — আমাদের Figma র ✕ আছে */
+.fr-search input::-webkit-search-cancel-button {
+  appearance: none;
+}
+
+/* label এর ভেতরে button রাখা যায় না, তাই বাইরে — খোঁজার ঘরের
+   ডান কিনারায় বসানো (400 selector + 16 gap + 24 padding + 12) */
+.fr-search-clear {
+  position: absolute;
+  top: 39px;
+  right: calc(24px + 400px + 16px + 12px);
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--fr-ink);
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.fr-search-clear:hover {
+  opacity: 0.7;
+}
+
+/* Figma "Location selector" — 400 চওড়া, গাঢ় border */
+.fr-selector {
+  display: flex;
+  flex: 0 0 400px;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  height: 54px;
+  padding: 0 18px;
+  background: #fff;
+  border: 1px solid var(--fr-ink);
+  border-radius: 12px;
+  font: inherit;
+  color: var(--fr-ink);
+  text-align: left;
+  cursor: pointer;
+}
+
+.fr-selector-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.fr-selector-label {
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 12px;
+  text-transform: uppercase;
+  color: var(--fr-ink-75);
+}
+
+.fr-selector-value {
+  overflow: hidden;
+  font-size: 15px;
+  line-height: 18px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.fr-selector svg {
+  flex: none;
+  transition: transform 0.25s ease;
+}
+
+/* Figma: খোলা অবস্থায় তীর উপরের দিকে */
+.fr-selector.is-open svg {
+  transform: scaleY(-1);
+}
+
+/* Figma "Region tabs" — উপরে-নিচে রেখা, 58 উঁচু, gap 30 */
+.fr-tabs {
+  display: flex;
+  gap: 30px;
+  padding: 0 24px;
+  border-block: 1px solid var(--fr-line);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.fr-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.fr-tab {
+  position: relative;
+  flex: none;
+  height: 58px;
+  padding: 20px 0 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 16px;
+  color: var(--fr-ink-75);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.fr-tab::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 3px;
+  background: var(--fr-yellow);
+  transform: scaleX(0);
+  transition: transform 0.25s ease;
+}
+
+.fr-tab:hover {
+  color: var(--fr-ink);
+}
+
+.fr-tab.is-active {
+  font-weight: 700;
+  color: var(--fr-ink);
+}
+
+.fr-tab.is-active::after {
+  transform: scaleX(1);
+}
+
+.fr-tab:focus-visible {
+  outline-offset: -2px;
+}
+
+/* Figma "Location options" — padding 20 24 24, gap 14 */
+.fr-options {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 20px 24px 24px;
+}
+
+.fr-options-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 11px;
+  line-height: 13px;
+  color: var(--fr-ink-75);
+}
+
+.fr-options-head span:first-child {
+  text-transform: uppercase;
+}
+
+/* ৪ কলাম (289), কলামের মাঝে 12, সারির মাঝে 12 (30 + 12 = 42) */
+.fr-territories {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fr-territory {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 30px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 15px;
+  color: var(--fr-ink-75);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.fr-territory-dot {
+  flex: none;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--fr-ink-75);
+  transition: background-color 0.2s ease;
+}
+
+.fr-territory:hover {
+  background: rgba(55, 58, 60, 0.05);
+  color: var(--fr-ink);
+}
+
+.fr-territory.is-selected {
+  background: var(--fr-yellow-15);
+  font-weight: 700;
+  color: var(--fr-ink);
+}
+
+.fr-territory.is-selected .fr-territory-dot {
+  background: var(--fr-yellow);
+}
+
+/* খোঁজার সময় যেখানে মিল নেই */
+.fr-territory.is-dimmed {
+  opacity: 0.35;
+}
+
+.fr-options-empty {
+  margin: 0;
+  padding: 12px 0 4px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--fr-ink-75);
+}
+
+/* ---------- Result ---------- */
+.fr-results {
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+  scroll-margin-top: calc(var(--header-h) + 16px);
+}
+
+.fr-results-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+}
+
+.fr-results-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.fr-results-summary {
+  margin: 0;
+  font-size: 13px;
+  line-height: 16px;
+  color: var(--fr-ink-75);
+}
+
+.fr-results-title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 29px;
+  color: var(--fr-ink);
+  overflow-wrap: anywhere;
+}
+
+.fr-results-sort {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 15px;
+  color: var(--fr-ink);
+}
+
+.fr-results-sort svg {
+  color: var(--fr-ink-75);
+}
+
+/* ৪টা card, gap 16 */
+.fr-cards {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+/* Figma "Representative card" */
+.fr-card {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-width: 0;
+  padding: 24px;
+  background: #fff;
+  border: 1px solid var(--fr-line);
+  border-radius: 20px;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.fr-card:hover {
+  box-shadow: var(--fr-shadow);
+}
+
+/* বাছা territory র লোক — 2px হলুদ border (1px এর বদলে, তাই padding
+   1px কম, যাতে ভেতরটা না সরে) */
+.fr-card.is-selected {
+  padding: 23px;
+  border: 2px solid var(--fr-yellow);
+  box-shadow: var(--fr-shadow);
+}
+
+.fr-card-head {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.fr-card-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  min-height: 22px;
+}
+
+.fr-card-location {
+  min-width: 0;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 12px;
+  text-transform: uppercase;
+  color: var(--fr-ink-75);
+}
+
+.fr-card-badge {
+  flex: none;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: var(--fr-yellow-15);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 12px;
+  text-transform: uppercase;
+  color: var(--fr-ink);
+}
+
+.fr-card-company {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--fr-ink);
+  overflow-wrap: anywhere;
+}
+
+.fr-card-person {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 17px;
+  color: var(--fr-ink-75);
+}
+
+.fr-card-divider {
+  display: block;
+  height: 1px;
+  background: var(--fr-line);
+}
+
+/* email / ফোন / ঠিকানা — লেখা বাঁয়ে, icon ডানে (Figma র মতো) */
+.fr-card-details {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fr-card-details li {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--fr-ink-75);
+}
+
+.fr-card-details a {
+  min-width: 0;
+  text-decoration: none;
+  /* শুধু খুব লম্বা একটানা শব্দ হলে মাঝে ভাঙে (email আগে "@" এ ভাঙে) */
+  overflow-wrap: break-word;
+  transition: color 0.2s ease;
+}
+
+.fr-card-details a:hover {
+  color: var(--fr-ink);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.fr-card-details svg {
+  flex: none;
+  margin-top: 1.5px;
+}
+
+/* Email + Call — নিচে বসে থাকে, card এর উচ্চতা যত হোক */
+.fr-card-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.fr-card-action {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--fr-line);
+  border-radius: 100px;
+  font-size: 13px;
+  line-height: 16px;
+  text-decoration: none;
+  color: var(--fr-ink);
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.fr-card-action:hover {
+  border-color: var(--fr-ink);
+}
+
+.fr-card-action.is-primary {
+  background: var(--fr-ink);
+  border-color: var(--fr-ink);
+  color: #ebebec;
+}
+
+.fr-card-action.is-primary svg {
+  color: #e1e1e2;
+}
+
+.fr-card-action.is-primary:hover {
+  background: #2a2c2e;
+}
+
+/* খোঁজায় কিছু না মিললে */
+.fr-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 32px;
+  border: 1px dashed rgba(55, 58, 60, 0.25);
+  border-radius: 20px;
+}
+
+.fr-empty p {
+  max-width: 560px;
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--fr-ink-75);
+}
+
+.fr-empty-action {
+  height: 44px;
+  padding: 0 20px;
+  border: 1px solid var(--fr-ink);
+  border-radius: 100px;
+  background: none;
+  font: inherit;
+  font-size: 13px;
+  color: var(--fr-ink);
+  cursor: pointer;
+}
+
+/* ---------------------------------------------------------------
+   ৩. Direct contact
+   --------------------------------------------------------------- */
+.section.fr-contact {
+  padding-top: 48px;
+  background: transparent;
+}
+
+.fr-contact-card {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 56px;
+  min-height: 312px;
+  /* ডানে tagline (92 + 42) এর জায়গা */
+  padding: 42px calc(42px + 92px + 48px) 42px 48px;
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--fr-ink);
+  border-radius: 20px;
+  box-sizing: border-box;
+}
+
+/* 520 গোল হলুদ আভা — right -90, top -160 */
+.fr-contact-glow {
+  position: absolute;
+  top: -160px;
+  right: -90px;
+  width: 520px;
+  height: 520px;
+  border-radius: 50%;
+  background: radial-gradient(
+    50% 50% at 50% 50%,
+    rgba(231, 168, 50, 0.2) 0%,
+    rgba(231, 168, 50, 0.055) 50%,
+    rgba(231, 168, 50, 0) 100%
+  );
+  pointer-events: none;
+  z-index: -1;
+}
+
+.fr-contact-intro {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 18px;
+  flex: 0 1 450px;
+  min-width: 0;
+}
+
+.fr-contact-title {
+  margin: 0;
+  font-size: clamp(26px, 2.27vw, 32px);
+  font-weight: 400;
+  line-height: 1.12;
+  color: #ebebec;
+}
+
+.fr-contact-desc {
+  max-width: 420px;
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--fr-mute);
+}
+
+.fr-contact-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.fr-contact-action {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--fr-ink);
+  border-radius: 100px;
+  font-size: 13px;
+  line-height: 16px;
+  text-decoration: none;
+  white-space: nowrap;
+  color: #ebebec;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.find-rep .fr-contact-action {
+  color: #ebebec;
+}
+
+.fr-contact-action:hover {
+  border-color: rgba(235, 235, 236, 0.35);
+}
+
+.find-rep .fr-contact-action.is-primary {
+  background: var(--fr-yellow);
+  border-color: var(--fr-yellow);
+  color: var(--fr-ink);
+}
+
+.fr-contact-action.is-primary:hover {
+  background: #ffcb1f;
+}
+
+/* Figma তে রেখাটা card এর রঙেই (#373A3C) — চোখে পড়ে না. হালকা করে
+   দেখানো হলো, যাতে দুই ভাগ আলাদা বোঝা যায় */
+.fr-contact-divider {
+  flex: none;
+  align-self: stretch;
+  width: 1px;
+  background: rgba(235, 235, 236, 0.12);
+}
+
+.fr-contact-details {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  flex: 0 1 405px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fr-contact-detail {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.fr-contact-icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 6px;
+  background: rgba(247, 190, 0, 0.1);
+  color: var(--fr-yellow);
+}
+
+.fr-contact-detail-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.fr-contact-detail-label {
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 12px;
+  text-transform: uppercase;
+  color: var(--fr-mute);
+}
+
+.find-rep .fr-contact-detail-value {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: #ebebec;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+.fr-contact-detail-value:hover {
+  text-decoration: underline;
+  text-decoration-color: var(--fr-yellow);
+  text-underline-offset: 3px;
+}
+
+/* Figma "Tagline lockup" — ডানে 42, উপরে 42, 92 চওড়া */
+.fr-tagline {
+  position: absolute;
+  top: 42px;
+  right: 42px;
+  bottom: 42px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  width: 92px;
+}
+
+.fr-tagline-text {
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 16px;
+  text-align: center;
+  text-transform: uppercase;
+  color: #ebebec;
+}
+
+.fr-tagline-ring {
+  position: relative;
+  width: 92px;
+  height: 92px;
+  border: 1px solid rgba(247, 190, 0, 0.55);
+  border-radius: 50%;
+  box-sizing: border-box;
+}
+
+.fr-tagline-core {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  border-radius: 50%;
+  background: var(--fr-yellow);
+  box-shadow: 0 0 32px rgba(231, 168, 50, 0.333);
+}
+
+/* ---------------------------------------------------------------
+   Responsive
+   --------------------------------------------------------------- */
+
+/* ট্যাবলেট — card ২ কলাম, contact এ tagline সরানো */
+@media (max-width: 1099px) {
+  .fr-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .fr-territories {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .fr-selector {
+    flex-basis: 320px;
+  }
+
+  .fr-search-clear {
+    right: calc(24px + 320px + 16px + 12px);
+  }
+
+  .fr-contact-card {
+    gap: 40px;
+    padding-right: 48px;
+  }
+
+  .fr-tagline {
+    display: none;
+  }
+}
+
+/* hero উপর-নিচে, directory র শিরোনাম উপর-নিচে */
+@media (max-width: 899px) {
+  .fr-hero-inner {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .fr-hero-copy {
+    flex-basis: auto;
+  }
+
+  .fr-light {
+    flex: none;
+    width: 100%;
+    margin-inline: auto;
+  }
+
+  .fr-directory-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .fr-contact-card {
+    flex-direction: column;
+    gap: 32px;
+  }
+
+  .fr-contact-intro,
+  .fr-contact-details {
+    flex-basis: auto;
+    width: 100%;
+  }
+
+  .fr-contact-divider {
+    align-self: stretch;
+    width: auto;
+    height: 1px;
+  }
+}
+
+/* ফোন — সব এক কলামে */
+@media (max-width: 640px) {
+  .fr-directory-inner {
+    gap: 32px;
+  }
+
+  .fr-results {
+    gap: 24px;
+  }
+
+  .fr-search-row {
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+  }
+
+  .fr-selector {
+    flex-basis: auto;
+  }
+
+  /* খোঁজার ঘর এখন উপরে, পুরো চওড়া */
+  .fr-search-clear {
+    top: 31px;
+    right: 28px;
+  }
+
+  /* ৫টা ট্যাব 390 পর্দায় এক সারিতে ধরে */
+  .fr-tabs {
+    gap: 18px;
+    padding: 0 16px;
+  }
+
+  /* placeholder পুরোটা দেখা যায় */
+  .fr-search input {
+    font-size: 14px;
+  }
+
+  .fr-search {
+    padding-left: 14px;
+    gap: 10px;
+  }
+
+  .fr-search.has-query {
+    padding-right: 44px;
+  }
+
+  .fr-options {
+    padding: 16px 16px 20px;
+  }
+
+  .fr-territories {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px 8px;
+  }
+
+  /* আঙুলে চাপার মতো উঁচু */
+  .fr-territory {
+    min-height: 40px;
+  }
+
+  .fr-results-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .fr-cards {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .fr-contact-card {
+    padding: 32px 24px;
+  }
+
+  .fr-contact-actions {
+    width: 100%;
+  }
+
+  .fr-contact-action {
+    flex: 1 1 140px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .find-rep *,
+  .find-rep *::after {
+    transition: none !important;
+  }
+}

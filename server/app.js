@@ -12,6 +12,7 @@ import adminUserRoutes from "./routes/adminUserRoutes.js";
 import quoteRequestRoutes from "./routes/quoteRequestRoutes.js";
 import newsletterRoutes from "./routes/newsletterRoutes.js";
 import uploadRoutes from "./routes/uploadRoutes.js";
+import overviewRoutes from "./routes/overviewRoutes.js";
 
 const app = express();
 
@@ -76,6 +77,9 @@ app.use("/api/auth", authRoutes);
 
 // Users & Roles — একাধিক admin
 app.use("/api/admins", adminUserRoutes);
+
+// Admin Dashboard এর সংখ্যা আর 🔔 — GET /overview, GET /notifications
+app.use("/api/admin", overviewRoutes);
 
 app.use("/api/products", productRoutes);
 

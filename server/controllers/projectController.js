@@ -112,6 +112,7 @@ const withDefaults = (doc) => {
     videoUrls: Array.isArray(doc.videoUrls) ? doc.videoUrls : [],
     keyFeatures: Array.isArray(doc.keyFeatures) ? doc.keyFeatures : [],
     challenge: doc.challenge ?? "",
+    solutionIntro: doc.solutionIntro ?? "",
     solution: Array.isArray(doc.solution) ? doc.solution : [],
     results: doc.results ?? "",
     highlights: Array.isArray(doc.highlights) ? doc.highlights : [],

@@ -1,386 +1,267 @@
-import { useId } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { api } from "../lib/api";
 import AdminClock from "./AdminClock";
-import { useDocumentTitle } from "./AdminAuth";
+import { useAdminAuth, useDocumentTitle } from "./AdminAuth";
+import CategoryModal from "./products/CategoryModal";
 import {
-  demandBySeries,
-  homeSections,
-  recentActivity,
-  recentLeads,
-  stats,
-} from "./dashboardData";
-import {
-  IconArrowRight,
-  IconBolt,
-  IconBox,
-  IconCalendar,
-  IconChart,
-  IconChat,
-  IconChevron,
-  IconClock,
-  IconFolder,
-  IconImage,
-  IconLayers,
-  IconPencil,
-  IconPlus,
-  IconSettings,
-  IconTickSquare,
-  IconTrend,
-  IconUsers,
-} from "./icons";
+  ProductActivity,
+  QuickActions,
+  RecentActivity,
+  RecentLeads,
+  StatCard,
+  TopProducts,
+} from "./dashboard/DashboardParts";
+import { IconBox, IconCalendar, IconChartSuccess, IconFilterTick, IconReceipt } from "./icons";
+import "./products/products.css";
+import "./dashboard/dashboard.css";
 
 /* ===============================================================
-   Dashboard — Figma র নকশা অনুযায়ী
+   Dashboard — Figma র নতুন নকশা (1030 চওড়া)
 
-   ⚠️ পর্দার সব সংখ্যা এখন dashboardData.js এর স্থির নমুনা.
-   database এ এখনো product বা lead নেই, তাই গোনার কিছু নেই.
-   ধাপ ৪ এ ওই ফাইলটা server এর উত্তর দিয়ে বদলে যাবে.
+     Welcome Back, <নাম>              [📅 সময়কাল] [🕘 ঘড়ি]
+     [Total Products] [Total Projects] [Quote Requests] [Total Leads]
+     [Product Activity          ] [Quick Actions              ]
+     [Recent Leads — পুরো চওড়া                                ]
+     [Top Performing Products   ] [Recent Activity            ]
 
-   এখনো কাজ করে না (শুধু নকশা): উপরের 🔔, তারিখের বোতাম, আর
-   "View All Activity".
-   কাজ করে: search, ঘড়ি, Edit বোতাম, Quick Action এর card,
-   sidebar এর সব link
+   সব সংখ্যা আসল — server এর GET /api/admin/overview থেকে
+   (server/routes/overviewRoutes.js). কোথাও বানানো সংখ্যা নেই:
+   কিছু না থাকলে "এখনো কিছু নেই" লেখা দেখায়.
 
-   টেবিলের সারিতে আগে একটা টানার হাতল (≡) আর "⋮" মেনু ছিল —
-   দুইটাই কিছু করত না, তাই সরানো হয়েছে. সাজানো আর
-   দেখানো/লুকানো সত্যিই তৈরি হলে ওগুলো ফিরে আসবে.
+   📅 এ চাপলে সময়কাল বদলায় (৭ / ৩০ / ৯০ দিন / ১২ মাস) — card এর
+   "↑ 15% last month" এর মতো লেখা ওই সময়ের তুলনা. বাছাটা এই browser
+   এ মনে থাকে.
 
-   "Last update" কলামটাও সরানো — অংশগুলোর লেখা এখনো কোডে আর
-   locale ফাইলে, database এ নয়. তাই "কখন শেষ বদলেছে" বলে কিছু
-   কোথাও লেখা থাকে না; সাতটা সারিতে একই বানানো তারিখ বসে ছিল.
-   লেখা database এ এলে প্রতিটা save এ updatedAt বসবে, তখন
-   কলামটা ফিরবে
+   পাতা খোলা থাকলে প্রতি ২ মিনিটে নিজে থেকেই নতুন সংখ্যা আনে
    =============================================================== */
 
-const CARD_ICONS = {
-  layers: IconLayers,
-  tick: IconTickSquare,
-  box: IconBox,
-  users: IconUsers,
-  chat: IconChat,
-  settings: IconSettings,
-  bolt: IconBolt,
-  chart: IconChart,
-};
-
-const QUICK_ACTIONS = [
-  { label: "Edit Hero", to: "/admin/home/hero", Icon: IconPencil },
-  { label: "Add Product", to: "/admin/products", Icon: IconPlus },
-  { label: "Add Project", to: "/admin/projects", Icon: IconFolder },
-  { label: "Add Testimonial", to: "/admin/testimonials", Icon: IconChat },
-  { label: "Manage Logos", to: "/admin/media", Icon: IconImage },
-  { label: "View Leads", to: "/admin/leads", Icon: IconUsers },
+const PERIODS = [
+  { days: 7, label: "Last 7 days", short: "last week" },
+  { days: 30, label: "Last 30 days", short: "last month" },
+  { days: 90, label: "Last 90 days", short: "last quarter" },
+  { days: 365, label: "Last 12 months", short: "last year" },
 ];
 
-/* ---------------------------------------------------------------
-   card এর নিচের ছোট লেখচিত্র
+const PERIOD_KEY = "fil_admin_period";
+const REFRESH_MS = 2 * 60 * 1000;
 
-   preserveAspectRatio="none" — ছবিটা card এর পুরো চওড়ায় টেনে বসে.
-   টানার সময় রেখাটাও মোটা হয়ে যেত, তাই non-scaling-stroke
-   --------------------------------------------------------------- */
-function Spark({ points }) {
-  const gradientId = useId();
-  const width = 200;
-  const height = 60;
-
-  const step = width / (points.length - 1);
-  const dots = points.map((value, index) => [
-    index * step,
-    height - (value / 100) * (height - 6) - 3,
-  ]);
-
-  let line = `M ${dots[0][0]} ${dots[0][1]}`;
-  for (let i = 1; i < dots.length; i += 1) {
-    const [x0, y0] = dots[i - 1];
-    const [x1, y1] = dots[i];
-    const middle = (x0 + x1) / 2;
-    line += ` C ${middle} ${y0}, ${middle} ${y1}, ${x1} ${y1}`;
+const readPeriod = () => {
+  try {
+    const saved = Number(window.localStorage.getItem(PERIOD_KEY));
+    return PERIODS.some((period) => period.days === saved) ? saved : 30;
+  } catch {
+    return 30;
   }
+};
 
-  return (
-    <svg
-      className="adm-spark"
-      viewBox={`0 0 ${width} ${height}`}
-      preserveAspectRatio="none"
-      aria-hidden="true"
-      focusable="false"
-    >
-      <defs>
-        <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="currentColor" stopOpacity="0.5" />
-          <stop offset="100%" stopColor="currentColor" stopOpacity="0" />
-        </linearGradient>
-      </defs>
-      <path d={`${line} L ${width} ${height} L 0 ${height} Z`} fill={`url(#${gradientId})`} />
-      <path
-        d={line}
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1"
-        vectorEffect="non-scaling-stroke"
-      />
-    </svg>
-  );
-}
+/* "2026-10-03" এর মতো দিনের key দিয়ে তারিখ লেখা — সময়-অঞ্চলের
+   গোলমাল এড়াতে UTC ধরে (key টা নিজেই server এর দিন) */
+const shortDay = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
+const fullDay = new Intl.DateTimeFormat("en-US", {
+  month: "short",
+  day: "numeric",
+  year: "numeric",
+  timeZone: "UTC",
+});
 
-function StatCard({ stat }) {
-  const Icon = CARD_ICONS[stat.icon] || IconLayers;
-  const down = stat.direction === "down";
-  const bare = stat.tone === "plain";
-
-  return (
-    <article className={`adm-card adm-tone-${stat.tone}`}>
-      <div className="adm-card-top">
-        <h3 className="adm-card-label">{stat.label}</h3>
-        <span className="adm-card-icon">
-          <Icon size={20} />
-        </span>
-      </div>
-
-      <div className="adm-card-body">
-        <div className="adm-card-row">
-          <p className="adm-card-value">{stat.value}</p>
-          {/* delta না থাকলে কিছু দেখানো হয় না — বানানো শতাংশ
-              বসানোর চেয়ে ফাঁকা থাকা ভালো */}
-          {stat.delta && (
-            <p className={bare ? "adm-delta adm-delta--bare" : "adm-delta"}>
-              <IconTrend down={down} size={13} />
-              {stat.delta}
-            </p>
-          )}
-        </div>
-        <Spark points={stat.spark} />
-      </div>
-    </article>
-  );
-}
-
-function PanelHead({ Icon, title, children }) {
-  return (
-    <div className="adm-panel-head">
-      <div className="adm-panel-head-left">
-        <span className="adm-panel-icon">
-          <Icon />
-        </span>
-        <h2 className="adm-panel-title">{title}</h2>
-      </div>
-      {children}
-    </div>
-  );
+function rangeText(today, days) {
+  if (!today) return null;
+  const end = new Date(`${today}T00:00:00Z`);
+  const start = new Date(end);
+  start.setUTCDate(start.getUTCDate() - (days - 1));
+  const sameYear = start.getUTCFullYear() === end.getUTCFullYear();
+  return `${(sameYear ? shortDay : fullDay).format(start)} – ${fullDay.format(end)}`;
 }
 
 function AdminHome() {
   useDocumentTitle("Dashboard");
+  const { admin } = useAdminAuth();
+  const navigate = useNavigate();
+  const canEdit = ["owner", "admin"].includes(admin?.role);
+
+  const [days, setDays] = useState(readPeriod);
+  const [reload, setReload] = useState(0);
+  const [choosing, setChoosing] = useState(false);
+
+  /* key দিয়ে বোঝা হয় কোন উত্তর কোন request এর — সময়কাল বদলানোর
+     পরে পুরনো ধীর উত্তর এসে নতুনটাকে ঢেকে দিতে পারে না */
+  const key = `${days}:${reload}`;
+  const [result, setResult] = useState({ key: null, data: null, error: "" });
+
+  useEffect(() => {
+    let alive = true;
+    api
+      .adminOverview(days)
+      .then((data) => {
+        if (alive) setResult({ key, data, error: "" });
+      })
+      .catch((error) => {
+        if (alive) setResult((old) => ({ key, data: old.data, error: error.message }));
+      });
+    return () => {
+      alive = false;
+    };
+    // key এর ভেতরেই days আর reload আছে
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key]);
+
+  // খোলা থাকলে প্রতি ২ মিনিটে নতুন সংখ্যা — পেছনের tab এ নয়
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      if (document.visibilityState === "visible") setReload((value) => value + 1);
+    }, REFRESH_MS);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  const data = result.data;
+  // প্রথমবার আনার সময় — আগের কোনো সংখ্যা নেই
+  const loading = !data;
+  const period = PERIODS.find((item) => item.days === days) ?? PERIODS[1];
+
+  const changePeriod = (value) => {
+    const next = Number(value);
+    setDays(next);
+    try {
+      window.localStorage.setItem(PERIOD_KEY, String(next));
+    } catch {
+      // মনে রাখা গেল না — শুধু পরের বার আবার ৩০ দিন
+    }
+  };
+
+  const locked = data ? !data.canSeeLeads : false;
+  const range = rangeText(data?.today, days);
 
   return (
-    <>
-      {/* ---- Overview এর সারি ---- */}
-      <div className="adm-overview">
-        <h2 className="adm-overview-title">Overview</h2>
+    <div className="dsh">
+      {/* ---- Welcome + সময়কাল + ঘড়ি ---- */}
+      <div className="dsh-head">
+        <h1 className="dsh-welcome">
+          Welcome Back, <strong>{admin?.name || "Admin"}</strong>
+        </h1>
 
-        <div className="adm-overview-tools">
-          <span className="adm-chip" aria-hidden="true">
+        <div className="dsh-head-tools">
+          {/* দেখতে Figma র তারিখের chip, ভেতরে আসল <select> */}
+          <label className="adm-chip dsh-period" title="Change the comparison period">
             <IconCalendar size={20} />
-            Jan 1 – Jun 30, 2026
-          </span>
-          {/* চলন্ত ঘড়ি — কাঁটা সত্যি সময় ধরে ঘোরে */}
+            <span>{range ?? period.label}</span>
+            <select
+              value={days}
+              onChange={(event) => changePeriod(event.target.value)}
+              aria-label="Comparison period"
+            >
+              {PERIODS.map((item) => (
+                <option key={item.days} value={item.days}>
+                  {item.label}
+                </option>
+              ))}
+            </select>
+          </label>
           <AdminClock />
-          <a className="adm-chip adm-chip--go" href="#quick-actions">
-            <IconBolt size={18} />
-            Quick Actions
-            <IconChevron size={18} />
-          </a>
         </div>
       </div>
 
-      {/* ---- আটটা সংখ্যার card ---- */}
-      <section className="adm-stats" aria-label="Overview numbers">
-        {stats.map((stat) => (
-          <StatCard key={stat.id} stat={stat} />
-        ))}
+      {result.error && (
+        <div className="dsh-alert" role="alert">
+          <span>
+            {data
+              ? "Couldn’t refresh the numbers — showing the last ones we got."
+              : `Couldn’t load the dashboard. ${result.error}`}
+          </span>
+          <button type="button" onClick={() => setReload((value) => value + 1)}>
+            Try again
+          </button>
+        </div>
+      )}
+
+      {/* ---- চারটা সংখ্যার card ---- */}
+      <section className="dsh-stats" aria-label={`Numbers — ${period.label}`}>
+        <StatCard
+          title="Total Products"
+          Icon={IconBox}
+          to="/admin/products"
+          loading={loading}
+          value={data?.products.total}
+          change={data?.products.change}
+          period={period.short}
+          split={[
+            [data?.products.published, "Published"],
+            [data?.products.draft, "Draft"],
+          ]}
+        />
+        <StatCard
+          title="Total Projects"
+          Icon={IconChartSuccess}
+          to="/admin/projects"
+          loading={loading}
+          value={data?.projects.total}
+          change={data?.projects.change}
+          period={period.short}
+          split={[
+            [data?.projects.published, "Published"],
+            [data?.projects.draft, "Draft"],
+          ]}
+        />
+        <StatCard
+          title="Quote Requests"
+          Icon={IconReceipt}
+          to="/admin/leads"
+          loading={loading}
+          locked={locked}
+          value={data?.quotes?.total}
+          change={data?.quotes?.change}
+          period={period.short}
+          split={[
+            [data?.quotes?.new, "New"],
+            [data?.quotes?.closed, "Closed"],
+          ]}
+        />
+        <StatCard
+          title="Total Leads"
+          Icon={IconFilterTick}
+          to="/admin/leads"
+          loading={loading}
+          locked={locked}
+          value={data?.leads?.total}
+          change={data?.leads?.change}
+          period={period.short}
+          split={[
+            [data?.leads?.new, "New"],
+            [data?.leads?.contacted, "Contacted"],
+          ]}
+        />
       </section>
 
-      {/* ---- Home পাতার অংশগুলো ---- */}
-      <section className="adm-panel">
-        <PanelHead Icon={IconLayers} title="Home Page Sections" />
-
-        <table className="adm-table adm-table--stack adm-table--sections">
-          <thead>
-            <tr>
-              <th scope="col">Section</th>
-              <th scope="col">Status</th>
-              <th scope="col" className="adm-th-end">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {homeSections.map((section) => (
-              <tr key={section.slug}>
-                <td data-label="Section">
-                  <div className="adm-lead-cell">
-                    <span className="adm-cell-icon">
-                      <IconLayers size={20} />
-                    </span>
-                    <span className="adm-cell-text">
-                      <span className="adm-cell-title">{section.name}</span>
-                      <span className="adm-cell-note">{section.note}</span>
-                    </span>
-                  </div>
-                </td>
-                <td data-label="Status">
-                  <span className="adm-pill adm-pill--green">
-                    {section.status}
-                  </span>
-                </td>
-                <td data-label="Actions" className="adm-td-end">
-                  <Link
-                    className="adm-btn-ghost"
-                    to={`/admin/home/${section.slug}`}
-                  >
-                    Edit
-                    <span className="sr-only"> {section.name}</span>
-                  </Link>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        {/* Figma তে এখানে "+ Add New Section" ছিল — ইচ্ছে করে বাদ.
-
-           Home পাতার প্রতিটা অংশ হাতে লেখা React component, নিজের
-           নকশা আর animation সহ. তাই database এ নতুন একটা সারি
-           বসালে সাইটে কিছুই দেখা যেত না — বোতামটা মিথ্যা প্রতিশ্রুতি
-           হতো. নতুন অংশ মানে designer এর নকশা + নতুন component,
-           সেটা admin panel এর কাজ নয়.
-
-           এই তালিকায় যা দরকার সেটা হলো অংশগুলো সাজানো আর
-           দেখানো/লুকানো — ≡ আর ⋮ ওই কাজ দুইটা পাবে */}
-      </section>
-
-      {/* ---- Demand by Series + Quick Actions, পাশাপাশি ---- */}
-      <div className="adm-two">
-        <section className="adm-panel">
-          <PanelHead Icon={IconChart} title="Demand by Series" />
-          <div className="adm-bars">
-            {demandBySeries.map((series) => (
-              <div className="adm-bar" key={series.name}>
-                <div className="adm-bar-top">
-                  <span className="adm-bar-name">{series.name}</span>
-                  <span className="adm-bar-value">{series.percent}%</span>
-                </div>
-                <div
-                  className="adm-track"
-                  role="img"
-                  aria-label={`${series.name}: ${series.percent} percent`}
-                >
-                  <span style={{ width: `${series.percent}%` }} />
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section className="adm-panel" id="quick-actions">
-          <PanelHead Icon={IconBolt} title="Quick Actions" />
-          <div className="adm-actions">
-            {QUICK_ACTIONS.map(({ label, to, Icon }) => (
-              <Link className="adm-action" to={to} key={label}>
-                <span className="adm-cell-icon">
-                  <Icon size={20} />
-                </span>
-                {label}
-              </Link>
-            ))}
-          </div>
-        </section>
+      {/* ---- Product Activity + Quick Actions ---- */}
+      <div className="dsh-pair">
+        <ProductActivity views={data?.views} today={data?.today} loading={loading} />
+        <QuickActions canEdit={canEdit} onAddProduct={() => setChoosing(true)} />
       </div>
 
-      {/* ---- নতুন আসা lead ---- */}
-      <section className="adm-panel">
-        <PanelHead Icon={IconUsers} title="Recent Leads" />
+      {/* ---- Recent Leads ---- */}
+      <RecentLeads
+        leads={data?.recentLeads}
+        canSeeLeads={data ? data.canSeeLeads : true}
+        now={data?.generatedAt}
+        loading={loading}
+      />
 
-        <table className="adm-table adm-table--stack">
-          <thead>
-            <tr>
-              <th scope="col">Lead</th>
-              <th scope="col">Company</th>
-              <th scope="col">Interest</th>
-              <th scope="col">Location</th>
-              <th scope="col">Time</th>
-              <th scope="col" className="adm-th-end">
-                Status
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {recentLeads.map((lead) => (
-              <tr key={lead.id}>
-                <td data-label="Lead">
-                  <div className="adm-lead-cell">
-                    <span className="adm-cell-icon adm-cell-icon--solid">
-                      {lead.name.charAt(0)}
-                    </span>
-                    <span className="adm-cell-text">
-                      <span className="adm-cell-title">{lead.name}</span>
-                      <span className="adm-cell-note">{lead.email}</span>
-                    </span>
-                  </div>
-                </td>
-                <td data-label="Company">
-                  <span className="adm-cell-title">{lead.company}</span>
-                </td>
-                <td data-label="Interest">
-                  <span className="adm-cell-title">{lead.interest}</span>
-                </td>
-                <td data-label="Location">
-                  <span className="adm-cell-title">{lead.location}</span>
-                </td>
-                <td data-label="Time">
-                  <span className="adm-cell-muted">{lead.time}</span>
-                </td>
-                <td data-label="Status" className="adm-td-end">
-                  <span
-                    className={`adm-pill adm-pill--${lead.status.toLowerCase()}`}
-                  >
-                    {lead.status}
-                  </span>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </section>
+      {/* ---- Top Performing Products + Recent Activity ---- */}
+      <div className="dsh-pair">
+        <TopProducts top={data?.topProducts} loading={loading} />
+        <RecentActivity items={data?.recentActivity} now={data?.generatedAt} loading={loading} />
+      </div>
 
-      {/* ---- সাম্প্রতিক কাজ ---- */}
-      <section className="adm-panel">
-        <PanelHead Icon={IconClock} title="Recent Activity">
-          <span className="adm-panel-more" aria-hidden="true">
-            View All Activity
-            <IconArrowRight size={18} />
-          </span>
-        </PanelHead>
-
-        <ul className="adm-activity">
-          {recentActivity.map((item) => {
-            const Icon = CARD_ICONS[item.icon] || IconPencil;
-            return (
-              <li className="adm-activity-row" key={item.id}>
-                <span className="adm-cell-icon">
-                  <Icon size={20} />
-                </span>
-                <span className="adm-cell-text">
-                  <span className="adm-cell-title">{item.title}</span>
-                  <span className="adm-cell-note">{item.note}</span>
-                </span>
-                <span className="adm-cell-muted">{item.time}</span>
-              </li>
-            );
-          })}
-        </ul>
-      </section>
-    </>
+      {/* Add Product — Products পাতার মতোই আগে category, তারপর নতুন product */}
+      {choosing && (
+        <CategoryModal
+          onClose={() => setChoosing(false)}
+          onContinue={(category) =>
+            navigate(`/admin/products/new?category=${encodeURIComponent(category)}`)
+          }
+        />
+      )}
+    </div>
   );
 }
 

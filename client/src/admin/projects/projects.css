@@ -1047,3 +1047,9 @@ button.pj-place:hover {
     max-height: 360px;
   }
 }
+
+/* The Solution এর ছোট summary — দুই লাইনের মাপে শুরু, লিখলে বাড়ে */
+.pj-story-text.pj-story-text--short {
+  min-height: 64px;
+  max-height: 200px;
+}

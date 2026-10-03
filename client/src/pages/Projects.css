@@ -778,3 +778,104 @@
     animation: none;
   }
 }
+/* ---------------------------------------------------------------
+   নামার সময় — card এর মাপেই ধূসর ঘর (তৃতীয়টা খোলা card এর মতো চওড়া)
+   --------------------------------------------------------------- */
+.projects-loading {
+  display: flex;
+  gap: var(--pj-card-gap);
+  overflow: hidden;
+}
+
+.projects-skeleton {
+  flex: none;
+  width: var(--pj-card-w);
+  height: var(--pj-card-h);
+  border-radius: var(--pj-card-radius);
+  background: rgba(235, 235, 236, 0.8);
+  animation: projects-skeleton-pulse 1.4s ease-in-out infinite;
+}
+
+.projects-skeleton.is-wide {
+  width: var(--pj-card-w-active);
+}
+
+@keyframes projects-skeleton-pulse {
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .projects-skeleton {
+    animation: none;
+  }
+}
+
+/* ---------------------------------------------------------------
+   rail এর দুই পাশের তীর — Figma "Button": 48px গোল, rail এর মাঝ
+   বরাবর, 1240 এর কিনারা থেকে 24px বাইরে.
+   চালু: rgba(55,58,60,.75)   বন্ধ (শুরু/শেষে): #373A3C, opacity .25
+   ফোনে লুকানো — সেখানে আঙুলে টেনে সরানো হয়
+   --------------------------------------------------------------- */
+.projects-rail-arrow {
+  position: absolute;
+  top: 50%;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(55, 58, 60, 0.75);
+  box-shadow: 0 0 10px rgba(11, 18, 26, 0.1);
+  color: #ebebec;
+  cursor: pointer;
+  transform: translateY(-50%);
+  transition:
+    background-color 0.2s ease,
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+.projects-rail-arrow.is-prev {
+  left: calc(var(--pj-gutter) - 24px);
+}
+
+.projects-rail-arrow.is-next {
+  right: calc(var(--pj-gutter) - 24px);
+}
+
+.projects-rail-arrow:hover:not(:disabled) {
+  background: #373a3c;
+}
+
+.projects-rail-arrow:active:not(:disabled) {
+  transform: translateY(-50%) scale(0.92);
+}
+
+.projects-rail-arrow:disabled {
+  background: #373a3c;
+  opacity: 0.25;
+  cursor: default;
+}
+
+.projects-rail-arrow:focus-visible {
+  outline: 2px solid #373a3c;
+  outline-offset: 3px;
+}
+
+@media (max-width: 640px) {
+  .projects-rail-arrow {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .projects-rail-arrow {
+    transition: none;
+  }
+}

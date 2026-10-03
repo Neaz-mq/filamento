@@ -293,7 +293,7 @@
     "title": "Projects",
     "subhead": "A look at the facilities already running on Filamento fixtures — from cold storage to convention centers, coast to coast.",
     "search": {
-      "placeholder": "Search by project, city, or environment...",
+      "placeholder": "Search by project, city, product or environment...",
       "ariaLabel": "Search projects",
       "environmentLabel": "All environments",
       "environmentAriaLabel": "Filter by environment"
@@ -312,7 +312,8 @@
       "office": "Office",
       "retail": "Retail",
       "streetLights": "Street Lights",
-      "warehouse": "Warehouse"
+      "warehouse": "Warehouse",
+      "other": "Other"
     },
     "viewProject": "View {{name}} project",
     "empty": "No projects match your search yet.",
@@ -321,8 +322,42 @@
     "pagination": {
       "previous": "Previous",
       "next": "Next",
-      "pageAriaLabel": "Go to page {{page}}"
-    }
+      "pageAriaLabel": "Go to page {{page}}",
+      "ariaLabel": "Projects pages"
+    },
+    "loading": "Loading projects…",
+    "error": "We couldn't load the projects right now.",
+    "retry": "Try again",
+    "detail": {
+      "allProjects": "All projects",
+      "loading": "Loading project…",
+      "notFoundTitle": "Project not found",
+      "notFoundText": "This project may have been renamed or is no longer listed. Browse all projects to find similar work.",
+      "errorTitle": "Something went wrong",
+      "errorText": "We couldn't load this project right now. Please check your connection and try again.",
+      "browseAll": "Browse all projects",
+      "gallery": "Project photos",
+      "previousImage": "Previous photo",
+      "nextImage": "Next photo",
+      "showImage": "Show photo {{number}} of {{total}}",
+      "imageAlt": "{{name}} — photo {{number}} of {{total}}",
+      "keyFacts": "Key facts",
+      "challenge": "The Challenge",
+      "solution": "The Solution",
+      "results": "The Results",
+      "highlights": "Highlights",
+      "planSimilar": "Plan a similar project",
+      "productsUsed": "Products Used",
+      "productsUsedText": "Hand-picked lighting solutions used in this project.",
+      "viewAllProducts": "View all products",
+      "previous": "Previous",
+      "next": "Next",
+      "moreProjects": "More projects"
+    },
+    "categoriesPrev": "Scroll categories left",
+    "categoriesNext": "Scroll categories right",
+    "railPrev": "Previous projects",
+    "railNext": "More projects"
   },
   "productsPage": {
     "categoriesLabel": "Product categories",
@@ -632,6 +667,75 @@
       "subscribe": "Subscribe",
       "subscribed": "Thanks — you're on the list.",
       "subscribeError": "Couldn't subscribe right now. Please try again."
+    }
+  },
+  "findRep": {
+    "metaTitle": "Find a Representative",
+    "hero": {
+      "label": "How to buy",
+      "title": "How to Buy: Find a Representative",
+      "intro": "Interested in a product or service? Contact a representative in your area! If you do not see your region below, please contact <sales>Sales@Filamento.com</sales> <phone>+1 (408) 475-0038</phone> (North America) or <intl>Ella@Filamento.com</intl> (Asia Pacific Region and Europe)",
+      "lightCaption": "Precision light · Local expertise",
+      "lightDetail": "Regional support across five markets",
+      "regions": "Regions"
+    },
+    "regions": {
+      "usa": "USA/PR",
+      "europe": "Europe",
+      "asia": "Asia",
+      "canada": "Canada",
+      "mexico": "Mexico"
+    },
+    "directory": {
+      "label": "Representative directory",
+      "title": "Find local lighting expertise",
+      "description": "Search by company or representative, then choose a region and territory to reveal direct contact details.",
+      "status_one": "{{count}} territory · {{region}}",
+      "status_other": "{{count}} territories · {{region}}",
+      "searchLabel": "Search representatives",
+      "searchPlaceholder": "Search Company name or Representative",
+      "clearSearch": "Clear search",
+      "selectorLabel": "Selected territory",
+      "selectorNone": "No territory yet",
+      "regionsLabel": "Regions",
+      "chooseTerritory": "Choose a {{region}} territory",
+      "locations_one": "{{count}} location",
+      "locations_other": "{{count}} locations",
+      "noTerritories": "No territories are listed for {{region}} yet. Contact Filamento directly and we will connect you with the right partner."
+    },
+    "results": {
+      "title": "Representatives for {{place}}",
+      "exactCount_one": "{{count}} exact match",
+      "exactCount_other": "{{count}} exact matches",
+      "noExact": "No local representative yet",
+      "nearbyCount_one": "{{count}} nearby representative for browsing",
+      "nearbyCount_other": "{{count}} nearby representatives for browsing",
+      "sortedProximity": "Sorted by proximity",
+      "sortedName": "Sorted by name",
+      "searchTitle": "Results for “{{query}}”",
+      "searchCount_one": "{{count}} representative found",
+      "searchCount_other": "{{count}} representatives found",
+      "searchEmpty": "No representative matches “{{query}}”. Try another company or name, or contact Filamento directly below.",
+      "moreTerritories": "+{{count}} more",
+      "selectedBadge": "Selected",
+      "directBadge": "Direct",
+      "fallbackPerson": "Filamento sales team",
+      "email": "Email",
+      "call": "Call",
+      "emailAria": "Email {{name}}",
+      "callAria": "Call {{name}}",
+      "opensMap": "(opens in Google Maps)"
+    },
+    "contact": {
+      "label": "Direct contact",
+      "title": "Still deciding who to contact?",
+      "description": "Reach Filamento directly for product guidance, project support, and the right regional introduction.",
+      "emailSales": "Email sales",
+      "callCompany": "Call company",
+      "northAmerica": "North America",
+      "sales": "Sales",
+      "headquarters": "Headquarters",
+      "tagline": "Seeing is believing"
     }
   }
 }

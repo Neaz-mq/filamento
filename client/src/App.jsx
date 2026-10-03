@@ -32,6 +32,11 @@ const ProjectEditor = lazy(() => import("./admin/projects/ProjectEditor"));
    কোড নামে না (মূল bundle হালকা থাকে). পাতায় ঢুকলেই নামে */
 const Products = lazy(() => import("./pages/Products"));
 const ProductDetail = lazy(() => import("./pages/ProductDetail"));
+// একটা project এর পাতা — একই কারণে lazy
+const ProjectDetail = lazy(() => import("./pages/ProjectDetail"));
+/* Shop = "How to Buy: Find a Representative" — navbar এর Shop আর
+   footer এর Find a Representative দুটোই এই এক পাতা খোলে */
+const FindRepresentative = lazy(() => import("./pages/FindRepresentative"));
 
 /* lazy পাতা নামার ফাঁকে — navbar আর footer এর মাঝে ফাঁকা জায়গা,
    যাতে footer লাফিয়ে উপরে উঠে না আসে */
@@ -173,15 +178,11 @@ function AdminCrash() {
    --------------------------------------------------------------- */
 const COMING_SOON = [
   // "products" (তালিকা আর product এর পাতা) এখন আসল পাতা — নিচে PAGES এ।
-  // "projects" (তালিকা) এখন আসল পাতা — নিচে PAGES এ।
-  // Testimonial এর "Project" link — /projects/marcus-cold-storage ইত্যাদি,
-  // এই একক প্রজেক্ট বিস্তারিত পাতাটা এখনো বানানো হয়নি
-  { path: "projects/:slug", titleKey: "nav.projects" },
+  // "projects" (তালিকা আর একটা project এর পাতা) এখন আসল পাতা — নিচে PAGES এ।
+  // "shop" আর "find-a-representative" এখন আসল পাতা — নিচে PAGES এ।
   { path: "application", titleKey: "nav.application" },
   { path: "company", titleKey: "nav.company" },
-  { path: "shop", titleKey: "nav.shop" },
   { path: "about-us", titleKey: "footer.links.aboutUs" },
-  { path: "find-a-representative", titleKey: "footer.links.findRep" },
   { path: "videos", titleKey: "footer.links.videos" },
   { path: "spec-sheets", titleKey: "footer.links.specSheets" },
   { path: "ies-files", titleKey: "footer.links.iesFiles" },
@@ -207,6 +208,12 @@ const PAGES = [
   { path: "products", element: lazyPage(Products) },
   { path: "products/:slug", element: lazyPage(ProductDetail) },
   { path: "projects", element: <Projects /> },
+  // একটা project — /projects/barn-xo (admin এর project এর slug)
+  { path: "projects/:slug", element: lazyPage(ProjectDetail) },
+  /* Shop / Find a Representative — একই পাতা, দুই ঠিকানা
+     (/shop?region=usa&territory=alabama&q=…) */
+  { path: "shop", element: lazyPage(FindRepresentative) },
+  { path: "find-a-representative", element: lazyPage(FindRepresentative) },
   { path: "contact", element: <ContactRedirect /> },
   ...COMING_SOON.map(({ path, titleKey }) => ({
     path,
