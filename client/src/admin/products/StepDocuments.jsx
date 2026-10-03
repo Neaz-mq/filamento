@@ -21,6 +21,7 @@ import {
   IconTrash,
   IconUploadCloud,
 } from "../icons";
+import AdminSelect from "../AdminSelect";
 
 /* ===============================================================
    ধাপ ৪ — Documents & Resources (Figma: 1030 × 1001)
@@ -86,7 +87,7 @@ function DocEditModal({ doc, onSave, onClose }) {
         </label>
         <label className="pd-field-wrap">
           <span className="pd-label">Document Type</span>
-          <select
+          <AdminSelect
             className="pd-input pd-select"
             value={type}
             onChange={(event) => setType(event.target.value)}
@@ -96,7 +97,7 @@ function DocEditModal({ doc, onSave, onClose }) {
                 {option.label}
               </option>
             ))}
-          </select>
+          </AdminSelect>
         </label>
       </form>
     </Modal>
@@ -267,7 +268,7 @@ function StepDocuments({ product, setProduct, canEdit }) {
             <div className="pd-upload-side">
               <label className="pd-field-wrap" htmlFor={typeId}>
                 <span className="pd-label">Document Type</span>
-                <select
+                <AdminSelect
                   id={typeId}
                   className="pd-input pd-select"
                   value={type}
@@ -280,7 +281,7 @@ function StepDocuments({ product, setProduct, canEdit }) {
                       {option.label}
                     </option>
                   ))}
-                </select>
+                </AdminSelect>
               </label>
               {upload ? (
                 <button

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { api } from "../lib/api";
 import { useAdminAuth, useDocumentTitle } from "./AdminAuth";
 import { IconTrash, IconUserPlus, IconUsers } from "./icons";
+import AdminSelect from "./AdminSelect";
 
 /* ===============================================================
    Users & Roles
@@ -256,7 +257,7 @@ function AdminUsers() {
               <label className="admin-label" htmlFor="new-admin-role">
                 Role
               </label>
-              <select
+              <AdminSelect
                 id="new-admin-role"
                 className="admin-input adm-select"
                 value={form.role}
@@ -268,7 +269,7 @@ function AdminUsers() {
                     {role.label}
                   </option>
                 ))}
-              </select>
+              </AdminSelect>
             </div>
           </div>
 
@@ -340,7 +341,7 @@ function AdminUsers() {
                         owner নিজেকে নামিয়ে দিলে আর কেউ ফেরাতে
                         পারত না. server ও এটা আটকায় */}
                     {isOwner && !self ? (
-                      <select
+                      <AdminSelect
                         className="admin-input adm-select adm-select--sm"
                         value={person.role}
                         onChange={(e) => handleRole(person.id, e.target.value)}
@@ -352,7 +353,7 @@ function AdminUsers() {
                             {role.label}
                           </option>
                         ))}
-                      </select>
+                      </AdminSelect>
                     ) : (
                       <span
                         className={

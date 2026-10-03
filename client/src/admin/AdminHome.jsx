@@ -15,6 +15,7 @@ import {
 import { IconBox, IconCalendar, IconChartSuccess, IconFilterTick, IconReceipt } from "./icons";
 import "./products/products.css";
 import "./dashboard/dashboard.css";
+import AdminSelect from "./AdminSelect";
 
 /* ===============================================================
    Dashboard — Figma র নতুন নকশা (1030 চওড়া)
@@ -141,11 +142,11 @@ function AdminHome() {
         </h1>
 
         <div className="dsh-head-tools">
-          {/* দেখতে Figma র তারিখের chip, ভেতরে আসল <select> */}
+          {/* দেখতে Figma র তারিখের chip, ভেতরে AdminSelect এর অদৃশ্য ঘর */}
           <label className="adm-chip dsh-period" title="Change the comparison period">
             <IconCalendar size={20} />
             <span>{range ?? period.label}</span>
-            <select
+            <AdminSelect
               value={days}
               onChange={(event) => changePeriod(event.target.value)}
               aria-label="Comparison period"
@@ -155,7 +156,7 @@ function AdminHome() {
                   {item.label}
                 </option>
               ))}
-            </select>
+            </AdminSelect>
           </label>
           <AdminClock />
         </div>

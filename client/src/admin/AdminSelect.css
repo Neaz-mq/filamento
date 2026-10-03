@@ -1,0 +1,159 @@
+/* ===============================================================
+   AdminSelect — admin এর dropdown (AdminSelect.jsx)
+
+   খোলা তালিকাটা ভাষা বদলের menu র মতো: সাদা, 16px গোল কোণ,
+   হালকা ছায়া, ভেতরে 8px ফাঁক, সারির কোণ 10px, বাছা আর hover করা
+   সারি হালকা ধূসর.
+
+   ঘরটা (button) নিজে কোনো চেহারা আনে না — আগের <select> এর class
+   (pd-input pd-select, admin-input adm-select, pd-tool …) যেমন ছিল
+   তেমনই দেখায়. নিচে শুধু সেই জায়গাগুলো, যেখানে আগের CSS সরাসরি
+   "select" লিখে ধরত
+   =============================================================== */
+
+/* ---------- ঘর ---------- */
+.as-trigger {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  margin: 0;
+  text-align: left;
+  cursor: pointer;
+}
+
+.as-trigger:disabled {
+  cursor: default;
+}
+
+.as-value {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* খোলা অবস্থায় ঘরের চারপাশে হলুদ আভা — focus এর মতো */
+.pd-input.as-trigger[aria-expanded="true"],
+.admin-input.as-trigger[aria-expanded="true"] {
+  border-color: var(--adm-ink, #373a3c);
+  box-shadow: 0 0 0 3px rgba(247, 190, 0, 0.25);
+}
+
+/* All Series / All Status / Newest / Show 10 — গোল pill এর ভেতরে */
+.pd-tool--select .as-trigger {
+  width: auto;
+  height: 100%;
+  padding: 0 34px 0 12px;
+  border: 0;
+  border-radius: 100px;
+  background: none;
+  font: inherit;
+  color: inherit;
+  outline: none;
+}
+
+/* Dashboard এর 📅 chip আর "This Week ⌄" pill — ঘরটা অদৃশ্য হয়ে
+   পুরো chip এর উপর বসে, দেখা যায় chip এর নিজের লেখা */
+.dsh-period .as-trigger,
+.dsh-pill .as-trigger {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: inherit;
+  background: none;
+  opacity: 0;
+  outline: none;
+}
+
+/* ---------- খোলা তালিকা ---------- */
+.as-menu {
+  position: fixed;
+  z-index: 1200; /* modal (1000) এর উপরে */
+  top: 0;
+  left: 0;
+  max-width: min(360px, calc(100vw - 16px));
+  margin: 0;
+  padding: 8px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  list-style: none;
+  background: #ffffff;
+  border: 1px solid #e1e5ea;
+  border-radius: 16px;
+  box-shadow: 0 12px 32px rgba(11, 18, 26, 0.12);
+  font-family: var(--adm-font-ui, "Inter", system-ui, sans-serif);
+  outline: none;
+  /* জায়গা মাপার আগে এক মুহূর্ত লুকানো — নাহলে কোণায় ঝলক দেখাত */
+  visibility: hidden;
+  box-sizing: border-box;
+  scrollbar-width: thin;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .as-menu {
+    animation: as-menu-in 0.16s ease both;
+  }
+}
+
+@keyframes as-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+.as-option {
+  display: block;
+  padding: 11px 14px;
+  border-radius: 10px;
+  font-weight: 500;
+  font-size: 15px;
+  line-height: 1.5;
+  color: rgba(11, 18, 26, 0.7);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  user-select: none;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.as-option + .as-option {
+  margin-top: 2px;
+}
+
+/* বাছা সারি আর mouse/keyboard এ চালু সারি — হালকা ধূসর */
+.as-option.is-selected,
+.as-option.is-active {
+  background: #f4f5f7;
+  color: #0b121a;
+}
+
+/* keyboard এ চলার সময় বাছা সারি থেকে চালু সারি আলাদা বোঝা যায় */
+.as-option.is-selected.is-active {
+  background: #eceef1;
+}
+
+.as-option.is-disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+@media (max-width: 480px) {
+  .as-option {
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .as-option {
+    transition: none;
+  }
+}

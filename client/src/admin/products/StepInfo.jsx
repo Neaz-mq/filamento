@@ -23,6 +23,7 @@ import {
   IconStar,
   IconTrash,
 } from "../icons";
+import AdminSelect from "../AdminSelect";
 
 /* ===============================================================
    ধাপ ১ — Product Info (Figma: 1030 × 884)
@@ -691,7 +692,7 @@ function StepInfo({ product, setProduct, errors = {}, canEdit }) {
               <span className="pd-label">
                 Category <span className="pd-required">*</span>
               </span>
-              <select
+              <AdminSelect
                 className="pd-input pd-select"
                 value={product.category}
                 disabled={!canEdit}
@@ -702,7 +703,7 @@ function StepInfo({ product, setProduct, errors = {}, canEdit }) {
                     {category.label}
                   </option>
                 ))}
-              </select>
+              </AdminSelect>
             </label>
 
             {/* Figma: Mounting Base এ Category র পাশে Color */}
@@ -711,7 +712,7 @@ function StepInfo({ product, setProduct, errors = {}, canEdit }) {
                 <span className="pd-label">
                   Color <span className="pd-required">*</span>
                 </span>
-                <select
+                <AdminSelect
                   id="pd-color"
                   className={`pd-input pd-select${!product.color ? " is-placeholder" : ""}`}
                   value={product.color}
@@ -724,7 +725,7 @@ function StepInfo({ product, setProduct, errors = {}, canEdit }) {
                       {color}
                     </option>
                   ))}
-                </select>
+                </AdminSelect>
               </label>
             )}
           </div>

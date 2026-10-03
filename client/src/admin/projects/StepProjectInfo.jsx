@@ -9,6 +9,7 @@ import {
   iconOf,
 } from "./projectCatalog";
 import { IconCalendar, IconLocation, IconPencil, IconTrash } from "../icons";
+import AdminSelect from "../AdminSelect";
 
 /* ===============================================================
    ধাপ ১ — Project Info (Figma: 1030 × 968)
@@ -106,7 +107,7 @@ function StepProjectInfo({ project, setProject, errors = {}, canEdit }) {
               <span className="pd-label">
                 Project Type <span className="pd-required">*</span>
               </span>
-              <select
+              <AdminSelect
                 className={`pd-input pd-select${!project.projectType ? " is-placeholder" : ""}`}
                 value={project.projectType}
                 disabled={!canEdit}
@@ -118,14 +119,14 @@ function StepProjectInfo({ project, setProject, errors = {}, canEdit }) {
                     {item.label}
                   </option>
                 ))}
-              </select>
+              </AdminSelect>
             </label>
 
             <label className="pd-field-wrap">
               <span className="pd-label">
                 Category <span className="pd-required">*</span>
               </span>
-              <select
+              <AdminSelect
                 className={`pd-input pd-select${!project.category ? " is-placeholder" : ""}`}
                 value={project.category}
                 disabled={!canEdit}
@@ -137,7 +138,7 @@ function StepProjectInfo({ project, setProject, errors = {}, canEdit }) {
                     {item.label}
                   </option>
                 ))}
-              </select>
+              </AdminSelect>
             </label>
           </div>
 

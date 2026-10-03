@@ -1,11 +1,11 @@
 import { homeSections } from "./dashboardData";
 import {
   IconBag,
-  // IconBox,
+  IconBox,
   IconCard,
   IconClock,
   IconDashboard,
-  // IconFolder,
+  IconFolder,
   IconHeart,
   IconHome,
   IconLayers,
@@ -48,18 +48,18 @@ export const NAV_GROUPS = [
         Icon: IconHome,
         keywords: "home page landing content hero homepage edit website",
       },
-      // {
-      //   to: "/admin/products",
-      //   label: "Products",
-      //   Icon: IconBox,
-      //   keywords: "fixture series high bay la1 ls1 rh1 catalogue upload add product",
-      // },
-      // {
-      //   to: "/admin/projects",
-      //   label: "Projects",
-      //   Icon: IconFolder,
-      //   keywords: "case study installation customer site gallery",
-      // },
+      {
+        to: "/admin/products",
+        label: "Products",
+        Icon: IconBox,
+        keywords: "fixture series high bay la1 ls1 rh1 catalogue upload add product",
+      },
+      {
+        to: "/admin/projects",
+        label: "Projects",
+        Icon: IconFolder,
+        keywords: "case study installation customer site gallery",
+      },
       {
         to: "/admin/application",
         label: "Application",

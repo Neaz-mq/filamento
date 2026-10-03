@@ -25,6 +25,7 @@ import {
   IconTrend,
 } from "../icons";
 import "./products.css";
+import AdminSelect from "../AdminSelect";
 
 /* ===============================================================
    Product Library — /admin/products (Figma: 1030 × 978)
@@ -182,7 +183,7 @@ function FilterMenu({ category, onChange }) {
           <label className="pd-label" htmlFor="pd-filter-category">
             Category
           </label>
-          <select
+          <AdminSelect
             id="pd-filter-category"
             className="pd-input pd-select"
             value={category}
@@ -194,7 +195,7 @@ function FilterMenu({ category, onChange }) {
                 {item.label}
               </option>
             ))}
-          </select>
+          </AdminSelect>
           <button
             type="button"
             className="pd-text-btn"
@@ -448,7 +449,7 @@ function ProductLibrary() {
 
             <label className="pd-tool pd-tool--select">
               <span className="sr-only">Series</span>
-              <select
+              <AdminSelect
                 value={series}
                 onChange={(event) => setParam("series", event.target.value)}
               >
@@ -462,20 +463,20 @@ function ProductLibrary() {
                 {series && !(data?.series ?? []).includes(series) && (
                   <option value={series}>{series}</option>
                 )}
-              </select>
+              </AdminSelect>
               <IconChevron size={16} />
             </label>
 
             <label className="pd-tool pd-tool--select">
               <span className="sr-only">Status</span>
-              <select
+              <AdminSelect
                 value={status}
                 onChange={(event) => setParam("status", event.target.value)}
               >
                 <option value="">All Status</option>
                 <option value="published">Published</option>
                 <option value="draft">Draft</option>
-              </select>
+              </AdminSelect>
               <IconChevron size={16} />
             </label>
 
@@ -486,7 +487,7 @@ function ProductLibrary() {
 
             <label className="pd-tool pd-tool--select">
               <span className="sr-only">Sort by</span>
-              <select
+              <AdminSelect
                 value={sort}
                 onChange={(event) =>
                   setParam("sort", event.target.value === "newest" ? "" : event.target.value)
@@ -497,7 +498,7 @@ function ProductLibrary() {
                     {option.label}
                   </option>
                 ))}
-              </select>
+              </AdminSelect>
               <IconChevron size={16} />
             </label>
           </div>
@@ -722,7 +723,7 @@ function ProductLibrary() {
             <label className="pd-show">
               Show
               <span className="pd-tool pd-tool--select pd-tool--sm">
-                <select
+                <AdminSelect
                   value={limit}
                   onChange={(event) =>
                     setParam("limit", Number(event.target.value) === 10 ? "" : event.target.value)
@@ -733,7 +734,7 @@ function ProductLibrary() {
                       {size}
                     </option>
                   ))}
-                </select>
+                </AdminSelect>
                 <IconChevron size={16} />
               </span>
             </label>

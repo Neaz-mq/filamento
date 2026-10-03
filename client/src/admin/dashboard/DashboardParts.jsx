@@ -18,6 +18,7 @@ import {
   IconUploadCloud,
   IconUsers,
 } from "../icons";
+import AdminSelect from "../AdminSelect";
 
 /* ===============================================================
    Dashboard এর টুকরোগুলো — Figma র প্রতিটা box একটা component
@@ -33,9 +34,9 @@ const compact = new Intl.NumberFormat("en-US", { notation: "compact", maximumFra
 /* ---------------------------------------------------------------
    ছোট pill এর dropdown — "This Week ⌄", "All Time ⌄"
 
-   চোখে Figma র pill, কিন্তু ভেতরে আসল <select> (স্বচ্ছ করে উপরে
-   বসানো). তাই keyboard, screen reader আর ফোনের নিজের তালিকা —
-   সবই browser এর নিজের মতো ঠিকঠাক চলে
+   চোখে Figma র pill, ভেতরে AdminSelect এর অদৃশ্য ঘর (পুরো pill এর
+   উপরে বসানো). চাপলে admin এর সাধারণ dropdown তালিকা খোলে —
+   keyboard আর screen reader এও চলে
    --------------------------------------------------------------- */
 export function PillSelect({ label, value, options, onChange, variant = "round" }) {
   const current = options.find((option) => option.value === value) ?? options[0];
@@ -43,7 +44,7 @@ export function PillSelect({ label, value, options, onChange, variant = "round" 
     <label className={`dsh-pill dsh-pill--${variant}`}>
       <span>{current.label}</span>
       <IconChevron size={14} />
-      <select
+      <AdminSelect
         value={value}
         onChange={(event) => onChange(event.target.value)}
         aria-label={label}
@@ -53,7 +54,7 @@ export function PillSelect({ label, value, options, onChange, variant = "round" 
             {option.label}
           </option>
         ))}
-      </select>
+      </AdminSelect>
     </label>
   );
 }

@@ -29,6 +29,7 @@ import {
 } from "../icons";
 import "../products/products.css";
 import "./projects.css";
+import AdminSelect from "../AdminSelect";
 
 /* ===============================================================
    Project Library — /admin/projects (Figma: 1030 × 1240)
@@ -477,20 +478,20 @@ function ProjectLibrary() {
 
           <label className="pd-tool pd-tool--select">
             <span className="sr-only">Status</span>
-            <select value={status} onChange={(event) => setParam("status", event.target.value)}>
+            <AdminSelect value={status} onChange={(event) => setParam("status", event.target.value)}>
               <option value="">All Status</option>
               {STATUS_ORDER.map((key) => (
                 <option key={key} value={key}>
                   {STATUSES[key].label}
                 </option>
               ))}
-            </select>
+            </AdminSelect>
             <IconChevron size={16} />
           </label>
 
           <label className="pd-tool pd-tool--select">
             <span className="sr-only">Category</span>
-            <select
+            <AdminSelect
               value={category}
               onChange={(event) => setParam("category", event.target.value)}
             >
@@ -500,13 +501,13 @@ function ProjectLibrary() {
                   {item.label}
                 </option>
               ))}
-            </select>
+            </AdminSelect>
             <IconChevron size={16} />
           </label>
 
           <label className="pd-tool pd-tool--select">
             <span className="sr-only">Sort by</span>
-            <select
+            <AdminSelect
               value={sort}
               onChange={(event) =>
                 setParam("sort", event.target.value === "newest" ? "" : event.target.value)
@@ -517,7 +518,7 @@ function ProjectLibrary() {
                   {option.label}
                 </option>
               ))}
-            </select>
+            </AdminSelect>
             <IconChevron size={16} />
           </label>
         </div>
@@ -747,7 +748,7 @@ function ProjectLibrary() {
             <label className="pd-show">
               Show
               <span className="pd-tool pd-tool--select pd-tool--sm">
-                <select
+                <AdminSelect
                   value={limit}
                   onChange={(event) =>
                     setParam("limit", Number(event.target.value) === 10 ? "" : event.target.value)
@@ -758,7 +759,7 @@ function ProjectLibrary() {
                       {size}
                     </option>
                   ))}
-                </select>
+                </AdminSelect>
                 <IconChevron size={16} />
               </span>
             </label>
