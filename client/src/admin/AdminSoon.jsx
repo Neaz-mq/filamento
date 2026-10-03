@@ -1,6 +1,5 @@
-import { Link, useLocation, useParams } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useDocumentTitle } from "./AdminAuth";
-import { homeSections } from "./dashboardData";
 import { IconArrowRight, IconLayers } from "./icons";
 
 /* admin এর যে পাতাগুলো এখনো বানানো হয়নি, তারা সবাই এটা দেখায়.
@@ -27,18 +26,9 @@ const NAMES = {
 };
 
 function AdminSoon() {
-  const { section } = useParams();
   const location = useLocation();
-
-  let name = "This page";
-
-  if (section) {
-    const match = homeSections.find((item) => item.slug === section);
-    name = match ? match.name : "This section";
-  } else {
-    const slug = location.pathname.replace("/admin/", "");
-    name = NAMES[slug] || "This page";
-  }
+  const slug = location.pathname.replace("/admin/", "");
+  const name = NAMES[slug] || "This page";
 
   useDocumentTitle(name);
 

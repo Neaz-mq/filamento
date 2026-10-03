@@ -27,6 +27,7 @@ const ProductLibrary = lazy(() => import("./admin/products/ProductLibrary"));
 const ProductEditor = lazy(() => import("./admin/products/ProductEditor"));
 const ProjectLibrary = lazy(() => import("./admin/projects/ProjectLibrary"));
 const ProjectEditor = lazy(() => import("./admin/projects/ProjectEditor"));
+const HomeContent = lazy(() => import("./admin/home/HomeContent"));
 
 /* Products এর দুই পাতা — lazy, যাতে Home এর দর্শকের browser এ এদের
    কোড নামে না (মূল bundle হালকা থাকে). পাতায় ঢুকলেই নামে */
@@ -259,8 +260,13 @@ const ADMIN_ROUTE = {
       element: <AdminProtected />,
       children: [
         { index: true, element: <AdminHome /> },
-        // Home পাতার আলাদা আলাদা অংশ — /admin/home/hero ইত্যাদি
-        { path: "home/:section", element: <AdminSoon /> },
+        /* Home Page Content — পাঁচ ট্যাব: /admin/home/hero,
+           /featured-products, /comparison, /videos, /testimonials.
+           /admin/home = Hero. পুরনো ঠিকানা (/home/brands …) নিজে
+           থেকেই ঠিক ট্যাবে যায়.
+           ⚠️ একটাই route (":step?") — দুইটা আলাদা route হলে /admin/home
+           থেকে ট্যাবে গেলে পাতা নতুন করে বসত আর না-save করা খসড়া হারাত */
+        { path: "home/:step?", element: <HomeContent /> },
         { path: "users", element: <AdminUsers /> },
         /* Product — তালিকা, আর নতুন (/products/new?category=…) বা
            পুরনো (/products/<id>) product এর চার ধাপের পাতা */

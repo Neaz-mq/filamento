@@ -1,0 +1,1052 @@
+/* ===============================================================
+   Home Page Content — Figma র "Home Page Content" পাতা আর modal
+
+   সব class "hc-" দিয়ে শুরু. বোতাম, card, ঘর, ধাপের সারি, modal এর
+   কাঠামো আসে products.css (pd-) থেকে — এখানে শুধু এই পাতার নিজের
+   অংশ আর Figma র মাপের ছোটখাটো বদল.
+
+   মাপ ঠিক হয় পাশের অংশের চওড়া দেখে (@container adm-main), পর্দার
+   নয় — মেনু খোলা/বন্ধের সাথে জায়গা বদলায় বলে
+   =============================================================== */
+
+.hc-page,
+.hc-modal {
+  --hc-line: #ebebec;
+  --hc-ink-70: rgba(55, 58, 60, 0.7);
+}
+
+/* ---------------------------------------------------------------
+   ট্যাবের সারি — Figma: 66px উঁচু, ধাপের মাঝে 24px
+   --------------------------------------------------------------- */
+.hc-steps {
+  min-height: 66px;
+  justify-content: center;
+}
+
+.hc-steps .pd-step {
+  position: relative;
+  text-decoration: none;
+}
+
+/* না-save করা বদল — ট্যাবের নামের পাশে হলুদ বিন্দু */
+.hc-step-dot {
+  width: 7px;
+  height: 7px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--adm-yellow);
+  box-shadow: 0 0 0 2px rgba(247, 190, 0, 0.25);
+}
+
+/* ---------------------------------------------------------------
+   card আর তার মাথা
+   --------------------------------------------------------------- */
+.hc-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.hc-card {
+  gap: 20px;
+}
+
+.hc-card-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.hc-card-title {
+  margin: 0;
+  font: 500 16px / 19px var(--adm-font-ui);
+  color: var(--adm-ink);
+}
+
+.hc-badge {
+  display: inline-flex;
+  align-items: center;
+  height: 18px;
+  padding: 4px 6px;
+  border-radius: 100px;
+  background: var(--hc-line);
+  font-size: 10px;
+  line-height: 1;
+  color: var(--adm-ink);
+  white-space: nowrap;
+}
+
+/* দুই কলাম — বাঁয়ে দুইটা ঘর, ডানে বড় লেখার ঘর */
+.hc-two {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.hc-col {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.hc-field .pd-input-box {
+  min-height: 36px;
+}
+
+.hc-textarea {
+  min-height: 77px;
+}
+
+.hc-two .hc-textarea {
+  min-height: 102px;
+}
+
+/* ---------------------------------------------------------------
+   ছবির ঘর
+   --------------------------------------------------------------- */
+.hc-thumb {
+  display: grid;
+  place-items: center;
+  flex: none;
+  overflow: hidden;
+  border-radius: 8px;
+  background: var(--hc-line);
+  color: var(--adm-ink-50);
+}
+
+.hc-thumb img {
+  width: 100%;
+  height: 100%;
+}
+
+.hc-thumb--wide {
+  width: 125px;
+  height: 70px;
+  padding: 5px;
+}
+
+.hc-thumb--wide img[style*="cover"] {
+  border-radius: 5px;
+}
+
+.hc-thumb--logo {
+  width: 70px;
+  height: 41px;
+  padding: 6px;
+}
+
+.hc-thumb--avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
+  background: #f9f6f3;
+}
+
+.hc-icon-circle {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  flex: none;
+  border-radius: 100px;
+  background: var(--hc-line);
+  color: var(--adm-ink);
+}
+
+/* ---------------------------------------------------------------
+   সারির তালিকা (Hero, Featured Products, Fixtures, Videos)
+   --------------------------------------------------------------- */
+.hc-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.hc-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+  min-height: 96px;
+  padding: 12px;
+  background: #ffffff;
+  border: 1px solid var(--hc-line);
+  border-radius: 8px;
+}
+
+.hc-row.is-warn {
+  border-style: dashed;
+  border-color: rgba(239, 68, 68, 0.45);
+}
+
+.hc-row--video {
+  min-height: 82px;
+}
+
+.hc-row-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+}
+
+.hc-pill {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  padding: 5px 8px;
+  overflow: hidden;
+  border-radius: 100px;
+  background: rgba(247, 190, 0, 0.1);
+  font-size: 10px;
+  line-height: 1;
+  color: var(--adm-ink);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hc-row-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+  margin-top: 4px;
+  overflow: hidden;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 1.15;
+  color: var(--adm-ink);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hc-row-title--light {
+  margin-top: 0;
+  font-weight: 400;
+}
+
+.hc-row-sub {
+  max-width: 100%;
+  font-size: 12px;
+  line-height: 1.3;
+  color: var(--hc-ink-70);
+}
+
+.hc-row-sub.is-missing {
+  color: var(--adm-red);
+  font-style: italic;
+}
+
+.hc-row-small {
+  max-width: 100%;
+  font-size: 10px;
+  line-height: 1.35;
+  color: var(--hc-ink-70);
+}
+
+.hc-row-link {
+  max-width: 100%;
+  overflow: hidden;
+  font-size: 11px;
+  line-height: 1.2;
+  color: var(--adm-ink-50);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hc-clamp-2 {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+.hc-ellipsis {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* টেনে সাজানোর সারি — হাতল, নম্বর, তারপর card */
+.hc-sort-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  border-radius: 10px;
+}
+
+.hc-sort-row > .pd-grip {
+  margin-right: 6px;
+}
+
+/* ডানের ✏️ 🗑 */
+.hc-tools {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  flex: none;
+}
+
+.hc-tool {
+  width: 28px;
+  height: 28px;
+}
+
+.hc-tools--lg .hc-tool {
+  width: 32px;
+  height: 32px;
+}
+
+.hc-tools--lg .hc-tool:not(.pd-icon-btn--bad) {
+  color: #0b121a;
+}
+
+/* ---------------------------------------------------------------
+   দুই কলামের ছোট ঘর (Key Features, Client Logos, Featured Points)
+   --------------------------------------------------------------- */
+.hc-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.hc-tile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  min-height: 64px;
+  padding: 12px;
+  background: #ffffff;
+  border: 1px solid var(--hc-line);
+  border-radius: 8px;
+}
+
+.hc-tile--tall {
+  min-height: 78px;
+}
+
+.hc-tile-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.hc-tile-text strong {
+  overflow: hidden;
+  font-weight: 500;
+  font-size: 13px;
+  line-height: 16px;
+  color: var(--adm-ink);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hc-tile-text span {
+  font-size: 11px;
+  line-height: 13px;
+  color: var(--hc-ink-70);
+}
+
+.hc-tile-long {
+  line-height: 1.5 !important;
+}
+
+.hc-upper {
+  text-transform: uppercase;
+}
+
+/* ---------------------------------------------------------------
+   Comparison টেবিল
+   --------------------------------------------------------------- */
+.hc-table {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+.hc-table-head,
+.hc-table-row {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 240fr) minmax(0, 160fr) minmax(0, 150fr) 64px;
+  align-items: center;
+  gap: 10px;
+}
+
+.hc-table-head {
+  font: 600 12px / 15px var(--adm-font-ui);
+  color: var(--adm-ink);
+}
+
+.hc-table-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.hc-table-row {
+  border-radius: 10px;
+}
+
+.hc-table-gap {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.hc-table-action {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.hc-cell {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  min-height: 36px;
+  padding: 10px 12px;
+  background: #ffffff;
+  border: 1px solid var(--hc-line);
+  border-radius: 8px;
+  font-size: 13px;
+  line-height: 16px;
+  color: var(--adm-ink);
+  overflow-wrap: anywhere;
+}
+
+.hc-cell--ours {
+  font-weight: 500;
+}
+
+/* ---------------------------------------------------------------
+   Videos
+   --------------------------------------------------------------- */
+.hc-video-thumb {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 103px;
+  height: 56px;
+  flex: none;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: 5.7px;
+  background: var(--hc-line);
+  color: var(--adm-ink-50);
+  cursor: pointer;
+}
+
+.hc-video-thumb img,
+.hc-video-thumb video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Figma: নিচ থেকে হালকা কালো ছায়া */
+.hc-video-shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 40%, rgba(0, 0, 0, 0.45) 100%);
+}
+
+.hc-video-thumb:hover .pd-play {
+  transform: translate(-50%, -50%) scale(1.12);
+}
+
+.hc-video-thumb:focus-visible {
+  outline: 2px solid var(--adm-ink);
+  outline-offset: 2px;
+}
+
+/* ---------------------------------------------------------------
+   Testimonials
+   --------------------------------------------------------------- */
+.hc-review {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.85fr) minmax(0, 1.3fr) minmax(0, 1.15fr) auto;
+  align-items: center;
+  gap: 24px;
+  flex: 1;
+  min-width: 0;
+  min-height: 84px;
+  padding: 12px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+}
+
+.hc-review-person {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.hc-review-who {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.hc-review-who strong {
+  overflow: hidden;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hc-review-who span {
+  font-size: 12px;
+  line-height: 1.2;
+  color: var(--hc-ink-70);
+}
+
+.hc-review-who small {
+  font-size: 10px;
+  line-height: 1.2;
+  color: var(--hc-ink-70);
+}
+
+.hc-review-col {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.hc-review-col > strong {
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.hc-review-rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.hc-review-rating strong {
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.hc-review-small {
+  font-size: 12px;
+  line-height: 1.2;
+  color: var(--hc-ink-70);
+}
+
+/* তারা — ফাঁকা রেখার উপরে হলুদ ভরা অংশ (৪.৫ = সাড়ে চার) */
+.hc-stars {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex: none;
+}
+
+.hc-star {
+  position: relative;
+  display: inline-block;
+  flex: none;
+  color: #e1e1e2;
+}
+
+.hc-star > svg {
+  display: block;
+}
+
+.hc-star-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  overflow: hidden;
+  color: var(--adm-yellow);
+}
+
+.hc-star-fill svg {
+  display: block;
+  fill: currentColor;
+}
+
+/* ---------------------------------------------------------------
+   নিচের বোতাম — Figma: Cancel (সাদা, 20px কোণ) + হলুদ Save Change
+   --------------------------------------------------------------- */
+.hc-foot {
+  align-items: center;
+}
+
+.hc-foot-btn {
+  height: 40px;
+  padding: 0 19px;
+}
+
+.hc-foot .pd-btn--line {
+  border-radius: 20px;
+}
+
+.hc-save {
+  padding: 10px 16px;
+  background: #ffc107;
+}
+
+.hc-save:hover:not(:disabled) {
+  background: var(--adm-yellow-dark);
+}
+
+.hc-prev {
+  height: 40px;
+  border-radius: 20px;
+  font-size: 12px;
+}
+
+/* ---------------------------------------------------------------
+   Modal — Figma: 739px, ভেতরে 16px, অংশের মাঝে 30px, 16px কোণ
+   --------------------------------------------------------------- */
+.pd-modal.hc-modal {
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 16px;
+}
+
+.hc-form {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  padding: 16px;
+}
+
+.hc-modal-head {
+  min-height: 77px;
+}
+
+.hc-modal-title {
+  margin: 0;
+  font: 600 20px / 1.2 var(--adm-font-ui);
+  color: var(--adm-ink);
+}
+
+.hc-modal .pd-modal-x--round {
+  flex: none;
+}
+
+/* ঘরগুলো ছয় ভাগের grid এ — পুরো / অর্ধেক / এক-তৃতীয়াংশ */
+.hc-fields {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.hc-span-full {
+  grid-column: span 6;
+  min-width: 0;
+}
+
+.hc-span-half {
+  grid-column: span 3;
+}
+
+.hc-span-third {
+  grid-column: span 2;
+}
+
+.hc-modal .pd-input-box {
+  min-height: 35px;
+  font-size: 12px;
+}
+
+.hc-modal .pd-input-box input {
+  height: 33px;
+}
+
+.hc-modal .pd-input-box input::placeholder,
+.hc-modal .pd-textarea::placeholder {
+  color: rgba(55, 58, 60, 0.45);
+}
+
+.hc-modal .pd-textarea {
+  font-size: 12px;
+}
+
+.hc-rating-box input {
+  max-width: 70px;
+}
+
+.hc-rating-box .hc-stars {
+  margin-left: auto;
+}
+
+/* ছবি/video তোলার ঘর */
+.hc-drop {
+  min-height: 182px;
+}
+
+.hc-drop.is-bad {
+  border-color: var(--adm-red);
+}
+
+.hc-drop-file {
+  align-items: center;
+}
+
+.hc-preview {
+  width: 150px;
+  height: 96px;
+  padding: 6px;
+}
+
+.hc-preview img,
+.hc-preview video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 6px;
+}
+
+.hc-preview.is-video {
+  padding: 0;
+  background: #0b121a;
+}
+
+.hc-preview.is-video img,
+.hc-preview.is-video video {
+  object-fit: cover;
+  border-radius: 0;
+}
+
+.hc-drop-url {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hc-link-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hc-link-row .pd-input-box {
+  flex: 1;
+}
+
+/* modal এর নিচের বোতাম — Figma: 44px উঁচু, পুরো গোল, 16px লেখা */
+.hc-modal .pd-modal-foot {
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px 16px;
+  border-top: 0;
+}
+
+.hc-modal-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  padding: 13px 20px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 100px;
+  background: #ffffff;
+  font: 500 16px / 1 var(--adm-font-ui);
+  color: var(--adm-ink);
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.hc-modal-btn:hover:not(:disabled) {
+  border-color: rgba(0, 0, 0, 0.2);
+}
+
+.hc-modal-btn--yellow {
+  background: var(--adm-yellow);
+}
+
+.hc-modal-btn--yellow:hover:not(:disabled) {
+  background: var(--adm-yellow-dark);
+}
+
+.hc-modal-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.hc-modal-btn:focus-visible {
+  outline: 2px solid var(--adm-ink);
+  outline-offset: 2px;
+}
+
+.pd-player.hc-modal video {
+  display: block;
+  width: 100%;
+  max-height: 70dvh;
+  border-radius: 12px;
+  background: #000000;
+}
+
+/* ---------------------------------------------------------------
+   Add 3 Fixtures Featured Products
+   --------------------------------------------------------------- */
+.hc-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.hc-picker-search {
+  width: 100%;
+  height: 34px;
+}
+
+.hc-group {
+  font-size: 13px;
+}
+
+.hc-group .pj-group-count {
+  font-size: 12px;
+}
+
+.hc-option-list {
+  max-height: 360px;
+}
+
+.hc-option {
+  min-height: 66px;
+}
+
+.hc-option .pd-thumb {
+  border-radius: 10px;
+  background: rgba(235, 235, 236, 0.25);
+}
+
+.hc-option-name {
+  font-weight: 600;
+  font-size: 13px;
+  line-height: 16px;
+}
+
+.hc-picked {
+  margin-right: auto;
+}
+
+/* ---------------------------------------------------------------
+   মাঝারি জায়গা
+   --------------------------------------------------------------- */
+@container adm-main (max-width: 900px) {
+  .hc-steps {
+    justify-content: flex-start;
+  }
+
+  .hc-review {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+    gap: 14px 20px;
+  }
+
+  .hc-review-person {
+    grid-column: 1;
+  }
+
+  .hc-review > .hc-tools {
+    grid-column: 3;
+    grid-row: 1;
+  }
+
+  .hc-review-col--wide {
+    grid-column: 1 / -1;
+  }
+}
+
+/* ---------------------------------------------------------------
+   সরু জায়গা (ফোন)
+   --------------------------------------------------------------- */
+@container adm-main (max-width: 640px) {
+  .hc-two,
+  .hc-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .hc-row {
+    flex-wrap: wrap;
+    align-items: flex-start;
+    min-height: 0;
+  }
+
+  .hc-row > .hc-thumb--wide {
+    width: 96px;
+    height: 56px;
+  }
+
+  .hc-row-text {
+    flex-basis: calc(100% - 150px);
+  }
+
+  .hc-row-title {
+    white-space: normal;
+  }
+
+  .hc-row--video > .hc-video-thumb {
+    width: 88px;
+    height: 50px;
+  }
+
+  /* টেবিল — প্রতিটা সারি একটা ছোট card, ঘরের উপরে নাম */
+  .hc-table-head {
+    display: none;
+  }
+
+  .hc-table-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 8px;
+    padding: 10px;
+    border: 1px solid var(--hc-line);
+  }
+
+  .hc-table-row .hc-table-gap {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .hc-table-row .hc-table-action {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .hc-table-row .hc-cell {
+    grid-column: 1 / -1;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .hc-table-row .hc-cell::before {
+    content: attr(data-label);
+    font-weight: 600;
+    font-size: 11px;
+    color: var(--adm-ink-50);
+  }
+
+  .hc-review {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .hc-review > .hc-tools {
+    grid-column: 2;
+  }
+
+  .hc-review-col {
+    grid-column: 1 / -1;
+    gap: 6px;
+  }
+
+  .hc-sort-row > .pd-serial {
+    display: none;
+  }
+
+  .hc-foot {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .hc-foot .pd-foot-right {
+    flex-direction: row;
+  }
+
+  .hc-foot .pd-foot-right .pd-btn {
+    flex: 1;
+  }
+
+  .hc-foot > div:empty {
+    display: none;
+  }
+}
+
+/* modal সরু পর্দায় — ঘরগুলো এক কলামে */
+@media (max-width: 620px) {
+  .hc-span-half,
+  .hc-span-third {
+    grid-column: span 6;
+  }
+
+  .hc-modal .pd-modal-foot {
+    flex-wrap: wrap;
+  }
+
+  .hc-modal-btn {
+    flex: 1;
+  }
+
+  .hc-picked {
+    flex-basis: 100%;
+  }
+
+  /* picker — category গুলো উপরে পাশাপাশি (সরানো যায়), নিচে তালিকা.
+     modal টা পাতার বাইরে (portal), তাই @container এর বদলে @media */
+  .hc-picker .pj-split {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .hc-picker .pj-groups {
+    flex-direction: row;
+    gap: 6px;
+    padding-bottom: 2px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .hc-picker .pj-group {
+    width: auto;
+    flex: none;
+    border: 1px solid var(--hc-line);
+    border-radius: 100px;
+  }
+
+  .hc-picker .pj-group.is-on::before {
+    display: none;
+  }
+
+  .hc-picker .pj-group-name {
+    overflow: visible;
+  }
+
+  .hc-drop-file {
+    flex-wrap: wrap;
+  }
+
+  .hc-preview {
+    width: 120px;
+    height: 76px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hc-page *,
+  .hc-modal * {
+    transition: none !important;
+  }
+}

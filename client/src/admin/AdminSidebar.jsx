@@ -1,20 +1,18 @@
-import { useState } from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import filamentoLogo from "../assets/logo/filamento.png";
 import { useAdminAuth } from "./AdminAuth";
-import { homeSections } from "./dashboardData";
 import { DASHBOARD, NAV_GROUPS } from "./navItems";
-import { IconChevron, IconHome, IconLogout, IconPanel } from "./icons";
+import { IconLogout, IconPanel } from "./icons";
 
 /* ===============================================================
    বাঁ পাশের মেনু
 
-   Figma তে "Home" দুইবার আছে — একবার সাধারণ link, আরেকবার খোলা
-   অবস্থায় ভেতরের অংশগুলো সহ. দুইটা একই জিনিস, তাই একটাই রাখা
-   হয়েছে: সারিতে চাপলে নিচের তালিকা খোলে/বন্ধ হয়.
+   Home এখন একটাই link — "Home Page Content" পাতা (/admin/home),
+   যার ভেতরে উপরে পাঁচটা ট্যাব (Figma). আগে এখানে নিচে নামা
+   সাতটা অংশের তালিকা ছিল, সেটা আর নেই. Home এর ভেতরের যেকোনো
+   ট্যাবে থাকলেও Home হলুদ থাকে (NavLink নিজেই /admin/home/… মেলায়).
 
-   এখনো শুধু Dashboard পাতাটা আসল. বাকি সব link "তৈরি হচ্ছে" পাতায়
-   নিয়ে যায় (AdminSoon) — ধাপে ধাপে সেগুলো আসল পাতা হবে
+   মেনুর সব সারি navItems.js থেকে আসে
    =============================================================== */
 
 /* NavLink এর className — চালু পাতায় হলুদ */
@@ -37,24 +35,8 @@ function NavRow({ to, label, Icon, badge, end }) {
   );
 }
 
-function AdminSidebar({ railed, onToggle, onExpand, badges = {} }) {
+function AdminSidebar({ railed, onToggle, badges = {} }) {
   const { signOut } = useAdminAuth();
-  const location = useLocation();
-
-  /* Home এর ভেতরের কোনো অংশে থাকলে তালিকাটা খোলা অবস্থায় শুরু হয় */
-  const insideHome = location.pathname.startsWith("/admin/home");
-  const [homeOpen, setHomeOpen] = useState(insideHome);
-
-  /* সরু অবস্থায় Home এ চাপলে ভেতরের তালিকা দেখানোর জায়গা নেই —
-     তাই আগে মেনুটা চওড়া হয়, তারপর তালিকা খোলে */
-  const handleHome = () => {
-    if (railed) {
-      onExpand();
-      setHomeOpen(true);
-      return;
-    }
-    setHomeOpen((open) => !open);
-  };
 
   return (
     <nav className="adm-side" aria-label="Admin">
@@ -81,49 +63,6 @@ function AdminSidebar({ railed, onToggle, onExpand, badges = {} }) {
 
       <div className="adm-side-group">
         <p className="adm-side-label">{NAV_GROUPS[0].label}</p>
-
-        {/* Home — চাপলে নিচের অংশগুলো খোলে */}
-        <button
-          type="button"
-          className={homeOpen ? "adm-nav adm-nav--open" : "adm-nav"}
-          onClick={handleHome}
-          aria-expanded={railed ? false : homeOpen}
-          aria-controls="adm-home-sections"
-          title="Home"
-        >
-          <span className="adm-nav-icon">
-            <IconHome />
-          </span>
-          <span className="adm-nav-label">Home</span>
-          <span
-            className={
-              homeOpen ? "adm-nav-caret adm-nav-caret--up" : "adm-nav-caret"
-            }
-            aria-hidden="true"
-          >
-            <IconChevron size={20} />
-          </span>
-          <span className="adm-nav-mark" aria-hidden="true" />
-        </button>
-
-        {homeOpen && !railed && (
-          <ul className="adm-subnav" id="adm-home-sections">
-            {homeSections.map((section) => (
-              <li key={section.slug}>
-                <NavLink
-                  to={`/admin/home/${section.slug}`}
-                  className={({ isActive }) =>
-                    isActive ? "adm-sub adm-sub--on" : "adm-sub"
-                  }
-                >
-                  <span className="adm-sub-dot" aria-hidden="true" />
-                  {section.name}
-                </NavLink>
-              </li>
-            ))}
-          </ul>
-        )}
-
         {NAV_GROUPS[0].items.map((item) => (
           <NavRow key={item.to} {...item} badge={badges[item.to]} />
         ))}

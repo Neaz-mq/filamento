@@ -13,6 +13,7 @@ import quoteRequestRoutes from "./routes/quoteRequestRoutes.js";
 import newsletterRoutes from "./routes/newsletterRoutes.js";
 import uploadRoutes from "./routes/uploadRoutes.js";
 import overviewRoutes from "./routes/overviewRoutes.js";
+import siteContentRoutes from "./routes/siteContentRoutes.js";
 
 const app = express();
 
@@ -85,6 +86,9 @@ app.use("/api/products", productRoutes);
 
 // Projects — admin এর Projects পাতা আর সাইটের Projects
 app.use("/api/projects", projectRoutes);
+
+// Home Page Content — admin এর পাঁচ ধাপ আর সাইটের জন্য পড়া
+app.use("/api/site-content", siteContentRoutes);
 
 // ছবি / video / document তোলার অনুমতিপত্র (Cloudinary)
 app.use("/api/uploads", uploadRoutes);

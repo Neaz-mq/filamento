@@ -7,11 +7,16 @@ import {
 } from "../lib/cloudinary.js";
 import { UPLOAD_ROOT } from "../lib/productSchema.js";
 import { PROJECT_UPLOAD_ROOT } from "../lib/projectSchema.js";
+import { SITE_UPLOAD_ROOT } from "../lib/homeContentSchema.js";
 
 /* ===============================================================
    POST /api/uploads/sign — Cloudinary তে ফাইল তোলার অনুমতিপত্র
 
-   body: { kind: "image" | "video" | "document" | "project-image" }
+   body: { kind: "image" | "video" | "document" | "project-image"
+              | "site-image" | "site-logo" | "site-video" }
+
+   site-* — Home Page Content এর ছবি/logo/video. এগুলো editor ও
+   তুলতে পারে (editor এর কাজই লেখা আর ছবি). বাকিগুলো শুধু owner/admin
 
    উত্তরে যা আসে সেটা নিয়ে browser সরাসরি Cloudinary তে ফাইল পাঠায়
    (client/src/admin/products/upload.js). সই এর মেয়াদ Cloudinary
@@ -48,17 +53,42 @@ const KINDS = {
     folder: `${UPLOAD_ROOT}/documents`,
     formats: "",
   },
+  // Home Page Content — product/project থেকে আলাদা ফোল্ডারে
+  "site-image": {
+    resourceType: "image",
+    folder: `${SITE_UPLOAD_ROOT}/images`,
+    formats: "jpg,jpeg,png,webp,avif",
+    editor: true,
+  },
+  // গ্রাহকের logo প্রায়ই SVG হয় — <img> এ দেখানো হয়, তাই ভেতরের script চলে না
+  "site-logo": {
+    resourceType: "image",
+    folder: `${SITE_UPLOAD_ROOT}/logos`,
+    formats: "jpg,jpeg,png,webp,avif,svg",
+    editor: true,
+  },
+  "site-video": {
+    resourceType: "video",
+    folder: `${SITE_UPLOAD_ROOT}/videos`,
+    formats: "mp4,mov,webm,m4v",
+    editor: true,
+  },
 };
 
 router.post(
   "/sign",
   requireSameOrigin,
   requireAdmin,
-  requireRole("owner", "admin"),
+  requireRole("owner", "admin", "editor"),
   (req, res) => {
     const kind = Object.hasOwn(KINDS, req.body?.kind ?? "") ? KINDS[req.body.kind] : null;
     if (!kind) {
       return res.status(400).json({ message: "Unknown upload type." });
+    }
+
+    // editor শুধু site-* তুলতে পারে — product/project এর ফাইল না
+    if (req.admin.role === "editor" && !kind.editor) {
+      return res.status(403).json({ message: "Not allowed" });
     }
 
     if (!cloudinaryReady()) {

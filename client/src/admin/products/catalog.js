@@ -79,6 +79,26 @@ export const UPLOADS = {
     accept: ".pdf,.ies,.ldt,.doc,.docx,.xls,.xlsx,.txt,.csv",
     hint: "PDF, IES, DOC, XLS, TXT · Maximum file size: 10MB",
   },
+  /* Home Page Content — Figma র লেখা অনুযায়ী ছবি 5 MB পর্যন্ত.
+     logo তে SVG ও চলে (গ্রাহকের logo প্রায়ই SVG) */
+  "site-image": {
+    maxBytes: 5 * MB,
+    extensions: ["jpg", "jpeg", "png", "webp", "avif"],
+    accept: "image/jpeg,image/png,image/webp,image/avif",
+    hint: "2000×2000px or higher. JPG, PNG or WebP, up to 5 MB",
+  },
+  "site-logo": {
+    maxBytes: 5 * MB,
+    extensions: ["svg", "png", "webp", "jpg", "jpeg", "avif"],
+    accept: "image/svg+xml,image/png,image/webp,image/jpeg,image/avif",
+    hint: "SVG or transparent PNG works best. Up to 5 MB",
+  },
+  "site-video": {
+    maxBytes: 100 * MB,
+    extensions: ["mp4", "mov", "webm", "m4v"],
+    accept: "video/mp4,video/quicktime,video/webm,.m4v",
+    hint: "MP4, MOV or WebM, up to 100 MB",
+  },
 };
 
 /* ---------------------------------------------------------------

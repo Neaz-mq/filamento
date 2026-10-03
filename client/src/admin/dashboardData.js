@@ -1,66 +1,58 @@
 /* ===============================================================
-   Home পাতার অংশগুলোর তালিকা
+   Home Page Content এর পাঁচটা ধাপ — এক জায়গায়
 
-   আগে এখানে Dashboard এর সব নমুনা সংখ্যাও ছিল (card, lead,
-   activity, মেনুর 156/15). এখন Dashboard এর সব সংখ্যা server থেকে
-   আসে — GET /api/admin/overview (server/routes/overviewRoutes.js).
-   তাই এখানে শুধু Home পাতার অংশগুলো থাকল
+   আগে এখানে landing page এর সাতটা অংশের আলাদা তালিকা ছিল (sidebar
+   এ Home খুললে নিচে নামত). Figma তে এখন একটাই পাতা — "Home Page
+   Content" — উপরে পাঁচটা ট্যাব. তাই তালিকাটাও পাঁচটা:
+
+     slug — ঠিকানার শেষ অংশ (/admin/home/featured-products)
+     step — server এর নাম (PUT /api/site-content/admin/home/featured)
+     name — ট্যাবের লেখা
+     note — উপরের search এ খোঁজার জন্য (কী কী আছে এই ধাপে)
+
+   sidebar এর Home, উপরের search আর Home Page Content পাতা — তিন
+   জায়গাতেই এটা ব্যবহার হয়.
+
+   ✅ server/lib/homeContentSchema.js এর HOME_STEPS এর সাথে মিল রাখবেন
    =============================================================== */
-
-/* Home পাতার অংশগুলো — sidebar এর তালিকা, dashboard এর টেবিল আর
-   উপরের search, তিন জায়গাতেই এটাই ব্যবহার হয়.
-
-   ⚠️ এই তালিকাটা আসল পাতার সাথে মিলিয়ে লেখা — src/pages/Home.jsx
-   যে component গুলো দেখায় আর src/i18n/locales/*.json এ যে key
-   গুলো আছে, ঠিক সেগুলো. slug গুলোও ওই key এর নাম, যাতে পরে
-   সম্পাদনার পাতা বানানোর সময় একটার সাথে আরেকটা মেলাতে না হয়.
-
-   status — এখন সাতটাই সত্যিই সাইটে আছে, তাই সবগুলোই "Published".
-   কোনো অংশ বন্ধ/চালু করার ব্যবস্থা তৈরি হলে এই মানটা database
-   থেকে আসবে, তখন "Hidden" ও দেখা যাবে.
-
-   ✅ Home.jsx এ নতুন অংশ যোগ বা সরালে এখানেও বদলাবেন */
 export const homeSections = [
   {
     slug: "hero",
-    name: "Hero Section",
-    note: "Headline, tagline, CTA buttons and the hero image",
-    status: "Published",
+    step: "hero",
+    name: "Hero",
+    note: "Hero image, headline, key features, featured product cards and client logos",
   },
   {
-    slug: "brands",
-    name: "Trusted By Section",
-    note: "Customer logo strip under the hero",
-    status: "Published",
-  },
-  {
-    slug: "fixtures",
-    name: "Product Showcase",
-    note: "LA1, LS1 and RH1 fixture cards",
-    status: "Published",
+    slug: "featured-products",
+    step: "featured",
+    name: "Featured Products",
+    note: "Three fixtures section — LA1, LS1, RH1 and the featured points",
   },
   {
     slug: "comparison",
-    name: "Comparison Section",
-    note: "Traditional LED vs Filamento table",
-    status: "Published",
+    step: "comparison",
+    name: "Comparison",
+    note: "Traditional LED vs Filamento comparison table",
   },
   {
-    slug: "technologies",
-    name: "Technology Section",
-    note: "Thermal, optical and driver videos",
-    status: "Published",
+    slug: "videos",
+    step: "videos",
+    name: "Videos",
+    note: "Technology videos — thermal, optical and driver",
   },
   {
     slug: "testimonials",
-    name: "Testimonials Section",
-    note: "Client reviews and project links",
-    status: "Published",
-  },
-  {
-    slug: "contact",
-    name: "Contact Section",
-    note: "Quote request form and lead capture",
-    status: "Published",
+    step: "testimonials",
+    name: "Testimonials",
+    note: "Client reviews, ratings and project links",
   },
 ];
+
+/* পুরনো ঠিকানা (আগের sidebar এর সাত অংশ) → নতুন ট্যাব.
+   কারো bookmark বা পুরনো link থাকলেও ঠিক জায়গায় পৌঁছায় */
+export const OLD_HOME_SLUGS = {
+  brands: "hero",
+  fixtures: "featured-products",
+  technologies: "videos",
+  contact: "hero",
+};

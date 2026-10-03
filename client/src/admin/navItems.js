@@ -1,12 +1,13 @@
 import { homeSections } from "./dashboardData";
 import {
   IconBag,
-  IconBox,
+  // IconBox,
   IconCard,
   IconClock,
   IconDashboard,
-  IconFolder,
+  // IconFolder,
   IconHeart,
+  IconHome,
   IconLayers,
   IconPages,
   IconSettings,
@@ -39,6 +40,14 @@ export const NAV_GROUPS = [
     id: "content",
     label: "Content",
     items: [
+      /* Home — একটাই পাতা (Home Page Content), ভেতরে পাঁচ ট্যাব.
+         আগে এখানে নিচে নামা তালিকা ছিল, Figma তে এখন সরাসরি link */
+      {
+        to: "/admin/home",
+        label: "Home",
+        Icon: IconHome,
+        keywords: "home page landing content hero homepage edit website",
+      },
       // {
       //   to: "/admin/products",
       //   label: "Products",
@@ -127,8 +136,8 @@ export const NAV_GROUPS = [
   },
 ];
 
-/* search এ যা যা খুঁজে পাওয়া যাবে — মেনুর সব পাতা, সাথে Home
-   পাতার আলাদা আলাদা অংশগুলোও */
+/* search এ যা যা খুঁজে পাওয়া যাবে — মেনুর সব পাতা, সাথে Home Page
+   Content এর পাঁচটা ট্যাবও */
 export const SEARCH_ITEMS = [
   { ...DASHBOARD, group: "Overview" },
 
@@ -137,7 +146,7 @@ export const SEARCH_ITEMS = [
     label: section.name,
     Icon: IconLayers,
     group: "Home page",
-    // অংশটার বর্ণনাই ভালো keyword — "hero image" লিখলেও পাওয়া যায়
+    // ট্যাবের বর্ণনাই ভালো keyword — "hero image" লিখলেও পাওয়া যায়
     keywords: section.note,
   })),
 

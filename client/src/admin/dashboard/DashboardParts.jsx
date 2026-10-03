@@ -240,7 +240,7 @@ export function QuickActions({ canEdit, onAddProduct }) {
     { label: "Add Project", Icon: IconChartSuccess, to: "/admin/projects/new", needsEdit: true },
     { label: "Add Application", Icon: IconTickSquare, to: "/admin/application" },
     { label: "Add Testimonial", Icon: IconHeartEdit, to: "/admin/testimonials" },
-    { label: "Edit Homepage", Icon: IconEdit, to: "/admin/home/hero" },
+    { label: "Edit Homepage", Icon: IconEdit, to: "/admin/home" },
     { label: "Upload Resource", Icon: IconUploadCloud, to: "/admin/media" },
   ];
 
@@ -454,6 +454,8 @@ const ACTIONS = {
   "admin.create": ["Added Team Member", "yellow", IconUsers],
   "admin.update": ["Updated Team Member", "yellow", IconUsers],
   "admin.delete": ["Removed Team Member", "red", IconUsers],
+  // Home Page Content এর একটা ট্যাব save — নিচে ট্যাবের নাম (Hero …)
+  "home.update": ["Updated Home Page", "yellow", IconEdit],
 };
 
 const actionOf = (action) => ACTIONS[action] ?? ["Made a Change", "yellow", IconSettings];

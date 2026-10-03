@@ -163,8 +163,21 @@ export const api = {
   duplicateProject: (id) =>
     request(`/api/projects/${id}/duplicate`, { method: "POST" }),
 
+  /* ---------- Home Page Content ----------
+     সাইটের জন্য পড়া (সবার জন্য খোলা) — landing page পরে এটা পড়বে */
+  getHomeContent: () => request("/api/site-content/home"),
+  // admin — পাঁচ ধাপ + কোন ধাপ কে কবে save করেছে
+  adminHomeContent: () => request("/api/site-content/admin/home"),
+  // step: "hero" | "featured" | "comparison" | "videos" | "testimonials"
+  saveHomeStep: (step, data) =>
+    request(`/api/site-content/admin/home/${step}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }),
+
   /* Cloudinary তে ফাইল তোলার অনুমতিপত্র.
-     kind: "image" | "video" | "document" | "project-image" */
+     kind: "image" | "video" | "document" | "project-image"
+           | "site-image" | "site-logo" | "site-video" */
   signUpload: (kind) =>
     request("/api/uploads/sign", {
       method: "POST",

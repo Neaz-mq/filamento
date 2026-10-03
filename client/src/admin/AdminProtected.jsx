@@ -6,7 +6,6 @@ import AdminSearch from "./AdminSearch";
 import AdminUserMenu from "./AdminUserMenu";
 import AdminNotifications from "./AdminNotifications";
 import { useLeadAlerts } from "./useLeadAlerts";
-import { homeSections } from "./dashboardData";
 import { IconMenu, IconSun } from "./icons";
 
 /* ===============================================================
@@ -52,8 +51,9 @@ const TITLES = {
 
 /* যে পাতাগুলোর নিজের বড় শিরোনাম আছে — সেখানে header এর নিচে
    আলাদা শিরোনাম বসে না, একই নাম দুইবার দেখায় না.
-   Dashboard ("Welcome Back") আর Projects ও নিজের শিরোনাম আঁকে */
-const OWN_HEADING = ["/admin/products"];
+   Dashboard ("Welcome Back"), Projects আর Home Page Content ও
+   নিজের শিরোনাম আঁকে */
+const OWN_HEADING = ["/admin/products", "/admin/home"];
 
 function pageTitle(pathname) {
   if (OWN_HEADING.some((path) => pathname === path || pathname.startsWith(`${path}/`))) {
@@ -61,12 +61,6 @@ function pageTitle(pathname) {
   }
 
   if (TITLES[pathname]) return TITLES[pathname];
-
-  if (pathname.startsWith("/admin/home/")) {
-    const slug = pathname.slice("/admin/home/".length);
-    const section = homeSections.find((item) => item.slug === slug);
-    return section ? section.name : "Home";
-  }
 
   return null; // dashboard আর projects — নিজের শিরোনাম নিজেই আঁকে
 }
@@ -146,7 +140,6 @@ function AdminShell() {
         <AdminSidebar
           railed={railed}
           onToggle={toggleNav}
-          onExpand={() => setRailed(false)}
           badges={{ "/admin/leads": leadBadge }}
         />
       </div>
