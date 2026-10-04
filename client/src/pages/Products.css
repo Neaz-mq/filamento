@@ -411,21 +411,25 @@
   border-color: var(--pr-ink-25);
 }
 
-/* Figma "Sort by Dropdown List": 190, border #EBEBEC, radius 10,
-   shadow 0 4 10 rgba(11,18,26,.05), সারি 42 উঁচু */
+/* Sort dropdown list — Projects পাতার environment dropdown এর মতো:
+   সাদা, 16px গোল কোণ, হালকা ছায়া, ভেতরে 8px ফাঁক, সারির কোণ 10px,
+   সারির মাঝে 2px ফাঁক, বাছা/hover সারি হালকা ধূসর */
 .products-sort-menu {
   position: absolute;
-  top: calc(100% + 7px);
+  top: calc(100% + 8px);
   right: 0;
   z-index: 30;
-  width: 190px;
+  width: max-content;
+  min-width: 200px;
+  max-width: calc(100vw - 32px);
   margin: 0;
-  padding: 0;
+  padding: 8px;
   list-style: none;
   background: #ffffff;
-  border: 1px solid var(--pr-line);
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(11, 18, 26, 0.05);
+  border: 1px solid #e1e5ea;
+  border-radius: 16px;
+  box-shadow: 0 12px 32px rgba(11, 18, 26, 0.12);
+  box-sizing: border-box;
   outline: none;
   animation: products-pop 0.16s ease-out;
 }
@@ -433,24 +437,40 @@
 .products-sort-option {
   display: flex;
   align-items: center;
-  min-height: 42px;
-  padding: 8px 12px;
+  padding: 11px 14px;
   border-radius: 10px;
   box-sizing: border-box;
   font-weight: 500;
-  font-size: 16px;
-  line-height: 160%;
-  color: var(--pr-ink-50);
+  font-size: 15px;
+  line-height: 1.5;
+  white-space: nowrap;
+  color: rgba(11, 18, 26, 0.7);
   cursor: pointer;
+  user-select: none;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
 }
 
-.products-sort-option.is-selected {
-  color: var(--pr-ink);
+.products-sort-option + .products-sort-option {
+  margin-top: 2px;
 }
 
+.products-sort-option.is-selected,
 .products-sort-option.is-highlighted {
-  background: var(--pr-line);
-  color: var(--pr-ink);
+  background: #f4f5f7;
+  color: #0b121a;
+}
+
+.products-sort-option.is-selected.is-highlighted {
+  background: #eceef1;
+}
+
+@media (max-width: 480px) {
+  .products-sort-option {
+    padding: 10px 12px;
+    font-size: 14px;
+  }
 }
 
 @keyframes products-pop {

@@ -144,57 +144,6 @@
   flex: none;
 }
 
-/* Frame 152: 242 x 46, border 1px #EBEBEC, radius 35, padding 14।
-   আসল <select> চোখে দেখা যায় না এমন করে উপরে বসানো, নিচে শুধু pill
-   এর চেহারা + chevron আঁকা — keyboard আর screen reader এর নিজস্ব আচরণ
-   (native <select>) অক্ষত থাকে */
-.projects-env-select {
-  position: relative;
-  display: flex;
-  align-items: center;
-  flex: none;
-  width: 242px;
-  height: 46px;
-  padding: 0 14px;
-  border: 1px solid var(--pj-line);
-  border-radius: 35px;
-  box-sizing: border-box;
-  transition: border-color 0.15s ease;
-}
-
-.projects-env-select:hover {
-  border-color: var(--pj-ink-25);
-}
-
-.projects-env-select:focus-within {
-  border-color: var(--pj-ink);
-}
-
-.projects-env-select select {
-  width: 100%;
-  height: 100%;
-  padding: 0 24px 0 0;
-  border: 0;
-  outline: 0;
-  background: transparent;
-  appearance: none;
-  font-family: inherit;
-  font-weight: 500;
-  font-size: 14.5px;
-  line-height: 18px;
-  color: var(--pj-ink);
-  cursor: pointer;
-}
-
-.projects-env-chevron {
-  position: absolute;
-  right: 14px;
-  top: 50%;
-  display: flex;
-  transform: translateY(-50%);
-  pointer-events: none;
-}
-
 @media (max-width: 640px) {
   .projects-searchbar {
     flex-wrap: wrap;
@@ -207,10 +156,6 @@
   }
   .projects-filter-icon {
     display: none;
-  }
-  .projects-env-select {
-    flex: 1 1 100%;
-    width: auto;
   }
 }
 

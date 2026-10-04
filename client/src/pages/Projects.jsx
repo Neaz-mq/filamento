@@ -11,6 +11,7 @@ import {
   rememberListSearch,
   useProjectList,
 } from "./projectCatalog";
+import ProjectSelect from "../components/projects/ProjectSelect";
 import "./Projects.css";
 
 /* ===============================================================
@@ -107,14 +108,6 @@ function FilterIcon() {
 }
 
 /* Figma: 10 x 5, stroke 1.5px #373A3C */
-function ChevronDown() {
-  return (
-    <svg width="10" height="5" viewBox="0 0 10 5" fill="none" aria-hidden="true">
-      <path d="M1 .75 5 4.25 9 .75" stroke="#373A3C" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
 /* Figma: 16px, stroke 1.5px */
 function PinIcon() {
   return (
@@ -673,24 +666,20 @@ function Projects() {
 
             <FilterIcon />
 
-            <label className="projects-env-select">
-              <span className="sr-only">{t("projects.search.environmentAriaLabel")}</span>
-              <select
-                value={category}
-                onChange={(event) => handleCategoryChange(event.target.value)}
-                aria-label={t("projects.search.environmentAriaLabel")}
-              >
-                <option value="all">{t("projects.search.environmentLabel")}</option>
-                {categoryOrder.filter((id) => id !== "all").map((id) => (
-                  <option key={id} value={id}>
-                    {t(`projects.categories.${id}`)}
-                  </option>
-                ))}
-              </select>
-              <span className="projects-env-chevron" aria-hidden="true">
-                <ChevronDown />
-              </span>
-            </label>
+            <ProjectSelect
+              value={category}
+              onChange={handleCategoryChange}
+              ariaLabel={t("projects.search.environmentAriaLabel")}
+              options={[
+                { value: "all", label: t("projects.search.environmentLabel") },
+                ...categoryOrder
+                  .filter((id) => id !== "all")
+                  .map((id) => ({
+                    value: id,
+                    label: t(`projects.categories.${id}`),
+                  })),
+              ]}
+            />
           </div>
 
           {/* category pill — Figma "Frame 419": 24px তীর + pill + 24px তীর, gap 16 */}

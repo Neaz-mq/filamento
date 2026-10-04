@@ -39,15 +39,23 @@
   outline-offset: 3px;
 }
 
+/* ছবির জায়গা সবসময় একই মাপের (352 / 288).
+
+   আগে <img> নিজেই flex item ছিল — ছবির আসল মাপ (intrinsic size)
+   অনুপাতের চেয়ে বড় হলে aspect-ratio এর ঘরটা বড় হয়ে যেত (min-height:
+   auto এর কারণে), ফলে ওই card এর নাম বাকিদের চেয়ে নিচে নেমে যেত.
+   এখন ছবিটা ঘরের ভেতরে absolute — ঘরের মাপ বদলানোর ক্ষমতা নেই,
+   তাই সব card এর নাম একই লাইনে থাকে */
 .product-card-media {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  position: relative;
+  flex: none;
   width: 100%;
   aspect-ratio: 352 / 288;
 }
 
 .product-card-media .product-image {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: contain;

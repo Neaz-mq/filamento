@@ -1,0 +1,153 @@
+/* ===============================================================
+   Projects environment dropdown (ProjectSelect.jsx)
+
+   pill: 242 x 46, border 1px, radius 35 (Figma "Frame 152").
+   খোলা তালিকা admin এর মতো: সাদা, 16px গোল কোণ, হালকা ছায়া,
+   ভেতরে 8px ফাঁক, সারির কোণ 10px, বাছা/hover সারি হালকা ধূসর
+   =============================================================== */
+
+.projects-env-select {
+  position: relative;
+  flex: none;
+  width: 242px;
+  height: 46px;
+}
+
+.projects-env-button {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0 38px 0 14px;
+  border: 1px solid var(--pj-line, #ebebec);
+  border-radius: 35px;
+  background: transparent;
+  box-sizing: border-box;
+  font-family: inherit;
+  font-weight: 500;
+  font-size: 14.5px;
+  line-height: 18px;
+  color: var(--pj-ink, #373a3c);
+  text-align: left;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.projects-env-button:hover {
+  border-color: var(--pj-ink-25, rgba(55, 58, 60, 0.25));
+}
+
+.projects-env-button:focus-visible,
+.projects-env-button[aria-expanded="true"] {
+  border-color: var(--pj-ink, #373a3c);
+}
+
+.projects-env-value {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.projects-env-chevron {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  display: flex;
+  transform: translateY(-50%);
+  pointer-events: none;
+  transition: transform 0.2s ease;
+}
+
+.projects-env-select[data-open] .projects-env-chevron {
+  transform: translateY(-50%) rotate(180deg);
+}
+
+/* ---------- খোলা তালিকা ---------- */
+.projects-env-menu {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  min-width: 100%;
+  max-height: min(320px, 60vh);
+  margin: 0;
+  padding: 8px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  list-style: none;
+  background: #ffffff;
+  border: 1px solid #e1e5ea;
+  border-radius: 16px;
+  box-shadow: 0 12px 32px rgba(11, 18, 26, 0.12);
+  font-family: inherit;
+  box-sizing: border-box;
+  scrollbar-width: thin;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .projects-env-menu {
+    animation: projects-env-in 0.16s ease both;
+  }
+}
+
+@keyframes projects-env-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+.projects-env-option {
+  display: block;
+  padding: 11px 14px;
+  border-radius: 10px;
+  font-weight: 500;
+  font-size: 15px;
+  line-height: 1.5;
+  color: rgba(11, 18, 26, 0.7);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  user-select: none;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.projects-env-option + .projects-env-option {
+  margin-top: 2px;
+}
+
+.projects-env-option.is-selected,
+.projects-env-option.is-active {
+  background: #f4f5f7;
+  color: #0b121a;
+}
+
+.projects-env-option.is-selected.is-active {
+  background: #eceef1;
+}
+
+@media (max-width: 640px) {
+  .projects-env-select {
+    flex: 1 1 100%;
+    width: auto;
+  }
+  .projects-env-option {
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .projects-env-option,
+  .projects-env-chevron {
+    transition: none;
+  }
+}
