@@ -19,8 +19,8 @@ import { CloseIcon, MenuIcon } from "./icons";
    =============================================================== */
 
 const NAV_LINKS = [
-  { key: "nav.products", to: "/products" },
-  { key: "nav.projects", to: "/projects" },
+  // { key: "nav.products", to: "/products" },
+  // { key: "nav.projects", to: "/projects" },
   { key: "nav.application", to: "/application" },
   { key: "nav.company", to: "/company" },
   { key: "nav.shop", to: "/shop" },
