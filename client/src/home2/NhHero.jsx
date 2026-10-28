@@ -45,6 +45,63 @@ const THROW_PX = 560;
 const THROW_MS = 300;
 
 /* ---------------------------------------------------------------
+   Hero র লেখা, card আর logo screen এর মাপ অনুযায়ী ছোট-বড় হয়
+   (CSS zoom, --hero-zoom) — যাতে পুরো Hero, নিচের logo সারি সহ, প্রথম
+   screen এই ধরে
+
+   Hero র নকশা Figma 1440 x 986 — content ~987px. কিন্তু আসল browser এ
+   উচ্চতা কম হতে পারে (1440 x 896) বা চওড়া বেশি (2560). তাই মাপ হয়
+   তিনটা সীমার সবচেয়ে ছোটটা:
+   • চওড়া ÷ 1920 (কিন্তু কমপক্ষে 1) — বড় পর্দায় চওড়ার অনুপাতে বড়
+   • (উচ্চতা − 74) ÷ 930             — Hero র সব content (~987px = header 74
+                                       + 913) screen এ ঢুকতে হবে, নাহলে
+                                       নিচের logo কাটা পড়ে. 930 (913 না) —
+                                       একটু বাড়তি জায়গা, যাতে কয়েক px
+                                       এদিক-ওদিক হলেও না কাটে
+   • 1.37                            — তার বেশি হলে শিরোনাম 1280px content
+                                       এর বাইরে চলে যেত
+   আর কখনো 0.7 এর নিচে নামে না — তার ছোট হলে লেখা পড়া কঠিন
+
+   উদাহরণ: 1440 x 896 → 0.88 | 1920 x 1080 → 1 | 2048 x 996 → 0.99
+            2560 x 1379 → 1.33
+
+   1100 এর নিচে (tablet/mobile) এই মাপ বদল বন্ধ — সেখানে আলাদা নকশা.
+   window.innerWidth/innerHeight — CSS এর (min-width: 1100px) আর 100svh
+   এর সাথে একই, তাই সব একসাথে চালু/বন্ধ হয়
+   --------------------------------------------------------------- */
+const HERO_FROM_W = 1100; // এর নিচে মাপ বদল নেই (CSS এর media query র সাথে মিল)
+const HERO_BASE_W = 1920;
+const HERO_HEADER_H = 74; // --nh-header-h
+const HERO_CONTENT_H = 930; // Hero র content (header বাদে) + একটু বাড়তি
+const HERO_MAX_ZOOM = 1.37;
+const HERO_MIN_ZOOM = 0.7;
+
+const getHeroScale = () => {
+  if (typeof window === "undefined") return 1;
+  const { innerWidth: width, innerHeight: height } = window;
+  if (width < HERO_FROM_W) return 1;
+
+  const byWidth = Math.min(Math.max(1, width / HERO_BASE_W), HERO_MAX_ZOOM);
+  const byHeight = (height - HERO_HEADER_H) / HERO_CONTENT_H;
+  const scale = Math.min(byWidth, byHeight);
+
+  // নিচের দিকে গোল — উপরে গোল করলে content সামান্য লম্বা হয়ে কাটা পড়ত
+  return Math.max(HERO_MIN_ZOOM, Math.floor(scale * 100) / 100);
+};
+
+function useHeroScale() {
+  const [scale, setScale] = useState(getHeroScale);
+
+  useEffect(() => {
+    const update = () => setScale(getHeroScale());
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+
+  return scale;
+}
+
+/* ---------------------------------------------------------------
    card এর স্তূপ — Figma "Group 174"
 
    তিনটা card একই মাপের, পেছনের দুইটা ছোট করে (scale) উপরে বসানো —
@@ -58,7 +115,7 @@ const THROW_MS = 300;
    টানার সময় React আবার আঁকে না — card এর --dx (CSS variable)
    সরাসরি বদলানো হয়, CSS তা দিয়ে transform বানায়
    --------------------------------------------------------------- */
-function CardStack() {
+function CardStack({ scale = 1 }) {
   const { t } = useTranslation();
   const localeLink = useLocaleLink();
 
@@ -76,7 +133,9 @@ function CardStack() {
   useSwipe(stackRef, {
     onMove: (dx) => {
       if (throwingRef.current) return;
-      frontCard()?.style.setProperty("--dx", dx);
+      /* stack zoom হয়ে বড় থাকলে transform এর px ও scale হয় — তাই dx
+         ভাগ করে দেওয়া, যাতে card ঠিক আঙুল/mouse এর সাথে সাথে চলে */
+      frontCard()?.style.setProperty("--dx", dx / scale);
     },
     onEnd: (dx, velocity) => {
       if (throwingRef.current) return;
@@ -93,7 +152,7 @@ function CardStack() {
       const direction = Math.sign(dx || velocity) || 1;
       throwingRef.current = true;
       card.setAttribute("data-thrown", "");
-      card.style.setProperty("--dx", direction * THROW_PX);
+      card.style.setProperty("--dx", (direction * THROW_PX) / scale);
 
       clearTimeout(throwTimer.current);
       throwTimer.current = setTimeout(() => {
@@ -173,8 +232,14 @@ function NhHero() {
      উপর zoom চললে দেখাই যেত না. cache থেকে এলে onLoad সাথে সাথে */
   const [loaded, setLoaded] = useState(false);
 
+  const heroScale = useHeroScale();
+
   return (
-    <section className="nh-hero" aria-labelledby="nh-hero-title">
+    <section
+      className="nh-hero"
+      aria-labelledby="nh-hero-title"
+      style={{ "--hero-zoom": heroScale }}
+    >
       <div className="nh-hero-media" data-loaded={loaded ? "" : undefined}>
         <img
           src={cloud(IMAGES.hero, 1920)}
@@ -212,7 +277,7 @@ function NhHero() {
           </a>
         </div>
 
-        <CardStack />
+        <CardStack scale={heroScale} />
       </div>
 
       {/* logo গুলো ডান থেকে বামে একটানা চলে (marquee). পুরো প্রস্থ জুড়ে —

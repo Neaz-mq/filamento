@@ -11,6 +11,12 @@
    অন্য পাতাটা মুছে দিলেই এই দুই জায়গার ঝামেলা শেষ
    =============================================================== */
 
+// Testimonial card এর company logo — Hero এর marquee র একই ফাইল
+import prologis from "../assets/logo/Prologis_Logo 1.svg";
+import caterpillar from "../assets/logo/Caterpillar_Logo-1 1.svg";
+import toshiba from "../assets/logo/Toshiba_Logo-1 1.svg";
+import airbus from "../assets/logo/Airbus_Logo-1 1.svg";
+
 const CLOUD = "https://res.cloudinary.com/dzi3u164c/image/upload/";
 
 /* Cloudinary র ছবি — নির্দিষ্ট প্রস্থে, ব্রাউজার অনুযায়ী সেরা format এ.
@@ -88,20 +94,41 @@ export const TECH_START = 1;
 export const BENEFITS = ["maintenance", "visibility", "installation", "roi"];
 
 /* ---------- Testimonials ----------
-   মূল পাতার মতোই — quote/নাম placeholder, ছবিও সবার একটা.
+   quote/নাম placeholder, ছবিও সবার একটা — কিন্তু প্রতিটা card এ আলাদা
+   company logo (Figma তে খোলা card এর ডানে Prologis এর জায়গায়).
 
-   logo — Figma তে খোলা card এর ডানে company logo (Prologis). ইচ্ছে
-   করে ফাঁকা রাখা: বানানো quote এর নিচে সত্যিকারের কোম্পানির logo
-   বসালে মনে হবে ওই কোম্পানি এটা বলেছে. আসল testimonial এলে সেই
-   কোম্পানির logo এখানে বসাবেন (যেমন logo: prologisLogo) */
+   logo.shift — প্রতিটা logo ফাইলের ভেতরে ডানে আলাদা পরিমাণ ফাঁকা জায়গা
+   আছে (Prologis ৪.৩px, Caterpillar ২০.৫px ...). সেটা সমান করতে
+   প্রতিটাকে ডানে এই px সরানো হয়, যাতে সব logo এর ডান ধার Figma র
+   Prologis এর মতো একই লাইনে বসে. নতুন logo বসালে মান বের করার সূত্র:
+   (ডানের ফাঁকা px, 92px প্রস্থে) − 4.3
+
+   ⚠️ এগুলো এখনো বানানো quote — আসল testimonial এলে সেই কোম্পানির
+   logo আর shift বসাবেন */
 const AVATAR =
   "v1789637818/a73e9b59e7a15dc477a605d52bd4add7b91a67a9_pewd5s.jpg";
 
 export const TESTIMONIALS = [
-  { id: "marcus", avatar: AVATAR, logo: null },
-  { id: "frank", avatar: AVATAR, logo: null },
-  { id: "david", avatar: AVATAR, logo: null },
-  { id: "elena", avatar: AVATAR, logo: null },
+  {
+    id: "marcus",
+    avatar: AVATAR,
+    logo: { name: "Caterpillar", src: caterpillar, shift: 16.2 },
+  },
+  {
+    id: "frank",
+    avatar: AVATAR,
+    logo: { name: "Prologis", src: prologis, shift: 0 },
+  },
+  {
+    id: "david",
+    avatar: AVATAR,
+    logo: { name: "Toshiba", src: toshiba, shift: 3.5 },
+  },
+  {
+    id: "elena",
+    avatar: AVATAR,
+    logo: { name: "Airbus", src: airbus, shift: 5.2 },
+  },
 ];
 
 /* ---------- Contact form এর dropdown ----------

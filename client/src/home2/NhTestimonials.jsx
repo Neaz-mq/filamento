@@ -183,7 +183,16 @@ function NhTestimonials() {
                     </div>
 
                     {item.logo && (
-                      <img className="nh-tcard-logo" src={item.logo} alt="" width="92" height="46" />
+                      <img
+                        className="nh-tcard-logo"
+                        src={item.logo.src}
+                        alt={item.logo.name}
+                        width="92"
+                        height="46"
+                        loading="lazy"
+                        decoding="async"
+                        style={{ "--logo-shift": `${item.logo.shift}px` }}
+                      />
                     )}
                   </div>
                 </li>

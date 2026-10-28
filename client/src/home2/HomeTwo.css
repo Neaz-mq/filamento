@@ -641,7 +641,9 @@ html:lang(zh-Hant) .nh-page {
   background: linear-gradient(180deg, #000000 9.8%, rgba(0, 0, 0, 0) 100%);
 }
 
-/* Figma: নিচে 248px, উল্টো দিকে */
+/* Figma: নিচে 248px, উল্টো দিকে.
+   20.26% = ~50px পুরো কালো — Figma র logo সারির নিচের 50px padding এর
+   জায়গা, তাই logo র নিচে কালো ফাঁক Figma র মতোই থাকে */
 .nh-hero-shade--bottom {
   bottom: 0;
   height: 248px;
@@ -852,6 +854,8 @@ html:lang(zh-Hant) .nh-page {
   --nh-logos-gap: 72px;
   --nh-logos-duration: 36s;
 
+  /* Figma "Frame 2147237026": উপরে 40 + logo 57 + নিচে 50px padding.
+     নিচের 50px আর তার নিচের কালো আভা Figma র নকশারই অংশ — সরানো যাবে না */
   padding: 74px 0 50px;
 }
 
@@ -981,6 +985,67 @@ html:lang(zh-Hant) .nh-page {
   .nh-logos img {
     width: 84px;
     height: 42px;
+  }
+}
+
+/* ---------- ডেস্কটপ (1100px+) — Hero পুরো screen ঢাকে, কিছু কাটা পড়ে না ----------
+
+   Hero এর উচ্চতা content থেকে আসে (~987px, Figma 1440 x 986). তাই
+   • কম উচ্চতার screen এ (যেমন 1440 x 896) নিচের logo সারি কাটা পড়ত
+   • বেশি উচ্চতার screen এ নিচে পরের সাদা section উঁকি দিত
+
+   সমাধান:
+   • min-height 100svh — Hero সবসময় ঠিক পুরো প্রথম screen ঢাকে; screen
+     এর চেয়ে লম্বাও হয় না, আর ছোটও না
+   • content (লেখা, card, logo) এর মাপ NhHero.jsx এ হিসাব হয় (--hero-zoom):
+     screen এর চওড়া আর উচ্চতা দুটোই ধরে — কম উচ্চতায় একটু ছোট, বড়
+     পর্দায় বড় — যাতে সব content screen এ ঢোকে
+   • content বেশি হলে Hero তাতে বড়ই হয়, কিছু কাটা পড়ে না
+   • logo সারি সবসময় একদম নিচে, card এর স্তূপ তার ঠিক উপরে — অতিরিক্ত
+     জায়গাটা লেখা আর card এর মাঝে পড়ে */
+@media (min-width: 1100px) {
+  .nh-hero {
+    /* header (74) + Figma র 80px ফাঁক, ফাঁকটা লেখার সাথে বড় হয় */
+    padding-top: calc(var(--nh-header-h) + 82px * var(--hero-zoom, 1));
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    min-height: 100svh;
+  }
+
+  .nh-hero-inner {
+    flex: 1 0 auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* লেখা আর card এর মাঝে আগের 104px ফাঁক অন্তত থাকে */
+  .nh-hero-copy {
+    margin-bottom: 104px;
+  }
+
+  .nh-stack {
+    flex: none;
+    margin-top: auto;
+  }
+
+  .nh-hero-logos {
+    flex: none;
+  }
+
+  /* লেখা, card আর logo চওড়ার অনুপাতে বড় — 2560 এ 1920 এর মতোই
+     দেখায়, মাঝে বিশাল ফাঁক পড়ে না. --hero-zoom NhHero.jsx এ বসে
+     (1440 x 896 এ 0.88, 1920 এ 1, 2560 x 1379 এ 1.33; 0.7 থেকে 1.37) */
+  .nh-hero-copy,
+  .nh-stack,
+  .nh-hero-logos {
+    zoom: var(--hero-zoom, 1);
+  }
+
+  /* নিচের কালো আভাও logo সারির সাথে একই অনুপাতে বড়, নাহলে logo র নিচের
+     কালো ফাঁক (50px) আর আভার পুরো-কালো অংশ আলাদা হয়ে যেত */
+  .nh-hero-shade--bottom {
+    height: calc(248px * var(--hero-zoom, 1));
   }
 }
 
@@ -2528,11 +2593,15 @@ html:lang(zh-Hant) .nh-page {
   white-space: nowrap;
 }
 
+/* logo ফাইলগুলো আগে থেকেই ধূসর (#656565) — Figma র রঙ, তাই filter লাগে না.
+   --logo-shift (data.js) প্রতিটা logo এর ডান ধার একই লাইনে আনে;
+   transform এ layout নড়ে না, আর card এর padding (16px) এর ভেতরেই থাকে */
 .nh-tcard-logo {
   flex: none;
   width: 92px;
   height: 46px;
   object-fit: contain;
+  transform: translateX(var(--logo-shift, 0px));
 }
 
 @media (max-width: 899px) {
