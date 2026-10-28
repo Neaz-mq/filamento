@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import SoftLink from "./SoftLink";
 import { useTranslation } from "react-i18next";
 import { useLocaleLink } from "../i18n/useLocaleLink";
 import "./Hero.css";
@@ -382,7 +383,7 @@ function Hero({ lightsOn = true }) {
             onClickCapture={handleClickCapture}
           >
             {CARDS.map((card) => (
-              <Link
+              <SoftLink
                 key={card.id}
                 to={localeLink(card.to)}
                 className="hero-card"
@@ -414,7 +415,7 @@ function Hero({ lightsOn = true }) {
                 <span className="hero-card-arrow" aria-hidden="true">
                   <ArrowUpRight />
                 </span>
-              </Link>
+              </SoftLink>
             ))}
           </div>
 

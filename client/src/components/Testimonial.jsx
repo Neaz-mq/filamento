@@ -1,5 +1,5 @@
 import { useId, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import SoftLink from "./SoftLink";
 import { useTranslation } from "react-i18next";
 import { useLocaleLink } from "../i18n/useLocaleLink";
 import "./Testimonial.css";
@@ -206,12 +206,12 @@ function ProjectLink({ to, label, tabIndex }) {
   const localeLink = useLocaleLink();
 
   return (
-    <Link to={localeLink(to)} className="testimonial-project" tabIndex={tabIndex}>
+    <SoftLink to={localeLink(to)} className="testimonial-project" tabIndex={tabIndex}>
       <span>{label}</span>
       <span className="testimonial-project-icon">
         <ProjectIcon />
       </span>
-    </Link>
+    </SoftLink>
   );
 }
 

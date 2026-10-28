@@ -837,19 +837,80 @@ html:lang(zh-Hant) .nh-page {
   transform: translate3d(2px, -2px, 0);
 }
 
-/* ---------- নিচের logo সারি ---------- */
+/* ---------- নিচের logo সারি (marquee) ----------
+
+   logo গুলো ডান থেকে বামে একটানা চলে, দুই প্রান্ত ধীরে মিলিয়ে যায়.
+   মাউস উপরে এলে থামে.
+
+   ছয়টা logo র সেট NhHero.jsx এ কয়েকবার বসানো; ট্র্যাক ঠিক অর্ধেক
+   (-50%) সরলে দ্বিতীয় অর্ধেক প্রথমের জায়গায় বসে — দুই অর্ধেক হুবহু
+   এক, তাই লুপ জোড়ার জায়গা চোখে পড়ে না.
+
+   --nh-logos-gap       logo র মাঝের ফাঁক
+   --nh-logos-duration  এক সেট পার হতে কত সময় (বাড়ালে ধীর) */
 .nh-hero-logos {
+  --nh-logos-gap: 72px;
+  --nh-logos-duration: 36s;
+
   padding: 74px 0 50px;
+}
+
+/* জানালা — বাইরে যা যায় কাটা পড়ে, দুই প্রান্তে mask দিয়ে মিলিয়ে দেওয়া */
+.nh-logos-marquee {
+  width: 100%;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 8%,
+    #000 92%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 8%,
+    #000 92%,
+    transparent 100%
+  );
+}
+
+/* width: max-content না দিলে flex ট্র্যাক জানালার প্রস্থেই আটকে
+   যেত আর logo গুলো ভেঙে পড়ত */
+.nh-logos-track {
+  display: flex;
+  width: max-content;
+  animation: nh-logos-scroll var(--nh-logos-duration) linear infinite;
+}
+
+.nh-logos-marquee:hover .nh-logos-track {
+  animation-play-state: paused;
+}
+
+@keyframes nh-logos-scroll {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
 }
 
 .nh-logos {
   display: flex;
+  flex: 0 0 auto;
   align-items: center;
-  justify-content: space-between;
-  gap: 24px;
   margin: 0;
   padding: 0;
   list-style: none;
+}
+
+/* ফাঁক gap দিয়ে নয়, প্রতিটার ডানে padding দিয়ে — gap দিলে সেটের
+   শেষ logo আর পরের সেটের প্রথম logo র মাঝে ফাঁক কম পড়ত, আর -50%
+   এ লুপ ঠিক জোড়া লাগত না */
+.nh-logos li {
+  flex: 0 0 auto;
+  padding-right: var(--nh-logos-gap);
 }
 
 /* logo গুলো ধূসর — কালো পটভূমিতে সাদা করে দেখানো (Figma র মতো) */
@@ -859,6 +920,20 @@ html:lang(zh-Hant) .nh-page {
   object-fit: contain;
   filter: brightness(0) invert(1);
   opacity: 0.92;
+  user-select: none;
+}
+
+/* "animation কমান" চালু থাকলে — চলা বন্ধ, হাতে scroll করে দেখা যায় */
+@media (prefers-reduced-motion: reduce) {
+  .nh-logos-marquee {
+    overflow-x: auto;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
+  .nh-logos-track {
+    animation: none;
+  }
 }
 
 @media (max-width: 1099px) {
@@ -874,10 +949,9 @@ html:lang(zh-Hant) .nh-page {
     padding: 48px 0 40px;
   }
 
-  .nh-logos {
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 16px 36px;
+  .nh-hero-logos {
+    --nh-logos-gap: 56px;
+    --nh-logos-duration: 30s;
   }
 
   .nh-logos img {
@@ -899,8 +973,9 @@ html:lang(zh-Hant) .nh-page {
     margin-bottom: 32px;
   }
 
-  .nh-logos {
-    gap: 12px 24px;
+  .nh-hero-logos {
+    --nh-logos-gap: 40px;
+    --nh-logos-duration: 24s;
   }
 
   .nh-logos img {

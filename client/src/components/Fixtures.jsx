@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import SoftLink from "./SoftLink";
 import { useTranslation } from "react-i18next";
 import { useLocaleLink } from "../i18n/useLocaleLink";
 import "./Fixtures.css";
@@ -276,12 +276,12 @@ function Fixtures() {
                     </p>
                   </div>
 
-                  <Link to={localeLink(fixture.to)} className="fixtures-card-link">
+                  <SoftLink to={localeLink(fixture.to)} className="fixtures-card-link">
                     <span>{t("fixtures.moreInfo")}</span>
                     <span className="fixtures-card-arrow">
                       <ArrowUpRight />
                     </span>
-                  </Link>
+                  </SoftLink>
                 </div>
               </article>
             ))}
@@ -302,10 +302,10 @@ function Fixtures() {
           ))}
         </ul>
 
-        <Link to={localeLink("/products")} className="fixtures-cta">
+        <SoftLink to={localeLink("/products")} className="fixtures-cta">
           {t("fixtures.seeAll")}
           <CtaArrow />
-        </Link>
+        </SoftLink>
       </div>
     </section>
   );

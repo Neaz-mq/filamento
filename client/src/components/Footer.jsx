@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import SoftLink from "./SoftLink";
 import { useTranslation } from "react-i18next";
 import { useLocaleLink } from "../i18n/useLocaleLink";
 import "./Footer.css";
@@ -134,9 +135,9 @@ function Footer() {
               >
                 {column.links.map((link) => (
                   <li key={`${column.key}-${link.key}`}>
-                    <Link to={localeLink(link.to)} className="footer-link">
+                    <SoftLink to={localeLink(link.to)} className="footer-link">
                       {t(`footer.links.${link.key}`)}
-                    </Link>
+                    </SoftLink>
                   </li>
                 ))}
               </FooterColumn>
@@ -170,12 +171,12 @@ function Footer() {
         {/* Figma: Frame 357 — রেখা, তার নিচে copyright আর Privacy */}
         <div className="footer-bottom">
           <p className="footer-copy">{t("footer.copyright", { year })}</p>
-          <Link
+          <SoftLink
             to={localeLink("/privacy-policy")}
             className="footer-copy footer-privacy"
           >
             {t("footer.privacy")}
-          </Link>
+          </SoftLink>
         </div>
       </div>
     </footer>

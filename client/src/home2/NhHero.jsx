@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import SoftLink from "../components/SoftLink";
 import { Trans, useTranslation } from "react-i18next";
 import { useLocaleLink } from "../i18n/useLocaleLink";
 import { HERO_CARDS, IMAGES, cloud, srcSet } from "./data";
@@ -34,6 +34,11 @@ const LOGOS = [
   { name: "Airbus", src: airbus },
   { name: "Bob's Discount Furniture", src: bobs },
 ];
+
+/* marquee তে সেটটা কতবার বসবে (জোড় সংখ্যা). ছয়টা logo এর এক সেট
+   ~1100px — বড় পর্দায় ফাঁক না পড়তে বারবার বসানো. ট্র্যাক ঠিক অর্ধেক
+   সরলে লুপ জোড়া লাগে, তাই জোড় হতে হবে */
+const LOGO_SETS = 6;
 
 // ছুড়ে দেওয়া card কত দূরে উড়ে যাবে, আর কতক্ষণ পরে পেছনে বসবে
 const THROW_PX = 560;
@@ -118,7 +123,7 @@ function CardStack() {
         )}`;
 
         return (
-          <Link
+          <SoftLink
             key={card.id}
             to={localeLink("/products")}
             className="nh-stack-card"
@@ -154,7 +159,7 @@ function CardStack() {
                 </span>
               </span>
             </span>
-          </Link>
+          </SoftLink>
         );
       })}
     </div>
@@ -210,20 +215,36 @@ function NhHero() {
         <CardStack />
       </div>
 
-      <div className="nh-wrap nh-hero-logos">
-        <ul className="nh-logos" aria-label={t("brands.label")}>
-          {LOGOS.map((logo, index) => (
-            <li key={logo.name} className="nh-hero-in" style={{ "--d": 6 + index * 0.5 }}>
-              <img
-                src={logo.src}
-                alt={logo.name}
-                width="114"
-                height="57"
-                decoding="async"
-              />
-            </li>
-          ))}
-        </ul>
+      {/* logo গুলো ডান থেকে বামে একটানা চলে (marquee). পুরো প্রস্থ জুড়ে —
+          তাই nh-wrap এর ভেতরে নয়. পাতা খোলার সময় সারিটা একসাথে
+          একবার নিচ থেকে ওঠে (nh-hero-in), তারপর চলতে থাকে */}
+      <div className="nh-hero-logos nh-hero-in" style={{ "--d": 6 }}>
+        <div className="nh-logos-marquee">
+          <div className="nh-logos-track">
+            {Array.from({ length: LOGO_SETS }, (_, setIndex) => (
+              /* শুধু প্রথম সেট screen reader এর জন্য — বাকিগুলো কপি */
+              <ul
+                key={setIndex}
+                className="nh-logos"
+                aria-label={setIndex === 0 ? t("brands.label") : undefined}
+                aria-hidden={setIndex === 0 ? undefined : true}
+              >
+                {LOGOS.map((logo) => (
+                  <li key={logo.name}>
+                    <img
+                      src={logo.src}
+                      alt={setIndex === 0 ? logo.name : ""}
+                      width="114"
+                      height="57"
+                      decoding="async"
+                      draggable="false"
+                    />
+                  </li>
+                ))}
+              </ul>
+            ))}
+          </div>
+        </div>
       </div>
     </section>
   );
