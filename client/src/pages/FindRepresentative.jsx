@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Children, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Trans, useTranslation } from "react-i18next";
 import {
@@ -111,13 +111,31 @@ function usePageMeta(title) {
   }, [title]);
 }
 
-/* হলুদ চৌকো + বড় হাতের লেবেল — তিন অংশেই একই */
+/* হলুদ গোল বিন্দু + বড় হাতের লেবেল — তিন অংশেই একই */
 function SectionLabel({ children, tone }) {
   return (
     <p className={`fr-label${tone ? ` is-${tone}` : ""}`}>
       <span className="fr-label-mark" aria-hidden="true" />
       {children}
     </p>
+  );
+}
+
+/* Hero র ফোন নম্বর — "475-0038" অংশটা hyphen এ ভেঙে যেত ("475-" আর
+   "0038" আলাদা লাইনে). শেষ অংশটা nowrap এ রাখা, তাই লাইন ভাঙলে "+1 (408)"
+   এর পরে ভাঙে আর "475-0038" একসাথে থাকে — Figma র মতো */
+function PhoneLink({ children, ...props }) {
+  const parts = Children.toArray(children);
+  const text = parts.length === 1 && typeof parts[0] === "string" ? parts[0] : "";
+  const match = text.match(/^(.*\s)(\S*-\S*)$/);
+
+  if (!match) return <a {...props}>{children}</a>;
+
+  return (
+    <a {...props}>
+      {match[1]}
+      <span className="fr-nowrap">{match[2]}</span>
+    </a>
   );
 }
 
@@ -141,7 +159,7 @@ function Hero() {
               i18nKey="findRep.hero.intro"
               components={{
                 sales: <a href={`mailto:${FILAMENTO.email}`} />,
-                phone: <a href={telHref(FILAMENTO.phoneLink)} />,
+                phone: <PhoneLink href={telHref(FILAMENTO.phoneLink)} />,
                 intl: <a href={`mailto:${FILAMENTO.internationalEmail}`} />,
               }}
             />

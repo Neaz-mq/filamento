@@ -28,7 +28,7 @@
   color: inherit;
 }
 
-/* হলুদ চৌকো + বড় হাতের লেবেল — Figma "Section label" */
+/* হলুদ গোল বিন্দু + বড় হাতের লেবেল — Figma "Section label" */
 .fr-label {
   display: flex;
   align-items: center;
@@ -50,6 +50,7 @@
   flex: none;
   width: 7px;
   height: 7px;
+  border-radius: 50%;
   background: var(--fr-yellow);
 }
 
@@ -99,18 +100,24 @@
   color: var(--fr-ink-75);
 }
 
+/* Figma "Introduction": ইমেইল আর ফোন সাধারণ লেখার মতোই — একই রং, একই
+   weight (400), কোনো underline নেই. hover এ শুধু একটু গাঢ় হয়, যাতে
+   লিংক বোঝা যায় */
 .fr-hero-intro a {
-  color: var(--fr-ink);
-  font-weight: 500;
-  text-decoration: underline;
-  text-decoration-color: rgba(55, 58, 60, 0.3);
-  text-underline-offset: 3px;
+  color: inherit;
+  font-weight: inherit;
+  text-decoration: none;
   overflow-wrap: anywhere;
-  transition: text-decoration-color 0.2s ease;
+  transition: color 0.2s ease;
 }
 
 .fr-hero-intro a:hover {
-  text-decoration-color: var(--fr-yellow);
+  color: var(--fr-ink);
+}
+
+/* ফোন নম্বরের "475-0038" অংশ একসাথে থাকে (PhoneLink) */
+.fr-nowrap {
+  white-space: nowrap;
 }
 
 /* Figma "Light study" — 413 x 378. ভেতরের সব মাপ % এ, তাই ছোট
