@@ -1,0 +1,23 @@
+/* ===============================================================
+   SmoothScroll (Lenis) — দরকারি CSS
+
+   Lenis এর নিজের lenis.css থেকে বেছে নেওয়া. ইচ্ছে করে পুরোটা
+   import করা হয়নি: ওতে `.lenis-stopped { overflow: clip }` আছে —
+   Home এর intro চলার সময় scroll বন্ধ হলে scrollbar উধাও হয়ে পাতা
+   ~15px চওড়া হতো, আবার ফিরলে সরু হতো. Loader.jsx এ ঠিক এই
+   সমস্যাটাই ঠেকানো হয়েছে, তাই ওটা বাদ.
+
+   iframe এর `pointer-events: none` নিয়মটাও বাদ — ওটা iframe এর
+   ভেতরের ক্লিক আটকে দেয়, আর এই সাইটে iframe নেই
+   =============================================================== */
+
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+/* ভেতরের scroll অংশ শেষ প্রান্তে পৌঁছালে scroll যেন পাতায় উপচে না
+   পড়ে — বিশেষ করে data-lenis-prevent দেওয়া অংশে */
+.lenis [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}

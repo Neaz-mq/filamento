@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { Outlet, ScrollRestoration, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import SmoothScroll from "../components/SmoothScroll";
 import {
   DEFAULT_LANGUAGE,
   LANGUAGES,
@@ -83,6 +84,8 @@ function LocaleLayout({ lang }) {
      থেকে চলে */
   return (
     <>
+      {/* মসৃণ scroll — public সব পাতায়. Admin এ নেই (আলাদা route) */}
+      <SmoothScroll />
       <ScrollRestoration />
       <Outlet />
     </>

@@ -52,10 +52,13 @@
 /* ---------------------------------------------------------------
    Scroll
 
-   mouse wheel বা trackpad এর scroll ইচ্ছে করে বদলানো হয়নি — ব্রাউজারের
-   নিজের scroll ই সবচেয়ে মসৃণ আর মানুষের হাতে অভ্যস্ত. Lenis এর মতো
-   library scroll কে "ভাসমান" করে, কিন্তু একটু দেরিতে সাড়া দেয়, আর
-   hero slider এর টানা (drag) scroll এর সাথে ঝামেলা করে.
+   mouse wheel বা trackpad এর scroll মসৃণ করা হয় Lenis দিয়ে —
+   components/SmoothScroll.jsx (শুধু public সাইটে, admin এ নয়).
+   ফোনের আঙুল-টানা আর keyboard এর scroll ইচ্ছে করে native রাখা
+   হয়েছে, ওগুলো আগে থেকেই মসৃণ.
+
+   নিচের নিয়মগুলো এখনো কাজে লাগে: Lenis ছাড়া জায়গায় (admin) আর
+   Lenis এর বাইরের native scroll এ (keyboard, Ctrl+F).
 
    smooth শুধু পাতার ভেতরের link এ (#contact এর মতো) ক্লিক করলে।
    :focus-within কৌশল — link এ ক্লিক করলে সেটা focus পায়, তখনই smooth.

@@ -1,52 +1,107 @@
 /* ===============================================================
-   BRANDS — Figma "Frame 204"
+   BRANDS — Figma "Frame 204" (marquee রূপে)
 
-   row, space-between, padding 100px 84px, gap 64px
-   1408 x 264, opacity 0.75
-   প্রতিটা লোগো 128 x 64
+   আগে: row, space-between, 1408 x 264, opacity 0.75
+   এখন: লোগোগুলো ডান থেকে বামে একটানা চলে, দুই প্রান্ত ধীরে
+   মিলিয়ে যায়.
 
-   264 = 100 + 64 + 100 ✓
-   এই section এ কোনো background, border বা radius নেই — hero এর
-   ধূসর card এর পরে সরাসরি সাদা পাতায় বসে
+   প্রতিটা লোগো 128 x 64, মাঝের ফাঁক 96px
+   264 = 100 + 64 + 100 ✓ (উচ্চতা আগের মতোই)
+   এই section এ কোনো background, border বা radius নেই
    =============================================================== */
 
 .brands {
+  /* লোগোর মাঝের ফাঁক — marquee এর গতি আর ছন্দ এটার উপর নির্ভর করে.
+     (আগের ~94px space-between ফাঁকের কাছাকাছি) */
+  --brands-gap: 96px;
+
+  /* এক সেট (ছয়টা লোগো) পার হতে কত সময় — বাড়ালে ধীর হবে */
+  --brands-duration: 40s;
+
   width: 100%;
   box-sizing: border-box;
-  padding: clamp(48px, 7vw, 100px) var(--section-pad-x);
+  padding: clamp(48px, 7vw, 100px) 0;
 
   /* Figma র Frame 204 এর opacity. লোগোগুলো হালকা থাকাই উদ্দেশ্য —
      এগুলো প্রমাণ, মূল বিষয় নয় */
   opacity: 0.75;
 }
 
-.brands-inner {
+/* ---------------------------------------------------------------
+   জানালা — যা এর বাইরে যায় তা কাটা পড়ে, আর দুই প্রান্তে mask
+   দিয়ে মিলিয়ে দেওয়া হয় (ছবির মতো).
+
+   section এ আলাদা padding-inline নেই — marquee পুরো প্রস্থে
+   চলবে. mask এর ৮% ঠিক ততটুকু জায়গা নেয় যেখানে লোগো ফিকে হয়
+   --------------------------------------------------------------- */
+.brands-marquee {
   width: 100%;
-  max-width: var(--content-max);
-  margin-inline: auto;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 8%,
+    #000 92%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 8%,
+    #000 92%,
+    transparent 100%
+  );
 }
 
-/* gap 64px হলো সর্বনিম্ন — 1240px container এ ছয়টা 128px লোগো
-   (মোট 768px) space-between এ ছড়ালে ফাঁক দাঁড়ায় ~94px, ঠিক
-   Figma র মতোই */
+/* ---------------------------------------------------------------
+   ট্র্যাক — সব সেট পাশাপাশি, এক লাইনে.
+   width: max-content না দিলে flex ট্র্যাক জানালার প্রস্থেই আটকে
+   যেত আর লোগো নিচে ভেঙে পড়ত
+   --------------------------------------------------------------- */
+.brands-track {
+  display: flex;
+  width: max-content;
+  animation: brands-scroll var(--brands-duration) linear infinite;
+  will-change: transform;
+}
+
+/* মাউস উপরে এলে থামে — লোগো ভালো করে দেখার জন্য */
+.brands-marquee:hover .brands-track {
+  animation-play-state: paused;
+}
+
+/* ট্র্যাক ঠিক অর্ধেক সরলে দ্বিতীয় অর্ধেক প্রথমের জায়গায় বসে —
+   দুই অর্ধেক হুবহু এক, তাই লাফ বোঝা যায় না */
+@keyframes brands-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
 .brands-list {
   display: flex;
-  flex-wrap: wrap;
+  flex: 0 0 auto;
   align-items: center;
-  justify-content: space-between;
-  gap: 40px 64px;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
+/* ফাঁক gap দিয়ে নয়, প্রতিটা লোগোর ডানে padding দিয়ে — gap দিলে
+   সেটের শেষ লোগো আর পরের সেটের প্রথম লোগোর মাঝে ফাঁক কম পড়ত,
+   আর -50% এ লুপ ঠিক জোড়া লাগত না */
 .brands-item {
   flex: 0 0 auto;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-sizing: content-box;
   width: 128px;
   height: 64px;
+  padding-right: var(--brands-gap);
 }
 
 .brands-item img {
@@ -55,28 +110,45 @@
   width: auto;
   height: auto;
   object-fit: contain;
+  user-select: none;
 }
 
 /* ---------------------------------------------------------------
    Responsive
-
-   space-between wrap হলে শেষ সারিতে ফাঁক অদ্ভুত দেখায় (দুইটা লোগো
-   দুই প্রান্তে ছিটকে যায়), তাই ছোট পর্দায় center
    --------------------------------------------------------------- */
 @media (max-width: 1099px) {
-  .brands-list {
-    justify-content: center;
-    gap: 36px 48px;
+  .brands {
+    --brands-gap: 72px;
+    --brands-duration: 32s;
   }
 }
 
 @media (max-width: 639px) {
-  .brands-list {
-    gap: 28px 32px;
+  .brands {
+    --brands-gap: 48px;
+    --brands-duration: 26s;
   }
 
   .brands-item {
     width: 104px;
     height: 52px;
+  }
+}
+
+/* ---------------------------------------------------------------
+   যাদের system এ "animation কমান" চালু (মাথা ঘোরা/মনোযোগের সমস্যা
+   থাকলে মানুষ এটা চালায়) — তাদের জন্য চলা বন্ধ.
+
+   তখন ট্র্যাকটা হাতে scroll করা যায়, যাতে সব লোগো দেখা যায়
+   --------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .brands-marquee {
+    overflow-x: auto;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
+  .brands-track {
+    animation: none;
   }
 }

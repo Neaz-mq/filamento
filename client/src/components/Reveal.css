@@ -1,0 +1,47 @@
+/* ===============================================================
+   Reveal — scroll করলে section নিচ থেকে উঠে আসে
+
+   --reveal-distance  কত নিচ থেকে শুরু (বাড়ালে বেশি উপর থেকে লাফ)
+   --reveal-duration  কতক্ষণ লাগে
+   Home.jsx এর পুরো পাতা ওঠার (0.9s, একই ease) সাথে মিলিয়ে রাখা
+   =============================================================== */
+
+.reveal {
+  --reveal-distance: 56px;
+  --reveal-duration: 0.9s;
+
+  opacity: 0;
+  transform: translateY(var(--reveal-distance));
+  transition:
+    opacity var(--reveal-duration) ease,
+    transform var(--reveal-duration) cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* শুধু ওঠার আগে আর ওঠার সময় — শেষ হলে নিচে বন্ধ করা হয়েছে */
+  will-change: opacity, transform;
+}
+
+/* transform: none (translateY(0) নয়) — শেষে কোনো transform না থাকলে
+   ভেতরের position: fixed/sticky ঠিক থাকে আর browser এর নতুন
+   layer ও আটকে থাকে না */
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+  will-change: auto;
+}
+
+@media (max-width: 639px) {
+  .reveal {
+    --reveal-distance: 36px;
+    --reveal-duration: 0.75s;
+  }
+}
+
+/* "animation কমান" চালু থাকলে — কোনো নড়াচড়া নেই, সরাসরি দেখায় */
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+    will-change: auto;
+  }
+}

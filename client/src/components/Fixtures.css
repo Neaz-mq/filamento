@@ -99,6 +99,34 @@
   white-space: nowrap;
   pointer-events: none;
   user-select: none;
+  color: transparent;
+
+  /* scroll করলে জলছাপ সামান্য ধীরে সরে (parallax) — নিচের
+     @supports ব্লকে. timeline এর নামটা এখানে বসে, কারণ নিজের
+     নড়াচড়ায় নিজের timeline বদলে গেলে কাঁপত */
+  view-timeline-name: --fx-watermark;
+}
+
+/* ---------------------------------------------------------------
+   জলছাপ animation — "outline থেকে fill"
+
+   section এ ঢুকলে FIXTURES এর অক্ষরগুলো একটা একটা করে নিচ থেকে
+   উঠে আসে. ওঠার সময় অক্ষরের চারপাশে স্পষ্ট একটা outline থাকে, তারপর
+   সেটা মিলিয়ে গিয়ে আগের ফিকে জলছাপে থিতু হয়.
+
+   (জলছাপটা এতই ফিকে যে শুধু opacity বদলালে নড়াচড়া চোখেই পড়ত না —
+   তাই outline টাই চোখের কাজ করে)
+
+   gradient আগে পুরো শব্দে ছিল, এখন প্রতি অক্ষরে — গ্রেডিয়েন্টটা শুধু
+   উপর-নিচ, তাই দেখতে হুবহু আগের মতো. অক্ষর আলাদা element না হলে
+   transform দেওয়া অংশে background-clip: text কাজ করত না
+   --------------------------------------------------------------- */
+.fixtures-watermark-drift {
+  display: block;
+}
+
+.fixtures-watermark-letter {
+  display: inline-block;
 
   background: linear-gradient(
     180deg,
@@ -109,6 +137,81 @@
   background-clip: text;
   -webkit-text-fill-color: transparent;
   color: transparent;
+
+  /* outline এর মোটা ভাব অক্ষরের মাপের সাথে বাড়ে-কমে (≈2px @ 284px).
+     রঙ শুরুতে স্বচ্ছ — animation ছাড়া আগের মতোই শুধু ফিকে fill */
+  -webkit-text-stroke-width: 0.007em;
+  -webkit-text-stroke-color: transparent;
+}
+
+/* section এ পৌঁছানোর আগে অক্ষর অদৃশ্য */
+.fixtures-watermark:not(.is-in) .fixtures-watermark-letter {
+  opacity: 0;
+}
+
+.fixtures-watermark.is-in .fixtures-watermark-letter {
+  /* দুইটা animation একসাথে: ওঠা (1s) আর outline মিলিয়ে যাওয়া (1.8s).
+     প্রতি অক্ষর 70ms দেরিতে — ডান দিকের অক্ষর পরে ওঠে */
+  animation:
+    fx-letter-rise 1s cubic-bezier(0.22, 1, 0.36, 1) both,
+    fx-letter-outline 1.8s ease-out both;
+  animation-delay:
+    calc(var(--i) * 70ms + 150ms),
+    calc(var(--i) * 70ms + 150ms);
+}
+
+@keyframes fx-letter-rise {
+  from {
+    opacity: 0;
+    transform: translateY(0.2em);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes fx-letter-outline {
+  0%,
+  35% {
+    -webkit-text-stroke-color: rgba(11, 18, 26, 0.26);
+  }
+  100% {
+    -webkit-text-stroke-color: rgba(11, 18, 26, 0);
+  }
+}
+
+/* scroll parallax — section পর্দা পার হওয়ার পুরো সময়ে জলছাপ
+   ~28px করে নিচে সরে, তাই বাকি লেখার চেয়ে একটু ধীরে উঠছে মনে হয়.
+   সমর্থন না থাকলে (পুরনো ব্রাউজার) কিছুই হয় না, জলছাপ স্থির থাকে */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .fixtures-watermark-drift {
+      animation: fx-watermark-drift linear both;
+      animation-timeline: --fx-watermark;
+      animation-range: cover 0% cover 100%;
+    }
+  }
+}
+
+@keyframes fx-watermark-drift {
+  from {
+    transform: translateY(-28px);
+  }
+  to {
+    transform: translateY(28px);
+  }
+}
+
+/* "animation কমান" চালু থাকলে — কোনো নড়াচড়া নেই, জলছাপ আগের মতো স্থির */
+@media (prefers-reduced-motion: reduce) {
+  .fixtures-watermark:not(.is-in) .fixtures-watermark-letter {
+    opacity: 1;
+  }
+
+  .fixtures-watermark.is-in .fixtures-watermark-letter {
+    animation: none;
+  }
 }
 
 .fixtures-heading {

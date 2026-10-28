@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useLocaleLink } from "../i18n/useLocaleLink";
@@ -169,6 +170,36 @@ function Fixtures() {
   const { t } = useTranslation();
   const localeLink = useLocaleLink();
 
+  /* জলছাপের অক্ষরগুলো পর্দায় ঢুকলে একটা একটা করে উঠে আসে (CSS এ
+     দেখুন). শুরুর সংকেত এখানে — একবার চললে আর বারবার নয় */
+  const watermarkRef = useRef(null);
+  const [watermarkIn, setWatermarkIn] = useState(false);
+
+  useEffect(() => {
+    const node = watermarkRef.current;
+    if (!node) return undefined;
+
+    // খুব পুরনো ব্রাউজার — animation বাদ, সরাসরি দেখাও
+    if (typeof IntersectionObserver === "undefined") {
+      setWatermarkIn(true);
+      return undefined;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        // top < 0 — #contact এ লাফ দিলে এই section উপরে থেকে যায়
+        if (entry.isIntersecting || entry.boundingClientRect.top < 0) {
+          setWatermarkIn(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0, rootMargin: "0px 0px -15% 0px" },
+    );
+
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <section className="fixtures">
       <div className="fixtures-inner">
@@ -176,8 +207,24 @@ function Fixtures() {
           <header className="fixtures-header">
             {/* Figma র 284px জলছাপ। শুধু সাজসজ্জা, তাই aria-hidden —
                 screen reader এ "FIXTURES" দুইবার পড়া হতো না */}
-            <span className="fixtures-watermark" aria-hidden="true">
-              {t("fixtures.watermark")}
+            <span
+              ref={watermarkRef}
+              className={`fixtures-watermark${watermarkIn ? " is-in" : ""}`}
+              aria-hidden="true"
+            >
+              {/* প্রতিটা অক্ষর আলাদা span — যাতে একটার পর একটা ওঠে.
+                  --i হলো অক্ষরের ক্রম, CSS এ দেরির হিসাবে লাগে */}
+              <span className="fixtures-watermark-drift">
+                {Array.from(t("fixtures.watermark")).map((char, index) => (
+                  <span
+                    key={index}
+                    className="fixtures-watermark-letter"
+                    style={{ "--i": index }}
+                  >
+                    {char === " " ? "\u00A0" : char}
+                  </span>
+                ))}
+              </span>
             </span>
 
             <div className="fixtures-heading">

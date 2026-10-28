@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Loader from "../components/Loader";
 import Hero from "../components/Hero";
 import Brands from "../components/Brands";
@@ -7,6 +7,8 @@ import Comparison from "../components/Comparison";
 import Technologies from "../components/Technologies";
 import Testimonial from "../components/Testimonial";
 import Contact from "../components/Contact";
+import Reveal from "../components/Reveal";
+import { lockSmoothScroll } from "../lib/smoothScroll";
 
 const INTRO_KEY = "filamento_intro_played";
 
@@ -34,6 +36,15 @@ function Home() {
 
   const [loading, setLoading] = useState(!alreadyPlayed);
   const [contentVisible, setContentVisible] = useState(alreadyPlayed);
+
+  /* intro চলার সময় মসৃণ scroll ও বন্ধ — Loader শুধু ব্রাউজারের wheel
+     থামায়, কিন্তু Lenis নিজে scroll বসায়, তাই ওকেও আলাদা করে বলতে
+     হয়. পাতা ছেড়ে গেলে (unmount) অবশ্যই আবার চালু, নাহলে অন্য
+     পাতায় scroll আটকে থাকত */
+  useEffect(() => {
+    lockSmoothScroll(loading);
+    return () => lockSmoothScroll(false);
+  }, [loading]);
 
   // flag টা animation শেষ হলে বসছে, mount এ নয় — কেউ ২ সেকেন্ডে
   // refresh দিলে সে intro টা আবার দেখবে
@@ -65,11 +76,26 @@ function Home() {
             শুরু থেকেই false, তখন পাতা খুলতেই জ্বলে */}
         <Hero lightsOn={!loading} />
         <Brands />
-        <Fixtures />
-        <Comparison />
-        <Technologies />
-        <Testimonial />
-        <Contact />
+
+        {/* Hero আর Brands প্রথম পর্দাতেই থাকে, তাই ওদের Reveal নেই.
+            বাকি section গুলো scroll করে পৌঁছালে নিচ থেকে উঠে আসে.
+
+            ⚠️ নতুন section যোগ করলে এখানেই <Reveal> এ মুড়ে দেবেন */}
+        <Reveal>
+          <Fixtures />
+        </Reveal>
+        <Reveal>
+          <Comparison />
+        </Reveal>
+        <Reveal>
+          <Technologies />
+        </Reveal>
+        <Reveal>
+          <Testimonial />
+        </Reveal>
+        <Reveal>
+          <Contact />
+        </Reveal>
       </div>
     </>
   );
