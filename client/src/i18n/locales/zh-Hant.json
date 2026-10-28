@@ -654,9 +654,7 @@
       },
       "servicesTitle": "服務",
       "services": {
-        "one": "Adapta Bilpay",
-        "two": "API Payouts",
-        "three": "Documentations"
+        "layout": "客製照明配置"
       },
       "newsletterTitle": "電子報",
       "emailLabel": "訂閱電子報的電子郵件地址",

@@ -657,9 +657,7 @@
       },
       "servicesTitle": "Services",
       "services": {
-        "one": "Adapta Bilpay",
-        "two": "API Payouts",
-        "three": "Documentations"
+        "layout": "Custom Lighting Layout"
       },
       "newsletterTitle": "Newsletter",
       "emailLabel": "Email address for the newsletter",

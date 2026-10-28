@@ -654,9 +654,7 @@
       },
       "servicesTitle": "サービス",
       "services": {
-        "one": "Adapta Bilpay",
-        "two": "API Payouts",
-        "three": "Documentations"
+        "layout": "カスタム照明レイアウト"
       },
       "newsletterTitle": "ニュースレター",
       "emailLabel": "ニュースレター用メールアドレス",

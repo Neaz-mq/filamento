@@ -1214,7 +1214,9 @@ html:lang(zh-Hant) .nh-page {
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  box-shadow: 0 28px 56px -28px rgba(0, 0, 0, 0.22);
+  box-shadow:
+    0 10px 22px -14px rgba(0, 0, 0, 0.14),
+    0 2px 6px -2px rgba(0, 0, 0, 0.05);
   opacity: 0;
   transition: opacity 0.5s ease;
   pointer-events: none;
@@ -2042,6 +2044,15 @@ html:lang(zh-Hant) .nh-page {
   outline: none;
 }
 
+/* `.nh-page :focus-visible` (কালো outline) এর specificity এর সমান, আর
+   এটা পরে লেখা — তাই জেতে. ফোনের ঘরের focus এর হলুদ আভা বাইরের
+   .nh-phone:focus-within ই দেখায়, ভেতরের input এ আলাদা দাগ লাগে না */
+.nh-phone-input:focus,
+.nh-phone-input:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
 .nh-flag {
   flex: none;
   width: 20px;
@@ -2741,26 +2752,80 @@ html:lang(zh-Hant) .nh-page {
   color: #ffffff;
 }
 
-/* Figma: 230px হলুদ বৃত্ত + blur(207px), ডান-উপরে */
-.nh-footer-glow {
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background: radial-gradient(
-    460px circle at calc(100% - 129px) 41px,
-    rgba(250, 191, 18, 0.26),
-    rgba(250, 191, 18, 0) 70%
-  );
-  pointer-events: none;
-}
+/* ---------------------------------------------------------------
+   হলুদ আভা — Figma "Ellipse 12826": 230px বৃত্ত, #FABF12, blur 207
 
+   ⚠️ Figma তে এই আভা উপরের সারির (Filamento + social) উপরে আঁকা
+   (আভা z-index 1, সারি z-index 0), নিচে নয়. তাই social এর circle
+   জলপাই রঙা আর icon ক্রিম দেখায়; কলাম (z-index 2) আর নিচের সারি
+   (z-index 3) আভার উপরে থাকে, তাদের রঙ বদলায় না.
+
+   বসে content এর (1280) ডান কোণা ধরে, পর্দার কিনারা ধরে নয় — না
+   হলে চওড়া পর্দায় আভা social icon থেকে সরে যেত. কেন্দ্র: content
+   এর ডান কিনারার 49px বাঁয়ে, footer এর মাথার 41px নিচে (Figma:
+   x 1311, y 41, content ডানে 1360).
+
+   blur filter নয়, radial-gradient: Figma র ছবি থেকে মেপে gaussian
+   blur এর ঢাল (σ≈178, চূড়া ≈0.196) বসানো, তাই একই দেখায় অথচ
+   scroll এ ভার পড়ে না
+   --------------------------------------------------------------- */
 .nh-footer-inner {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 40px;
 }
 
+.nh-footer-inner::before {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  top: -658.78px; /* 41.22 (কেন্দ্র) − 60 (footer padding) − 640 (ব্যাসার্ধ) */
+  right: -591px; /* 640 (ব্যাসার্ধ) − 49 */
+  width: 1280px;
+  height: 1280px;
+  background: radial-gradient(
+    circle 640px at 50% 50%,
+    rgba(250, 191, 18, 0.1960) 0px,
+    rgba(250, 191, 18, 0.1949) 20px,
+    rgba(250, 191, 18, 0.1916) 40px,
+    rgba(250, 191, 18, 0.1863) 60px,
+    rgba(250, 191, 18, 0.1790) 80px,
+    rgba(250, 191, 18, 0.1701) 100px,
+    rgba(250, 191, 18, 0.1598) 120px,
+    rgba(250, 191, 18, 0.1485) 140px,
+    rgba(250, 191, 18, 0.1363) 160px,
+    rgba(250, 191, 18, 0.1238) 180px,
+    rgba(250, 191, 18, 0.1111) 200px,
+    rgba(250, 191, 18, 0.0986) 220px,
+    rgba(250, 191, 18, 0.0865) 240px,
+    rgba(250, 191, 18, 0.0751) 260px,
+    rgba(250, 191, 18, 0.0644) 280px,
+    rgba(250, 191, 18, 0.0546) 300px,
+    rgba(250, 191, 18, 0.0457) 320px,
+    rgba(250, 191, 18, 0.0379) 340px,
+    rgba(250, 191, 18, 0.0310) 360px,
+    rgba(250, 191, 18, 0.0251) 380px,
+    rgba(250, 191, 18, 0.0201) 400px,
+    rgba(250, 191, 18, 0.0159) 420px,
+    rgba(250, 191, 18, 0.0124) 440px,
+    rgba(250, 191, 18, 0.0096) 460px,
+    rgba(250, 191, 18, 0.0073) 480px,
+    rgba(250, 191, 18, 0.0055) 500px,
+    rgba(250, 191, 18, 0.0041) 520px,
+    rgba(250, 191, 18, 0.0031) 540px,
+    rgba(250, 191, 18, 0.0022) 560px,
+    rgba(250, 191, 18, 0.0016) 580px,
+    rgba(250, 191, 18, 0.0011) 600px,
+    rgba(250, 191, 18, 0.0008) 620px,
+    rgba(250, 191, 18, 0.0000) 640px
+  );
+  pointer-events: none;
+}
+
 .nh-footer-top {
+  position: relative;
+  z-index: 0;
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
@@ -2776,8 +2841,6 @@ html:lang(zh-Hant) .nh-page {
   font-size: clamp(64px, 10.42vw, 150px);
   line-height: 1;
   color: var(--nh-yellow);
-  /* g, j এর মতো নিচে নামা অক্ষর থাকলে যেন কাটা না পড়ে */
-  padding-bottom: 0.04em;
 }
 
 .nh-foot-word span {
@@ -2807,19 +2870,22 @@ html:lang(zh-Hant) .nh-page {
   }
 }
 
+/* Figma: social এর নিচ "Filamento" র সারির নিচের সাথে সমান (margin নেই) */
 .nh-social {
   display: flex;
   gap: 5px;
-  margin: 0 0 12px;
+  margin: 0;
   padding: 0;
   list-style: none;
 }
 
 .nh-social-btn {
   display: grid;
+  flex: none;
   place-items: center;
   width: 40px;
   height: 40px;
+  padding: 0;
   border-radius: 360px;
   background: rgba(255, 255, 255, 0.1);
   color: #ffffff;
@@ -2835,11 +2901,21 @@ a.nh-social-btn:hover {
   transform: translate3d(0, -2px, 0);
 }
 
+.nh-social-btn svg {
+  display: block;
+  flex: none;
+}
+
+/* link এখনো নেই (X, Instagram) — দেখতে বাকিদের মতোই (Figma), শুধু
+   চাপা যায় না. আগে opacity দিয়ে ফ্যাকাশে করা ছিল, তাতে circle আর
+   icon দুটোরই রঙ হালকা দেখাত */
 .nh-social-btn.is-pending {
-  opacity: 0.55;
+  cursor: default;
 }
 
 .nh-footer-cols {
+  position: relative;
+  z-index: 2;
   display: flex;
   justify-content: space-between;
   gap: 62px;
@@ -2851,12 +2927,30 @@ a.nh-social-btn:hover {
   gap: 20px;
 }
 
+/* কলামের চওড়া Figma র — তাই ১৪৪০ এ চারটা কলাম ঠিক Figma র জায়গায়
+   (x: 80, 530, 786, 1070) বসে. Navigation আর Services এ লেখা nowrap:
+   Services এর লেখা Figma র চেয়ে লম্বা হলে ডানে ফাঁকা জায়গায় বেরিয়ে
+   যায়, পরের কলাম সরে না */
 .nh-footer-col--about {
-  width: 306px;
+  flex: 0 1 306px;
+  min-width: 0;
+}
+
+.nh-footer-col--nav {
+  flex: none;
+  width: 111px;
+  white-space: nowrap;
+}
+
+.nh-footer-col--services {
+  flex: none;
+  width: 139px;
+  white-space: nowrap;
 }
 
 .nh-footer-col--news {
-  width: 290px;
+  flex: 0 1 290px;
+  min-width: 0;
   gap: 48px;
 }
 
@@ -2896,15 +2990,16 @@ a.nh-social-btn:hover {
 }
 
 /* ---------- Newsletter ---------- */
+/* Figma: রেখা 229 + বোতাম 54 = 283, কলাম 290 — মাঝে 7px ফাঁক */
 .nh-news-row {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  gap: 12px;
+  gap: 7px;
 }
 
 .nh-news-field {
-  flex: 1;
+  flex: 0 1 229px;
   min-width: 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.6);
   transition: border-color 0.2s ease;
@@ -2982,6 +3077,8 @@ a.nh-social-btn:hover {
 }
 
 .nh-footer-bottom {
+  position: relative;
+  z-index: 3;
   display: flex;
   justify-content: space-between;
   gap: 32px;
@@ -3012,8 +3109,19 @@ a.nh-social-btn:hover {
   }
 
   .nh-footer-col--about,
+  .nh-footer-col--nav,
+  .nh-footer-col--services,
   .nh-footer-col--news {
     width: auto;
+    white-space: normal;
+  }
+
+  .nh-news-row {
+    gap: 12px;
+  }
+
+  .nh-news-field {
+    flex: 1 1 auto;
   }
 
   .nh-footer-col--news {

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { api } from "../lib/api";
 import { useLocaleLink } from "../i18n/useLocaleLink";
+import SoftLink from "../components/SoftLink";
 import { SOCIAL } from "./data";
 import { ArrowRight, SOCIAL_ICONS } from "./icons";
 
@@ -13,20 +14,56 @@ import { ArrowRight, SOCIAL_ICONS } from "./icons";
    Services, Newsletter), নিচে রেখা আর copyright.
 
    পর্দায় এলে "Filamento" র অক্ষরগুলো একটা একটা করে নিচ থেকে ওঠে
-   (HomeTwo.css এ nh-foot-word). ডান-উপরের হলুদ আভা Figma তে
-   blur(207px) — এখানে radial-gradient, একই দেখায় কিন্তু scroll এ
-   ভার পড়ে না.
+   (HomeTwo.css এ nh-foot-word). ডান-উপরের হলুদ আভা আলাদা element
+   নয় — .nh-footer-inner::before (HomeTwo.css), Figma র মতো social
+   এর উপরে আঁকা.
 
-   ⚠️ "Services" কলামের তিনটা লেখা (Adapta Bilpay, API Payouts,
-   Documentations) Figma র template এর placeholder — Filamento র
-   কোনো সেবা নয়. designer আসল লেখা দিলে en/ja/zh-Hant.json এর
-   home2.footer.services বদলাবেন. তাই এগুলো link নয়, শুধু লেখা.
+   Navigation আর Services এর link গুলো নিচের NAV_LINKS / SERVICE_LINKS
+   থেকে আসে — নতুন link যোগ/বাদ দিতে শুধু ওখানে বদলাবেন.
+     to   — পাতার route (ভাষার prefix নিজে বসে)
+     hash — এই পাতার ভেতরের section (#about, #contact)
+     label — locale এর key
 
    Newsletter জমা হয় server এর /api/newsletter এ
    =============================================================== */
 
 const EMAIL_SHAPE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const WORD = "Filamento";
+
+/* Navigation — সাইটের মূল পাতাগুলো */
+const NAV_LINKS = [
+  { label: "home2.footer.nav.home", to: "/home" },
+  { label: "home2.footer.nav.about", hash: "#about" },
+  // soft — এখন "#" (কোথাও যায় না). আসল পাতায় নিতে soft: true মুছে দিন
+  { label: "nav.products", to: "/products", soft: true },
+  { label: "nav.projects", to: "/projects", soft: true },
+  { label: "home2.footer.nav.contact", hash: "#contact" },
+];
+
+/* Services — Filamento যা দেয়: বিনা খরচে lighting layout, কোথা থেকে
+   কিনবেন, আর কেনার আগে-পরের নথি (spec sheet, IES, installation) */
+const SERVICE_LINKS = [
+  { label: "home2.footer.services.layout", hash: "#contact" },
+  { label: "footer.links.findRep", to: "/find-a-representative" },
+  { label: "footer.links.specSheets", to: "/spec-sheets" },
+  { label: "footer.links.iesFiles", to: "/ies-files" },
+  { label: "footer.links.installationGuides", to: "/installation-guides" },
+];
+
+/* একটা footer link — soft হলে "#" (SoftLink), to থাকলে route, নাহলে
+   এই পাতার section (hash) */
+function FooterLink({ link }) {
+  const { t } = useTranslation();
+  const localeLink = useLocaleLink();
+
+  if (link.soft) {
+    return <SoftLink to={localeLink(link.to)}>{t(link.label)}</SoftLink>;
+  }
+  if (link.to) {
+    return <Link to={localeLink(link.to)}>{t(link.label)}</Link>;
+  }
+  return <a href={link.hash}>{t(link.label)}</a>;
+}
 
 function Newsletter() {
   const { t, i18n } = useTranslation();
@@ -102,8 +139,6 @@ function NhFooter() {
 
   return (
     <footer className="nh-footer">
-      <div className="nh-footer-glow" aria-hidden="true" />
-
       <div className="nh-wrap nh-footer-inner">
         <div className="nh-footer-top">
           {/* অক্ষর আলাদা span এ — animation এর জন্য. screen reader
@@ -149,27 +184,23 @@ function NhFooter() {
             <p className="nh-footer-text">{t("home2.footer.aboutText")}</p>
           </div>
 
-          <div className="nh-footer-col" data-reveal="" style={{ "--d": 2 }}>
+          <div className="nh-footer-col nh-footer-col--nav" data-reveal="" style={{ "--d": 2 }}>
             <h2 className="nh-footer-title">{t("home2.footer.navTitle")}</h2>
             <ul className="nh-footer-list">
-              <li>
-                <Link to={localeLink("/home")}>{t("home2.footer.nav.home")}</Link>
-              </li>
-              <li>
-                <a href="#about">{t("home2.footer.nav.about")}</a>
-              </li>
-              <li>
-                <a href="#contact">{t("home2.footer.nav.contact")}</a>
-              </li>
+              {NAV_LINKS.map((link) => (
+                <li key={link.label}>
+                  <FooterLink link={link} />
+                </li>
+              ))}
             </ul>
           </div>
 
-          <div className="nh-footer-col" data-reveal="" style={{ "--d": 3 }}>
+          <div className="nh-footer-col nh-footer-col--services" data-reveal="" style={{ "--d": 3 }}>
             <h2 className="nh-footer-title">{t("home2.footer.servicesTitle")}</h2>
             <ul className="nh-footer-list">
-              {["one", "two", "three"].map((key) => (
-                <li key={key}>
-                  <span>{t(`home2.footer.services.${key}`)}</span>
+              {SERVICE_LINKS.map((link) => (
+                <li key={link.label}>
+                  <FooterLink link={link} />
                 </li>
               ))}
             </ul>
