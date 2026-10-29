@@ -166,12 +166,17 @@ function CtaArrow() {
   );
 }
 
+/* মাউসের টর্চ কতদূর পর্যন্ত আলো ফেলে (px). আগের CSS gradient এর
+   circle 280px এর সমান */
+const TORCH_RADIUS = 280;
+
 function Fixtures() {
   const { t } = useTranslation();
   const localeLink = useLocaleLink();
 
-  /* জলছাপের অক্ষরগুলো পর্দায় ঢুকলে একটা একটা করে উঠে আসে (CSS এ
-     দেখুন). শুরুর সংকেত এখানে — একবার চললে আর বারবার নয় */
+  /* জলছাপের অক্ষরগুলো পর্দায় ঢুকলে একটা একটা করে উঠে এসে ফিলামেন্টের
+     মতো জ্বলে ওঠে (CSS এ দেখুন). শুরুর সংকেত এখানে — একবার চললে আর
+     বারবার নয় */
   const watermarkRef = useRef(null);
   const [watermarkIn, setWatermarkIn] = useState(false);
 
@@ -200,6 +205,86 @@ function Fixtures() {
     return () => observer.disconnect();
   }, []);
 
+  /* মাউসের টর্চ — section এর উপর মাউস নাড়ালে জলছাপের অক্ষর মাউসের কাছে
+     হলুদ আলোয় ভেজে. এখানে শুধু "কোন অক্ষরে কতটা আলো" হিসাব হয়:
+     প্রতি অক্ষরের কেন্দ্র থেকে মাউস কত দূরে, সেই দূরত্ব থেকে 0..1
+     একটা সংখ্যা বের করে --fx-lit এ বসানো. CSS ওই সংখ্যা দিয়ে শুধু
+     opacity বদলায় (রঙ/gradient নয়) — তাই আঁকার খরচ নেই.
+
+     • শুধু মাউসওয়ালা যন্ত্রে (ফোন/ট্যাবলেটে hover নেই) আর "animation
+       কমান" বন্ধ থাকলে
+     • React state নয়, সরাসরি style — নইলে মাউস নড়ার প্রতিটা মুহূর্তে
+       পুরো section নতুন করে আঁকত
+     • প্রতি frame এ একবার (requestAnimationFrame)
+     • section পর্দার বাইরে থাকলে scroll এ কোনো কাজই হয় না */
+  useEffect(() => {
+    const root = watermarkRef.current;
+    const section = root?.closest("section");
+    if (!root || !section) return undefined;
+
+    const canHover = window.matchMedia?.(
+      "(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)",
+    );
+    if (!canHover?.matches) return undefined;
+
+    const letters = [...root.querySelectorAll(".fixtures-watermark-letter")];
+    let frame = 0;
+    let pointer = null;
+    let active = false;
+
+    const paint = () => {
+      frame = 0;
+      if (!pointer || !active) return;
+
+      // আগে সব মাপ পড়া, তারপর লেখা — বারবার layout হিসাব করতে হয় না
+      const centers = letters.map((letter) => {
+        const rect = letter.getBoundingClientRect();
+        return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+      });
+
+      letters.forEach((letter, index) => {
+        const distance = Math.hypot(
+          pointer.x - centers[index].x,
+          pointer.y - centers[index].y,
+        );
+        const closeness = Math.max(0, 1 - distance / TORCH_RADIUS);
+        // বর্গ করায় কিনারা নরম মিলিয়ে যায়, মাঝখানে জোরালো
+        letter.style.setProperty("--fx-lit", (closeness * closeness).toFixed(3));
+      });
+    };
+
+    const schedule = () => {
+      if (!frame) frame = requestAnimationFrame(paint);
+    };
+
+    const onMove = (event) => {
+      pointer = { x: event.clientX, y: event.clientY };
+      active = true;
+      schedule();
+    };
+
+    const onLeave = () => {
+      active = false;
+      letters.forEach((letter) => letter.style.setProperty("--fx-lit", "0"));
+    };
+
+    // scroll করলে অক্ষর সরে যায় কিন্তু মাউস থাকে এক জায়গায় — আলো আবার বসাতে হয়
+    const onScroll = () => {
+      if (active) schedule();
+    };
+
+    section.addEventListener("pointermove", onMove, { passive: true });
+    section.addEventListener("pointerleave", onLeave);
+    window.addEventListener("scroll", onScroll, { passive: true });
+
+    return () => {
+      section.removeEventListener("pointermove", onMove);
+      section.removeEventListener("pointerleave", onLeave);
+      window.removeEventListener("scroll", onScroll);
+      cancelAnimationFrame(frame);
+    };
+  }, []);
+
   return (
     <section className="fixtures">
       <div className="fixtures-inner">
@@ -213,12 +298,15 @@ function Fixtures() {
               aria-hidden="true"
             >
               {/* প্রতিটা অক্ষর আলাদা span — যাতে একটার পর একটা ওঠে.
-                  --i হলো অক্ষরের ক্রম, CSS এ দেরির হিসাবে লাগে */}
+                  --i হলো অক্ষরের ক্রম, CSS এ দেরির হিসাবে লাগে.
+                  data-char — CSS এর হলুদ কপি (::before / ::after) এই
+                  অক্ষরটাই আবার আঁকে */}
               <span className="fixtures-watermark-drift">
                 {Array.from(t("fixtures.watermark")).map((char, index) => (
                   <span
                     key={index}
                     className="fixtures-watermark-letter"
+                    data-char={char === " " ? "\u00A0" : char}
                     style={{ "--i": index }}
                   >
                     {char === " " ? "\u00A0" : char}

@@ -175,12 +175,295 @@ function PhoneLink({ children, ...props }) {
 }
 
 /* ---------------------------------------------------------------
+   Hero র ডানের "Light study" — ফিলামেন্ট বাতির গল্প নিয়ে animation:
+
+   • মাঝের কোর বাতির মতো ধীরে "শ্বাস" নেয়, আভাও সাথে ওঠানামা করে
+   • কোর থেকে ঢেউ বেরিয়ে ছড়িয়ে মিলিয়ে যায় (আলো ছড়ানো)
+   • বাইরের বৃত্তে অঞ্চলের সংখ্যার সমান বিন্দু ধীরে ঘোরে, একটার পর
+     একটা জ্বলে ওঠে — "5 regions" কথাটাই ছবি হয়ে আসে
+   • "05" সংখ্যাটা 0 থেকে গড়িয়ে ওঠে (একবার)
+   • মাউস নাড়ালে বৃত্ত/আভা স্তরগুলো সামান্য আলাদা গতিতে সরে (parallax)
+
+   ⚡ মসৃণ রাখার নিয়ম: শুধু opacity / transform / translate / scale
+   বদলায় — পাতা নতুন করে আঁকতে হয় না. পর্দার বাইরে গেলে সব
+   animation থেমে থাকে.
+
+   is-in   — একবার পর্দায় এলে চালু, আর বন্ধ হয় না (প্রবেশ একবারই)
+   is-live — এখন পর্দায় আছে কিনা; না থাকলে অসীম animation থামে
+   --------------------------------------------------------------- */
+function HeroLight({ count }) {
+  const { t } = useTranslation();
+  const rootRef = useRef(null);
+  const spotRef = useRef(null);
+  const [inView, setInView] = useState(false);
+  const [live, setLive] = useState(false);
+
+  useEffect(() => {
+    const node = rootRef.current;
+    if (!node) return undefined;
+
+    // খুব পুরনো ব্রাউজার — animation বাদ, সরাসরি দেখাও
+    if (typeof IntersectionObserver === "undefined") {
+      setInView(true);
+      setLive(true);
+      return undefined;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setLive(entry.isIntersecting);
+        if (entry.isIntersecting || entry.boundingClientRect.top < 0) {
+          setInView(true);
+        }
+      },
+      { threshold: 0.2 },
+    );
+
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+
+  /* মাউসের সাথে "দামি" অনুভূতি — দুটো জিনিস:
+
+     ১. গভীরতা (depth): আভা সবচেয়ে বেশি সরে, তারপর কোর, তারপর ring,
+        সবচেয়ে কম বাইরের বৃত্ত; আলোর ফালি উল্টো দিকে. কোন স্তর কত
+        সরবে সেটা JSX এর data-depth এ (px). লেখা (caption, সংখ্যা) নড়ে না,
+        তাই সবসময় ঝকঝকে থাকে.
+     ২. কার্সরের আলো: কার্সর ছবির কাছে এলে ধূসর card এ একটা নরম সাদা
+        আভা কার্সরের পিছু নেয় (spot), দূরে গেলে মিলিয়ে যায়.
+
+     ⚡ কেন আগে কাঁপা কাঁপা লাগত, আর এখন কেন মসৃণ:
+     • আগে প্রতি frame এ root এ CSS variable (--px/--py) বসত, তাই browser
+       কে ভেতরের সব child এর style নতুন করে হিসাব করতে হত. এখন প্রতিটা
+       নড়া অংশে সরাসরি `translate` লেখা হয় — আর কিছুর হিসাব লাগে না.
+     • আগে প্রতি pointermove এ getBoundingClientRect() (layout force)
+       চলত. এখন মাপ cache করা, শুধু scroll/resize এ নতুন করে মাপা হয়.
+     • সব পড়া (read) frame এর শুরুতে, সব লেখা (write) তার পরে — layout
+       বারবার ভাঙে না.
+     • নড়া অংশগুলো CSS এ will-change দিয়ে নিজের GPU layer এ থাকে, তাই
+       sub-pixel সরলে ring/বৃত্ত আবার আঁকতে হয় না (ডবল বৃত্ত দেখা যেত
+       এই কারণেই).
+
+     নড়াচড়াটা প্রতি frame এ নিজে হিসাব করা নরম অনুসরণ (spring এর মতো):
+     মাউস থামলেও স্তরগুলো একটু গড়িয়ে থিতু হয়.
+
+     • শুধু মাউসওয়ালা যন্ত্রে, "animation কমান" বন্ধ থাকলে
+     • সব কিছু settle হলে frame loop নিজেই থামে — মাউস না নড়লে খরচ শূন্য
+     • frame-সময় ধরে হিসাব, তাই 60Hz আর 144Hz এ একই অনুভূতি */
+  useEffect(() => {
+    const root = rootRef.current;
+    const spot = spotRef.current;
+    if (!root || !spot) return undefined;
+
+    const canHover = window.matchMedia?.(
+      "(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)",
+    );
+    if (!canHover?.matches) return undefined;
+
+    // পুরো hero র উপর মাউস নড়লেই কাজ করে
+    const area = root.closest("section") || root;
+    const clamp = (n) => Math.max(-1, Math.min(1, n));
+    const SPOT = 240; // spot এর মাপ (CSS এর সাথে মেলাতে হবে)
+    const REACH = 80; // ছবির কিনারা থেকে কত px দূর পর্যন্ত spot জাগে
+    const KEYS = ["x", "y", "sx", "sy", "hv"];
+
+    // CSS variable নয় — প্রতিটা নড়া স্তরে সরাসরি style লেখা হবে
+    const layers = Array.from(root.querySelectorAll("[data-depth]")).map((node) => ({
+      node,
+      k: Number(node.dataset.depth) || 0,
+    }));
+
+    const target = { x: 0, y: 0, sx: 0, sy: 0, hv: 0 };
+    const cur = { x: 0, y: 0, sx: 0, sy: 0, hv: 0 };
+    // কতটা ধীরে অনুসরণ (ms) — বড় মান = আরও নরম/ভারী
+    const TAU = { x: 170, y: 170, sx: 95, sy: 95, hv: 260 };
+
+    let frame = 0;
+    let last = 0;
+    let pointer = null;
+    let needAim = false; // নতুন pointer অবস্থান এসেছে, target হিসাব করতে হবে
+    let dirty = true; // scroll / resize হলে মাপ আবার নিতে হবে
+    let areaRect = null;
+    let rootRect = null;
+
+    const measure = () => {
+      areaRect = area.getBoundingClientRect();
+      rootRect = root.getBoundingClientRect();
+      dirty = false;
+    };
+
+    const aim = () => {
+      if (!pointer) return;
+      if (dirty) measure();
+
+      target.x = clamp(((pointer.x - areaRect.left) / areaRect.width - 0.5) * 2);
+      target.y = clamp(((pointer.y - areaRect.top) / areaRect.height - 0.5) * 2);
+
+      const near =
+        pointer.x > rootRect.left - REACH &&
+        pointer.x < rootRect.right + REACH &&
+        pointer.y > rootRect.top - REACH &&
+        pointer.y < rootRect.bottom + REACH;
+
+      if (near) {
+        const sx = pointer.x - rootRect.left - SPOT / 2;
+        const sy = pointer.y - rootRect.top - SPOT / 2;
+        // প্রথমবার জাগলে কোণা থেকে উড়ে না এসে সরাসরি কার্সরের নিচে বসে
+        if (cur.hv < 0.02) {
+          cur.sx = sx;
+          cur.sy = sy;
+        }
+        target.sx = sx;
+        target.sy = sy;
+        target.hv = 1;
+      } else {
+        target.hv = 0;
+      }
+    };
+
+    const tick = (now) => {
+      // পড়া (layout) frame এর শুরুতে, লেখার আগে
+      if (needAim) {
+        needAim = false;
+        aim();
+      }
+
+      const dt = last ? Math.min(64, now - last) : 16;
+      last = now;
+
+      KEYS.forEach((key) => {
+        cur[key] += (target[key] - cur[key]) * (1 - Math.exp(-dt / TAU[key]));
+      });
+
+      for (const { node, k } of layers) {
+        node.style.translate = `${(cur.x * k).toFixed(2)}px ${(cur.y * k).toFixed(2)}px`;
+      }
+      spot.style.translate = `${cur.sx.toFixed(1)}px ${cur.sy.toFixed(1)}px`;
+      spot.style.opacity = cur.hv.toFixed(3);
+
+      const settled = KEYS.every(
+        (key) => Math.abs(target[key] - cur[key]) < (key === "sx" || key === "sy" ? 0.3 : 0.001),
+      );
+      if (settled && !needAim) {
+        frame = 0;
+        last = 0;
+        return;
+      }
+      frame = requestAnimationFrame(tick);
+    };
+
+    const wake = () => {
+      if (!frame) frame = requestAnimationFrame(tick);
+    };
+
+    const onMove = (event) => {
+      pointer = { x: event.clientX, y: event.clientY };
+      needAim = true;
+      wake();
+    };
+
+    const onLeave = () => {
+      pointer = null;
+      target.x = 0;
+      target.y = 0;
+      target.hv = 0;
+      wake();
+    };
+
+    // scroll / resize এ ছবি সরে যায় কিন্তু কার্সর থাকে এক জায়গায় — মাপ নতুন করে নিয়ে spot আবার বসাতে হয়
+    const markDirty = () => {
+      dirty = true;
+      if (pointer) {
+        needAim = true;
+        wake();
+      }
+    };
+
+    area.addEventListener("pointermove", onMove, { passive: true });
+    area.addEventListener("pointerleave", onLeave);
+    window.addEventListener("scroll", markDirty, { passive: true });
+    window.addEventListener("resize", markDirty);
+
+    return () => {
+      area.removeEventListener("pointermove", onMove);
+      area.removeEventListener("pointerleave", onLeave);
+      window.removeEventListener("scroll", markDirty);
+      window.removeEventListener("resize", markDirty);
+      cancelAnimationFrame(frame);
+    };
+  }, []);
+
+  /* "05": দশকের অঙ্ক স্থির, এককের অঙ্ক 0 থেকে গড়িয়ে ওঠে */
+  const padded = String(count).padStart(2, "0");
+  const tens = padded.slice(0, -1);
+  const ones = count % 10;
+
+  return (
+    <div
+      ref={rootRef}
+      className={`fr-light${inView ? " is-in" : ""}${live ? " is-live" : ""}`}
+      aria-hidden="true"
+    >
+      {/* কার্সরের পিছু নেওয়া নরম আলো — ধূসর card এ সাদা আভা */}
+      <span ref={spotRef} className="fr-light-spot" />
+
+      <span className="fr-light-layer fr-light-layer-beam" data-depth="-10">
+        <span className="fr-light-beam" />
+      </span>
+
+      {/* data-depth = মাউস কোণায় গেলে সর্বোচ্চ কত px সরবে
+          (বড় = কাছের স্তর, ছোট = দূরের) */}
+      <span className="fr-light-layer fr-light-layer-orb">
+        <span className="fr-light-glow" data-depth="18" />
+        <span className="fr-light-halo" data-depth="4" />
+        <span className="fr-light-orbit" data-depth="4">
+          {Array.from({ length: count }, (_, i) => (
+            <span
+              key={i}
+              className="fr-light-dot"
+              style={{ "--a": `${(360 / count) * i}deg`, "--i": i }}
+            >
+              <i />
+            </span>
+          ))}
+        </span>
+        <span className="fr-light-ripple" data-depth="7" style={{ "--rd": "0s" }} />
+        <span className="fr-light-ripple" data-depth="7" style={{ "--rd": "2.5s" }} />
+        <span className="fr-light-ring" data-depth="7" />
+        <span className="fr-light-aperture" data-depth="10" />
+      </span>
+
+      {/* লেখার স্তর নড়ে না — caption আর সংখ্যা সবসময় ঝকঝকে */}
+      <span className="fr-light-layer fr-light-layer-text">
+        <span className="fr-light-caption">
+          <span className="fr-light-caption-title">{t("findRep.hero.lightCaption")}</span>
+          <span className="fr-light-caption-detail">{t("findRep.hero.lightDetail")}</span>
+        </span>
+        <span className="fr-light-count">
+          <span className="fr-light-count-value">
+            <span>{tens}</span>
+            <span className="fr-light-count-roll">
+              <span className="fr-light-count-track" style={{ "--to": ones }}>
+                {Array.from({ length: ones + 1 }, (_, d) => (
+                  <span key={d} className="fr-light-count-cell">
+                    {d}
+                  </span>
+                ))}
+              </span>
+            </span>
+          </span>
+          <span className="fr-light-count-label">{t("findRep.hero.regions")}</span>
+        </span>
+      </span>
+    </div>
+  );
+}
+
+/* ---------------------------------------------------------------
    ১. Hero — Figma "Frame 285"
    --------------------------------------------------------------- */
 function Hero() {
   const { t } = useTranslation();
-  // অঞ্চল (ট্যাব) সবসময় REGION_META র কয়টা — server এর উপর নির্ভর করে না
-  const regionCount = String(REGION_META.length).padStart(2, "0");
 
   return (
     <section className="section fr-hero" aria-labelledby="fr-hero-title">
@@ -202,21 +485,9 @@ function Hero() {
           </p>
         </div>
 
-        {/* Figma "Light study" — শুধু নকশা, screen reader এ পড়ার দরকার নেই */}
-        <div className="fr-light" aria-hidden="true">
-          <span className="fr-light-beam" />
-          <span className="fr-light-halo" />
-          <span className="fr-light-ring" />
-          <span className="fr-light-aperture" />
-          <span className="fr-light-caption">
-            <span className="fr-light-caption-title">{t("findRep.hero.lightCaption")}</span>
-            <span className="fr-light-caption-detail">{t("findRep.hero.lightDetail")}</span>
-          </span>
-          <span className="fr-light-count">
-            <span className="fr-light-count-value">{regionCount}</span>
-            <span className="fr-light-count-label">{t("findRep.hero.regions")}</span>
-          </span>
-        </div>
+        {/* Figma "Light study" — শুধু নকশা, screen reader এ পড়ার দরকার নেই.
+            অঞ্চল (ট্যাব) সবসময় REGION_META র কয়টা — server এর উপর নির্ভর করে না */}
+        <HeroLight count={REGION_META.length} />
       </div>
     </section>
   );
@@ -800,6 +1071,83 @@ function Directory() {
    --------------------------------------------------------------- */
 function DirectContact() {
   const { t } = useTranslation();
+  const cardRef = useRef(null);
+  const [inView, setInView] = useState(false);
+  const [live, setLive] = useState(false);
+
+  /* is-in   — একবার পর্দায় এলে চালু (প্রবেশের দৃশ্য একবারই)
+     is-live — এখন পর্দায় আছে কিনা; না থাকলে অসীম animation থামে */
+  useEffect(() => {
+    const node = cardRef.current;
+    if (!node) return undefined;
+
+    // খুব পুরনো ব্রাউজার — animation বাদ, সরাসরি দেখাও
+    if (typeof IntersectionObserver === "undefined") {
+      setInView(true);
+      setLive(true);
+      return undefined;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setLive(entry.isIntersecting);
+        if (entry.isIntersecting || entry.boundingClientRect.top < 0) {
+          setInView(true);
+        }
+      },
+      { threshold: 0.25 },
+    );
+
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+
+  /* মাউসের সাথে আভা সামান্য সরে — শুধু মাউসওয়ালা যন্ত্রে, "animation
+     কমান" বন্ধ থাকলে. এখানে শুধু --gx / --gy (-1 থেকে 1) বসে, নড়াচড়া
+     CSS এর `translate` এ. React state নয়, প্রতি frame এ একবার */
+  useEffect(() => {
+    const card = cardRef.current;
+    if (!card) return undefined;
+
+    const canHover = window.matchMedia?.(
+      "(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)",
+    );
+    if (!canHover?.matches) return undefined;
+
+    const clamp = (n) => Math.max(-1, Math.min(1, n));
+    let frame = 0;
+    let gx = 0;
+    let gy = 0;
+
+    const paint = () => {
+      frame = 0;
+      card.style.setProperty("--gx", gx.toFixed(3));
+      card.style.setProperty("--gy", gy.toFixed(3));
+    };
+    const schedule = () => {
+      if (!frame) frame = requestAnimationFrame(paint);
+    };
+
+    const onMove = (event) => {
+      const rect = card.getBoundingClientRect();
+      gx = clamp(((event.clientX - rect.left) / rect.width - 0.5) * 2);
+      gy = clamp(((event.clientY - rect.top) / rect.height - 0.5) * 2);
+      schedule();
+    };
+    const onLeave = () => {
+      gx = 0;
+      gy = 0;
+      schedule();
+    };
+
+    card.addEventListener("pointermove", onMove, { passive: true });
+    card.addEventListener("pointerleave", onLeave);
+    return () => {
+      card.removeEventListener("pointermove", onMove);
+      card.removeEventListener("pointerleave", onLeave);
+      cancelAnimationFrame(frame);
+    };
+  }, []);
 
   const details = [
     {
@@ -829,7 +1177,10 @@ function DirectContact() {
   return (
     <section className="section fr-contact" aria-labelledby="fr-contact-title">
       <div className="container">
-        <div className="fr-contact-card">
+        <div
+          ref={cardRef}
+          className={`fr-contact-card${inView ? " is-in" : ""}${live ? " is-live" : ""}`}
+        >
           <span className="fr-contact-glow" aria-hidden="true" />
 
           <div className="fr-contact-intro">
@@ -876,6 +1227,7 @@ function DirectContact() {
           <div className="fr-tagline" aria-hidden="true">
             <span className="fr-tagline-text">{t("findRep.contact.tagline")}</span>
             <span className="fr-tagline-ring">
+              <span className="fr-tagline-orbit" />
               <span className="fr-tagline-core" />
             </span>
           </div>

@@ -108,26 +108,36 @@
 }
 
 /* ---------------------------------------------------------------
-   জলছাপ animation — "outline থেকে fill"
+   জলছাপ animation — "ফিলামেন্ট জ্বলে ওঠা" + মাউসের টর্চ
 
-   section এ ঢুকলে FIXTURES এর অক্ষরগুলো একটা একটা করে নিচ থেকে
-   উঠে আসে. ওঠার সময় অক্ষরের চারপাশে স্পষ্ট একটা outline থাকে, তারপর
-   সেটা মিলিয়ে গিয়ে আগের ফিকে জলছাপে থিতু হয়.
+   ⚡ মসৃণ রাখার নিয়ম: শুধু opacity আর transform বদলানো হয়.
+   এই দুটো GPU একাই সামলায় — পাতা নতুন করে আঁকতে হয় না, তাই scroll
+   করার সময়ও আটকায় না. (আগের সংস্করণে গ্রেডিয়েন্টের রঙ বদলানো হতো;
+   এত বড় অক্ষরে সেটা প্রতি frame এ নতুন করে আঁকতে হয়, scroll এর সাথে
+   মিলে কাঁপত)
 
-   (জলছাপটা এতই ফিকে যে শুধু opacity বদলালে নড়াচড়া চোখেই পড়ত না —
-   তাই outline টাই চোখের কাজ করে)
+   কীভাবে: প্রতিটা অক্ষরের ওপর দুইটা হলুদ "কপি" (::before আর ::after)
+   বসানো, শুরুতে অদৃশ্য. কপি দুটোর শুধু opacity চলে-ফেরে:
+     ::before — জ্বলে ওঠার ঝিলিক (হলুদ ভরাট + হলুদ outline)
+     ::after  — মাউসের টর্চ (মাউস কাছে এলে ধীরে জ্বলে)
 
-   gradient আগে পুরো শব্দে ছিল, এখন প্রতি অক্ষরে — গ্রেডিয়েন্টটা শুধু
-   উপর-নিচ, তাই দেখতে হুবহু আগের মতো. অক্ষর আলাদা element না হলে
-   transform দেওয়া অংশে background-clip: text কাজ করত না
+   ১. জ্বলে ওঠা (একবার, section এ পৌঁছালে): অক্ষরগুলো একটার পর একটা
+      নিচ থেকে উঠে আসে আর পুরনো ফিলামেন্ট বাতির মতো মিটমিট করে জ্বলে,
+      শেষে নিভে আগের ফিকে জলছাপে থিতু হয়.
+   ২. মাউসের টর্চ (শুধু মাউসওয়ালা কম্পিউটারে): মাউস যে অক্ষরের যত
+      কাছে সে তত হলুদ হয়. কতটা, সেটা JS হিসাব করে প্রতি অক্ষরের
+      --fx-lit (0 থেকে 1) এ বসায়
    --------------------------------------------------------------- */
 .fixtures-watermark-drift {
   display: block;
 }
 
 .fixtures-watermark-letter {
+  position: relative;
   display: inline-block;
 
+  /* আগের ফিকে জলছাপ — এখন আর কোনো animation এ বদলায় না, তাই একবারই
+     আঁকা হয় */
   background: linear-gradient(
     180deg,
     rgba(11, 18, 26, 0.03) 0.21%,
@@ -137,11 +147,32 @@
   background-clip: text;
   -webkit-text-fill-color: transparent;
   color: transparent;
+}
 
-  /* outline এর মোটা ভাব অক্ষরের মাপের সাথে বাড়ে-কমে (≈2px @ 284px).
-     রঙ শুরুতে স্বচ্ছ — animation ছাড়া আগের মতোই শুধু ফিকে fill */
-  -webkit-text-stroke-width: 0.007em;
-  -webkit-text-stroke-color: transparent;
+/* হলুদ কপি দুটো — একই অক্ষর (data-char), ঠিক একই জায়গায় */
+.fixtures-watermark-letter::before,
+.fixtures-watermark-letter::after {
+  content: attr(data-char);
+  position: absolute;
+  inset: 0;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+}
+
+/* জ্বলে ওঠার ঝিলিক: নরম হলুদ ভরাট + হালকা outline (≈1.7px @ 284px).
+   রঙ ইচ্ছে করে কম রাখা — নইলে শিরোনামের লেখা পড়তে কষ্ট হয় */
+.fixtures-watermark-letter::before {
+  -webkit-text-fill-color: rgba(247, 190, 0, 0.26);
+  -webkit-text-stroke: 0.006em rgba(247, 190, 0, 0.55);
+}
+
+/* মাউসের টর্চ: নরম হলুদ ভরাট. opacity আসে JS এর বসানো --fx-lit থেকে;
+   transition টা আলো ধীরে জ্বলা/নেভার জন্য */
+.fixtures-watermark-letter::after {
+  -webkit-text-fill-color: rgba(247, 190, 0, 0.5);
+  opacity: var(--fx-lit, 0);
+  transition: opacity 0.45s ease-out;
 }
 
 /* section এ পৌঁছানোর আগে অক্ষর অদৃশ্য */
@@ -150,14 +181,15 @@
 }
 
 .fixtures-watermark.is-in .fixtures-watermark-letter {
-  /* দুইটা animation একসাথে: ওঠা (1s) আর outline মিলিয়ে যাওয়া (1.8s).
-     প্রতি অক্ষর 70ms দেরিতে — ডান দিকের অক্ষর পরে ওঠে */
-  animation:
-    fx-letter-rise 1s cubic-bezier(0.22, 1, 0.36, 1) both,
-    fx-letter-outline 1.8s ease-out both;
-  animation-delay:
-    calc(var(--i) * 70ms + 150ms),
-    calc(var(--i) * 70ms + 150ms);
+  /* ওঠা (0.9s). প্রতি অক্ষর 90ms দেরিতে — F আগে, S শেষে (ঢেউয়ের মতো) */
+  animation: fx-letter-rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(var(--i) * 90ms + 150ms);
+}
+
+.fixtures-watermark.is-in .fixtures-watermark-letter::before {
+  /* ঝিলিক (1.3s), একই দেরিতে — অক্ষর ওঠার সাথে সাথেই জ্বলতে শুরু করে */
+  animation: fx-letter-boot 1.3s linear both;
+  animation-delay: calc(var(--i) * 90ms + 150ms);
 }
 
 @keyframes fx-letter-rise {
@@ -171,13 +203,24 @@
   }
 }
 
-@keyframes fx-letter-outline {
-  0%,
-  35% {
-    -webkit-text-stroke-color: rgba(11, 18, 26, 0.26);
+/* ফিলামেন্ট বাতি: নরম warm-up — একটু জ্বলে, একটু কমে, আবার জ্বলে,
+   ধীরে নিভে যায়. কোনো ধাপ 0.1 এ নামে না, তাই "শর্ট-সার্কিট" এর
+   মতো লাগে না. সংখ্যাগুলো আলোর তীব্রতা (0 = নেভা, 1 = পুরো) */
+@keyframes fx-letter-boot {
+  0% {
+    opacity: 0;
+  }
+  25% {
+    opacity: 0.85;
+  }
+  40% {
+    opacity: 0.45;
+  }
+  60% {
+    opacity: 0.8;
   }
   100% {
-    -webkit-text-stroke-color: rgba(11, 18, 26, 0);
+    opacity: 0;
   }
 }
 
@@ -209,7 +252,8 @@
     opacity: 1;
   }
 
-  .fixtures-watermark.is-in .fixtures-watermark-letter {
+  .fixtures-watermark.is-in .fixtures-watermark-letter,
+  .fixtures-watermark.is-in .fixtures-watermark-letter::before {
     animation: none;
   }
 }

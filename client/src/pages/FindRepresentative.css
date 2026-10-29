@@ -239,6 +239,358 @@
 }
 
 /* ---------------------------------------------------------------
+   Hero "Light study" animation
+
+   তিনটা স্তর (layer), যাতে মাউস parallax আর প্রবেশ আলাদা থাকে:
+     beam → orb (আভা, বৃত্ত, কোর) → text (caption, সংখ্যা)
+   স্তরগুলো পুরো .fr-light ঢাকে, তাই ভেতরের % মাপ আগের মতোই থাকে.
+
+   property ভাগ করা, যাতে একটা অন্যটাকে ঢেকে না দেয়:
+     opacity / scale / translate (transition) → প্রবেশ
+     transform (animation)                    → চলতে থাকা নড়াচড়া
+     translate (inline, JS)                   → মাউস parallax (data-depth)
+   --------------------------------------------------------------- */
+.fr-light {
+  --fr-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* স্তরের নড়াচড়া JS নিজে নরম করে (spring), তাই এখানে কোনো transition
+   নেই — থাকলে দুটো নরম করা একসাথে লাগত, আর কাঁপা কাঁপা অনুভূতি আসত */
+.fr-light > .fr-light-layer {
+  inset: 0;
+}
+
+.fr-light-layer > span {
+  position: absolute;
+  box-sizing: border-box;
+}
+
+/* স্তরের নিজের z-index. মাউসের নড়াচড়া এখন JS এর data-depth দিয়ে —
+   লেখার স্তর (text) নড়ে না, তাই caption সবসময় ঝকঝকে */
+.fr-light-layer-beam {
+  z-index: 0;
+}
+
+/* orb স্তর নিজে স্থির — ভেতরের প্রতিটা অংশ নিজের গভীরতা (data-depth)
+   অনুযায়ী সরে. নিচে "মাউসের গভীরতা" অংশ দেখুন */
+.fr-light-layer-orb {
+  z-index: 1;
+}
+
+.fr-light-layer-text {
+  z-index: 4;
+}
+
+/* ---------- প্রবেশ (একবার) ----------
+   পর্দায় আসার আগে লুকানো; আসার পর বৃত্তগুলো ছোট থেকে বড় হয়ে ফোটে,
+   তারপর লেখা ওঠে. প্রতিটার --d হলো দেরি */
+.fr-light-layer > span {
+  transition:
+    opacity 0.9s ease var(--d, 0ms),
+    scale 1.3s var(--fr-ease) var(--d, 0ms),
+    translate 0.9s var(--fr-ease) var(--d, 0ms);
+}
+
+.fr-light-halo {
+  --d: 0ms;
+}
+.fr-light-glow {
+  --d: 100ms;
+}
+.fr-light-orbit {
+  --d: 250ms;
+}
+.fr-light-ring {
+  --d: 150ms;
+}
+.fr-light-aperture {
+  --d: 300ms;
+}
+.fr-light-count {
+  --d: 450ms;
+}
+.fr-light-caption {
+  --d: 650ms;
+}
+
+.fr-light:not(.is-in) .fr-light-beam {
+  opacity: 0;
+}
+
+.fr-light:not(.is-in) :is(.fr-light-halo, .fr-light-ring, .fr-light-aperture, .fr-light-glow, .fr-light-orbit) {
+  opacity: 0;
+  scale: 0.72;
+}
+
+.fr-light:not(.is-in) :is(.fr-light-caption, .fr-light-count) {
+  opacity: 0;
+  translate: 0 12px;
+}
+
+/* ---------- তির্যক আলোর ফালি ----------
+   আগে transform: rotate(22deg) ছিল; এখন `rotate` property, যাতে
+   transform টা ধীরে পাশে সরার animation এর জন্য খালি থাকে */
+.fr-light-beam {
+  transform: none;
+  rotate: 22deg;
+}
+
+.fr-light.is-in .fr-light-beam {
+  animation: fr-light-drift 11s ease-in-out infinite alternate;
+}
+
+@keyframes fr-light-drift {
+  from {
+    transform: translate3d(-9%, 0, 0);
+  }
+  to {
+    transform: translate3d(9%, 0, 0);
+  }
+}
+
+/* ---------- আভা: কোরের চারপাশে নরম হলুদ, শ্বাস নেয় ----------
+   কেন্দ্র = ring আর কোরের কেন্দ্র (52.54% / 40.74%) */
+.fr-light-glow {
+  left: 52.54%;
+  top: 40.74%;
+  width: 92%;
+  aspect-ratio: 1;
+  /* কেন্দ্রে বসানো: % margin প্রস্থের সাপেক্ষে, আর বৃত্ত বর্গাকার — তাই
+     translate খালি থাকে মাউসের গভীরতার জন্য */
+  margin: -46% 0 0 -46%;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(247, 190, 0, 0.34) 0%,
+    rgba(247, 190, 0, 0.12) 34%,
+    rgba(247, 190, 0, 0) 68%
+  );
+  z-index: 0;
+  pointer-events: none;
+}
+
+.fr-light.is-in .fr-light-glow {
+  animation: fr-light-breathe 5s ease-in-out infinite;
+}
+
+@keyframes fr-light-breathe {
+  0%,
+  100% {
+    transform: scale(0.9);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+}
+
+/* কোর: আভার সাথে তালে সামান্য ফোলে */
+.fr-light.is-in .fr-light-aperture {
+  animation: fr-light-core 5s ease-in-out infinite;
+}
+
+@keyframes fr-light-core {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.07);
+  }
+}
+
+/* ---------- ঢেউ: ring এর মাপে, কোর থেকে বেরিয়ে ছড়ায়, মিলিয়ে যায় ---------- */
+.fr-light-ripple {
+  left: 30.75%;
+  top: 16.93%;
+  width: 43.58%;
+  aspect-ratio: 1;
+  border: 1.5px solid rgba(247, 190, 0, 0.7);
+  border-radius: 50%;
+  opacity: 0;
+  z-index: 1;
+}
+
+.fr-light.is-in .fr-light-ripple {
+  animation: fr-light-ripple 5s ease-out infinite;
+  animation-delay: calc(1.2s + var(--rd));
+}
+
+@keyframes fr-light-ripple {
+  0% {
+    transform: scale(0.45);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.55;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+/* ---------- কক্ষপথ: ফিকে বাইরের বৃত্তের (halo) মাপে, ধীরে ঘোরে.
+   বৃত্তটা নিজের কেন্দ্রেই ঘোরে, তাই বৃত্ত নড়ে না — শুধু বিন্দুগুলো ---------- */
+.fr-light-orbit {
+  left: 19.73%;
+  top: 16.93%;
+  width: 60.53%;
+  aspect-ratio: 1;
+  z-index: 1;
+}
+
+.fr-light.is-in .fr-light-orbit {
+  animation: fr-light-spin 70s linear infinite;
+}
+
+@keyframes fr-light-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* বিন্দু: --a কোণে বসে (পুরো বৃত্ত ঢাকা স্তরটাই ঘোরানো), ভেতরের <i>
+   জ্বলে-নিভে. --i অনুযায়ী 1s করে দেরি — একটার পর একটা জ্বলে */
+.fr-light-dot {
+  position: absolute;
+  inset: 0;
+  transform: rotate(var(--a));
+}
+
+.fr-light-dot i {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 -3px;
+  border-radius: 50%;
+  background: var(--fr-yellow);
+  opacity: 0.3;
+}
+
+.fr-light.is-in .fr-light-dot i {
+  animation: fr-light-dot 5s ease-in-out infinite;
+  animation-delay: calc(var(--i) * 1s);
+}
+
+@keyframes fr-light-dot {
+  0%,
+  70%,
+  100% {
+    transform: scale(1);
+    opacity: 0.3;
+  }
+  85% {
+    transform: scale(1.5);
+    opacity: 0.95;
+  }
+}
+
+/* ---------- "05" গড়িয়ে ওঠা: একটা ঘর (34px উঁচু), ভেতরে 0..N এর লম্বা
+   সারি, সারিটা উপরে সরে ---------- */
+.fr-light-count-value {
+  display: flex;
+}
+
+.fr-light-count-roll {
+  display: inline-block;
+  height: 34px;
+  overflow: hidden;
+}
+
+.fr-light-count-track {
+  display: block;
+  transition: translate 1.2s var(--fr-ease) 0.55s;
+}
+
+.fr-light.is-in .fr-light-count-track {
+  translate: 0 calc(var(--to) * -34px);
+}
+
+.fr-light-count-cell {
+  display: block;
+  height: 34px;
+  line-height: 34px;
+}
+
+/* ---------- মাউসের গভীরতা ----------
+   নড়ানো JS করে (data-depth), CSS variable দিয়ে নয়. প্রতিটা নড়া অংশ
+   নিজের GPU layer এ থাকে (will-change), তাই ring / বৃত্ত প্রতি frame এ
+   আবার আঁকতে হয় না — ডবল বৃত্ত আর কাঁপা কাঁপা ভাব যায়.
+
+   প্রবেশের transition এ translate নেই — নইলে প্রবেশের 0.9s ধীরতা
+   মাউসের নড়াচড়ায়ও লেগে যেত */
+.fr-light [data-depth] {
+  will-change: transform, translate;
+  backface-visibility: hidden;
+}
+
+.fr-light-layer-orb > span {
+  transition:
+    opacity 0.9s ease var(--d, 0ms),
+    scale 1.3s var(--fr-ease) var(--d, 0ms);
+}
+
+/* কার্সরের আলো: ধূসর card এ নরম সাদা আভা. সবার নিচে (z-index 0, DOM এ
+   প্রথম), তাই আভা/ring এর উপর ধোঁয়াটে ভাব আসে না. JS translate আর
+   opacity বসায়; জাগার আগে অদৃশ্য */
+.fr-light-spot {
+  left: 0;
+  top: 0;
+  width: 240px;
+  height: 240px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.5) 0%,
+    rgba(255, 255, 255, 0.18) 38%,
+    rgba(255, 255, 255, 0) 70%
+  );
+  opacity: 0;
+  pointer-events: none;
+  z-index: 0;
+  will-change: transform, translate, opacity;
+}
+
+/* পর্দার বাইরে গেলে সব animation থামে (CPU/GPU বাঁচে, ফিরলে যেখানে ছিল
+   সেখান থেকেই চলে) */
+.fr-light:not(.is-live) :is(span, i) {
+  animation-play-state: paused;
+}
+
+/* "animation কমান" — কোনো নড়াচড়া নেই, সরাসরি চূড়ান্ত ছবি */
+@media (prefers-reduced-motion: reduce) {
+  .fr-light .fr-light-beam,
+  .fr-light .fr-light-glow,
+  .fr-light .fr-light-aperture,
+  .fr-light .fr-light-orbit,
+  .fr-light .fr-light-dot i {
+    animation: none;
+  }
+
+  .fr-light .fr-light-ripple {
+    display: none;
+  }
+
+  .fr-light .fr-light-layer {
+    translate: 0 0;
+  }
+
+  .fr-light .fr-light-layer-orb > span {
+    translate: 0 0;
+  }
+
+  .fr-light .fr-light-spot {
+    display: none;
+  }
+
+  .fr-light .fr-light-count-track {
+    translate: 0 calc(var(--to) * -34px);
+  }
+}
+
+/* ---------------------------------------------------------------
    ২. Directory
    --------------------------------------------------------------- */
 .section.fr-directory {
@@ -894,7 +1246,7 @@ button.fr-results-sort:focus-visible {
   margin-top: auto;
 }
 
-/* Phone nei emon card: ekta-i button, puro width-e */
+/* ফোন নেই এমন card: একটাই বোতাম, পুরো চওড়ায় */
 .fr-card-actions > :only-child {
   grid-column: 1 / -1;
 }
@@ -967,7 +1319,7 @@ button.fr-results-sort:focus-visible {
   cursor: pointer;
 }
 
-/* Representative-der list ashar age */
+/* Representative-দের list আসার আগে */
 .fr-loading {
   display: flex;
   align-items: center;
@@ -1208,6 +1560,296 @@ button.fr-results-sort:focus-visible {
   border-radius: 50%;
   background: var(--fr-yellow);
   box-shadow: 0 0 32px rgba(231, 168, 50, 0.333);
+}
+
+/* ---------------------------------------------------------------
+   Direct contact animation
+
+   গল্প একই — "আলো জ্বলে ওঠা":
+   ১. প্রবেশ (একবার): আলোর একটা ফালি card এর উপর দিয়ে বাঁ থেকে ডানে
+      বয়ে যায়, লেখাগুলো একটার পর একটা নিচ থেকে ভেসে ওঠে, মাঝের
+      রেখাটা উপর থেকে নেমে আসে
+   ২. চলতে থাকে: ডানের আভা ধীরে শ্বাস নেয় আর মাউসের দিকে সামান্য
+      সরে; "Seeing is believing" বৃত্তের কোর শ্বাস নেয়, ঢেউ ছড়ায়,
+      একটা ছোট আলো বৃত্ত ঘিরে ঘোরে
+   ৩. hover: আইকন জ্বলে ওঠে, বোতাম সামান্য উঠে আসে
+
+   ⚡ মসৃণ রাখার নিয়ম: শুধু opacity / transform / translate / scale.
+   পর্দার বাইরে গেলে সব animation থামে
+   --------------------------------------------------------------- */
+.fr-contact-card {
+  --fr-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --gx: 0;
+  --gy: 0;
+}
+
+/* ---------- প্রবেশ ---------- */
+.fr-contact-intro > *,
+.fr-contact-detail {
+  transition:
+    opacity 0.8s ease var(--d, 0ms),
+    translate 0.9s var(--fr-ease) var(--d, 0ms);
+}
+
+.fr-contact-intro > :nth-child(1) {
+  --d: 150ms;
+}
+.fr-contact-intro > :nth-child(2) {
+  --d: 250ms;
+}
+.fr-contact-intro > :nth-child(3) {
+  --d: 350ms;
+}
+.fr-contact-intro > :nth-child(4) {
+  --d: 450ms;
+}
+.fr-contact-detail:nth-child(1) {
+  --d: 400ms;
+}
+.fr-contact-detail:nth-child(2) {
+  --d: 500ms;
+}
+.fr-contact-detail:nth-child(3) {
+  --d: 600ms;
+}
+
+.fr-contact-card:not(.is-in) .fr-contact-intro > *,
+.fr-contact-card:not(.is-in) .fr-contact-detail {
+  opacity: 0;
+  translate: 0 16px;
+}
+
+/* মাঝের রেখা উপর থেকে নেমে আসে */
+.fr-contact-divider {
+  transform-origin: top;
+  transition: scale 1.1s var(--fr-ease) 300ms;
+}
+
+.fr-contact-card:not(.is-in) .fr-contact-divider {
+  scale: 1 0;
+}
+
+/* ডানের tagline: আগে লেখা, তারপর বৃত্ত ফোটে */
+.fr-tagline-text,
+.fr-tagline-ring {
+  transition:
+    opacity 0.9s ease var(--d, 0ms),
+    scale 1.2s var(--fr-ease) var(--d, 0ms);
+}
+
+.fr-tagline-text {
+  --d: 650ms;
+}
+
+.fr-tagline-ring {
+  --d: 750ms;
+}
+
+.fr-contact-card:not(.is-in) .fr-tagline-text {
+  opacity: 0;
+}
+
+.fr-contact-card:not(.is-in) .fr-tagline-ring {
+  opacity: 0;
+  scale: 0.75;
+}
+
+/* আলোর ফালি — একবার card পার হয়ে যায় (JS নয়, শুধু CSS) */
+.fr-contact-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    rgba(255, 255, 255, 0) 35%,
+    rgba(255, 255, 255, 0.07) 50%,
+    rgba(255, 255, 255, 0) 65%
+  );
+  transform: translateX(-100%);
+  pointer-events: none;
+}
+
+.fr-contact-card.is-in::after {
+  animation: fr-contact-sweep 1.8s cubic-bezier(0.4, 0, 0.2, 1) 0.15s both;
+}
+
+@keyframes fr-contact-sweep {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+/* ---------- ডানের আভা: ধীরে শ্বাস নেয়, মাউসের দিকে সামান্য সরে ---------- */
+.fr-contact-glow {
+  opacity: 0;
+  translate: calc(var(--gx) * 60px) calc(var(--gy) * 40px);
+  transition:
+    opacity 1.6s ease 0.2s,
+    translate 1s var(--fr-ease);
+}
+
+.fr-contact-card.is-in .fr-contact-glow {
+  opacity: 1;
+  animation: fr-contact-breathe 9s ease-in-out infinite;
+}
+
+@keyframes fr-contact-breathe {
+  0%,
+  100% {
+    transform: scale(0.94);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+/* ---------- "Seeing is believing" বৃত্ত ---------- */
+
+/* কোর শ্বাস নেয় (box-shadow টাও সাথে ফোলে) */
+.fr-contact-card.is-in .fr-tagline-core {
+  animation: fr-tagline-pulse 4.8s ease-in-out infinite;
+}
+
+@keyframes fr-tagline-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.14);
+  }
+}
+
+/* ঢেউ: বৃত্তের মাপেই শুরু, বেরিয়ে ছড়িয়ে মিলিয়ে যায়
+   (লেখার উপর না উঠে, কার্ডের ভেতরেই থাকে — max scale 1.5) */
+.fr-tagline-ring::before,
+.fr-tagline-ring::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border: 1px solid rgba(247, 190, 0, 0.5);
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.fr-contact-card.is-in .fr-tagline-ring::before,
+.fr-contact-card.is-in .fr-tagline-ring::after {
+  animation: fr-tagline-ripple 4.8s ease-out infinite;
+  animation-delay: 1.4s;
+}
+
+.fr-contact-card.is-in .fr-tagline-ring::after {
+  animation-delay: 3.8s;
+}
+
+@keyframes fr-tagline-ripple {
+  0% {
+    transform: scale(1);
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+/* বৃত্ত ঘিরে ঘোরা ছোট আলো */
+.fr-tagline-orbit {
+  position: absolute;
+  inset: -1px;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.fr-tagline-orbit::after {
+  content: "";
+  position: absolute;
+  top: -2.5px;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  margin-left: -2.5px;
+  border-radius: 50%;
+  background: var(--fr-yellow);
+  box-shadow: 0 0 8px rgba(247, 190, 0, 0.7);
+}
+
+.fr-contact-card.is-in .fr-tagline-orbit {
+  animation: fr-tagline-spin 14s linear infinite;
+}
+
+@keyframes fr-tagline-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---------- hover ---------- */
+.fr-contact-icon {
+  transition:
+    background-color 0.25s ease,
+    scale 0.35s var(--fr-ease);
+}
+
+.fr-contact-detail:hover .fr-contact-icon {
+  background: rgba(247, 190, 0, 0.2);
+  scale: 1.08;
+}
+
+.fr-contact-action {
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    translate 0.3s var(--fr-ease);
+}
+
+.fr-contact-action:hover {
+  translate: 0 -2px;
+}
+
+/* পর্দার বাইরে গেলে সব animation থামে (ফিরলে যেখানে ছিল সেখান থেকে চলে) */
+.fr-contact-card:not(.is-live),
+.fr-contact-card:not(.is-live) *,
+.fr-contact-card:not(.is-live) *::before,
+.fr-contact-card:not(.is-live) *::after {
+  animation-play-state: paused;
+}
+
+/* "animation কমান" — কোনো নড়াচড়া নেই, সরাসরি চূড়ান্ত ছবি */
+@media (prefers-reduced-motion: reduce) {
+  .fr-contact-card::after {
+    display: none;
+  }
+
+  .fr-contact-card .fr-contact-glow,
+  .fr-contact-card .fr-tagline-core,
+  .fr-contact-card .fr-tagline-orbit,
+  .fr-contact-card .fr-tagline-ring::before,
+  .fr-contact-card .fr-tagline-ring::after {
+    animation: none;
+  }
+
+  .fr-contact-card .fr-tagline-ring::before,
+  .fr-contact-card .fr-tagline-ring::after {
+    display: none;
+  }
+
+  .fr-contact-card .fr-contact-glow {
+    translate: 0 0;
+  }
+
+  .fr-contact-action:hover,
+  .fr-contact-detail:hover .fr-contact-icon {
+    translate: 0 0;
+    scale: 1;
+  }
 }
 
 /* ---------------------------------------------------------------
