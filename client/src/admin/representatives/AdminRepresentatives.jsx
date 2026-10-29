@@ -397,14 +397,14 @@ function AdminRepresentatives() {
         )}
       </div>
 
-      <p className="adm-note">
+      <p className="adm-help">
         These are the local sales companies shown on the website&apos;s{" "}
         <strong>Shop → Find a Representative</strong> page. A territory with no
         one on it shows Filamento&apos;s own contact details instead.
       </p>
 
       {!canEdit && (
-        <p className="adm-note">
+        <p className="adm-help">
           Only an owner or admin can change representatives. You can see the
           list.
         </p>
@@ -631,7 +631,7 @@ function AdminRepresentatives() {
       )}
 
       {/* ---- তালিকা ---- */}
-      {status === "loading" && <p className="adm-note">Loading…</p>}
+      {status === "loading" && <p className="adm-help">Loading…</p>}
 
       {status === "error" && (
         <div className="adm-banner adm-banner--bad" role="alert">
@@ -672,7 +672,7 @@ function AdminRepresentatives() {
           </div>
 
           {visible.length === 0 ? (
-            <p className="adm-note">
+            <p className="adm-help">
               {items.length === 0
                 ? "No representatives yet."
                 : "No one matches. Try a different search."}
@@ -780,7 +780,7 @@ function AdminRepresentatives() {
         </>
       )}
 
-      <p className="adm-note">
+      <p className="adm-help">
         Changes show on the website within about a minute.
       </p>
 

@@ -181,7 +181,7 @@ function AdminUsers() {
       </div>
 
       {!isOwner && (
-        <p className="adm-note">
+        <p className="adm-help">
           Only an owner can add or change admins. You can see the list.
         </p>
       )}
@@ -291,7 +291,7 @@ function AdminUsers() {
       )}
 
       {/* ---- তালিকা ---- */}
-      {status === "loading" && <p className="adm-note">Loading…</p>}
+      {status === "loading" && <p className="adm-help">Loading…</p>}
 
       {status === "error" && (
         <div className="adm-banner adm-banner--bad" role="alert">
@@ -396,7 +396,7 @@ function AdminUsers() {
         </table>
       )}
 
-      <p className="adm-note">
+      <p className="adm-help">
         Everyone here signs in at the same place — <code>/admin/login</code>.
         There is no sign-up page; an owner creates every account.
       </p>

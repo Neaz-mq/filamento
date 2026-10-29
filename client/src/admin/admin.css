@@ -161,7 +161,9 @@
 
 .admin-input:focus-visible {
   background: var(--adm-card);
-  border-color: var(--adm-ink);
+  /* কালো (--adm-ink) ছিল — ঘরে ক্লিক করলে কালো বর্ডার আসত. এখন হলুদ,
+     পাশের হলুদ glow এর সাথে মিলে */
+  border-color: var(--adm-yellow);
   box-shadow: 0 0 0 3px rgba(247, 190, 0, 0.25);
 }
 
@@ -202,8 +204,9 @@
   color: var(--adm-ink);
 }
 
+/* 👁 বোতামে Tab দিয়ে গেলে — কালোর বদলে হলুদ রিং */
 .admin-reveal:focus-visible {
-  outline: 2px solid var(--adm-ink);
+  outline: 2px solid var(--adm-yellow);
   outline-offset: 1px;
 }
 
@@ -1910,7 +1913,13 @@
   color: var(--adm-ink-50);
 }
 
-.adm-note {
+/* পাতার ভেতরের সাধারণ নোট/সাহায্যের লেখা (Users, Representatives).
+
+   আগে এর নাম ছিল .adm-note — কিন্তু ওই নামে 🔔 তালিকার সারিও আছে
+   (উপরে, display:flex). একই নামের দুই নিয়ম মিলে গিয়ে নোটের লেখা
+   flex আর hover-এ রং বদলানো হয়ে যেত, আর 🔔 র সারির লেখার রঙ/মাপও
+   এই নিয়ম দিয়ে ওভারাইড হতো. এখন আলাদা নাম */
+.adm-help {
   margin: 0;
   font-family: var(--adm-font-ui);
   font-size: 13px;
@@ -1918,7 +1927,7 @@
   color: var(--adm-ink-70);
 }
 
-.adm-note code {
+.adm-help code {
   padding: 1px 6px;
   border-radius: 6px;
   background: rgba(55, 58, 60, 0.08);
