@@ -1,6 +1,5 @@
 import { homeSections } from "./dashboardData";
 import {
-  IconBag,
   IconBox,
   IconCard,
   IconClock,
@@ -14,6 +13,7 @@ import {
   IconTickSquare,
   IconUserOctagon,
   IconUsers,
+  IconUsersGroup,
   IconVideo,
 } from "./icons";
 
@@ -42,12 +42,12 @@ export const NAV_GROUPS = [
     items: [
       /* Home — একটাই পাতা (Home Page Content), ভেতরে পাঁচ ট্যাব.
          আগে এখানে নিচে নামা তালিকা ছিল, Figma তে এখন সরাসরি link */
-      {
-        to: "/admin/home",
-        label: "Home",
-        Icon: IconHome,
-        keywords: "home page landing content hero homepage edit website",
-      },
+      // {
+      //   to: "/admin/home",
+      //   label: "Home",
+      //   Icon: IconHome,
+      //   keywords: "home page landing content hero homepage edit website",
+      // },
       // {
       //   to: "/admin/products",
       //   label: "Products",
@@ -72,11 +72,14 @@ export const NAV_GROUPS = [
         Icon: IconCard,
         keywords: "about us team story",
       },
+      /* সাইটের Shop পাতা আসলে "How to Buy: Find a Representative" —
+         তাই এখানে নাম Representatives, আর search এ "shop" লিখলেও মেলে */
       {
-        to: "/admin/shop",
-        label: "Shop",
-        Icon: IconBag,
-        keywords: "store buy cart price",
+        to: "/admin/representatives",
+        label: "Representatives",
+        Icon: IconUsersGroup,
+        keywords:
+          "shop find a representative how to buy dealer sales agent distributor territory region contact",
       },
       {
         to: "/admin/media",

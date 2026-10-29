@@ -163,6 +163,22 @@ export const api = {
   duplicateProject: (id) =>
     request(`/api/projects/${id}/duplicate`, { method: "POST" }),
 
+  /* ---------- Representatives ("Find a Representative") ----------
+     সাইট: শুধু active লোক, অঞ্চল → territory → representative সাজানো.
+     admin: সবাই + territory বাছার তালিকা. লেখা শুধু owner/admin —
+     আসল পাহারা server এ */
+  getRepresentatives: () => request("/api/representatives"),
+  adminListRepresentatives: () => request("/api/representatives/admin/list"),
+  createRepresentative: (data) =>
+    request("/api/representatives", { method: "POST", body: JSON.stringify(data) }),
+  updateRepresentative: (id, data) =>
+    request(`/api/representatives/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    }),
+  deleteRepresentative: (id) =>
+    request(`/api/representatives/${id}`, { method: "DELETE" }),
+
   /* ---------- Home Page Content ----------
      সাইটের জন্য পড়া (সবার জন্য খোলা) — landing page পরে এটা পড়বে */
   getHomeContent: () => request("/api/site-content/home"),

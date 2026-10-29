@@ -690,6 +690,7 @@
       "description": "Search by company or representative, then choose a region and territory to reveal direct contact details.",
       "status_one": "{{count}} territory · {{region}}",
       "status_other": "{{count}} territories · {{region}}",
+      "loading": "Loading representatives…",
       "searchLabel": "Search representatives",
       "searchPlaceholder": "Search Company name or Representative",
       "clearSearch": "Clear search",
@@ -710,6 +711,14 @@
       "nearbyCount_other": "{{count}} nearby representatives for browsing",
       "sortedProximity": "Sorted by proximity",
       "sortedName": "Sorted by name",
+      "sortedCompany": "Sorted by company",
+      "sortedPerson": "Sorted by representative",
+      "sortMenuLabel": "Sort representatives",
+      "sortOptions": {
+        "proximity": "Proximity (nearest first)",
+        "company": "Company (A–Z)",
+        "person": "Representative (A–Z)"
+      },
       "searchTitle": "Results for “{{query}}”",
       "searchCount_one": "{{count}} representative found",
       "searchCount_other": "{{count}} representatives found",

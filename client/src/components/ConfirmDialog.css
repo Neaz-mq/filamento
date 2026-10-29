@@ -1,0 +1,139 @@
+/* ConfirmDialog — অ্যাডমিন থিমের সাথে মেলানো।
+   রংগুলো স্ক্রিনশট থেকে আনুমানিক নেওয়া। আপনার আসল CSS variable থাকলে
+   নিচের --cd-* লাইনগুলোতে var(--আপনার-নাম) বসিয়ে দিন। */
+
+.cd-backdrop {
+  --cd-accent: #f2c230;          /* হলুদ (Save/Add বোতাম) */
+  --cd-ink: #2f3236;             /* গাঢ় লেখা/বোতাম */
+  --cd-muted: #6b6f75;           /* হালকা লেখা */
+  --cd-surface: #ffffff;
+  --cd-border: #e4e4e4;
+  --cd-danger: #b42318;
+  --cd-danger-bg: #fcf1f0;
+  --cd-danger-border: #f0c9c5;
+
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(30, 32, 35, 0.45);
+  backdrop-filter: blur(3px);
+  animation: cd-fade 0.15s ease-out;
+}
+
+.cd-dialog {
+  width: 100%;
+  max-width: 420px;
+  padding: 28px 28px 22px;
+  border-radius: 24px;
+  background: var(--cd-surface);
+  border: 1px solid var(--cd-border);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.22);
+  font-family: inherit;
+  animation: cd-pop 0.18s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+}
+
+.cd-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  margin-bottom: 14px;
+  border-radius: 50%;
+  background: #fbf3d6;
+  color: #9a7400;
+}
+.cd-danger .cd-icon {
+  background: var(--cd-danger-bg);
+  color: var(--cd-danger);
+}
+
+.cd-title {
+  margin: 0 0 8px;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--cd-ink);
+}
+
+.cd-message {
+  margin: 0 0 22px;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--cd-muted);
+}
+
+.cd-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.cd-btn {
+  height: 40px;
+  padding: 0 20px;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, box-shadow 0.15s, transform 0.05s;
+}
+.cd-btn:active { transform: translateY(1px); }
+
+.cd-btn-cancel {
+  background: #fff;
+  color: var(--cd-ink);
+  border: 1px solid var(--cd-border);
+}
+.cd-btn-cancel:hover { background: #f6f6f6; }
+
+.cd-btn-confirm {
+  background: var(--cd-accent);
+  color: var(--cd-ink);
+  border: 1px solid transparent;
+}
+.cd-btn-confirm:hover { filter: brightness(0.95); }
+
+.cd-btn-confirm.is-danger {
+  background: #fff;
+  color: var(--cd-danger);
+  border: 1px solid var(--cd-danger-border);
+}
+.cd-btn-confirm.is-danger:hover {
+  background: var(--cd-danger);
+  border-color: var(--cd-danger);
+  color: #fff;
+}
+
+/* ফোকাস রিং: কালো বর্ডার নয়, হলুদ + হালকা glow (বাকি ফর্মের মতো) */
+.cd-btn:focus-visible {
+  outline: none;
+  border-color: var(--cd-accent);
+  box-shadow: 0 0 0 3px rgba(242, 194, 48, 0.3);
+}
+
+@keyframes cd-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes cd-pop {
+  from { opacity: 0; transform: translateY(8px) scale(0.97); }
+  to   { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cd-backdrop, .cd-dialog { animation: none; }
+}
+
+/* ডার্ক মোড: আপনার থিমে dark class/attribute যেটা ব্যবহার হয় সেটা বসান */
+[data-theme="dark"] .cd-backdrop {
+  --cd-surface: #2b2e31;
+  --cd-ink: #f2f2f2;
+  --cd-muted: #a9adb3;
+  --cd-border: #43474c;
+  --cd-danger-bg: #3a2523;
+  --cd-danger-border: #6b3a36;
+}
+[data-theme="dark"] .cd-btn-cancel { background: transparent; }
+[data-theme="dark"] .cd-btn-cancel:hover { background: #363a3e; }

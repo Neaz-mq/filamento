@@ -14,6 +14,7 @@ import newsletterRoutes from "./routes/newsletterRoutes.js";
 import uploadRoutes from "./routes/uploadRoutes.js";
 import overviewRoutes from "./routes/overviewRoutes.js";
 import siteContentRoutes from "./routes/siteContentRoutes.js";
+import representativeRoutes from "./routes/representativeRoutes.js";
 
 const app = express();
 
@@ -86,6 +87,9 @@ app.use("/api/products", productRoutes);
 
 // Projects — admin এর Projects পাতা আর সাইটের Projects
 app.use("/api/projects", projectRoutes);
+
+// Representatives — "Find a Representative" (Shop) পাতা আর admin এর Representatives পাতা
+app.use("/api/representatives", representativeRoutes);
 
 // Home Page Content — admin এর পাঁচ ধাপ আর সাইটের জন্য পড়া
 app.use("/api/site-content", siteContentRoutes);

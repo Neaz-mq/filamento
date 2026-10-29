@@ -686,6 +686,7 @@
       "title": "地域の照明エキスパートを探す",
       "description": "会社名または担当者名で検索し、地域とエリアを選ぶと連絡先が表示されます。",
       "status_other": "{{count}}エリア · {{region}}",
+      "loading": "販売代理店を読み込んでいます…",
       "searchLabel": "販売代理店を検索",
       "searchPlaceholder": "会社名または担当者名で検索",
       "clearSearch": "検索をクリア",
@@ -703,6 +704,14 @@
       "nearbyCount_other": "近隣の代理店 {{count}}件",
       "sortedProximity": "近い順",
       "sortedName": "名前順",
+      "sortedCompany": "会社名順",
+      "sortedPerson": "担当者名順",
+      "sortMenuLabel": "並べ替え",
+      "sortOptions": {
+        "proximity": "近い順",
+        "company": "会社名（A–Z）",
+        "person": "担当者名（A–Z）"
+      },
       "searchTitle": "「{{query}}」の検索結果",
       "searchCount_other": "{{count}}件の販売代理店",
       "searchEmpty": "「{{query}}」に一致する販売代理店はありません。別の会社名や氏名で検索するか、下記からFilamentoへ直接ご連絡ください。",

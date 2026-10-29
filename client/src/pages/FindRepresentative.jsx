@@ -3,13 +3,14 @@ import { useSearchParams } from "react-router-dom";
 import { Trans, useTranslation } from "react-i18next";
 import {
   FILAMENTO,
-  REGIONS,
+  REGION_META,
   mapHref,
   regionOf,
   representativesFor,
   searchRepresentatives,
   telHref,
 } from "./representatives";
+import { useRegions } from "./useRegions";
 import "./FindRepresentative.css";
 
 /* ===============================================================
@@ -21,7 +22,11 @@ import "./FindRepresentative.css";
      ৩. Direct contact          কালো card — সরাসরি Filamento
 
    একই পাতা দুই ঠিকানায়: /shop (navbar) আর /find-a-representative
-   (footer). representative দের তথ্য representatives.js এ.
+   (footer).
+
+   🔌 representative দের তথ্য আসে server থেকে (useRegions.js →
+   GET /api/representatives) — admin এ যা বদলানো হয় সাইটে সেটাই
+   দেখায়. server না চললে representatives.js এর বাঁধা তালিকা দেখায়.
 
    কোন অঞ্চল / territory বাছা আর কী খোঁজা হচ্ছে — সব URL এ থাকে
    (?region=usa&territory=alabama&q=…), তাই link share করলে বা back
@@ -29,6 +34,30 @@ import "./FindRepresentative.css";
    =============================================================== */
 
 const DEFAULT_REGION = "usa";
+/* ---------------------------------------------------------------
+   সাজানোর ধরন — URL এর ?sort=… এ থাকে (link share করলে একই ক্রম)
+
+   তালিকার প্রথমটাই default — সেটা URL এ লাগে না.
+   • territory বাছা থাকলে: proximity (বাছা territory র লোকেরা আগে, তারপর
+     ভৌগোলিক দূরত্ব অনুযায়ী কাছেরগুলো), company, person
+   • খোঁজার সময় দূরত্বের মানে নেই (কোনো territory বাছা নয়), তাই শুধু
+     company আর person
+
+   company / person বাছলে সব card একসাথে A–Z হয় — বাছা territory র
+   লোকেরা আর আগে থাকে না, তবে "Selected" চিহ্ন আর হলুদ ধার থেকেই যায়
+   --------------------------------------------------------------- */
+const SORTS_BROWSE = ["proximity", "company", "person"];
+const SORTS_SEARCH = ["company", "person"];
+// header এ দেখানো লেখার key (findRep.results.<key>)
+const SORT_LABEL_KEY = {
+  proximity: "sortedProximity",
+  company: "sortedCompany",
+  person: "sortedPerson",
+};
+// ভাষা ধরে A–Z, বড়-ছোট হাতের ভেদ নেই
+const byText = (a, b) =>
+  String(a ?? "").localeCompare(String(b ?? ""), undefined, { sensitivity: "base" });
+
 // এর চেয়ে সরু পর্দায় territory বাছার পর তালিকা গুটিয়ে result এ নামে
 const COMPACT_QUERY = "(max-width: 640px)";
 
@@ -100,6 +129,12 @@ const SlidersIcon = (props) => (
   </Icon>
 );
 
+const CheckIcon = (props) => (
+  <Icon {...props}>
+    <path d="M5 12.5l4.5 4.5L19 7.5" />
+  </Icon>
+);
+
 /* ট্যাবের শিরোনাম — অন্য পাতাগুলোর মতোই */
 function usePageMeta(title) {
   useEffect(() => {
@@ -144,7 +179,8 @@ function PhoneLink({ children, ...props }) {
    --------------------------------------------------------------- */
 function Hero() {
   const { t } = useTranslation();
-  const regionCount = String(REGIONS.length).padStart(2, "0");
+  // অঞ্চল (ট্যাব) সবসময় REGION_META র কয়টা — server এর উপর নির্ভর করে না
+  const regionCount = String(REGION_META.length).padStart(2, "0");
 
   return (
     <section className="section fr-hero" aria-labelledby="fr-hero-title">
@@ -205,6 +241,9 @@ function EmailText({ email }) {
 
    selected — বাছা territory র নিজের লোক: হলুদ border, "Selected"
    badge আর গাঢ় Email বোতাম
+
+   admin এ ফোন বা ঠিকানা ফাঁকা রাখা যায় — তখন ওই সারি আর Call বোতাম
+   বাদ যায় (ফাঁকা সারি বা কাজ না করা "tel:" link দেখায় না)
    --------------------------------------------------------------- */
 function RepCard({ rep, location, badge, selected }) {
   const { t } = useTranslation();
@@ -230,17 +269,21 @@ function RepCard({ rep, location, badge, selected }) {
           </a>
           <SmsIcon />
         </li>
-        <li>
-          <a href={telHref(rep.phone)}>{rep.phone}</a>
-          <CallIcon />
-        </li>
-        <li>
-          <a href={mapHref(rep.address)} target="_blank" rel="noreferrer">
-            {rep.address}
-            <span className="sr-only"> {t("findRep.results.opensMap")}</span>
-          </a>
-          <LocationIcon />
-        </li>
+        {rep.phone && (
+          <li>
+            <a href={telHref(rep.phone)}>{rep.phone}</a>
+            <CallIcon />
+          </li>
+        )}
+        {rep.address && (
+          <li>
+            <a href={mapHref(rep.address)} target="_blank" rel="noreferrer">
+              {rep.address}
+              <span className="sr-only"> {t("findRep.results.opensMap")}</span>
+            </a>
+            <LocationIcon />
+          </li>
+        )}
       </ul>
 
       <div className="fr-card-actions">
@@ -252,14 +295,16 @@ function RepCard({ rep, location, badge, selected }) {
           {t("findRep.results.email")}
           <SmsIcon />
         </a>
-        <a
-          className="fr-card-action"
-          href={telHref(rep.phone)}
-          aria-label={t("findRep.results.callAria", { name })}
-        >
-          {t("findRep.results.call")}
-          <CallIcon />
-        </a>
+        {rep.phone && (
+          <a
+            className="fr-card-action"
+            href={telHref(rep.phone)}
+            aria-label={t("findRep.results.callAria", { name })}
+          >
+            {t("findRep.results.call")}
+            <CallIcon />
+          </a>
+        )}
       </div>
     </article>
   );
@@ -294,8 +339,12 @@ function Directory() {
   const resultsRef = useRef(null);
   const tabRefs = useRef([]);
 
+  /* অঞ্চল → territory → representative — server থেকে (না পারলে বাঁধা
+     তালিকা). loading এ থাকলে নিচে শুধু "Loading" দেখানো হয় */
+  const { regions, loading } = useRegions();
+
   /* URL থেকে অবস্থা — ভুল বা পুরনো মান এলে চুপচাপ default এ ফেরে */
-  const region = regionOf(searchParams.get("region") ?? DEFAULT_REGION);
+  const region = regionOf(regions, searchParams.get("region") ?? DEFAULT_REGION);
   const territory =
     region.territories.find((item) => item.id === searchParams.get("territory")) ??
     region.territories[0] ??
@@ -305,7 +354,43 @@ function Directory() {
   // territory তালিকা খোলা কিনা — Figma র মতো শুরুতে খোলা
   const [panelOpen, setPanelOpen] = useState(true);
 
+  // "Sorted by …" মেনু খোলা কিনা
+  const [sortOpen, setSortOpen] = useState(false);
+  const sortRef = useRef(null);
+  const sortTriggerRef = useRef(null);
+  const sortItemRefs = useRef([]);
+
+  /* মেনু খোলা থাকলে: বাইরে ক্লিক বা Esc চাপলে বন্ধ (Esc এ focus বোতামে
+     ফেরে), আর খোলার সাথে সাথে বাছা অপশনে focus যায় — keyboard এ তীর
+     দিয়ে চলা যায় */
+  useEffect(() => {
+    if (!sortOpen) return undefined;
+
+    const onPointerDown = (event) => {
+      if (!sortRef.current?.contains(event.target)) setSortOpen(false);
+    };
+    const onKeyDown = (event) => {
+      if (event.key === "Escape") {
+        setSortOpen(false);
+        sortTriggerRef.current?.focus();
+      }
+    };
+
+    document.addEventListener("pointerdown", onPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+    sortItemRefs.current
+      .find((node) => node?.getAttribute("aria-checked") === "true")
+      ?.focus();
+
+    return () => {
+      document.removeEventListener("pointerdown", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [sortOpen]);
+
   const updateParams = (changes) => {
+    // territory, খোঁজা বা সাজানো — যা-ই বদলাক, মেনু বন্ধ
+    setSortOpen(false);
     const next = new URLSearchParams(searchParams);
     for (const [key, value] of Object.entries(changes)) {
       if (value) next.set(key, value);
@@ -316,7 +401,10 @@ function Directory() {
     setSearchParams(next, { replace: true, preventScrollReset: true });
   };
 
-  const searchResults = useMemo(() => searchRepresentatives(trimmedQuery), [trimmedQuery]);
+  const searchResults = useMemo(
+    () => searchRepresentatives(regions, trimmedQuery),
+    [regions, trimmedQuery],
+  );
   const isSearching = trimmedQuery.length > 0;
 
   // খোঁজার সময় যে territory তে মিল আছে — বাকিগুলো হালকা দেখায়
@@ -329,7 +417,7 @@ function Directory() {
   }, [searchResults]);
 
   // হিসাব খুব হালকা (৪৭টা territory) — memo র দরকার নেই
-  const nearbyResult = representativesFor(territory);
+  const nearbyResult = representativesFor(regions, territory);
 
   const selectRegion = (nextRegion) => {
     updateParams({ region: nextRegion.id, territory: nextRegion.territories[0]?.id ?? "" });
@@ -350,29 +438,64 @@ function Directory() {
 
   /* ট্যাবে ← → Home End — ARIA tabs এর নিয়ম */
   const onTabKeyDown = (event, index) => {
-    const last = REGIONS.length - 1;
+    const last = regions.length - 1;
     const moves = { ArrowRight: index + 1, ArrowLeft: index - 1, Home: 0, End: last };
     if (!(event.key in moves)) return;
     event.preventDefault();
-    const target = (moves[event.key] + REGIONS.length) % REGIONS.length;
-    selectRegion(REGIONS[target]);
+    const target = (moves[event.key] + regions.length) % regions.length;
+    selectRegion(regions[target]);
     tabRefs.current[target]?.focus();
   };
 
   const regionName = t(region.labelKey);
   const territoryCount = region.territories.length;
 
+  /* ------------ সাজানো ------------ */
+  const sortOptions = isSearching ? SORTS_SEARCH : SORTS_BROWSE;
+  const requestedSort = searchParams.get("sort");
+  // ভুল বা এই অবস্থায় অচল মান (যেমন খোঁজার সময় proximity) → default
+  const activeSort = sortOptions.includes(requestedSort) ? requestedSort : sortOptions[0];
+
+  const chooseSort = (option) => {
+    updateParams({ sort: option === sortOptions[0] ? "" : option });
+    sortTriggerRef.current?.focus();
+  };
+
+  const onSortTriggerKeyDown = (event) => {
+    if (event.key === "ArrowDown" && !sortOpen) {
+      event.preventDefault();
+      setSortOpen(true);
+    }
+  };
+
+  const onSortItemKeyDown = (event, index) => {
+    const last = sortOptions.length - 1;
+    const moves = { ArrowDown: index + 1, ArrowUp: index - 1, Home: 0, End: last };
+    if (!(event.key in moves)) return;
+    event.preventDefault();
+    const target = (moves[event.key] + sortOptions.length) % sortOptions.length;
+    sortItemRefs.current[target]?.focus();
+  };
+
   /* ------------ result এর শিরোনাম আর card ------------ */
   let resultsTitle;
   let resultsSummary;
-  let sortLabel;
   let cards;
+  // সাজানোর মতো কয়টা card আছে — ১টা বা শুধু Filamento র card হলে বোতাম লুকানো
+  let sortableCount;
 
   if (isSearching) {
     resultsTitle = t("findRep.results.searchTitle", { query: trimmedQuery });
     resultsSummary = t("findRep.results.searchCount", { count: searchResults.length });
-    sortLabel = searchResults.length ? t("findRep.results.sortedName") : "";
-    cards = searchResults.map(({ rep, territories }) => {
+
+    // searchRepresentatives আগে থেকেই company অনুযায়ী সাজানো
+    const ordered =
+      activeSort === "person"
+        ? [...searchResults].sort((a, b) => byText(a.rep.person, b.rep.person))
+        : searchResults;
+    sortableCount = ordered.length;
+
+    cards = ordered.map(({ rep, territories }) => {
       const [first, ...rest] = territories;
       const location = rest.length
         ? `${first.name} ${t("findRep.results.moreTerritories", { count: rest.length })}`
@@ -383,7 +506,6 @@ function Directory() {
     const place = territory?.name ?? regionName;
     const { exact, nearby } = nearbyResult;
     resultsTitle = t("findRep.results.title", { place });
-    sortLabel = t("findRep.results.sortedProximity");
 
     const parts = [
       exact.length
@@ -392,25 +514,42 @@ function Directory() {
     ];
     if (nearby.length) parts.push(t("findRep.results.nearbyCount", { count: nearby.length }));
     resultsSummary = parts.join(" · ");
-    if (!exact.length && !nearby.length) sortLabel = "";
+
+    // proximity: exact আগে, তারপর দূরত্বের ক্রমে nearby — representativesFor
+    // ঠিক এই ক্রমেই দেয়, তাই এখানে কিছু করতে হয় না
+    const entries = [
+      ...exact.map(({ rep }) => ({ rep, location: territory.name, selected: true })),
+      ...nearby.map(({ rep, territory: other }) => ({
+        rep,
+        location: other.name,
+        selected: false,
+      })),
+    ];
+    sortableCount = entries.length;
+
+    if (activeSort !== "proximity") {
+      const field = activeSort === "company" ? "company" : "person";
+      entries.sort((a, b) => byText(a.rep[field], b.rep[field]));
+    }
 
     cards = [
+      // বাছা territory তে কেউ না থাকলে Filamento র card সবসময় প্রথমে
       ...(exact.length
-        ? exact.map(({ rep }) => (
-            <RepCard
-              key={rep.email}
-              rep={rep}
-              location={territory.name}
-              badge={t("findRep.results.selectedBadge")}
-              selected
-            />
-          ))
+        ? []
         : [<FallbackCard key="filamento" region={region} location={place} />]),
-      ...nearby.map(({ rep, territory: other }) => (
-        <RepCard key={rep.email} rep={rep} location={other.name} />
+      ...entries.map(({ rep, location, selected }) => (
+        <RepCard
+          key={rep.email}
+          rep={rep}
+          location={location}
+          {...(selected ? { badge: t("findRep.results.selectedBadge"), selected: true } : {})}
+        />
       )),
     ];
   }
+
+  const sortLabel =
+    sortableCount > 1 ? t(`findRep.results.${SORT_LABEL_KEY[activeSort]}`) : "";
 
   return (
     <section className="section fr-directory" aria-labelledby="fr-directory-title">
@@ -424,162 +563,233 @@ function Directory() {
             </h2>
             <p className="fr-directory-desc">{t("findRep.directory.description")}</p>
           </div>
-          <p className="fr-status">
-            {t("findRep.directory.status", { count: territoryCount, region: regionName })}
-            <span className="fr-status-dot" aria-hidden="true" />
-          </p>
+          {/* সংখ্যাটা server এর তথ্য থেকে — আসার আগে দেখালে ভুল সংখ্যা ঝলকাত */}
+          {!loading && (
+            <p className="fr-status">
+              {t("findRep.directory.status", { count: territoryCount, region: regionName })}
+              <span className="fr-status-dot" aria-hidden="true" />
+            </p>
+          )}
         </header>
 
-        {/* Figma "Finder controls" */}
-        <div className="fr-finder">
-          <div className="fr-search-row" role="search">
-            <label className={`fr-search${query ? " has-query" : ""}`}>
-              <SearchIcon size={18} />
-              <span className="sr-only">{t("findRep.directory.searchLabel")}</span>
-              <input
-                type="search"
-                value={query}
-                placeholder={t("findRep.directory.searchPlaceholder")}
-                onChange={(event) => updateParams({ q: event.target.value })}
-                onKeyDown={(event) => {
-                  if (event.key === "Escape" && query) {
-                    event.preventDefault();
-                    updateParams({ q: "" });
-                  }
-                }}
-                autoComplete="off"
-                spellCheck="false"
-              />
-            </label>
-            {query && (
-              <button
-                type="button"
-                className="fr-search-clear"
-                onClick={() => updateParams({ q: "" })}
-                aria-label={t("findRep.directory.clearSearch")}
-              >
-                <CloseCircleIcon size={24} />
-              </button>
-            )}
-
-            {/* Figma "Location selector" — territory তালিকা খোলে/গুটায় */}
-            <button
-              type="button"
-              className={`fr-selector${panelOpen ? " is-open" : ""}`}
-              aria-expanded={panelOpen}
-              aria-controls="fr-territory-panel"
-              onClick={() => setPanelOpen((open) => !open)}
-            >
-              <span className="fr-selector-copy">
-                <span className="fr-selector-label">{t("findRep.directory.selectorLabel")}</span>
-                <span className="fr-selector-value">
-                  {territory?.name ?? t("findRep.directory.selectorNone")}
-                </span>
-              </span>
-              <ChevronIcon size={20} />
-            </button>
+        {loading ? (
+          <div className="fr-loading" role="status">
+            <span className="fr-loading-dot" aria-hidden="true" />
+            {t("findRep.directory.loading")}
           </div>
-
-          <div id="fr-territory-panel" className="fr-panel" hidden={!panelOpen}>
-            {/* Figma "Region tabs" */}
-            <div className="fr-tabs" role="tablist" aria-label={t("findRep.directory.regionsLabel")}>
-              {REGIONS.map((item, index) => {
-                const active = item.id === region.id;
-                return (
-                  <button
-                    key={item.id}
-                    ref={(node) => {
-                      tabRefs.current[index] = node;
+        ) : (
+          <>
+            {/* Figma "Finder controls" */}
+            <div className="fr-finder">
+              <div className="fr-search-row" role="search">
+                <label className={`fr-search${query ? " has-query" : ""}`}>
+                  <SearchIcon size={18} />
+                  <span className="sr-only">{t("findRep.directory.searchLabel")}</span>
+                  <input
+                    type="search"
+                    value={query}
+                    placeholder={t("findRep.directory.searchPlaceholder")}
+                    onChange={(event) => updateParams({ q: event.target.value })}
+                    onKeyDown={(event) => {
+                      if (event.key === "Escape" && query) {
+                        event.preventDefault();
+                        updateParams({ q: "" });
+                      }
                     }}
+                    autoComplete="off"
+                    spellCheck="false"
+                  />
+                </label>
+                {query && (
+                  <button
                     type="button"
-                    role="tab"
-                    id={`fr-tab-${item.id}`}
-                    className={`fr-tab${active ? " is-active" : ""}`}
-                    aria-selected={active}
-                    aria-controls="fr-territory-options"
-                    tabIndex={active ? 0 : -1}
-                    onClick={() => selectRegion(item)}
-                    onKeyDown={(event) => onTabKeyDown(event, index)}
+                    className="fr-search-clear"
+                    onClick={() => updateParams({ q: "" })}
+                    aria-label={t("findRep.directory.clearSearch")}
                   >
-                    {t(item.labelKey)}
+                    <CloseCircleIcon size={24} />
                   </button>
-                );
-              })}
-            </div>
+                )}
 
-            {/* Figma "Location options" */}
-            <div
-              id="fr-territory-options"
-              className="fr-options"
-              role="tabpanel"
-              aria-labelledby={`fr-tab-${region.id}`}
-            >
-              <div className="fr-options-head">
-                <span>{t("findRep.directory.chooseTerritory", { region: regionName })}</span>
-                <span>{t("findRep.directory.locations", { count: territoryCount })}</span>
+                {/* Figma "Location selector" — territory তালিকা খোলে/গুটায় */}
+                <button
+                  type="button"
+                  className={`fr-selector${panelOpen ? " is-open" : ""}`}
+                  aria-expanded={panelOpen}
+                  aria-controls="fr-territory-panel"
+                  onClick={() => setPanelOpen((open) => !open)}
+                >
+                  <span className="fr-selector-copy">
+                    <span className="fr-selector-label">
+                      {t("findRep.directory.selectorLabel")}
+                    </span>
+                    <span className="fr-selector-value">
+                      {territory?.name ?? t("findRep.directory.selectorNone")}
+                    </span>
+                  </span>
+                  <ChevronIcon size={20} />
+                </button>
               </div>
 
-              {territoryCount ? (
-                <ul className="fr-territories">
-                  {region.territories.map((item) => {
-                    const selected = item.id === territory?.id;
-                    const dimmed =
-                      isSearching && !matchedTerritories.has(`${item.regionId}/${item.id}`);
+              <div id="fr-territory-panel" className="fr-panel" hidden={!panelOpen}>
+                {/* Figma "Region tabs" */}
+                <div
+                  className="fr-tabs"
+                  role="tablist"
+                  aria-label={t("findRep.directory.regionsLabel")}
+                >
+                  {regions.map((item, index) => {
+                    const active = item.id === region.id;
                     return (
-                      <li key={item.id}>
-                        <button
-                          type="button"
-                          className={`fr-territory${selected ? " is-selected" : ""}${
-                            dimmed ? " is-dimmed" : ""
-                          }`}
-                          aria-pressed={selected}
-                          onClick={() => selectTerritory(item)}
-                        >
-                          <span className="fr-territory-dot" aria-hidden="true" />
-                          {item.name}
-                        </button>
-                      </li>
+                      <button
+                        key={item.id}
+                        ref={(node) => {
+                          tabRefs.current[index] = node;
+                        }}
+                        type="button"
+                        role="tab"
+                        id={`fr-tab-${item.id}`}
+                        className={`fr-tab${active ? " is-active" : ""}`}
+                        aria-selected={active}
+                        aria-controls="fr-territory-options"
+                        tabIndex={active ? 0 : -1}
+                        onClick={() => selectRegion(item)}
+                        onKeyDown={(event) => onTabKeyDown(event, index)}
+                      >
+                        {t(item.labelKey)}
+                      </button>
                     );
                   })}
-                </ul>
+                </div>
+
+                {/* Figma "Location options" */}
+                <div
+                  id="fr-territory-options"
+                  className="fr-options"
+                  role="tabpanel"
+                  aria-labelledby={`fr-tab-${region.id}`}
+                >
+                  <div className="fr-options-head">
+                    <span>{t("findRep.directory.chooseTerritory", { region: regionName })}</span>
+                    <span>{t("findRep.directory.locations", { count: territoryCount })}</span>
+                  </div>
+
+                  {territoryCount ? (
+                    <ul className="fr-territories">
+                      {region.territories.map((item) => {
+                        const selected = item.id === territory?.id;
+                        const dimmed =
+                          isSearching && !matchedTerritories.has(`${item.regionId}/${item.id}`);
+                        return (
+                          <li key={item.id}>
+                            <button
+                              type="button"
+                              className={`fr-territory${selected ? " is-selected" : ""}${
+                                dimmed ? " is-dimmed" : ""
+                              }`}
+                              aria-pressed={selected}
+                              onClick={() => selectTerritory(item)}
+                            >
+                              <span className="fr-territory-dot" aria-hidden="true" />
+                              {item.name}
+                            </button>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  ) : (
+                    <p className="fr-options-empty">
+                      {t("findRep.directory.noTerritories", { region: regionName })}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Figma "Results heading" + "Representative results" */}
+            <div className="fr-results" ref={resultsRef}>
+              <div className="fr-results-head">
+                <div className="fr-results-copy">
+                  <p className="fr-results-summary" aria-live="polite">
+                    {resultsSummary}
+                  </p>
+                  <h3 className="fr-results-title">{resultsTitle}</h3>
+                </div>
+                {/* ১টার বেশি card না থাকলে সাজানোর কিছু নেই. Tab দিয়ে বেরিয়ে
+                    গেলেও মেনু বন্ধ (onBlur) */}
+                {sortLabel && (
+                  <div
+                    className="fr-sort"
+                    ref={sortRef}
+                    onBlur={(event) => {
+                      if (!event.currentTarget.contains(event.relatedTarget)) setSortOpen(false);
+                    }}
+                  >
+                    <button
+                      type="button"
+                      ref={sortTriggerRef}
+                      className={`fr-results-sort${sortOpen ? " is-open" : ""}`}
+                      aria-haspopup="menu"
+                      aria-expanded={sortOpen}
+                      aria-controls="fr-sort-menu"
+                      onClick={() => setSortOpen((open) => !open)}
+                      onKeyDown={onSortTriggerKeyDown}
+                    >
+                      {sortLabel}
+                      <SlidersIcon />
+                    </button>
+
+                    {sortOpen && (
+                      <ul
+                        id="fr-sort-menu"
+                        className="fr-sort-menu"
+                        role="menu"
+                        aria-label={t("findRep.results.sortMenuLabel")}
+                      >
+                        {sortOptions.map((option, index) => {
+                          const active = option === activeSort;
+                          return (
+                            <li key={option} role="none">
+                              <button
+                                type="button"
+                                role="menuitemradio"
+                                aria-checked={active}
+                                ref={(node) => {
+                                  sortItemRefs.current[index] = node;
+                                }}
+                                className={`fr-sort-item${active ? " is-active" : ""}`}
+                                onClick={() => chooseSort(option)}
+                                onKeyDown={(event) => onSortItemKeyDown(event, index)}
+                              >
+                                {t(`findRep.results.sortOptions.${option}`)}
+                                {active && <CheckIcon size={16} />}
+                              </button>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {cards.length > 0 ? (
+                <div className="fr-cards">{cards}</div>
               ) : (
-                <p className="fr-options-empty">
-                  {t("findRep.directory.noTerritories", { region: regionName })}
-                </p>
+                <div className="fr-empty">
+                  <p>{t("findRep.results.searchEmpty", { query: trimmedQuery })}</p>
+                  <button
+                    type="button"
+                    className="fr-empty-action"
+                    onClick={() => updateParams({ q: "" })}
+                  >
+                    {t("findRep.directory.clearSearch")}
+                  </button>
+                </div>
               )}
             </div>
-          </div>
-        </div>
-
-        {/* Figma "Results heading" + "Representative results" */}
-        <div className="fr-results" ref={resultsRef}>
-          <div className="fr-results-head">
-            <div className="fr-results-copy">
-              <p className="fr-results-summary" aria-live="polite">
-                {resultsSummary}
-              </p>
-              <h3 className="fr-results-title">{resultsTitle}</h3>
-            </div>
-            {/* শুধু Filamento র card থাকলে সাজানোর কিছু নেই */}
-            {sortLabel && (
-              <p className="fr-results-sort">
-                {sortLabel}
-                <SlidersIcon />
-              </p>
-            )}
-          </div>
-
-          {cards.length > 0 ? (
-            <div className="fr-cards">{cards}</div>
-          ) : (
-            <div className="fr-empty">
-              <p>{t("findRep.results.searchEmpty", { query: trimmedQuery })}</p>
-              <button type="button" className="fr-empty-action" onClick={() => updateParams({ q: "" })}>
-                {t("findRep.directory.clearSearch")}
-              </button>
-            </div>
-          )}
-        </div>
+          </>
+        )}
       </div>
     </section>
   );

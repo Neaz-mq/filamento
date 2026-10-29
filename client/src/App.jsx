@@ -23,6 +23,9 @@ const AdminLogin = lazy(() => import("./admin/AdminLogin"));
 const AdminHome = lazy(() => import("./admin/AdminHome"));
 const AdminSoon = lazy(() => import("./admin/AdminSoon"));
 const AdminUsers = lazy(() => import("./admin/AdminUsers"));
+const AdminRepresentatives = lazy(
+  () => import("./admin/representatives/AdminRepresentatives"),
+);
 const ProductLibrary = lazy(() => import("./admin/products/ProductLibrary"));
 const ProductEditor = lazy(() => import("./admin/products/ProductEditor"));
 const ProjectLibrary = lazy(() => import("./admin/projects/ProjectLibrary"));
@@ -90,7 +93,6 @@ function HomeTwoBoot() {
 const ADMIN_SOON = [
   "application",
   "company",
-  "shop",
   "media",
   "pages",
   "leads",
@@ -268,6 +270,10 @@ const ADMIN_ROUTE = {
            থেকে ট্যাবে গেলে পাতা নতুন করে বসত আর না-save করা খসড়া হারাত */
         { path: "home/:step?", element: <HomeContent /> },
         { path: "users", element: <AdminUsers /> },
+        /* Representatives — সাইটের Shop (Find a Representative) পাতার তথ্য.
+           পুরনো /admin/shop ঠিকানা (sidebar এর আগের নাম) এখানেই আসে */
+        { path: "representatives", element: <AdminRepresentatives /> },
+        { path: "shop", element: <Navigate to="/admin/representatives" replace /> },
         /* Product — তালিকা, আর নতুন (/products/new?category=…) বা
            পুরনো (/products/<id>) product এর চার ধাপের পাতা */
         { path: "products", element: <ProductLibrary /> },

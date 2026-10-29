@@ -1,5 +1,14 @@
 /* ===============================================================
-   How to Buy: Find a Representative — representative দের তালিকা
+   How to Buy: Find a Representative — representative দের তথ্য আর হিসাব
+
+   🔌 এখন সাইট তথ্য পড়ে server (API) থেকে — admin এর
+   Representatives পাতায় যা বদলানো হয় সাইটে সেটাই দেখায়
+   (useRegions.js, GET /api/representatives).
+
+   এই ফাইলের REPS / TERRITORIES তালিকা এখন শুধু **ভরসার বিকল্প**
+   (FALLBACK_REGIONS): server না চললে বা কিছু না পাঠালে সাইট এটা
+   দেখায়, যাতে পাতা কখনো ফাঁকা না থাকে. নতুন লোক যোগ / বদল করতে হলে
+   admin পাতা ব্যবহার করুন — এখানে হাত দেওয়ার দরকার নেই.
 
    উৎস: filamento.com/find-a-rep (বর্তমান সাইট), Figma র ক্রমেই.
    শুধু দুইটা স্পষ্ট ভুল ঠিক করা হয়েছে:
@@ -7,14 +16,9 @@
        (01801, 06074)
      • "Jason Fsher" → "Jason Fisher" (email jfisher@…, Figma তেও Fisher)
 
-   ✅ নতুন representative যোগ / বদল:
-     ১. নিচে REPS এ একটা সারি (একই লোক কয়েকটা territory তে থাকলে
-        একবারই লিখে key দিয়ে ব্যবহার)
-     ২. TERRITORIES এ ওই territory র reps তালিকায় key টা
-
    lat / lng — territory র মোটামুটি মাঝখান. শুধু "কাছের representative"
    সাজাতে (Sorted by proximity) লাগে, তাই একদম নিখুঁত হওয়ার দরকার নেই.
-   নতুন territory তে আনুমানিক মান দিলেই চলবে
+   server কোনো territory র lat/lng না পাঠালে এখানের মান ব্যবহার হয়
    =============================================================== */
 
 /* Filamento নিজে — নিচের কালো "Direct contact" অংশ আর যে territory তে
@@ -397,34 +401,101 @@ const slug = (value) =>
     .replace(/^-+|-+$/g, "");
 
 /* অঞ্চল — ট্যাবের ক্রম Figma র মতো. labelKey — অনুবাদের key.
-   contactEmail — এই অঞ্চলে কেউ না থাকলে কাকে লিখবে */
-export const REGIONS = [
-  { id: "usa", labelKey: "findRep.regions.usa", territories: USA, contactEmail: FILAMENTO.email },
-  {
-    id: "europe",
-    labelKey: "findRep.regions.europe",
-    territories: EUROPE,
-    contactEmail: FILAMENTO.internationalEmail,
-  },
-  {
-    id: "asia",
-    labelKey: "findRep.regions.asia",
-    territories: ASIA,
-    contactEmail: FILAMENTO.internationalEmail,
-  },
-  { id: "canada", labelKey: "findRep.regions.canada", territories: CANADA, contactEmail: FILAMENTO.email },
-  { id: "mexico", labelKey: "findRep.regions.mexico", territories: [], contactEmail: FILAMENTO.email },
-].map((region) => ({
-  ...region,
-  territories: region.territories.map((territory) => ({
+   contactEmail — এই অঞ্চলে কেউ না থাকলে কাকে লিখবে.
+   ট্যাব সবসময় এই পাঁচটাই — server যা-ই পাঠাক */
+export const REGION_META = [
+  { id: "usa", labelKey: "findRep.regions.usa", contactEmail: FILAMENTO.email },
+  { id: "europe", labelKey: "findRep.regions.europe", contactEmail: FILAMENTO.internationalEmail },
+  { id: "asia", labelKey: "findRep.regions.asia", contactEmail: FILAMENTO.internationalEmail },
+  { id: "canada", labelKey: "findRep.regions.canada", contactEmail: FILAMENTO.email },
+  { id: "mexico", labelKey: "findRep.regions.mexico", contactEmail: FILAMENTO.email },
+];
+
+const BUNDLED = { usa: USA, europe: EUROPE, asia: ASIA, canada: CANADA, mexico: [] };
+
+/* ভরসার বিকল্প — উপরের তালিকা থেকে, server এর তথ্যের মতো একই গড়নে */
+export const FALLBACK_REGIONS = REGION_META.map((meta) => ({
+  ...meta,
+  territories: BUNDLED[meta.id].map((territory) => ({
     ...territory,
     id: slug(territory.name),
-    regionId: region.id,
+    regionId: meta.id,
     reps: territory.reps.map((key) => ({ id: key, ...REPS[key] })),
   })),
 }));
 
-export const regionOf = (id) => REGIONS.find((region) => region.id === id) ?? REGIONS[0];
+/* ---------------------------------------------------------------
+   server এর তথ্য → পাতার গড়ন
+
+   server পাঠায়:
+     [{ id: "usa", territories: [{ id, name, lat, lng,
+        reps: [{ id, company, person, email, phone, address }] }] }]
+
+   এখানে সব কিছু সাবধানে পড়া হয় — খারাপ বা অসম্পূর্ণ তথ্য এলেও
+   কখনো error হয় না, আর ট্যাব সবসময় পাঁচটাই থাকে. lat/lng না এলে
+   ওই territory র মান ভরসার তালিকা থেকে নেওয়া হয় (না থাকলে null —
+   তখন "কাছের" সাজানোয় সবার শেষে যায়)
+   --------------------------------------------------------------- */
+const isObject = (value) => value !== null && typeof value === "object";
+
+const text = (value) => (value === null || value === undefined ? "" : String(value));
+
+const toNumber = (value) => {
+  if (typeof value === "number") return Number.isFinite(value) ? value : null;
+  if (typeof value === "string" && value.trim() !== "") {
+    const number = Number(value);
+    return Number.isFinite(number) ? number : null;
+  }
+  return null;
+};
+
+const BUNDLED_COORDS = new Map(
+  FALLBACK_REGIONS.flatMap((region) =>
+    region.territories.map((item) => [`${region.id}/${item.id}`, { lat: item.lat, lng: item.lng }]),
+  ),
+);
+
+export function buildRegions(apiRegions) {
+  const incoming = Array.isArray(apiRegions) ? apiRegions.filter(isObject) : [];
+
+  return REGION_META.map((meta) => {
+    const match = incoming.find((region) => region.id === meta.id);
+    const territories = Array.isArray(match?.territories) ? match.territories.filter(isObject) : [];
+
+    return {
+      ...meta,
+      territories: territories
+        .map((territory) => {
+          const id = text(territory.id);
+          const known = BUNDLED_COORDS.get(`${meta.id}/${id}`);
+          const reps = Array.isArray(territory.reps) ? territory.reps.filter(isObject) : [];
+
+          return {
+            id,
+            name: text(territory.name) || id,
+            lat: toNumber(territory.lat) ?? known?.lat ?? null,
+            lng: toNumber(territory.lng) ?? known?.lng ?? null,
+            regionId: meta.id,
+            reps: reps.map((item) => ({
+              id: item.id,
+              company: text(item.company),
+              person: text(item.person),
+              email: text(item.email),
+              phone: text(item.phone),
+              address: text(item.address),
+            })),
+          };
+        })
+        .filter((territory) => territory.id !== ""),
+    };
+  });
+}
+
+export const regionOf = (regions, id) =>
+  regions.find((region) => region.id === id) ?? regions[0];
+
+/* একই লোক কয়েক জায়গায় থাকলে এক ধরা হয় — email দিয়ে (না থাকলে id) */
+const repKey = (item) => text(item.email || item.id).toLowerCase();
 
 /* ---------------------------------------------------------------
    কাছের representative — বাছা territory থেকে দূরত্ব (km) মেপে, একই
@@ -432,7 +503,9 @@ export const regionOf = (id) => REGIONS.find((region) => region.id === id) ?? RE
    --------------------------------------------------------------- */
 const toRad = (deg) => (deg * Math.PI) / 180;
 
+// lat/lng না থাকলে অসীম দূর — সবার শেষে যায়, কিছু ভাঙে না
 function distanceKm(a, b) {
+  if (![a.lat, a.lng, b.lat, b.lng].every(Number.isFinite)) return Infinity;
   const dLat = toRad(b.lat - a.lat);
   const dLng = toRad(b.lng - a.lng);
   const h =
@@ -441,14 +514,17 @@ function distanceKm(a, b) {
   return 6371 * 2 * Math.asin(Math.sqrt(h));
 }
 
+// Infinity − Infinity = NaN হয়, তাই আলাদা করে তুলনা
+const byDistance = (a, b) => (a.km === b.km ? 0 : a.km < b.km ? -1 : 1);
+
 /* { exact: [{rep, territory}], nearby: [{rep, territory, km}] }
    nearby — সব মিলিয়ে অন্তত `fill` টা card হওয়া পর্যন্ত, সর্বোচ্চ `max` */
-export function representativesFor(territory, { fill = 4, max = 3 } = {}) {
+export function representativesFor(regions, territory, { fill = 4, max = 3 } = {}) {
   if (!territory) return { exact: [], nearby: [] };
   const seen = new Set();
   const exact = territory.reps
     .filter((item) => {
-      const key = item.email.toLowerCase();
+      const key = repKey(item);
       if (seen.has(key)) return false;
       seen.add(key);
       return true;
@@ -458,14 +534,14 @@ export function representativesFor(territory, { fill = 4, max = 3 } = {}) {
   const want = Math.min(max, Math.max(0, fill - exact.length));
   const nearby = [];
   if (want > 0) {
-    const others = regionOf(territory.regionId)
+    const others = regionOf(regions, territory.regionId)
       .territories.filter((other) => other.id !== territory.id && other.reps.length)
       .map((other) => ({ territory: other, km: distanceKm(territory, other) }))
-      .sort((a, b) => a.km - b.km);
+      .sort(byDistance);
 
     for (const { territory: other, km } of others) {
       for (const item of other.reps) {
-        const key = item.email.toLowerCase();
+        const key = repKey(item);
         if (seen.has(key)) continue;
         seen.add(key);
         nearby.push({ rep: item, territory: other, km });
@@ -490,16 +566,16 @@ const normalize = (value) =>
     .replace(/ø/g, "o")
     .replace(/ß/g, "ss");
 
-export function searchRepresentatives(query) {
+export function searchRepresentatives(regions, query) {
   const words = normalize(query).split(/\s+/).filter(Boolean);
   if (!words.length) return [];
   const byEmail = new Map();
-  for (const region of REGIONS) {
+  for (const region of regions) {
     for (const territory of region.territories) {
       for (const item of territory.reps) {
-        const text = normalize(`${item.company} ${item.person}`);
-        if (!words.every((word) => text.includes(word))) continue;
-        const key = item.email.toLowerCase();
+        const haystack = normalize(`${item.company} ${item.person}`);
+        if (!words.every((word) => haystack.includes(word))) continue;
+        const key = repKey(item);
         const found = byEmail.get(key);
         if (found) found.territories.push(territory);
         else byEmail.set(key, { rep: item, territory, territories: [territory] });

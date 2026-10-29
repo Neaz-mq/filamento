@@ -346,7 +346,7 @@
 }
 
 .fr-search:focus-within {
-  border-color: var(--fr-ink);
+  border-color: var(--fr-yellow);
 }
 
 .fr-search svg {
@@ -652,6 +652,107 @@
 
 .fr-results-sort svg {
   color: var(--fr-ink-75);
+  transition: color 0.2s ease;
+}
+
+/* এখন এটা বোতাম (আগে শুধু লেখা ছিল) — browser এর বোতামের সাজ মুছে
+   আগের চেহারাই রাখা, শুধু ক্লিক করা যায় */
+button.fr-results-sort {
+  padding: 6px 8px;
+  margin: 0 -8px -6px 0;
+  background: none;
+  border: 0;
+  border-radius: 8px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+button.fr-results-sort:hover,
+button.fr-results-sort.is-open {
+  background: #f6f6f6;
+}
+
+button.fr-results-sort:hover svg,
+button.fr-results-sort.is-open svg {
+  color: var(--fr-ink);
+}
+
+button.fr-results-sort:focus-visible {
+  outline: 2px solid var(--fr-ink);
+  outline-offset: 2px;
+}
+
+/* ---------- সাজানোর মেনু ---------- */
+.fr-sort {
+  position: relative;
+  flex: none;
+}
+
+.fr-sort-menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: -8px;
+  z-index: 20;
+  min-width: 232px;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  background: #fff;
+  border: 1px solid var(--fr-line);
+  border-radius: 12px;
+  box-shadow: 0 16px 36px rgba(55, 58, 60, 0.14);
+  animation: fr-sort-in 0.16s ease-out;
+}
+
+@keyframes fr-sort-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.fr-sort-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 12px;
+  background: none;
+  border: 0;
+  border-radius: 8px;
+  font: inherit;
+  font-size: 13px;
+  line-height: 16px;
+  color: var(--fr-ink);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.fr-sort-item:hover,
+.fr-sort-item:focus-visible {
+  background: #f6f6f6;
+  outline: none;
+}
+
+.fr-sort-item:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--fr-ink);
+}
+
+/* বাছা অপশন — হলুদ আভা, বাকি জায়গার "Selected" এর মতোই */
+.fr-sort-item.is-active {
+  background: var(--fr-yellow-15);
+  font-weight: 600;
+}
+
+.fr-sort-item svg {
+  flex: none;
 }
 
 /* ৪টা card, gap 16 */
@@ -793,6 +894,11 @@
   margin-top: auto;
 }
 
+/* Phone nei emon card: ekta-i button, puro width-e */
+.fr-card-actions > :only-child {
+  grid-column: 1 / -1;
+}
+
 .fr-card-action {
   display: flex;
   justify-content: center;
@@ -859,6 +965,29 @@
   font-size: 13px;
   color: var(--fr-ink);
   cursor: pointer;
+}
+
+/* Representative-der list ashar age */
+.fr-loading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 240px;
+  font-size: 15px;
+  color: var(--fr-ink-75);
+}
+
+.fr-loading-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--fr-yellow);
+  animation: fr-loading-pulse 1s ease-in-out infinite;
+}
+
+@keyframes fr-loading-pulse {
+  0%, 100% { opacity: 0.25; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1); }
 }
 
 /* ---------------------------------------------------------------
@@ -1218,6 +1347,16 @@
     align-items: flex-start;
   }
 
+  /* সরু পর্দায় বোতাম বাঁ দিকে, তাই মেনুও বাঁ কিনারা থেকে খোলে */
+  .fr-sort-menu {
+    right: auto;
+    left: 0;
+  }
+
+  button.fr-results-sort {
+    margin: 0 0 0 -8px;
+  }
+
   .fr-cards {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -1236,6 +1375,14 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .fr-sort-menu {
+    animation: none;
+  }
+
+  .fr-loading-dot {
+    animation: none;
+  }
+
   .find-rep *,
   .find-rep *::after {
     transition: none !important;

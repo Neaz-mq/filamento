@@ -1,0 +1,241 @@
+/* ===============================================================
+   Admin → Representatives — এই পাতার বাড়তি চেহারা
+
+   বাকি সব (adm-panel, adm-form, adm-table, adm-pill, adm-btn …)
+   admin.css থেকে আসে — Users পাতার মতোই. এখানে শুধু যা সেখানে নেই:
+   খোঁজার সারি, territory র chip, আর territory বাছার তালিকা
+   =============================================================== */
+
+.adm-rep-form-title {
+  margin: 0;
+  font-family: var(--adm-font);
+  font-weight: 500;
+  font-size: 18px;
+  color: var(--adm-ink);
+}
+
+/* ফর্মের দুই ঘর জুড়ে */
+.adm-rep-wide {
+  grid-column: 1 / -1;
+}
+
+.adm-rep-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  font-family: var(--adm-font-ui);
+  font-size: 14px;
+  color: var(--adm-ink);
+  cursor: pointer;
+}
+
+.adm-rep-check input,
+.adm-rep-option input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: var(--adm-yellow-dark);
+  cursor: pointer;
+}
+
+.adm-rep-form-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* ---------- territory বাছাই ---------- */
+.adm-rep-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.adm-rep-picker legend {
+  padding: 0;
+  margin-bottom: 8px;
+}
+
+.adm-rep-count {
+  margin-left: 8px;
+  font-weight: 400;
+  color: var(--adm-ink-50);
+}
+
+.adm-rep-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px;
+  background: rgba(235, 235, 236, 0.35);
+  border-radius: 12px;
+}
+
+.adm-rep-group-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px 16px;
+}
+
+.adm-rep-group-name {
+  font-family: var(--adm-font);
+  font-weight: 500;
+  font-size: 15px;
+  color: var(--adm-ink);
+}
+
+.adm-rep-group-actions {
+  display: inline-flex;
+  gap: 14px;
+}
+
+.adm-rep-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 6px 12px;
+}
+
+.adm-rep-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 36px;
+  padding: 0 10px;
+  border-radius: 8px;
+  font-family: var(--adm-font-ui);
+  font-size: 14px;
+  color: var(--adm-ink);
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.adm-rep-option:hover {
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.adm-rep-option.is-checked {
+  background: var(--adm-yellow-soft);
+  font-weight: 500;
+}
+
+/* ---------- খোঁজা আর ছাঁকা ---------- */
+.adm-rep-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 16px;
+}
+
+.adm-rep-search {
+  flex: 1 1 280px;
+  max-width: 460px;
+}
+
+/* focus এ শুধু হলুদ — কালো border নেই. admin.css এর
+   .admin-input:focus কে হারাতে একাধিক selector একসাথে (specificity বেশি).
+   খোঁজার ঘর + ফর্মের সব ঘর (id="rep-company", "rep-person" …) */
+.admin-input.adm-rep-search:focus,
+.admin-input.adm-rep-search:focus-visible,
+.admin-input[id^="rep-"]:focus,
+.admin-input[id^="rep-"]:focus-visible {
+  border-color: var(--adm-yellow);
+  box-shadow: 0 0 0 3px var(--adm-yellow-soft);
+  outline: none;
+}
+
+.adm-rep-filters {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.adm-rep-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 14px;
+  border: 1px solid var(--adm-line-2);
+  border-radius: 100px;
+  background: none;
+  font-family: var(--adm-font-ui);
+  font-weight: 500;
+  font-size: 13px;
+  color: var(--adm-ink);
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.adm-rep-filter span {
+  color: var(--adm-ink-50);
+  font-weight: 400;
+}
+
+.adm-rep-filter:hover {
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.adm-rep-filter.is-active {
+  border-color: var(--adm-yellow);
+  background: var(--adm-yellow-soft);
+}
+
+.adm-rep-filter:focus-visible {
+  outline: 2px solid var(--adm-ink);
+  outline-offset: 2px;
+}
+
+/* ---------- টেবিলের ভেতরে ---------- */
+.adm-rep-chips {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.adm-rep-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 9px;
+  border-radius: 8px;
+  background: rgba(55, 58, 60, 0.08);
+  font-family: var(--adm-font-ui);
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--adm-ink-70);
+  white-space: nowrap;
+}
+
+.adm-rep-chip--more {
+  background: none;
+  border: 1px dashed var(--adm-line-2);
+}
+
+.adm-rep-actions {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.adm-rep-actions .adm-btn-ghost {
+  gap: 6px;
+}
+
+@media (max-width: 640px) {
+  .adm-rep-options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .adm-rep-actions {
+    justify-content: flex-start;
+  }
+}

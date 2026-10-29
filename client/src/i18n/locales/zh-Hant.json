@@ -686,6 +686,7 @@
       "title": "尋找在地照明專家",
       "description": "依公司或業務代表名稱搜尋，再選擇地區與區域，即可查看聯絡方式。",
       "status_other": "{{count}} 個區域 · {{region}}",
+      "loading": "正在載入業務代表…",
       "searchLabel": "搜尋業務代表",
       "searchPlaceholder": "搜尋公司名稱或業務代表",
       "clearSearch": "清除搜尋",
@@ -703,6 +704,14 @@
       "nearbyCount_other": "{{count}} 位鄰近業務代表供參考",
       "sortedProximity": "依距離排序",
       "sortedName": "依名稱排序",
+      "sortedCompany": "依公司名稱排序",
+      "sortedPerson": "依業務代表排序",
+      "sortMenuLabel": "排序方式",
+      "sortOptions": {
+        "proximity": "距離最近優先",
+        "company": "公司名稱（A–Z）",
+        "person": "業務代表（A–Z）"
+      },
       "searchTitle": "「{{query}}」的搜尋結果",
       "searchCount_other": "找到 {{count}} 位業務代表",
       "searchEmpty": "沒有符合「{{query}}」的業務代表。請試試其他公司或姓名，或透過下方直接聯絡 Filamento。",
