@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { ProductThumb } from "../products/ProductLibrary";
 import { moveItem, useSortable } from "../products/useSortable";
-import { HOME_LIMITS, HOME_LISTS, guessIcon, serial } from "./homeShape";
+import { HOME_ICONS, HOME_LIMITS, HOME_LISTS, guessIcon, serial } from "./homeShape";
 import { FixturePicker, ItemModal, PlayerModal } from "./HomeModals";
 import {
   EmptyRow,
@@ -69,12 +69,14 @@ const removeAt = (update, list, index) =>
 const fullTitle = (list, label) =>
   `You can add up to ${HOME_LISTS[list].max} ${label}. Delete one to add another.`;
 
-// Key Features / Featured Points — শিরোনাম পড়ে icon
+// Key Features / Featured Points — modal এ বাছা icon থাকে; না থাকলে শিরোনাম পড়ে
 const withIcon = (form, item, previous) =>
   form === "feature" || form === "point"
     ? {
         ...item,
-        icon: guessIcon(`${item.title} ${item.subtitle ?? item.text ?? ""}`, previous?.icon),
+        icon: HOME_ICONS[item.icon]
+          ? item.icon
+          : guessIcon(`${item.title} ${item.subtitle ?? item.text ?? ""}`, previous?.icon),
       }
     : item;
 
@@ -106,7 +108,7 @@ export function StepHero({ data, update, errors, canEdit }) {
           <div className="hc-list">
             {data.slides.map((item, index) => (
               <div key={item.id} className="hc-row">
-                <Thumb src={item.image?.url} className="hc-thumb--wide" fit="cover" />
+                <Thumb src={item.image?.url} className="hc-thumb--wide" />
                 <div className="hc-row-text">
                   <span className="hc-pill">{item.label}</span>
                   <strong className="hc-row-title">{item.title}</strong>

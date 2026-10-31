@@ -910,3 +910,120 @@
     transition: none;
   }
 }
+
+/* ---------------------------------------------------------------
+   Hero slider (admin এ একাধিক slide থাকলে)
+
+   বদলানোর সময় শুধু লেখা (eyebrow, শিরোনাম, বর্ণনা) আর ছবিটা
+   মিলিয়ে গিয়ে নতুনটা ফুটে ওঠে. আলোর শঙ্কু, CTA, badge আর নিচের
+   card যেমন আছে তেমনই থাকে.
+
+   ছবির animation (hero-lamp) শুধু filter বদলায়, opacity নয় —
+   তাই এখানে opacity নিরাপদে বদলানো যায়
+   --------------------------------------------------------------- */
+.hero {
+  --hero-swap: 260ms; /* Hero.jsx এর SWAP_MS এর সাথে মিলিয়ে রাখুন */
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hero-eyebrow,
+  .hero-title,
+  .hero-subhead,
+  .hero-image {
+    transition:
+      opacity var(--hero-swap) ease,
+      transform var(--hero-swap) ease;
+  }
+
+  .hero-top[data-fading="true"] .hero-eyebrow,
+  .hero-top[data-fading="true"] .hero-title,
+  .hero-top[data-fading="true"] .hero-subhead {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  .hero-top[data-fading="true"] .hero-image {
+    opacity: 0;
+  }
+}
+
+/* তীর + বিন্দু — ছবির নিচের মাঝখানে */
+.hero-slides {
+  position: absolute;
+  left: 50%;
+  bottom: 2%;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 10px;
+  border-radius: 100px;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow: 0 6px 18px -8px rgba(11, 18, 26, 0.3);
+  transform: translateX(-50%);
+}
+
+.hero-slides-btn {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--hero-ink);
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.hero-slides-btn:hover {
+  background: rgba(55, 58, 60, 0.1);
+}
+
+.hero-slides-btn:focus-visible,
+.hero-slides-dot:focus-visible {
+  outline: 2px solid var(--hero-ink);
+  outline-offset: 2px;
+}
+
+.hero-slides-dots {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ছোট বিন্দু; এখনকারটা হলুদ লম্বা দাগ. ট্যাপের জায়গা ২৪px, দেখতে ছোট */
+.hero-slides-dot {
+  position: relative;
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  border: 0;
+  border-radius: 100px;
+  background: rgba(55, 58, 60, 0.28);
+  cursor: pointer;
+  transition:
+    width 0.3s ease,
+    background 0.3s ease;
+}
+
+.hero-slides-dot::after {
+  content: "";
+  position: absolute;
+  inset: -8px -4px;
+}
+
+.hero-slides-dot[aria-current="true"] {
+  width: 24px;
+  background: var(--hero-yellow);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-slides-btn,
+  .hero-slides-dot {
+    transition: none;
+  }
+}

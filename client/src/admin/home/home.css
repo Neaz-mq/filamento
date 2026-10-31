@@ -111,25 +111,30 @@
   display: grid;
   place-items: center;
   flex: none;
+  box-sizing: border-box;
   overflow: hidden;
   border-radius: 8px;
   background: var(--hc-line);
   color: var(--adm-ink-50);
 }
 
+/* ছবি ঘরের ভেতরে পুরোটা — কাটা পড়ে না (object-fit এখানে contain;
+   শুধু avatar এ Thumb নিজে inline style এ cover দেয়, সেটা এটাকে হারায়) */
 .hc-thumb img {
+  display: block;
   width: 100%;
   height: 100%;
+  min-width: 0;
+  min-height: 0;
+  object-fit: contain;
+  object-position: center;
 }
 
+/* আগে 125x70 ছিল — ছবি খুব ছোট দেখাত. এখন বড় ঘর, ছবি স্পষ্ট */
 .hc-thumb--wide {
-  width: 125px;
-  height: 70px;
-  padding: 5px;
-}
-
-.hc-thumb--wide img[style*="cover"] {
-  border-radius: 5px;
+  width: 160px;
+  height: 96px;
+  padding: 6px;
 }
 
 .hc-thumb--logo {
@@ -898,8 +903,8 @@
   }
 
   .hc-row > .hc-thumb--wide {
-    width: 96px;
-    height: 56px;
+    width: 112px;
+    height: 68px;
   }
 
   .hc-row-text {
@@ -1048,5 +1053,357 @@
   .hc-page *,
   .hc-modal * {
     transition: none !important;
+  }
+}
+
+
+/* ---------------------------------------------------------------
+   Save এর পর ভেসে থাকা বার্তা (toast)
+   পাতা যত নিচেই থাকুক, পর্দার একই জায়গায় আসে — নিচের Save
+   বোতাম চাপলে সাথে সাথে চোখে পড়ে. সফল হলে ~৪ সেকেন্ডে নিজে
+   সরে যায় (নিচের রেখা কমে আসে), ভুল হলে ক্রস না চাপা পর্যন্ত থাকে
+   --------------------------------------------------------------- */
+.hc-toast {
+  --hc-toast-tone: var(--adm-green);
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 950;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 360px;
+  max-width: calc(100vw - 32px);
+  padding: 14px 14px 16px 14px;
+  overflow: hidden;
+  border: 1px solid rgba(55, 58, 60, 0.08);
+  border-radius: 16px;
+  background: #ffffff;
+  color: var(--adm-ink);
+  box-shadow:
+    0 20px 40px -16px rgba(11, 18, 26, 0.35),
+    0 2px 6px rgba(11, 18, 26, 0.06);
+}
+
+.hc-toast--bad {
+  --hc-toast-tone: var(--adm-red);
+}
+
+.hc-toast-icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--hc-toast-tone);
+  color: #ffffff;
+}
+
+.hc-toast-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.hc-toast-title {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.hc-toast-text {
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: var(--hc-ink-70);
+  overflow-wrap: anywhere;
+}
+
+.hc-toast-x {
+  display: grid;
+  flex: none;
+  place-items: center;
+  align-self: flex-start;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: var(--hc-ink-70);
+  cursor: pointer;
+}
+
+.hc-toast-x:hover {
+  background: rgba(55, 58, 60, 0.08);
+  color: var(--adm-ink);
+}
+
+.hc-toast-x:focus-visible {
+  outline: 2px solid var(--adm-ink);
+  outline-offset: 1px;
+}
+
+/* নিচের রেখা — সময় ফুরানোর সাথে কমে আসে */
+.hc-toast-bar {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 3px;
+  width: 100%;
+  background: var(--hc-toast-tone);
+  transform-origin: left center;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hc-toast {
+    animation: hc-toast-in 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.15);
+  }
+
+  .hc-toast-icon {
+    animation: hc-toast-pop 0.45s 0.1s cubic-bezier(0.2, 0.9, 0.3, 1.4) both;
+  }
+
+  .hc-toast-bar {
+    animation: hc-toast-bar var(--hc-toast-ms, 4000ms) linear forwards;
+  }
+}
+
+@keyframes hc-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.96);
+  }
+}
+
+@keyframes hc-toast-pop {
+  from {
+    transform: scale(0.4);
+  }
+}
+
+@keyframes hc-toast-bar {
+  to {
+    transform: scaleX(0);
+  }
+}
+
+/* মোবাইলে নিচের মাঝখানে, পুরো প্রস্থ */
+@media (max-width: 640px) {
+  .hc-toast {
+    right: 16px;
+    left: 16px;
+    bottom: 16px;
+    width: auto;
+  }
+}
+
+/* ---------------------------------------------------------------
+   Icon বাছার ঘর (Key Features / Featured Points modal)
+   --------------------------------------------------------------- */
+.hc-icon-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(44px, 1fr));
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.hc-icon-choice {
+  display: grid;
+  place-items: center;
+  height: 44px;
+  padding: 0;
+  border: 1px solid var(--adm-line-2);
+  border-radius: 12px;
+  background: #ffffff;
+  color: var(--adm-ink);
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.hc-icon-choice:hover {
+  background: var(--hc-line);
+}
+
+.hc-icon-choice.is-on {
+  border-color: var(--adm-yellow);
+  background: var(--adm-yellow-soft);
+  box-shadow: 0 0 0 2px var(--adm-yellow-soft);
+}
+
+.hc-icon-choice:focus-visible {
+  outline: 2px solid var(--adm-ink);
+  outline-offset: 2px;
+}
+
+.hc-icon-hint {
+  margin: 8px 0 0;
+  font-size: 11.5px;
+  color: var(--hc-ink-70);
+}
+
+/* ---------------------------------------------------------------
+   Card Link বাছাই (LinkPicker)
+   --------------------------------------------------------------- */
+.hc-link-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.hc-link-row 
+
+/* নিজস্ব dropdown — সাইটের "Sorted by" মেনুর মতো, focus এ হলুদ */
+.hc-dd {
+  position: relative;
+  flex: 1 1 200px;
+  min-width: 0;
+}
+
+.hc-dd-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  height: 37px;
+  padding: 0 12px;
+  background: #ffffff;
+  border: 1px solid var(--adm-line-2);
+  border-radius: 12px;
+  color: var(--adm-ink);
+  font: inherit;
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.hc-dd-trigger:hover {
+  border-color: var(--adm-ink-50);
+}
+
+.hc-dd-trigger:focus-visible,
+.hc-dd-trigger.is-open {
+  border-color: var(--adm-yellow);
+  box-shadow: 0 0 0 3px rgba(247, 190, 0, 0.25);
+  outline: none;
+}
+
+.hc-dd-value {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hc-dd-chevron {
+  flex: none;
+  transition: transform 0.15s ease;
+}
+
+.hc-dd-trigger.is-open .hc-dd-chevron {
+  transform: rotate(180deg);
+}
+
+.hc-dd-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 30;
+  max-height: 340px;
+  margin: 0;
+  padding: 6px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(55, 58, 60, 0.25) transparent;
+  list-style: none;
+  background: #ffffff;
+  border: 1px solid rgba(55, 58, 60, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 16px 36px rgba(55, 58, 60, 0.14);
+  animation: hc-dd-in 0.16s ease-out;
+}
+
+.hc-dd-menu::-webkit-scrollbar {
+  width: 8px;
+}
+
+.hc-dd-menu::-webkit-scrollbar-thumb {
+  background: rgba(55, 58, 60, 0.25);
+  border: 2px solid #ffffff;
+  border-radius: 8px;
+}
+
+.hc-dd-menu::-webkit-scrollbar-button {
+  display: none;
+}
+
+.hc-dd-menu.is-up {
+  top: auto;
+  bottom: calc(100% + 6px);
+}
+
+@keyframes hc-dd-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.hc-dd-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 12px;
+  background: none;
+  border: 0;
+  border-radius: 8px;
+  color: var(--adm-ink);
+  font: inherit;
+  font-size: 12px;
+  line-height: 16px;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.hc-dd-item:hover,
+.hc-dd-item:focus-visible {
+  background: #f6f6f6;
+  outline: none;
+}
+
+.hc-dd-item:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--adm-yellow);
+}
+
+/* বাছা অপশন — হলুদ আভা আর টিক */
+.hc-dd-item.is-active {
+  background: rgba(247, 190, 0, 0.15);
+  font-weight: 600;
+}
+
+.hc-dd-item svg {
+  flex: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hc-dd-menu {
+    animation: none;
   }
 }

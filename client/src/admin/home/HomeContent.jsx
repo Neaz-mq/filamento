@@ -7,7 +7,7 @@ import { OLD_HOME_SLUGS, homeSections } from "../dashboardData";
 import { ConfirmModal } from "../products/Modal";
 import { snapshot, stepProblem } from "./homeShape";
 import { StepComparison, StepFeatured, StepHero, StepTestimonials, StepVideos } from "./HomeSteps";
-import { IconArrowLeft, IconCalendar, IconCheck, IconClose } from "../icons";
+import { IconAlert, IconArrowLeft, IconCalendar, IconCheck, IconClose } from "../icons";
 import "../products/products.css";
 import "../projects/projects.css";
 import "./home.css";
@@ -42,6 +42,9 @@ const dayFormat = new Intl.DateTimeFormat("en-US", {
   day: "numeric",
   year: "numeric",
 });
+
+// success toast কতক্ষণ থাকবে (home.css এর --hc-toast-ms এর সাথে মেলে)
+const TOAST_MS = 4000;
 
 const savedFormat = new Intl.DateTimeFormat("en-US", {
   month: "short",
@@ -116,7 +119,9 @@ function HomeContent() {
   /* ---------- save ---------- */
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState({});
-  const [notice, setNotice] = useState(null); // { tone, text }
+  const [notice, setNotice] = useState(null); // { tone, title, text, at }
+  // at = প্রতিবার নতুন, যাতে পরপর দুবার save দিলেও toast আবার নতুন করে আসে
+  const notify = (tone, title, text = "") => setNotice({ tone, title, text, at: Date.now() });
   const [confirmCancel, setConfirmCancel] = useState(false);
 
   const save = async () => {
@@ -126,7 +131,7 @@ function HomeContent() {
     const problem = stepProblem(step, data);
     if (problem) {
       setErrors({ [problem.field]: problem.message });
-      setNotice({ tone: "bad", text: problem.message });
+      notify("bad", "Please check this field", problem.message);
       window.requestAnimationFrame(() => {
         const target =
           document.getElementById(`hc-${step}-${problem.field}`) ||
@@ -155,9 +160,9 @@ function HomeContent() {
           products: { ...old.products, ...result.products },
         };
       });
-      setNotice({ tone: "ok", text: `${section.name} saved.` });
+      notify("ok", "Saved successfully", `${section.name} has been updated. Visitors will see the new content.`);
     } catch (error) {
-      setNotice({ tone: "bad", text: error.message });
+      notify("bad", "Could not save", error.message);
     } finally {
       setSaving(false);
     }
@@ -170,13 +175,13 @@ function HomeContent() {
     }));
     setErrors({});
     setConfirmCancel(false);
-    setNotice({ tone: "ok", text: "Changes discarded." });
+    notify("ok", "Changes discarded", `${section.name} is back to the last saved version.`);
   };
 
   /* ---------- বার্তা কিছুক্ষণ পরে নিজে থেকে সরে ---------- */
   useEffect(() => {
     if (!notice || notice.tone === "bad") return undefined;
-    const timer = window.setTimeout(() => setNotice(null), 3500);
+    const timer = window.setTimeout(() => setNotice(null), TOAST_MS);
     return () => window.clearTimeout(timer);
   }, [notice]);
 
@@ -350,17 +355,24 @@ function HomeContent() {
       {tabs}
 
       {notice && (
-        <p
-          className={`adm-banner ${notice.tone === "bad" ? "adm-banner--bad" : "adm-banner--ok"} pd-notice`}
+        <div
+          key={notice.at}
+          className={`hc-toast hc-toast--${notice.tone === "bad" ? "bad" : "ok"}`}
+          style={{ "--hc-toast-ms": `${TOAST_MS}ms` }}
           role={notice.tone === "bad" ? "alert" : "status"}
         >
-          {notice.text}
-          {notice.tone === "bad" && (
-            <button type="button" className="pd-notice-x" onClick={() => setNotice(null)} aria-label="Dismiss">
-              <IconClose size={14} />
-            </button>
-          )}
-        </p>
+          <span className="hc-toast-icon" aria-hidden="true">
+            {notice.tone === "bad" ? <IconAlert size={18} /> : <IconCheck size={18} />}
+          </span>
+          <div className="hc-toast-body">
+            <strong className="hc-toast-title">{notice.title}</strong>
+            {notice.text && <span className="hc-toast-text">{notice.text}</span>}
+          </div>
+          <button type="button" className="hc-toast-x" onClick={() => setNotice(null)} aria-label="Dismiss">
+            <IconClose size={14} />
+          </button>
+          {notice.tone !== "bad" && <span className="hc-toast-bar" aria-hidden="true" />}
+        </div>
       )}
 
       {!canEdit && (

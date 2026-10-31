@@ -119,8 +119,10 @@ router.get("/home", async (req, res, next) => {
       .map((item) => ({ ...item, product: byId.get(item.productId) }))
       .filter((item) => item.product?.status === "published");
 
-    // কয়েক মিনিট CDN এ জমা থাকতে পারে — save এর ৫ মিনিটের মধ্যে সাইটে আসে
-    res.set("Cache-Control", "public, max-age=60, s-maxage=300, stale-while-revalidate=600");
+    /* no-cache = জমা রাখা যায়, কিন্তু ব্যবহারের আগে প্রতিবার server কে মিলিয়ে নিতে হয়।
+       Express নিজেই ETag দেয়, তাই বদল না থাকলে শুধু ছোট 304 যায়।
+       ফল: admin এ Save Change দিলে সাইটে সাথে সাথে আসে (CDN এর ৫ মিনিট দেরি নেই) */
+    res.set("Cache-Control", "no-cache");
     res.json({ content: data });
   } catch (error) {
     next(error);

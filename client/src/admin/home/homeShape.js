@@ -1,16 +1,4 @@
-import {
-  IconAward,
-  IconBolt,
-  IconClipboardTick,
-  IconEye,
-  IconLocation,
-  IconSettings,
-  IconShield,
-  IconStar,
-  IconSun,
-  IconTimer,
-  IconTrendUp,
-} from "../icons";
+import { SITE_ICONS } from "./siteIcons";
 
 /* ===============================================================
    Home Page Content — নিয়ম, মাপ আর modal এর ঘরগুলো
@@ -64,23 +52,11 @@ export const HOME_LISTS = {
 /* ---------------------------------------------------------------
    Key Features / Featured Points এর icon
 
-   Figma তে icon বাছার ঘর নেই — তাই শিরোনাম পড়ে মানানসই icon
-   নিজে থেকেই বসে ("5 Year Warranty" → ঢাল, "Energy" → বিদ্যুৎ).
-   কিছু না মিললে আগেরটা থাকে, নতুন হলে ⭐
+   modal এ icon বাছার ঘর আছে (siteIcons.jsx). না বাছলে শিরোনাম
+   পড়ে মানানসই icon নিজে থেকেই বসে ("5 Year Warranty" → ঢাল,
+   "Energy" → বিদ্যুৎ). কিছু না মিললে ⭐
    --------------------------------------------------------------- */
-export const HOME_ICONS = {
-  energy: IconBolt,
-  warranty: IconShield,
-  madeIn: IconLocation,
-  certified: IconAward,
-  listed: IconClipboardTick,
-  maintenance: IconSettings,
-  visibility: IconEye,
-  glare: IconSun,
-  installation: IconTimer,
-  roi: IconTrendUp,
-  spark: IconStar,
-};
+export const HOME_ICONS = SITE_ICONS;
 
 const ICON_WORDS = [
   ["energy", /energy|kwh|power|watt|efficien/],
@@ -184,6 +160,7 @@ export const ITEM_FORMS = {
         width: "half",
         placeholder: "Energy Saving",
       },
+      { key: "icon", label: "Icon", type: "icon" },
     ],
   },
 
@@ -204,7 +181,7 @@ export const ITEM_FORMS = {
       {
         key: "link",
         label: "Card Link",
-        type: "link",
+        type: "category-link",
         max: L.url,
         placeholder: "/products?category=lamp-fixture",
         hint: "Where the card goes when clicked. Leave empty for the Products page.",
@@ -240,6 +217,7 @@ export const ITEM_FORMS = {
         required: true,
         placeholder: "Precision optics and non-relay dimming slash kWh without sacrificing output.",
       },
+      { key: "icon", label: "Icon", type: "icon" },
     ],
   },
 
@@ -404,7 +382,7 @@ export function itemProblems(form, item) {
     const clean = String(value ?? "").trim();
     if (field.required && !clean) {
       problems[field.key] = `${field.label} is required.`;
-    } else if (field.type === "link" && linkProblem(clean)) {
+    } else if ((field.type === "link" || field.type === "category-link") && linkProblem(clean)) {
       problems[field.key] = linkProblem(clean);
     }
   }

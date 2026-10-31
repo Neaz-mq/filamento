@@ -133,7 +133,7 @@ export function TextField({
    ছবির ছোট ঘর — ধূসর পেছন, ছবি ভেতরে পুরোটা দেখা যায়.
    ছবি না এলে (link ভাঙা) icon দেখায়
    --------------------------------------------------------------- */
-export function Thumb({ src, alt = "", className = "", width = 260, fit = "contain" }) {
+export function Thumb({ src, alt = "", className = "", width = 480, fit = "contain" }) {
   const [failed, setFailed] = useState("");
   const broken = !src || failed === src;
 
@@ -146,6 +146,7 @@ export function Thumb({ src, alt = "", className = "", width = 260, fit = "conta
           src={thumb(src, width)}
           alt={alt}
           loading="lazy"
+          decoding="async"
           style={{ objectFit: fit }}
           onError={() => setFailed(src)}
         />
