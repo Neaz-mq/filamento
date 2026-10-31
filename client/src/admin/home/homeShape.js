@@ -42,7 +42,7 @@ export const HOME_LISTS = {
   features: { min: 0, max: 8 },
   products: { min: 0, max: 6 },
   logos: { min: 0, max: 24 },
-  fixtures: { min: 1, max: 3 },
+  fixtures: { min: 3, max: 3 },
   points: { min: 0, max: 8 },
   rows: { min: 1, max: 12 },
   videos: { min: 1, max: 6 },
@@ -398,6 +398,9 @@ const needText = (value, field, message) =>
 
 const needCount = (list, key, label) => {
   const { min, max } = HOME_LISTS[key];
+  // min আর max সমান হলে ঠিক ততগুলোই লাগে (যেমন ৩টা fixture)
+  if (min === max && (list?.length ?? 0) !== min)
+    return { field: key, message: `Choose exactly ${min} ${label}${min === 1 ? "" : "s"}.` };
   if ((list?.length ?? 0) < min) return { field: key, message: `Add at least ${min} ${label}.` };
   if ((list?.length ?? 0) > max) return { field: key, message: `${label} can have at most ${max} items.` };
   return null;

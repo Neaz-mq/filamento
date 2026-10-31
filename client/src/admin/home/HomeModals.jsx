@@ -528,8 +528,10 @@ export function FixturePicker({ chosen, products, onSave, onClose }) {
         <>
           <span className="pj-picked hc-picked">
             <span className="pj-picked-badge">{picked.length}</span>
-            item{picked.length === 1 ? "" : "s"} selected
-            {full && <span className="pj-picked-full"> · limit reached</span>}
+            of {max} selected
+            <span className="pj-picked-full">
+              {full ? " · ready to save" : ` · choose ${max - picked.length} more`}
+            </span>
           </span>
           <button type="button" className="hc-modal-btn" onClick={onClose}>
             Cancel
@@ -537,7 +539,7 @@ export function FixturePicker({ chosen, products, onSave, onClose }) {
           <button
             type="button"
             className="hc-modal-btn hc-modal-btn--yellow"
-            disabled={!picked.length}
+            disabled={picked.length !== max}
             onClick={() => onSave(picked.map((id) => known[id] ?? { id }))}
           >
             Save

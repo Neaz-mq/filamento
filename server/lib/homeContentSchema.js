@@ -39,7 +39,7 @@ export const HOME_LISTS = {
   features: { min: 0, max: 8 },
   products: { min: 0, max: 6 },
   logos: { min: 0, max: 24 },
-  fixtures: { min: 1, max: 3 },
+  fixtures: { min: 3, max: 3 },
   points: { min: 0, max: 8 },
   rows: { min: 1, max: 12 },
   videos: { min: 1, max: 6 },
@@ -121,6 +121,7 @@ const list = (value, key, label) => {
   const { min, max } = HOME_LISTS[key];
   if (value === undefined || value === null) value = [];
   if (!Array.isArray(value)) fail(`${label} must be a list.`);
+  if (min === max && value.length !== min) fail(`${label} must have exactly ${min} items.`);
   if (value.length < min) fail(`Add at least ${min} ${label.toLowerCase()}.`);
   if (value.length > max) fail(`${label} can have at most ${max} items.`);
   return value;

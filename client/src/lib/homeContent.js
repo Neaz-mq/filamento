@@ -298,3 +298,121 @@ export function buildComparisonView(comparison, { t, en, has }) {
     rows,
   };
 }
+
+/* ---------------------------------------------------------------
+   Fixtures (Featured Products ধাপ) এর দেখানোর রূপ
+
+   featured — content.featured (বা undefined)
+   tools    — { t, en, has } (Hero র মতোই)
+
+   • কার্ড: admin এ বাছা product (server শুধু published গুলো পাঠায়),
+     ক্রম admin এর ক্রম. নাম আর ছবি product থেকে, "Best For" আর
+     Description admin এ লেখা. ৩টার কম পেলে যতগুলো আছে ততগুলোই.
+     একটাও না পেলে (বা server না পেলে) আগের হুবহু ৩টা কার্ড
+   • মাঝের (২য়) কার্ডটা বড় — Figma র নকশা যেমন
+   • ভাষার নিয়ম Hero র মতোই: admin এর লেখা ইংরেজি আসল লেখার হুবহু
+     এক থাকলে বর্তমান ভাষার অনুবাদ, বদলালে admin এর লেখাই সব ভাষায়
+   --------------------------------------------------------------- */
+
+// কার্ডের জায়গা অনুযায়ী মাপ (Fixtures.css এর data-fixture). বাইরের
+// দুটো একই মাপের, মাঝেরটা বড়
+const FIXTURE_SLOTS = ["la1", "ls1", "la1"];
+
+// fallback — আগের Fixtures.jsx এর হুবহু তিনটা
+const FIXTURES_FALLBACK = [
+  { id: "la1", slot: "la1", to: "/products/la1-high-bay", path: "v1789621178/image_7_wqtldv.png" },
+  {
+    id: "ls1",
+    slot: "ls1",
+    to: "/products/ls1-high-bay",
+    path: "v1789621338/Additional_0001_1779697023_1_taubuk.png",
+  },
+  // এই ছবির চারপাশে স্বচ্ছ ফাঁকা অংশ — e_trim দিয়ে ছেঁটে নিতে হয়
+  { id: "rh1", slot: "rh1", to: "/products/rh1-high-bay", path: "v1789471643/fix3_yeppeq.webp", trim: true },
+];
+
+const FIXTURES_FALLBACK_POINTS = ["energy", "maintenance", "visibility", "glare", "installation", "roi"];
+
+export function buildFixturesView(featured, { t, en, has }) {
+  const local = (value, key) => {
+    const own = typeof value === "string" ? value.trim() : "";
+    const known = Boolean(key) && has(key);
+    if (!own) return known ? t(key) : "";
+    if (!known) return own;
+    return own === en(key) ? t(key) : own;
+  };
+
+  /* ---- শিরোনাম: admin এ একটাই লেখা, সাইটে দুই লাইন ----
+     বদলানো লেখা প্রথম বাক্যের শেষে ভাঙে ("Three Fixtures." / "One …") */
+  const englishTitle = `${en("fixtures.titleTop")} ${en("fixtures.titleBottom")}`;
+  const ownTitle = typeof featured?.title === "string" ? featured.title.trim() : "";
+  let titleTop = t("fixtures.titleTop");
+  let titleBottom = t("fixtures.titleBottom");
+  if (ownTitle && ownTitle !== englishTitle) {
+    const match = ownTitle.match(/^(.+?[.!?。！？])\s+(.+)$/);
+    [titleTop, titleBottom] = match ? [match[1], match[2]] : [ownTitle, ""];
+  }
+
+  /* ---- কার্ড ---- */
+  const rows = Array.isArray(featured?.fixtures)
+    ? featured.fixtures.filter((row) => row?.product?.slug).slice(0, FIXTURE_SLOTS.length)
+    : [];
+
+  const cards =
+    rows.length > 0
+      ? rows.map((row, index) => {
+          const id = String(row.id);
+          const name = row.product.name || "";
+          return {
+            id,
+            slot: FIXTURE_SLOTS[index],
+            featured: index === 1,
+            number: String(index + 1).padStart(2, "0"),
+            to: `/products/${row.product.slug}`,
+            image: { url: row.product.image || "", trim: false },
+            alt: name,
+            title: name,
+            scope: local(row.scope, `fixtures.items.${id}.scope`),
+            description: local(row.description, `fixtures.items.${id}.description`),
+          };
+        })
+      : FIXTURES_FALLBACK.map((card, index) => ({
+          id: card.id,
+          slot: card.slot,
+          featured: card.slot === "ls1",
+          number: String(index + 1).padStart(2, "0"),
+          to: card.to,
+          image: { url: CLOUD + card.path, trim: Boolean(card.trim) },
+          alt: t(`fixtures.items.${card.id}.title`),
+          title: t(`fixtures.items.${card.id}.title`),
+          scope: t(`fixtures.items.${card.id}.scope`),
+          description: t(`fixtures.items.${card.id}.description`),
+        }));
+
+  /* ---- নিচের Featured Points ---- */
+  const points = Array.isArray(featured?.points)
+    ? featured.points.map((point) => {
+        const id = String(point.id);
+        return {
+          id,
+          icon: point.icon,
+          title: local(point.title, `fixtures.benefits.${id}.title`),
+          text: local(point.text, `fixtures.benefits.${id}.text`),
+        };
+      })
+    : FIXTURES_FALLBACK_POINTS.map((id) => ({
+        id,
+        icon: id,
+        title: t(`fixtures.benefits.${id}.title`),
+        text: t(`fixtures.benefits.${id}.text`),
+      }));
+
+  return {
+    watermark: featured ? local(featured.behindText, "fixtures.watermark") : t("fixtures.watermark"),
+    titleTop,
+    titleBottom,
+    subhead: featured ? local(featured.description, "fixtures.subhead") : t("fixtures.subhead"),
+    cards,
+    points,
+  };
+}

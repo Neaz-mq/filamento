@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import SoftLink from "./SoftLink";
 import { useTranslation } from "react-i18next";
 import { useLocaleLink } from "../i18n/useLocaleLink";
+import { buildFixturesView, cloudinaryUrl, isCloudinary, useHomeContent } from "../lib/homeContent";
 import "./Fixtures.css";
 
 /* e_trim     — চারপাশের স্বচ্ছ ফাঁকা অংশ ছেঁটে দেয়। শুধু যেসব ছবিতে
@@ -10,21 +11,15 @@ import "./Fixtures.css";
    c_limit,w_  — নির্দিষ্ট প্রস্থে নামায়, কখনো বড় করে না
    q_auto:best — q_auto এর সবচেয়ে কম ক্ষতিকর ধাপ
    f_auto      — ব্রাউজার অনুযায়ী সেরা format */
-const cloudinary = (fixture, width) =>
-  "https://res.cloudinary.com/dzi3u164c/image/upload/" +
-  (fixture.trim ? "e_trim/" : "") +
-  `c_limit,w_${width},f_auto,q_auto:best/` +
-  fixture.path;
+const imageUrl = (image, width) =>
+  isCloudinary(image.url)
+    ? cloudinaryUrl(image.url, `${image.trim ? "e_trim/" : ""}c_limit,w_${width},f_auto,q_auto:best`)
+    : image.url;
 
-/* srcset এর মাপগুলো 3x export ধরে বসানো:
-     LA1 300 CSS px → 900,  LS1 392 → 1176,  RH1 339 → 1017
-
-   c_limit থাকায় উৎস ছোট হলে Cloudinary বড় করবে না, যা আছে তাই
-   পাঠাবে — তাই বড় সংখ্যা রাখায় কোনো ক্ষতি নেই */
-const srcSetFor = (fixture) =>
-  [400, 600, 900, 1200]
-    .map((w) => `${cloudinary(fixture, w)} ${w}w`)
-    .join(", ");
+const srcSetFor = (image) =>
+  isCloudinary(image.url)
+    ? [400, 600, 900, 1200].map((w) => `${imageUrl(image, w)} ${w}w`).join(", ")
+    : undefined;
 
 /* তিনটা ছবির মাপ Figma তে আলাদা — বাক্স আর ছবির মাপ CSS এ
    data-fixture দিয়ে বসানো (Fixtures.css দেখুন):
@@ -32,43 +27,8 @@ const srcSetFor = (fixture) =>
      la1  বাক্স 300 x 236     ছবি 300 x 230
      ls1  বাক্স 392 x 281.44  ছবি 392 x 313.61  (নিচে উপচে পড়ে)
      rh1  বাক্স 300 x 230     ছবি e_trim করে 84% চওড়া */
-const FIXTURES = [
-  {
-    id: "la1",
-    number: "01",
-    to: "/products/la1-high-bay",
-    /* PNG আপলোড, কিন্তু f_auto থাকায় ব্রাউজারে WebP/AVIF হয়েই
-       যাবে — তাই বড় PNG রাখায় ফাইলের ওজন বাড়ছে না */
-    path: "v1789621178/image_7_wqtldv.png",
-  },
-  {
-    id: "ls1",
-    number: "02",
-    to: "/products/ls1-high-bay",
-    path: "v1789621338/Additional_0001_1779697023_1_taubuk.png",
-    /* Figma তে মাঝের card টা বড় — 456x600, আর background গাঢ়
-       (রঙ এক, opacity .75 বনাম .25) */
-    featured: true,
-  },
-  {
-    id: "rh1",
-    number: "03",
-    to: "/products/rh1-high-bay",
-    /* এই ছবিটা স্বচ্ছ (transparent) — নতুন export টার background
-       সাদা ছিল, তাই ওটা পেছনের "03" সংখ্যার উপর একটা সাদা চৌকো
-       হয়ে বসে যাচ্ছিল।
-
-       পরে 3x এ আবার export করলে Figma র Export প্যানেলে "Background"
-       টা transparent রাখবেন, নাহলে একই সমস্যা ফিরে আসবে */
-    path: "v1789471643/fix3_yeppeq.webp",
-    /* এই ছবির চারপাশে অনেকটা স্বচ্ছ ফাঁকা জায়গা আছে, তাই লাইটটা
-       বাক্সের মাঝে ছোট হয়ে ভাসছিল। e_trim ওই প্রান্তগুলো কেটে দেয়,
-       ফলে লাইট বাক্স ভরে ফেলে আর নিজে থেকেই কেন্দ্রে বসে।
-
-       card ১ আর ২ এর ছবি টাইট crop করা, তাই ওগুলোতে লাগছে না */
-    trim: true,
-  },
-];
+/* কার্ডের তালিকা এখন lib/homeContent.js এর buildFixturesView এ (admin থেকে,
+   না পেলে আগের তিনটা) */
 
 /* Figma: 24px icon, 64px গাঢ় বৃত্তের ভেতরে, stroke #EBEBEC।
 
@@ -133,9 +93,38 @@ const BENEFIT_ICONS = {
       <path d="M12 18V6" />
     </svg>
   ),
+  /* admin এর বাকি icon নামগুলো — Hero র badge এর সাথে একই আঁকা */
+  warranty: (
+    <svg {...ICON_PROPS} viewBox="0 0 24 24">
+      <path d="M12 2.5 4.5 5.5v6c0 4.6 3.1 8.7 7.5 10 4.4-1.3 7.5-5.4 7.5-10v-6L12 2.5Z" />
+      <path d="M9 12.2l2.2 2.2L15.4 10" />
+    </svg>
+  ),
+  madeIn: (
+    <svg {...ICON_PROPS} viewBox="0 0 24 24">
+      <path d="M5 21V3.5" />
+      <path d="M5 4.2h12.5l-2.4 4 2.4 4H5" />
+    </svg>
+  ),
+  certified: (
+    <svg {...ICON_PROPS} viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="9" />
+      <path d="M8.2 12.2l2.5 2.5 5.1-5.1" />
+    </svg>
+  ),
+  listed: (
+    <svg {...ICON_PROPS} viewBox="0 0 24 24">
+      <path d="M7.5 3.5h9v5a4.5 4.5 0 0 1-9 0v-5Z" />
+      <path d="M7.5 5.5H5a2.5 2.5 0 0 0 2.5 2.5M16.5 5.5H19A2.5 2.5 0 0 1 16.5 8" />
+      <path d="M12 13v4M8.5 20.5h7M10 17h4l1.5 3.5h-7L10 17Z" />
+    </svg>
+  ),
+  spark: (
+    <svg {...ICON_PROPS} viewBox="0 0 24 24">
+      <path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9L12 3Z" />
+    </svg>
+  ),
 };
-
-const BENEFITS = ["energy", "maintenance", "visibility", "glare", "installation", "roi"];
 
 function ArrowUpRight() {
   return (
@@ -171,8 +160,32 @@ function CtaArrow() {
 const TORCH_RADIUS = 280;
 
 function Fixtures() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const localeLink = useLocaleLink();
+
+  /* ---------- database এর content ----------
+     ready: উত্তর এসেছে (বা ১.৫ সেকেন্ড পেরিয়েছে). তার আগে অংশটা
+     লুকানো থাকে (জায়গা নেয়, তাই পাতা লাফায় না) — নাহলে প্রথমে
+     পুরনো লেখা-ছবি, তারপর নতুনটা ঝলকাত. Hero র মতোই */
+  const { content, settled: ready } = useHomeContent();
+
+  const view = useMemo(
+    () =>
+      buildFixturesView(content?.featured, {
+        t,
+        en: i18n.getFixedT("en"),
+        has: (key) => i18n.exists(key, { lng: "en" }),
+      }),
+    [content, t, i18n],
+  );
+
+  /* জলছাপ ৮ অক্ষরের (\"FIXTURES\") মাপে বসানো. admin এ লম্বা লেখা (সর্বোচ্চ
+     ৩০) দিলে section ছাপিয়ে যেত — তাই ৮ এর বেশি হলে অনুপাতে ছোট */
+  const watermarkLength = Array.from(view.watermark).length;
+  const watermarkStyle =
+    watermarkLength > 8
+      ? { "--fx-watermark-scale": ((22.9 * 8) / watermarkLength).toFixed(2) }
+      : undefined;
 
   /* জলছাপের অক্ষরগুলো পর্দায় ঢুকলে একটা একটা করে উঠে এসে ফিলামেন্টের
      মতো জ্বলে ওঠে (CSS এ দেখুন). শুরুর সংকেত এখানে — একবার চললে আর
@@ -283,11 +296,11 @@ function Fixtures() {
       window.removeEventListener("scroll", onScroll);
       cancelAnimationFrame(frame);
     };
-  }, []);
+  }, [view.watermark]);
 
   return (
-    <section className="fixtures">
-      <div className="fixtures-inner">
+    <section className="fixtures" style={watermarkStyle}>
+      <div className="fixtures-inner" style={ready ? undefined : { visibility: "hidden" }}>
         <div className="fixtures-top">
           <header className="fixtures-header">
             {/* Figma র 284px জলছাপ। শুধু সাজসজ্জা, তাই aria-hidden —
@@ -302,7 +315,7 @@ function Fixtures() {
                   data-char — CSS এর হলুদ কপি (::before / ::after) এই
                   অক্ষরটাই আবার আঁকে */}
               <span className="fixtures-watermark-drift">
-                {Array.from(t("fixtures.watermark")).map((char, index) => (
+                {Array.from(view.watermark).map((char, index) => (
                   <span
                     key={index}
                     className="fixtures-watermark-letter"
@@ -317,20 +330,24 @@ function Fixtures() {
 
             <div className="fixtures-heading">
               <h2 className="fixtures-title">
-                {t("fixtures.titleTop")}
-                <br />
-                {t("fixtures.titleBottom")}
+                {view.titleTop}
+                {view.titleBottom && (
+                  <>
+                    <br />
+                    {view.titleBottom}
+                  </>
+                )}
               </h2>
-              <p className="fixtures-subhead">{t("fixtures.subhead")}</p>
+              <p className="fixtures-subhead">{view.subhead}</p>
             </div>
           </header>
 
           <div className="fixtures-cards">
-            {FIXTURES.map((fixture) => (
+            {view.cards.map((card) => (
               <article
-                key={fixture.id}
-                data-fixture={fixture.id}
-                className={`fixtures-card${fixture.featured ? " is-featured" : ""}`}
+                key={card.id}
+                data-fixture={card.slot}
+                className={`fixtures-card${card.featured ? " is-featured" : ""}`}
               >
                 <div className="fixtures-card-media">
                   {/* বিশাল ফিকে সংখ্যাটা ছবির পেছনে. Figma তে এটা
@@ -338,33 +355,31 @@ function Fixtures() {
                       বেশি নির্ভরযোগ্য — margin এর হিসাব content এর
                       উচ্চতার সাথে বদলে যেত */}
                   <span className="fixtures-card-number" aria-hidden="true">
-                    {fixture.number}
+                    {card.number}
                   </span>
 
-                  <img
-                    src={cloudinary(fixture, 900)}
-                    srcSet={srcSetFor(fixture)}
-                    sizes="(max-width: 767px) 86vw, (max-width: 1099px) 44vw, 25vw"
-                    alt={t(`fixtures.items.${fixture.id}.title`)}
-                    loading="lazy"
-                    decoding="async"
-                  />
+                  {/* ready না হওয়া পর্যন্ত ছবি বসানোই হয় না — ভুল ছবি
+                      নামানো আর দুইবার নামানো ঠেকাতে */}
+                  {ready && card.image.url && (
+                    <img
+                      src={imageUrl(card.image, 900)}
+                      srcSet={srcSetFor(card.image)}
+                      sizes="(max-width: 767px) 86vw, (max-width: 1099px) 44vw, 25vw"
+                      alt={card.alt}
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  )}
                 </div>
 
                 <div className="fixtures-card-body">
                   <div className="fixtures-card-text">
-                    <h3 className="fixtures-card-title">
-                      {t(`fixtures.items.${fixture.id}.title`)}
-                    </h3>
-                    <p className="fixtures-card-scope">
-                      {t(`fixtures.items.${fixture.id}.scope`)}
-                    </p>
-                    <p className="fixtures-card-desc">
-                      {t(`fixtures.items.${fixture.id}.description`)}
-                    </p>
+                    <h3 className="fixtures-card-title">{card.title}</h3>
+                    <p className="fixtures-card-scope">{card.scope}</p>
+                    <p className="fixtures-card-desc">{card.description}</p>
                   </div>
 
-                  <SoftLink to={localeLink(fixture.to)} className="fixtures-card-link">
+                  <SoftLink to={localeLink(card.to)} className="fixtures-card-link">
                     <span>{t("fixtures.moreInfo")}</span>
                     <span className="fixtures-card-arrow">
                       <ArrowUpRight />
@@ -376,19 +391,19 @@ function Fixtures() {
           </div>
         </div>
 
-        <ul className="fixtures-benefits">
-          {BENEFITS.map((id) => (
-            <li key={id} className="fixtures-benefit">
-              <span className="fixtures-benefit-icon">{BENEFIT_ICONS[id]}</span>
-              <h3 className="fixtures-benefit-title">
-                {t(`fixtures.benefits.${id}.title`)}
-              </h3>
-              <p className="fixtures-benefit-text">
-                {t(`fixtures.benefits.${id}.text`)}
-              </p>
-            </li>
-          ))}
-        </ul>
+        {view.points.length > 0 && (
+          <ul className="fixtures-benefits">
+            {view.points.map((point) => (
+              <li key={point.id} className="fixtures-benefit">
+                <span className="fixtures-benefit-icon">
+                  {BENEFIT_ICONS[point.icon] ?? BENEFIT_ICONS.spark}
+                </span>
+                <h3 className="fixtures-benefit-title">{point.title}</h3>
+                <p className="fixtures-benefit-text">{point.text}</p>
+              </li>
+            ))}
+          </ul>
+        )}
 
         <SoftLink to={localeLink("/products")} className="fixtures-cta">
           {t("fixtures.seeAll")}
