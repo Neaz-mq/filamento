@@ -531,7 +531,9 @@
 }
 
 .pd-search:focus-within {
-  border-color: var(--adm-ink);
+  /* search pill এ কালো বর্ডার ছিল — এখন হলুদ */
+  border-color: var(--adm-yellow);
+  box-shadow: 0 0 0 3px rgba(247, 190, 0, 0.25);
 }
 
 .pd-search input {
@@ -1503,8 +1505,18 @@
 .pd-input:focus-visible,
 .pd-input-box:focus-within,
 .pd-textarea-box:focus-within {
-  border-color: var(--adm-ink);
+  /* কালো (--adm-ink) ছিল — ঘরে ক্লিক করলে কালো বর্ডার আসত. এখন হলুদ,
+     পাশের হলুদ glow এর সাথে মিলে (admin-input এর মতোই) */
+  border-color: var(--adm-yellow);
   box-shadow: 0 0 0 3px rgba(247, 190, 0, 0.25);
+}
+
+/* ভেতরের textarea তে browser/global :focus-visible এর কালো outline যেন না আসে */
+.pd-textarea-box textarea:focus,
+.pd-textarea-box textarea:focus-visible,
+.pd-input-box input:focus,
+.pd-input-box input:focus-visible {
+  outline: none;
 }
 
 .pd-input[readonly],

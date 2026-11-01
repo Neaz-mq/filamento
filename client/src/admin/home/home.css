@@ -1407,3 +1407,17 @@
     animation: none;
   }
 }
+
+/* dropdown এর দল শিরোনাম (Project Link: "Project type", "Specific project" …)
+   — শুধু দেখার জন্য, বাছা যায় না */
+.hc-dd-group {
+  display: block;
+  padding: 10px 12px 4px;
+  color: rgba(55, 58, 60, 0.5);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 14px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  pointer-events: none;
+}

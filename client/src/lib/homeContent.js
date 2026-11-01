@@ -416,3 +416,187 @@ export function buildFixturesView(featured, { t, en, has }) {
     points,
   };
 }
+
+/* ---------------------------------------------------------------
+   Videos (Technologies section) এর দেখানোর রূপ
+
+   videos — content.videos (বা undefined)
+   tools  — { t, en, has } (Hero র মতোই)
+
+   • তালিকা আর ক্রম admin এর. প্রতিটা: শিরোনাম, লেখা, video link, cover
+   • cover এর fit: আগের তিনটা video র নিজস্ব মাপ ছিল ("product" = স্বচ্ছ
+     লাইটের ছবি, ধূসর পটভূমি আর হলুদ বৃত্তের উপর; "photo" = পুরো ছবি).
+     admin ওই তিনটার আগের cover রেখে দিলে সেই fit-ই থাকে; নতুন ছবি
+     দিলে বা নতুন video যোগ করলে "photo" (পুরো ছবি) — কারণ সেটা
+     যেকোনো ছবিতেই ঠিক দেখায়
+   • baseViews (শুরুর সংখ্যা) শুধু আগের তিনটার; নতুন video র 0, তাই
+     সেখানে শুধু আসল play এর সংখ্যা দেখায়
+   • server না পেলে বা তালিকা না থাকলে আগের হুবহু তিনটা
+   --------------------------------------------------------------- */
+const VIDEO_KNOWN = {
+  thermal: {
+    path: "v1789621338/Additional_0001_1779697023_1_taubuk.png",
+    fit: "product",
+    baseViews: 544,
+  },
+  optical: {
+    path: "v1789628672/8f7e17c86d7e55308fb2c4aa5e59b763e23cc115_zcjucz.png",
+    fit: "photo",
+    baseViews: 1200,
+  },
+  driver: {
+    path: "v1789471643/fix3_yeppeq.webp",
+    fit: "product",
+    trim: true,
+    baseViews: 768,
+  },
+};
+
+const VIDEOS_FALLBACK = [
+  {
+    id: "thermal",
+    video:
+      "https://www.filamento.com/wp-content/uploads/2026/07/RH1_Animation_Final_02_compressed.mp4",
+  },
+  {
+    id: "optical",
+    video:
+      "https://www.filamento.com/wp-content/uploads/2026/06/10467854031752108853_compressed.mp4",
+  },
+  {
+    id: "driver",
+    video:
+      "https://www.filamento.com/wp-content/plugins/Tot/upload/resources/VIDEOS/INSV_ACC-005-PT1-000-FL_230907.mp4",
+  },
+];
+
+export function buildVideosView(videos, { t, en, has }) {
+  const local = (value, key) => {
+    const own = typeof value === "string" ? value.trim() : "";
+    const known = Boolean(key) && has(key);
+    if (!own) return known ? t(key) : "";
+    if (!known) return own;
+    return own === en(key) ? t(key) : own;
+  };
+
+  const coverFor = (id, url) => {
+    if (!url) return null;
+    const known = VIDEO_KNOWN[id];
+    const sameAsDefault = Boolean(known) && url.endsWith(known.path);
+    return {
+      url,
+      fit: sameAsDefault ? known.fit : "photo",
+      trim: sameAsDefault && Boolean(known.trim),
+    };
+  };
+
+  const rawItems =
+    Array.isArray(videos?.items) && videos.items.length > 0 ? videos.items : null;
+
+  const items = rawItems
+    ? rawItems.map((item) => {
+        const id = String(item.id);
+        return {
+          id,
+          title: local(item.title, `technologies.items.${id}.title`),
+          text: local(item.description, `technologies.items.${id}.text`),
+          video: item.video?.url || null,
+          cover: coverFor(id, item.cover?.url),
+          baseViews: VIDEO_KNOWN[id]?.baseViews ?? 0,
+        };
+      })
+    : VIDEOS_FALLBACK.map((item) => {
+        const known = VIDEO_KNOWN[item.id];
+        return {
+          id: item.id,
+          title: t(`technologies.items.${item.id}.title`),
+          text: t(`technologies.items.${item.id}.text`),
+          video: item.video,
+          cover: coverFor(item.id, CLOUD + known.path),
+          baseViews: known.baseViews,
+        };
+      });
+
+  return {
+    title: videos ? local(videos.heading, "technologies.title") : t("technologies.title"),
+    text: videos ? local(videos.subtext, "technologies.text") : t("technologies.text"),
+    items,
+  };
+}
+
+/* ---------------------------------------------------------------
+   Testimonials এর দেখানোর রূপ
+
+   testimonials — content.testimonials (বা undefined)
+   tools        — { t, en, has } (Hero র মতোই)
+
+   • তালিকা আর ক্রম admin এর. প্রতিটা: ছবি, নাম, পদবি + company,
+     rating, quote, Project link ("Project" বোতামের গন্তব্য)
+   • পদবির লাইন = "<Designation>, <Company>" (যেমন "Facility Manager,
+     Cold Storage")
+   • ভাষার নিয়ম Hero র মতোই: admin এর লেখা ইংরেজি আসল লেখার হুবহু
+     এক থাকলে বর্তমান ভাষার অনুবাদ, বদলালে admin এর লেখাই সব ভাষায়.
+     নতুন যোগ করা testimonial এর অনুবাদ নেই, তাই admin এর লেখাই
+   • section এর শিরোনাম আর নিচের লেখা admin এ নেই — সেগুলো
+     অনুবাদ ফাইল থেকেই (Testimonial.jsx)
+   • server না পেলে বা তালিকা না থাকলে আগের হুবহু চারটা
+   --------------------------------------------------------------- */
+const TESTIMONIAL_AVATAR =
+  "https://res.cloudinary.com/dzi3u164c/image/upload/v1789637818/a73e9b59e7a15dc477a605d52bd4add7b91a67a9_pewd5s.jpg";
+
+const TESTIMONIALS_FALLBACK = [
+  { id: "marcus", rating: 4.5, projectTo: "/projects?category=coldStorage" },
+  { id: "frank", rating: 4.0, projectTo: "/projects?category=distributionCenter" },
+  { id: "david", rating: 4.8, projectTo: "/projects?category=manufacturing" },
+  { id: "elena", rating: 4.6, projectTo: "/projects?category=warehouse" },
+];
+
+export function buildTestimonialsView(testimonials, { t, en, has }) {
+  const local = (value, key) => {
+    const own = typeof value === "string" ? value.trim() : "";
+    const known = Boolean(key) && has(key);
+    if (!own) return known ? t(key) : "";
+    if (!known) return own;
+    return own === en(key) ? t(key) : own;
+  };
+
+  // ছোট ছবি যথেষ্ট — avatar সর্বোচ্চ ~120px
+  const avatarUrl = (url) =>
+    url ? cloudinaryUrl(url, "c_limit,w_240,f_auto,q_auto") : "";
+
+  const rawItems =
+    Array.isArray(testimonials?.items) && testimonials.items.length > 0
+      ? testimonials.items
+      : null;
+
+  const items = rawItems
+    ? rawItems.map((item) => {
+        const id = String(item.id);
+        const roleText = [item.designation, item.company]
+          .map((part) => (typeof part === "string" ? part.trim() : ""))
+          .filter(Boolean)
+          .join(", ");
+        const rating = Number(item.rating);
+
+        return {
+          id,
+          rating: Number.isFinite(rating) ? Math.min(Math.max(rating, 0), 5) : 0,
+          projectTo: item.projectLink || "/projects",
+          avatar: avatarUrl(item.image?.url),
+          name: local(item.name, `testimonials.items.${id}.name`),
+          role: local(roleText, `testimonials.items.${id}.role`),
+          quote: local(item.quote, `testimonials.items.${id}.quote`),
+        };
+      })
+    : TESTIMONIALS_FALLBACK.map((item) => ({
+        id: item.id,
+        rating: item.rating,
+        projectTo: item.projectTo,
+        avatar: TESTIMONIAL_AVATAR,
+        name: t(`testimonials.items.${item.id}.name`),
+        role: t(`testimonials.items.${item.id}.role`),
+        quote: t(`testimonials.items.${item.id}.quote`),
+      }));
+
+  return { items };
+}

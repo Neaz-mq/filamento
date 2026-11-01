@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { getDB } from "../config/db.js";
+import { DEFAULT_HOME } from "../lib/homeContentSchema.js";
 
 /* ===============================================================
    Video view — Technologies section এর video গুলো কতবার চালানো
@@ -12,18 +13,31 @@ import { getDB } from "../config/db.js";
    নিজে থেকেই তৈরি হয় (upsert). _id নিজেই index, আলাদা index লাগে না.
 
    এখানে শুধু আসল play গোনা হয়. পাতায় যে "শুরুর সংখ্যা" যোগ হয়
-   (1.2k ইত্যাদি), সেটা frontend এর Technologies.jsx এ আলাদা —
+   (1.2k ইত্যাদি), সেটা frontend এর lib/homeContent.js এ আলাদা —
    database এ মেশানো হয় না
    =============================================================== */
 
 const router = Router();
 const COLLECTION = "video_views";
 
-/* শুধু এই id গুলোই গোনা হয়. নাহলে যে কেউ বাইরে থেকে
+/* শুধু চেনা id গুলোই গোনা হয়. নাহলে যে কেউ বাইরে থেকে
    /api/video-views/যা-খুশি পাঠিয়ে database এ হাজারটা document
    বানিয়ে ফেলতে পারত.
-   frontend এ নতুন video যোগ করলে এখানেও id টা যোগ করতে হবে */
-const VIDEO_IDS = ["thermal", "optical", "driver"];
+
+   "চেনা" মানে admin এর Home → Videos ধাপে এখন যে video গুলো আছে
+   (site_content এ save করা থাকলে সেটা, না থাকলে আগের তিনটা).
+   তাই admin এ নতুন video যোগ করলে এখানে আলাদা করে কিছু বসাতে হয় না.
+   মুছে ফেলা video র আগের সংখ্যা database এ থেকে যায় — একই id
+   আবার এলে সংখ্যাও ফিরে আসে */
+async function knownVideoIds() {
+  const doc = await getDB()
+    .collection("site_content")
+    .findOne({ _id: "home" }, { projection: { "steps.videos.data.items.id": 1 } });
+
+  const saved = doc?.steps?.videos?.data?.items;
+  const items = Array.isArray(saved) ? saved : DEFAULT_HOME.videos.items;
+  return items.map((item) => item?.id).filter((id) => typeof id === "string" && id);
+}
 
 /* ---------------------------------------------------------------
    একই জায়গা থেকে ঘন ঘন গোনা ঠেকানো
@@ -71,12 +85,13 @@ const shouldCount = (key, now) => {
    --------------------------------------------------------------- */
 router.get("/", async (req, res, next) => {
   try {
+    const videoIds = await knownVideoIds();
     const docs = await getDB()
       .collection(COLLECTION)
-      .find({ _id: { $in: VIDEO_IDS } })
+      .find({ _id: { $in: videoIds } })
       .toArray();
 
-    const views = Object.fromEntries(VIDEO_IDS.map((id) => [id, 0]));
+    const views = Object.fromEntries(videoIds.map((id) => [id, 0]));
     docs.forEach((doc) => {
       views[doc._id] = doc.count ?? 0;
     });
@@ -99,11 +114,11 @@ router.get("/", async (req, res, next) => {
 router.post("/:id", async (req, res, next) => {
   const { id } = req.params;
 
-  if (!VIDEO_IDS.includes(id)) {
-    return res.status(404).json({ message: `Unknown video: ${id}` });
-  }
-
   try {
+    if (!(await knownVideoIds()).includes(id)) {
+      return res.status(404).json({ message: `Unknown video: ${id}` });
+    }
+
     const collection = getDB().collection(COLLECTION);
     const counted = shouldCount(`${clientIp(req)}:${id}`, Date.now());
 

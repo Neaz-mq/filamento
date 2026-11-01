@@ -1,7 +1,9 @@
-import { useId, useRef, useState } from "react";
+import { useId, useMemo, useRef, useState } from "react";
 import SoftLink from "./SoftLink";
 import { useTranslation } from "react-i18next";
 import { useLocaleLink } from "../i18n/useLocaleLink";
+import { buildTestimonialsView, isExternalLink, useHomeContent } from "../lib/homeContent";
+import { LINKS_LIVE } from "../lib/siteLinks";
 import "./Testimonial.css";
 
 /* Figma "Frame 282" — তিনটা card পাশাপাশি: একটা বড় (খোলা), দুইটা
@@ -19,27 +21,13 @@ import "./Testimonial.css";
    পৌঁছালে একপাশের card গুটিয়ে শূন্য হয়ে যায় আর অন্য পাশ থেকে
    নতুনটা খুলে আসে, পুরো সারিটা যেন মসৃণভাবে সরে.
 
-   ⚠️ নিচের quote/নাম/ছবি সবই placeholder — আসল client testimonial
-   আর ছবি পেলে TESTIMONIALS array আর en/ja/zh-Hant.json এর
-   "testimonials.items" অংশ বদলে দেবেন। ছবি না থাকলে initials
-   দিয়ে avatar বানানো হচ্ছে (নিচে Avatar দেখুন), তাই ভাঙা <img>
-   দেখানোর ঝুঁকি নেই। */
-/* আসল client photo না আসা পর্যন্ত সবার জন্য একই ছবি — পরে যার যার
-   real photo পেলে নিচের প্রতিটা entry তে আলাদা avatar বসিয়ে দেবেন,
-   এই constant টা তখন আর লাগবে না */
-const PLACEHOLDER_AVATAR =
-  "https://res.cloudinary.com/dzi3u164c/image/upload/v1789637818/a73e9b59e7a15dc477a605d52bd4add7b91a67a9_pewd5s.jpg";
-
-/* projectTo — এখন Projects পাতার ওই ধরনের project এর তালিকায় যায়
-   (আগের /projects/marcus-cold-storage এর মতো ঠিকানায় কোনো আসল project
-   নেই, "not found" দেখাত). admin এ এই গ্রাহকদের project যোগ হলে এখানে
-   তার ঠিকানা বসাবেন: "/projects/<slug>" */
-const TESTIMONIALS = [
-  { id: "marcus", rating: 4.5, projectTo: "/projects?category=coldStorage", avatar: PLACEHOLDER_AVATAR },
-  { id: "frank", rating: 4.0, projectTo: "/projects?category=distributionCenter", avatar: PLACEHOLDER_AVATAR },
-  { id: "david", rating: 4.8, projectTo: "/projects?category=manufacturing", avatar: PLACEHOLDER_AVATAR },
-  { id: "elena", rating: 4.6, projectTo: "/projects?category=warehouse", avatar: PLACEHOLDER_AVATAR },
-];
+   quote, নাম, ছবি, rating আর Project link সব admin এর Home →
+   Testimonials থেকে আসে. ছবি না থাকলে initials দিয়ে avatar বানানো
+   হয় (নিচে Avatar দেখুন), তাই ভাঙা <img> দেখানোর ঝুঁকি নেই। */
+/* তালিকা (ছবি, নাম, পদবি, rating, quote, Project link) এখন admin এর
+   Testimonials ধাপ থেকে আসে — lib/homeContent.js এর
+   buildTestimonialsView. server না পেলে আগের হুবহু চারটা.
+   ছবি না থাকলে নামের আদ্যক্ষর দিয়ে avatar বানানো হয় (নিচে Avatar) */
 
 /* Figma: 32px বৃত্তের ভেতরে তীর — 10.5px লম্বা, 45° ঘোরানো,
    stroke 1.5, #0B121A */
@@ -205,12 +193,39 @@ function MiniRating({ value, t }) {
 function ProjectLink({ to, label, tabIndex }) {
   const localeLink = useLocaleLink();
 
-  return (
-    <SoftLink to={localeLink(to)} className="testimonial-project" tabIndex={tabIndex}>
+  const body = (
+    <>
       <span>{label}</span>
       <span className="testimonial-project-icon">
         <ProjectIcon />
       </span>
+    </>
+  );
+
+  /* admin এ পুরো https link দিলে সাধারণ <a> (নতুন tab এ);
+     /projects... এর মতো সাইটের পথ হলে আগের মতোই SoftLink */
+  const external = isExternalLink(to);
+  if (external && LINKS_LIVE) {
+    return (
+      <a
+        href={to}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="testimonial-project"
+        tabIndex={tabIndex}
+      >
+        {body}
+      </a>
+    );
+  }
+
+  return (
+    <SoftLink
+      to={external ? to : localeLink(to)}
+      className="testimonial-project"
+      tabIndex={tabIndex}
+    >
+      {body}
     </SoftLink>
   );
 }
@@ -238,7 +253,7 @@ const isWide = () =>
            থামে না, screen reader ও পড়ে না)
    first / last — জানালার প্রথম আর শেষ card: তীরগুলো এদের কিনারায়
            ভাসে, তাই ভেতরের লেখা সেদিকে একটু সরে থাকে (CSS দেখুন) */
-function TestimonialCard({ item, active, out, first, last, onHover, onSelect, t }) {
+function TestimonialCard({ item, items, active, out, first, last, onHover, onSelect, t }) {
   const nameId = useId();
   const roleId = useId();
   const cardRef = useRef(null);
@@ -260,8 +275,7 @@ function TestimonialCard({ item, active, out, first, last, onHover, onSelect, t 
     });
   };
 
-  const name = t(`testimonials.items.${item.id}.name`);
-  const role = t(`testimonials.items.${item.id}.role`);
+  const { name, role } = item;
 
   return (
     <article
@@ -323,7 +337,7 @@ function TestimonialCard({ item, active, out, first, last, onHover, onSelect, t 
               লম্বা quote এর সমান: তিনটা card সবসময় সমান উঁচু, আর
               hover বা তীর চাপলে সারির উচ্চতা একটুও বদলায় না */}
           <div className="testimonial-quotes">
-            {TESTIMONIALS.map((other) => {
+            {items.map((other) => {
               const own = other.id === item.id;
               return (
                 <p
@@ -332,7 +346,7 @@ function TestimonialCard({ item, active, out, first, last, onHover, onSelect, t 
                   data-active={own ? "true" : undefined}
                   aria-hidden={own ? undefined : "true"}
                 >
-                  {t(`testimonials.items.${other.id}.quote`)}
+                  {other.quote}
                 </p>
               );
             })}
@@ -375,7 +389,23 @@ function TestimonialCard({ item, active, out, first, last, onHover, onSelect, t 
 const VISIBLE = 3;
 
 function Testimonial() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+
+  /* ready: উত্তর এসেছে (বা ১.৫ সেকেন্ড পেরিয়েছে). তার আগে অংশটা
+     লুকানো থাকে (জায়গা নেয়, তাই পাতা লাফায় না) — নাহলে প্রথমে
+     পুরনো লেখা-ছবি, তারপর নতুনটা ঝলকাত. Fixtures র মতোই */
+  const { content, settled: ready } = useHomeContent();
+
+  const view = useMemo(
+    () =>
+      buildTestimonialsView(content?.testimonials, {
+        t,
+        en: i18n.getFixedT("en"),
+        has: (key) => i18n.exists(key, { lng: "en" }),
+      }),
+    [content, t, i18n],
+  );
+  const items = view.items;
 
   /* তিনটা আলাদা জিনিস:
 
@@ -384,12 +414,15 @@ function Testimonial() {
        hovered     — মাউস যেটার উপরে, শুধু দেখার জন্য. মাউস সরালে
                      মুছে যায়, তখন আবার selected টা খোলে
        windowStart — চারটার মধ্যে কোন তিনটা এখন দেখা যাচ্ছে */
-  const [selected, setSelected] = useState(0);
+  const [selectedRaw, setSelected] = useState(0);
   const [hovered, setHovered] = useState(null);
-  const [windowStart, setWindowStart] = useState(0);
+  const [windowStartRaw, setWindowStart] = useState(0);
 
-  const count = TESTIMONIALS.length;
-  const activeIndex = hovered ?? selected;
+  const count = items.length;
+  // admin এ তালিকা ছোট হলে সূচক যেন সীমা না ছাড়ায়
+  const selected = Math.min(selectedRaw, count - 1);
+  const windowStart = Math.min(windowStartRaw, Math.max(count - VISIBLE, 0));
+  const activeIndex = Math.min(hovered ?? selected, count - 1);
 
   /* বেছে নেওয়া — যেটা বাছা হলো সেটা জানালার বাইরে থাকলে জানালাও
      সেদিকে সরে, ঠিক যতটুকু দরকার (একবারে এক ঘর) */
@@ -418,7 +451,10 @@ function Testimonial() {
 
   return (
     <section id="testimonials" className="testimonials" aria-labelledby="testimonials-title">
-      <div className="testimonials-inner">
+      <div
+        className="testimonials-inner"
+        style={ready ? undefined : { visibility: "hidden" }}
+      >
         <div className="testimonials-head">
           <h2 id="testimonials-title" className="testimonials-title">
             {t("testimonials.title")}
@@ -431,16 +467,17 @@ function Testimonial() {
               card নিজের জায়গায় থেকে শুধু চওড়া বদলায়: বড় হয়, ছোট হয়,
               বা জানালার বাইরে গেলে শূন্য হয়ে যায়. কোনো card লাফিয়ে
               অন্য জায়গায় যায় না, তাই সব বদলই একই মসৃণ animation */}
-          {TESTIMONIALS.map((item, index) => {
+          {items.map((item, index) => {
             const inView = index >= windowStart && index < windowStart + VISIBLE;
             return (
               <TestimonialCard
                 key={item.id}
                 item={item}
+                items={items}
                 active={index === activeIndex}
                 out={!inView}
                 first={index === windowStart}
-                last={index === windowStart + VISIBLE - 1}
+                last={index === Math.min(windowStart + VISIBLE, count) - 1}
                 onHover={() => setHovered(index)}
                 onSelect={() => select(index)}
                 t={t}

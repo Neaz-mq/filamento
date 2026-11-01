@@ -1,4 +1,6 @@
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { buildComparisonView, useHomeContent } from "../lib/homeContent";
 import "./Comparison.css";
 
 /* Figma "Frame 509" — বাঁয়ে শিরোনাম, ডানে Filamento বনাম সাধারণ
@@ -8,9 +10,9 @@ import "./Comparison.css";
    screen reader তখন প্রতিটা ঘরের সাথে কলামের নাম ("Traditional LED")
    আর সারির নাম ("Warranty") দুইটাই পড়ে শোনায়। div grid এ এটা হয় না */
 
-/* সারির ক্রম Figma অনুযায়ী। নতুন সারি লাগলে এখানে id যোগ করে
-   তিনটা locale ফাইলে comparison.rows.<id> বসালেই হবে */
-const ROWS = ["energy", "dimming", "glare", "lifetime", "warranty", "design"];
+/* সারির তালিকা, শিরোনাম আর লেখা এখন lib/homeContent.js এর
+   buildComparisonView এ — admin এর Comparison ধাপ থেকে আসে (ক্রমও
+   admin এর ক্রম). server না পেলে আগের ছয়টা সারিই দেখায় */
 
 /* Figma: 20px, stroke 2, #373A3C — lucide এর lightbulb.
    viewBox 24 এর, দেখানো হয় 20px এ; তাই stroke 2.4 দিলে পর্দায়
@@ -66,17 +68,32 @@ function CheckIcon() {
 }
 
 function Comparison() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+
+  /* ready: উত্তর এসেছে (বা ১.৫ সেকেন্ড পেরিয়েছে). তার আগে অংশটা
+     লুকানো থাকে (জায়গা নেয়, তাই পাতা লাফায় না) — নাহলে প্রথমে
+     পুরনো লেখা, তারপর নতুনটা ঝলকাত. Fixtures র মতোই */
+  const { content, settled: ready } = useHomeContent();
+
+  const view = useMemo(
+    () =>
+      buildComparisonView(content?.comparison, {
+        t,
+        en: i18n.getFixedT("en"),
+        has: (key) => i18n.exists(key, { lng: "en" }),
+      }),
+    [content, t, i18n],
+  );
 
   return (
     <section className="comparison" aria-labelledby="comparison-title">
-      <div className="comparison-inner">
+      <div className="comparison-inner" style={ready ? undefined : { visibility: "hidden" }}>
         {/* Figma: Frame 192 — 320px চওড়া */}
         <div className="comparison-intro">
           <h2 id="comparison-title" className="comparison-title">
-            {t("comparison.title")}
+            {view.title}
           </h2>
-          <p className="comparison-text">{t("comparison.text")}</p>
+          <p className="comparison-text">{view.text}</p>
         </div>
 
         {/* Figma: Frame 257 (সাদা) + Frame 253 (border) */}
@@ -110,10 +127,10 @@ function Comparison() {
             </thead>
 
             <tbody role="rowgroup">
-              {ROWS.map((row) => (
-                <tr key={row} role="row">
+              {view.rows.map((row) => (
+                <tr key={row.id} role="row">
                   <th scope="row" role="rowheader">
-                    {t(`comparison.rows.${row}.label`)}
+                    {row.label}
                   </th>
                   {/* data-label — ফোনে ঘরের উপরে কলামের নাম দেখানোর জন্য */}
                   <td
@@ -121,12 +138,12 @@ function Comparison() {
                     className="comparison-traditional"
                     data-label={t("comparison.columns.traditional")}
                   >
-                    {t(`comparison.rows.${row}.traditional`)}
+                    {row.traditional}
                   </td>
                   <td role="cell" data-label={t("comparison.columns.filamento")}>
                     <span className="comparison-ours">
                       <CheckIcon />
-                      <span>{t(`comparison.rows.${row}.filamento`)}</span>
+                      <span>{row.filamento}</span>
                     </span>
                   </td>
                 </tr>

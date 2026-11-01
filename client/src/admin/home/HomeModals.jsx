@@ -3,7 +3,7 @@ import { api } from "../../lib/api";
 import Modal from "../products/Modal";
 import { ProductThumb } from "../products/ProductLibrary";
 import { CATEGORIES as PRODUCT_CATEGORIES, categoryOf } from "../products/catalog";
-import { PRODUCT_GROUP_ICONS } from "../projects/projectCatalog";
+import { PRODUCT_GROUP_ICONS, PROJECT_TYPES } from "../projects/projectCatalog";
 import { HOME_ICONS, HOME_LISTS, ITEM_FORMS, emptyItem, guessIcon, itemProblems } from "./homeShape";
 import { SITE_ICON_CHOICES } from "./siteIcons";
 import { MediaInput, Stars, TextField } from "./HomeParts";
@@ -173,8 +173,16 @@ function LinkDropdown({ id, label, value, options, onChange }) {
         <ul className={`hc-dd-menu${dropUp ? " is-up" : ""}`} role="listbox" aria-label={label}>
           {options.map((option, index) => {
             const active = index === selected;
+            /* option.group থাকলে নতুন দলের শুরুতে একটা ছোট শিরোনাম — শুধু
+               দেখার জন্য, বাছা যায় না, তাই কীবোর্ডের ক্রম (index) বদলায় না */
+            const heading = option.group && option.group !== options[index - 1]?.group;
             return (
               <li key={option.value} role="presentation">
+                {heading && (
+                  <span className="hc-dd-group" aria-hidden="true">
+                    {option.group}
+                  </span>
+                )}
                 <button
                   type="button"
                   role="option"
@@ -244,6 +252,106 @@ function LinkPicker({ id, field, value, error, onChange }) {
       ) : (
         <p className="hc-icon-hint">
           {current === "" ? "Opens the Products page." : `Opens ${label ?? current} on the website.`}
+        </p>
+      )}
+    </div>
+  );
+}
+
+/* ---------------------------------------------------------------
+   ProjectLinkPicker — Testimonial এর Project Link
+
+   URL হাতে লেখার বদলে বাছা:
+     • All projects        → /projects
+     • Project Type        → /projects?category=<key>   (Cold Storage …)
+     • একটা নির্দিষ্ট project → /projects/<slug>
+   তালিকাটা সাইটের Projects পাতার (Completed আর In Progress) থেকেই
+   আসে — Draft project এখানে আসে না, তাই সাইটে ভাঙা link যায় না.
+   project যোগ বা মুছলে তালিকা নিজে থেকে মেলে, হাতে কিছু বদলাতে হয় না.
+
+   শেষে একটা সাধারণ লেখাই জমা হয় (যেমন "/projects/barn-xo"), তাই
+   database বা সাইটে কিছু বদলাতে হয় না
+   --------------------------------------------------------------- */
+const PROJECT_BASE_OPTIONS = [
+  { value: "/projects", label: "All projects", group: "Projects page" },
+  ...PROJECT_TYPES.map((type) => ({
+    value: `/projects?category=${type.key}`,
+    label: type.label,
+    group: "Project type",
+  })),
+];
+
+function ProjectLinkPicker({ id, field, value, error, onChange }) {
+  const current = String(value ?? "");
+
+  // undefined = এখনো আসছে, [] = আসেনি/নেই
+  const [projects, setProjects] = useState(undefined);
+
+  useEffect(() => {
+    let alive = true;
+    api
+      .getProjects()
+      .then((data) => {
+        if (alive) setProjects(Array.isArray(data?.projects) ? data.projects : []);
+      })
+      .catch(() => {
+        if (alive) setProjects([]);
+      });
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  const projectOptions = (projects ?? [])
+    .filter((project) => project?.slug && project?.title)
+    .map((project) => ({
+      value: `/projects/${project.slug}`,
+      label: project.title,
+      group: "Specific project",
+    }));
+
+  const known = [...PROJECT_BASE_OPTIONS, ...projectOptions];
+
+  /* বাছা মানটা তালিকায় না থাকলে (আগে হাতে লেখা link, বা যে project
+     এখন আর চালু নেই) সেটা যেন চুপচাপ হারিয়ে না যায় — তালিকার মাথায়
+     রাখা. project গুলো আসার আগে /projects/... নামটা না পাওয়া গেলেও
+     একই কাজ; এলে এই সারিটা নিজেই সরে গিয়ে আসল নাম দেখায় */
+  const options =
+    current && !known.some((option) => option.value === current)
+      ? [{ value: current, label: `Current: ${current}`, group: "Current link" }, ...known]
+      : known;
+
+  const label = options.find((option) => option.value === current)?.label;
+
+  return (
+    <div className="hc-link">
+      <label className="pd-label" htmlFor={id}>
+        {field.label}
+      </label>
+
+      <div className="hc-link-row">
+        <LinkDropdown
+          id={id}
+          label={field.label}
+          value={current}
+          options={options}
+          onChange={onChange}
+        />
+      </div>
+
+      {error ? (
+        <span className="pd-error" role="alert">
+          {error}
+        </span>
+      ) : (
+        <p className="hc-icon-hint">
+          {current === ""
+            ? projects === undefined
+              ? "Loading projects…"
+              : "Choose where the Project button goes."
+            : current === "/projects"
+              ? "Opens the Projects page."
+              : `Opens ${label ?? current} on the website.`}
         </p>
       )}
     </div>
@@ -348,6 +456,20 @@ export function ItemModal({ form, initial, note, onSave, onClose }) {
               return (
                 <div key={field.key} className={`hc-span-full${width}`}>
                   <LinkPicker
+                    id={id}
+                    field={field}
+                    value={item[field.key]}
+                    error={shown[field.key]}
+                    onChange={(value) => set(field.key, value)}
+                  />
+                </div>
+              );
+            }
+
+            if (field.type === "project-link") {
+              return (
+                <div key={field.key} className={`hc-span-full${width}`}>
+                  <ProjectLinkPicker
                     id={id}
                     field={field}
                     value={item[field.key]}

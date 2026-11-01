@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { api } from "../lib/api";
+import { buildVideosView, cloudinaryUrl, isCloudinary, useHomeContent } from "../lib/homeContent";
 import "./Technologies.css";
 
 /* Figma "Frame 514" — বাঁয়ে শিরোনাম, ডানে technology গুলোর খাড়া
@@ -21,66 +22,40 @@ import "./Technologies.css";
 
    কোনো ছবি card এ ঠিকমতো না বসলে শুধু fit টা বদলে দেখুন
    --------------------------------------------------------------- */
-const cloudinary = ({ path, trim = false }, width) =>
-  "https://res.cloudinary.com/dzi3u164c/image/upload/" +
-  (trim ? "e_trim/" : "") +
-  `c_limit,w_${width},f_auto,q_auto:best/` +
-  path;
+const coverUrl = (cover, width) =>
+  isCloudinary(cover.url)
+    ? cloudinaryUrl(
+        cover.url,
+        `${cover.trim ? "e_trim/" : ""}c_limit,w_${width},f_auto,q_auto:best`,
+      )
+    : cover.url;
 
 const coverSrcSet = (cover) =>
-  [480, 800, 1300]
-    .map((w) => `${cloudinary(cover, w)} ${w}w`)
-    .join(", ");
+  isCloudinary(cover.url)
+    ? [480, 800, 1300].map((w) => `${coverUrl(cover, w)} ${w}w`).join(", ")
+    : undefined;
 
 /* ---------------------------------------------------------------
    technology গুলো — উপর থেকে নিচের ক্রমে
 
-   video     — mp4 link (এখন filamento.com এর নিজের server থেকে).
-               null থাকলে play বোতাম শুধু দেখায়, চাপা যায় না
-   baseViews — শুরুর সংখ্যা, হাতে বসানো. পাতায় দেখায়
-               baseViews + আসল play এর সংখ্যা (backend থেকে).
-               শুধু আসল সংখ্যা দেখাতে চাইলে 0 করে দিন —
-               database এ হাত দিতে হবে না
-               (id টা server/routes/videoViewRoutes.js এর তালিকাতেও
-               থাকতে হবে, নাহলে server গুনবে না)
+   তালিকা, শিরোনাম, লেখা, video link আর cover এখন admin এর Videos
+   ধাপ থেকে আসে (lib/homeContent.js এর buildVideosView). server না
+   পেলে আগের হুবহু তিনটা.
 
-   video র সময় (duration) এখানে লেখা নেই — video ফাইল থেকেই পড়া
-   হয় (নিচে useVideoDurations). video বদলালে সময় নিজে থেকে মেলে
+   প্রতিটা সারির আকার:
+     id        — স্থির পরিচয় (view গোনার জন্যও)
+     title, text
+     video     — mp4 link. null থাকলে play বোতাম শুধু দেখায়, চাপা যায় না
+     cover     — { url, fit, trim } বা null
+                 fit "photo"   — পুরো ছবি, card টা পুরো ঢেকে ফেলে
+                 fit "product" — স্বচ্ছ লাইটের ছবি; ধূসর পটভূমি আর হলুদ
+                                  বৃত্তের উপর মাঝে বসে
+     baseViews — শুরুর সংখ্যা. পাতায় দেখায় baseViews + আসল play এর
+                 সংখ্যা (backend থেকে). নতুন video র 0
 
-   নতুন technology যোগ করতে: এখানে একটা সারি, আর তিনটা locale এ
-   technologies.items.<id>.title / .text
+   video র সময় (duration) video ফাইল থেকেই পড়া হয় (নিচে
+   useVideoDurations). video বদলালে সময় নিজে থেকে মেলে
    --------------------------------------------------------------- */
-const ITEMS = [
-  {
-    id: "thermal",
-    cover: {
-      path: "v1789621338/Additional_0001_1779697023_1_taubuk.png",
-      fit: "product",
-    },
-    video:
-      "https://www.filamento.com/wp-content/uploads/2026/07/RH1_Animation_Final_02_compressed.mp4",
-    baseViews: 544,
-  },
-  {
-    id: "optical",
-    // Figma র video cover — পুরো ছবি
-    cover: {
-      path: "v1789628672/8f7e17c86d7e55308fb2c4aa5e59b763e23cc115_zcjucz.png",
-      fit: "photo",
-    },
-    video:
-      "https://www.filamento.com/wp-content/uploads/2026/06/10467854031752108853_compressed.mp4",
-    // পাতা খুললে এটাই প্রথমে দেখায় — তাই সবচেয়ে বেশি view
-    baseViews: 1200,
-  },
-  {
-    id: "driver",
-    cover: { path: "v1789471643/fix3_yeppeq.webp", trim: true, fit: "product" },
-    video:
-      "https://www.filamento.com/wp-content/plugins/Tot/upload/resources/VIDEOS/INSV_ACC-005-PT1-000-FL_230907.mp4",
-    baseViews: 768,
-  },
-];
 
 // Figma তে মাঝেরটা (Superior Optical Distribution) খোলা
 const DEFAULT_ACTIVE = 1;
@@ -339,7 +314,25 @@ function useVideoViews(enabled) {
 function Technologies() {
   const { t, i18n } = useTranslation();
 
-  const [active, setActive] = useState(DEFAULT_ACTIVE);
+  /* ready: উত্তর এসেছে (বা ১.৫ সেকেন্ড পেরিয়েছে). তার আগে অংশটা
+     লুকানো থাকে (জায়গা নেয়, তাই পাতা লাফায় না) — নাহলে প্রথমে
+     পুরনো লেখা-ছবি, তারপর নতুনটা ঝলকাত. Fixtures র মতোই */
+  const { content, settled: ready } = useHomeContent();
+
+  const view = useMemo(
+    () =>
+      buildVideosView(content?.videos, {
+        t,
+        en: i18n.getFixedT("en"),
+        has: (key) => i18n.exists(key, { lng: "en" }),
+      }),
+    [content, t, i18n],
+  );
+  const items = view.items;
+
+  const [activeRaw, setActive] = useState(DEFAULT_ACTIVE);
+  // admin এ তালিকা ছোট হলে (যেমন ১টা) সূচক যেন সীমা না ছাড়ায়
+  const active = Math.min(activeRaw, items.length - 1);
   /* নতুন card কোন দিক থেকে আসবে — উপরের pill চাপলে উপর থেকে,
      নিচেরটা চাপলে নিচ থেকে */
   const [enterFrom, setEnterFrom] = useState("none");
@@ -366,21 +359,22 @@ function Technologies() {
 
   const sectionRef = useRef(null);
   const near = useNearViewport(sectionRef);
-  const [durations, rememberDuration] = useVideoDurations(near, ITEMS);
+  const [durations, rememberDuration] = useVideoDurations(near, items);
   const [views, countView] = useVideoViews(near);
 
   /* section কাছে এলে তিনটা cover ছবি আগেই নামিয়ে রাখা — নাহলে
      animation এর সময় নতুন card এর ছবি তখনো আসেনি, ফাঁকা দেখাত */
   useEffect(() => {
     if (!near) return;
-    ITEMS.forEach(({ cover }) => {
+    items.forEach(({ cover }) => {
       if (!cover) return;
       const image = new Image();
-      image.srcset = coverSrcSet(cover);
+      const srcSet = coverSrcSet(cover);
+      if (srcSet) image.srcset = srcSet;
       image.sizes = "(max-width: 1099px) 90vw, 45vw";
-      image.src = cloudinary(cover, 800);
+      image.src = coverUrl(cover, 800);
     });
-  }, [near]);
+  }, [near, items]);
 
   /* play চাপলে বোতামটা সরে গিয়ে video আসে — keyboard এর focus যেন
      হারিয়ে না যায়, তাই video তে পাঠানো হয়. video শেষ হলে আবার
@@ -395,13 +389,13 @@ function Technologies() {
     );
   };
 
-  const count = ITEMS.length;
+  const count = items.length;
   const wrap = (index) => (index + count) % count;
 
   const prevIndex = wrap(active - 1);
   const nextIndex = wrap(active + 1);
-  const item = ITEMS[active];
-  const itemTitle = t(`technologies.items.${item.id}.title`);
+  const item = items[active];
+  const itemTitle = item.title;
 
   const handlePlay = () => {
     setPlaying(true);
@@ -433,7 +427,7 @@ function Technologies() {
      interactive false → animation এর সময় পেছনে থাকা পুরনো card:
      একই রকম দেখায়, কিন্তু চাপা যায় না আর video চলে না */
   const renderFace = (entry, interactive) => {
-    const title = t(`technologies.items.${entry.id}.title`);
+    const title = entry.title;
     const duration = durations[entry.id];
     // backend থেকে সংখ্যা না এলে null — তখন view দেখায় না
     const viewCount = views
@@ -445,7 +439,7 @@ function Technologies() {
         <div className="tech-cover">
           {entry.cover && (
             <img
-              src={cloudinary(entry.cover, 800)}
+              src={coverUrl(entry.cover, 800)}
               srcSet={coverSrcSet(entry.cover)}
               sizes="(max-width: 1099px) 90vw, 45vw"
               alt=""
@@ -503,9 +497,7 @@ function Technologies() {
             <div className="tech-overlay">
               <div className="tech-overlay-text">
                 <h3 className="tech-card-title">{title}</h3>
-                <p className="tech-card-text">
-                  {t(`technologies.items.${entry.id}.text`)}
-                </p>
+                <p className="tech-card-text">{entry.text}</p>
               </div>
 
               {/* Boolean — নাহলে দুটোই 0 হলে React পাতায় "0" লিখে দিত */}
@@ -549,7 +541,7 @@ function Technologies() {
       return <span className="tech-pill tech-pill--empty" aria-hidden="true" />;
     }
 
-    const title = t(`technologies.items.${ITEMS[index].id}.title`);
+    const title = items[index].title;
 
     return (
       <button
@@ -560,7 +552,7 @@ function Technologies() {
       >
         {/* key দিয়ে শুধু লেখাটা নতুন করে আসে — বোতামটা একই থাকে,
             তাই keyboard এর focus হারায় না */}
-        <span key={ITEMS[index].id} className="tech-pill-label">
+        <span key={items[index].id} className="tech-pill-label">
           <span aria-hidden="true">+ </span>
           {title}
         </span>
@@ -574,13 +566,16 @@ function Technologies() {
       className="technologies"
       aria-labelledby="technologies-title"
     >
-      <div className="technologies-inner">
+      <div
+        className="technologies-inner"
+        style={ready ? undefined : { visibility: "hidden" }}
+      >
         {/* Figma: Frame 596 — 320px */}
         <div className="tech-intro">
           <h2 id="technologies-title" className="tech-title">
-            {t("technologies.title")}
+            {view.title}
           </h2>
-          <p className="tech-text">{t("technologies.text")}</p>
+          <p className="tech-text">{view.text}</p>
         </div>
 
         {/* Figma: Frame 594 — stack + dots, gap 48 */}
@@ -597,16 +592,16 @@ function Technologies() {
                 slot এর ভেতরে দুইটা card একই জায়গায় স্তূপ করা — পুরনোটা
                 পেছনে, নতুনটা উপরে (Technologies.css দেখুন) */}
             <div className="tech-card-slot" aria-live="polite">
-              {leaving && (
+              {leaving && items[leaving.index] && (
                 <article
                   key={`leaving-${leaving.key}`}
                   className="tech-card is-leaving"
-                  data-fit={ITEMS[leaving.index].cover?.fit ?? "photo"}
+                  data-fit={items[leaving.index].cover?.fit ?? "photo"}
                   data-enter={enterFrom}
                   aria-hidden="true"
                   inert
                 >
-                  {renderFace(ITEMS[leaving.index], false)}
+                  {renderFace(items[leaving.index], false)}
                 </article>
               )}
 
@@ -635,14 +630,12 @@ function Technologies() {
 
           {/* Figma: Frame 228 — খাড়া dot, চালু টা লম্বা */}
           <div className="tech-dots">
-            {ITEMS.map((dot, index) => (
+            {items.map((dot, index) => (
               <button
                 key={dot.id}
                 type="button"
                 className="tech-dot"
-                aria-label={t("technologies.goTo", {
-                  title: t(`technologies.items.${dot.id}.title`),
-                })}
+                aria-label={t("technologies.goTo", { title: dot.title })}
                 aria-current={index === active ? "true" : undefined}
                 onClick={() => show(index, index < active ? "top" : "bottom")}
               />

@@ -111,7 +111,8 @@ export function linkProblem(value) {
    modal এর ঘরগুলো — প্রতিটা "Add …" modal এই তালিকা থেকে আঁকা হয়
    (HomeModals.jsx → ItemModal)
 
-   type: text (default) | textarea | image | video | link | rating
+   type: text (default) | textarea | image | video | link | category-link |
+        project-link | rating
    width: "half" (দুই কলাম) | "third" (তিন কলাম) | না থাকলে পুরো
    --------------------------------------------------------------- */
 const L = HOME_LIMITS;
@@ -332,11 +333,11 @@ export const ITEM_FORMS = {
       {
         key: "projectLink",
         label: "Project Link",
-        type: "link",
+        // হাতে লেখা নয় — Projects পাতা, একটা Project Type, বা একটা চালু project বাছা
+        type: "project-link",
         max: L.url,
         required: true,
         width: "half",
-        placeholder: "/projects/barn-xo",
       },
       { key: "rating", label: "Rating", type: "rating", required: true, width: "half" },
       {
@@ -382,7 +383,8 @@ export function itemProblems(form, item) {
     const clean = String(value ?? "").trim();
     if (field.required && !clean) {
       problems[field.key] = `${field.label} is required.`;
-    } else if ((field.type === "link" || field.type === "category-link") && linkProblem(clean)) {
+    } else if ((field.type === "link" || field.type === "category-link" || field.type === "project-link") &&
+      linkProblem(clean)) {
       problems[field.key] = linkProblem(clean);
     }
   }
