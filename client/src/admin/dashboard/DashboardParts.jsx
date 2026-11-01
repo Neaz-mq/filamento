@@ -238,11 +238,11 @@ export function ProductActivity({ views, today, loading }) {
 export function QuickActions({ canEdit, onAddProduct }) {
   const actions = [
     { label: "Add Product", Icon: IconBox, onClick: onAddProduct, needsEdit: true, primary: true },
-    { label: "Add Project", Icon: IconChartSuccess, to: "/admin/projects/new", needsEdit: true },
-    { label: "Add Application", Icon: IconTickSquare, to: "/admin/application" },
-    { label: "Add Testimonial", Icon: IconHeartEdit, to: "/admin/testimonials" },
-    { label: "Edit Homepage", Icon: IconEdit, to: "/admin/home" },
-    { label: "Upload Resource", Icon: IconUploadCloud, to: "/admin/media" },
+    { label: "Add Project", Icon: IconChartSuccess, to: "#", needsEdit: true },
+    { label: "Add Application", Icon: IconTickSquare, to: "#" },
+    { label: "Add Testimonial", Icon: IconHeartEdit, to: "#" },
+    { label: "Edit Homepage", Icon: IconEdit, to: "#" },
+    { label: "Upload Resource", Icon: IconUploadCloud, to: "#" },
   ];
 
   return (
