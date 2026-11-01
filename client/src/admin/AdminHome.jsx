@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { api } from "../lib/api";
 import AdminClock from "./AdminClock";
 import { useAdminAuth, useDocumentTitle } from "./AdminAuth";
@@ -78,7 +77,6 @@ function rangeText(today, days) {
 function AdminHome() {
   useDocumentTitle("Dashboard");
   const { admin } = useAdminAuth();
-  const navigate = useNavigate();
   const canEdit = ["owner", "admin"].includes(admin?.role);
 
   const [days, setDays] = useState(readPeriod);
@@ -257,9 +255,7 @@ function AdminHome() {
       {choosing && (
         <CategoryModal
           onClose={() => setChoosing(false)}
-          onContinue={(category) =>
-            navigate(`/admin/products/new?category=${encodeURIComponent(category)}`)
-          }
+          onContinue={() => setChoosing(false)}
         />
       )}
     </div>
