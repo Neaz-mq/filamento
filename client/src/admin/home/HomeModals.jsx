@@ -509,11 +509,6 @@ export function ItemModal({ form, initial, note, onSave, onClose }) {
                       );
                     })}
                   </div>
-                  <p className="hc-icon-hint">
-                    {iconPicked
-                      ? "This icon shows on the website."
-                      : "Picked from your text. Choose another any time."}
-                  </p>
                 </div>
               );
             }

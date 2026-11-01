@@ -46,13 +46,6 @@ const dayFormat = new Intl.DateTimeFormat("en-US", {
 // success toast কতক্ষণ থাকবে (home.css এর --hc-toast-ms এর সাথে মেলে)
 const TOAST_MS = 4000;
 
-const savedFormat = new Intl.DateTimeFormat("en-US", {
-  month: "short",
-  day: "numeric",
-  hour: "numeric",
-  minute: "2-digit",
-});
-
 const STEP_VIEWS = {
   hero: StepHero,
   featured: StepFeatured,
@@ -265,11 +258,7 @@ function HomeContent() {
       ? "Saving…"
       : dirty
         ? "Unsaved changes"
-        : meta?.saved
-          ? `Saved ${meta.updatedAt ? savedFormat.format(new Date(meta.updatedAt)) : ""}${
-              meta.updatedBy ? ` by ${meta.updatedBy}` : ""
-            }`
-          : "Showing the current website content";
+        : "";
 
   const head = (
     <div className="pd-head">

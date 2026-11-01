@@ -1660,8 +1660,11 @@ textarea.pd-input,
   font-weight: 700;
   font-size: 12px;
   color: var(--adm-ink);
-  /* Figma র ৩৪px এর হালকা বাইরের বৃত্ত */
-  box-shadow: 0 0 0 5px #ffffff, 0 0 0 6px rgba(235, 235, 236, 0.9);
+  /* Figma "Frame 2147237016": বাইরের বৃত্ত ৩৪px (ভেতরে ২৪px বৃত্ত +
+     চারদিকে ৪px ফাঁক + ১px border), border এর রং rgba(235,235,236,0.5) —
+     প্রায় অদৃশ্য. আগে ছিল ৫px ফাঁক + ০.৯ ঘন border = ৩৬px, তাই
+     ফাঁকটা চোখে পড়ত. margin ৫px = ৪px ফাঁক + ১px border, মোট ঠিক ৩৪px */
+  box-shadow: 0 0 0 4px #ffffff, 0 0 0 5px rgba(235, 235, 236, 0.5);
 }
 
 .pd-step.is-on {
