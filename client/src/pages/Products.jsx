@@ -695,10 +695,6 @@ function Products() {
             onToggleValue={(value) => toggleValue(group.key, value)}
           />
         ))}
-
-        {status === "ready" && facets.length === 0 && (
-          <p className="products-filters-none">{t("productsPage.filters.none")}</p>
-        )}
       </div>
 
       {showDrawer && (

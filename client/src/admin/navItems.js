@@ -42,12 +42,12 @@ export const NAV_GROUPS = [
     items: [
       /* Home — একটাই পাতা (Home Page Content), ভেতরে পাঁচ ট্যাব.
          আগে এখানে নিচে নামা তালিকা ছিল, Figma তে এখন সরাসরি link */
-      // {
-      //   to: "/admin/home",
-      //   label: "Home",
-      //   Icon: IconHome,
-      //   keywords: "home page landing content hero homepage edit website",
-      // },
+      {
+        to: "/admin/home",
+        label: "Home",
+        Icon: IconHome,
+        keywords: "home page landing content hero homepage edit website",
+      },
       // {
       //   to: "/admin/products",
       //   label: "Products",

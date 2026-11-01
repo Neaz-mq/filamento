@@ -1840,13 +1840,18 @@ textarea.pd-input,
 }
 
 .pd-image-stage {
+  /* Figma: Frame 314.67 x 173, bg #F8FAFC, radius 20, padding 24px 0,
+     ভেতরের ছবি 125 x 125 (= 173 - 48). চওড়া বদলালেও এই অনুপাত থাকে */
   position: relative;
-  display: grid;
-  place-items: center;
-  aspect-ratio: 16 / 10;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  aspect-ratio: 314.67 / 173;
   overflow: hidden;
-  border-radius: 12px;
-  background: var(--pd-soft);
+  border-radius: 20px;
+  background: #f8fafc;
   transition: box-shadow 0.15s ease;
 }
 
@@ -1856,10 +1861,20 @@ textarea.pd-input,
 }
 
 .pd-image-stage > img {
+  /* উপরে-নিচে 24px ফাঁক রেখে ছবি মাঝখানে, কখনো কাটা পড়ে না */
+  position: absolute;
+  top: 24px;
+  left: 0;
+  width: 100%;
+  height: calc(100% - 48px);
+  object-fit: contain;
+  object-position: center;
+  padding: 0;
+}
+
+.pd-image-stage > .pd-image-empty {
   width: 100%;
   height: 100%;
-  object-fit: contain;
-  padding: 12px;
 }
 
 .pd-image-stage > img.is-uploading {
