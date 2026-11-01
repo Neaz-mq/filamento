@@ -6,7 +6,7 @@ import LanguageSwitcher from "./LanguageSwitcher";
 import { useLocaleLink } from "../i18n/useLocaleLink";
 import "./Navbar.css";
 
-/* label নয়, translation key — ভাষা বদলালে এই array অপরিবর্তিত
+/* label নয়, translation key here — ভাষা বদলালে এই array অপরিবর্তিত
    থাকে, শুধু t() আলাদা লেখা ফেরত দেয় */
 const NAV_LINKS = [
   // { key: "nav.products", to: "/products" },
