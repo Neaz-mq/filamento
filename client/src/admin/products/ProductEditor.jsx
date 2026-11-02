@@ -87,10 +87,11 @@ function Lock({ locked, children }) {
   );
 }
 
-function Tip() {
+function Tip({ children }) {
   return (
     <p className="pd-tip">
-      Tip: Drag and drop specifications within a group to quickly reorder them.
+      {children ??
+        "Tip: Drag and drop specifications within a group to quickly reorder them."}
     </p>
   );
 }
@@ -691,11 +692,11 @@ function ProductEditor() {
         </Lock>
       </div>
 
-      <div className="pd-step-pane" hidden={step !== 3}>
+      <div className="pd-step-pane pd-step-stack" hidden={step !== 3}>
         <Lock locked={!canEdit}>
           <StepDocuments product={product} setProduct={setProduct} canEdit={canEdit} />
         </Lock>
-        <Tip />
+        <Tip>Tip: Drag and drop documents to quickly reorder them.</Tip>
       </div>
 
       {step !== 1 && footer}

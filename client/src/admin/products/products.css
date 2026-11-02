@@ -41,6 +41,13 @@
   display: none !important;
 }
 
+/* ধাপের ভেতরের কার্ড আর tip এর মাঝে ফাঁক */
+.pd-step-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
 /* ---------------------------------------------------------------
    মাথার সারি
    --------------------------------------------------------------- */
@@ -2408,15 +2415,20 @@ textarea.pd-input,
   border-color: #ebebec;
 }
 
+/* cross বোতামের জন্য ডানে জায়গা — লেখা যেন তার নিচে না যায় */
+.pd-head-cell:has(.pd-col-x) .pd-head-input {
+  padding-right: 30px;
+}
+
 .pd-head-input:focus-visible {
-  border-color: var(--adm-ink);
-  box-shadow: 0 0 0 2px rgba(247, 190, 0, 0.25);
+  border-color: var(--adm-yellow);
+  box-shadow: 0 0 0 2px rgba(247, 190, 0, 0.2);
 }
 
 .pd-col-x {
   position: absolute;
   top: 50%;
-  right: -4px;
+  right: 6px; /* field এর ভেতরেই */
   display: grid;
   place-items: center;
   width: 18px;

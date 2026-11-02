@@ -560,7 +560,7 @@ function ProductLibrary() {
                       </Link>
                     </td>
                     <td data-label="Category">
-                      <span className="pd-muted-strong">{item.series || info.label}</span>
+                      <span className="pd-muted-strong">{info.label}</span>
                     </td>
                     <td data-label="Certifications" className="pd-center">
                       {item.certifications.length ? (
