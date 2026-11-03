@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import CategoryArt from "./CategoryArt";
 import { categoryOf, imageSrcSet, sizedImage, splitName } from "../../pages/productCatalog";
 import "./ProductCard.css";
@@ -47,12 +48,30 @@ export function ProductImage({
   );
 }
 
+/* Featured ব্যাজ — admin এ Featured চালু থাকলে card এর উপরের বাঁ কোণে.
+   লেখা "Sort by: Featured" এর অনুবাদই (en / ja / zh-Hant তিনটাতেই আছে) */
+function FeaturedBadge() {
+  const { t } = useTranslation();
+  return (
+    <span className="product-card-badge">
+      <svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true" focusable="false">
+        <path
+          fill="currentColor"
+          d="m12 2.5 2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.3l-5.8 3.1 1.1-6.5L2.6 9.3l6.5-.9L12 2.5Z"
+        />
+      </svg>
+      {t("productsPage.sort.featured")}
+    </span>
+  );
+}
+
 function ProductCard({ product, to, eager = false, headingLevel = 3 }) {
   const { title } = splitName(product.name);
   const Heading = `h${headingLevel}`;
 
   return (
     <Link to={to} className="product-card">
+      {product.featured === true && <FeaturedBadge />}
       <span className="product-card-media">
         <ProductImage product={product} eager={eager} />
       </span>

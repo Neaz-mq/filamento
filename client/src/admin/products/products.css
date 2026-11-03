@@ -2124,7 +2124,7 @@ textarea.pd-input,
 }
 
 .pd-field:focus-visible {
-  border-color: var(--adm-ink);
+  border-color: var(--adm-yellow);
   box-shadow: 0 0 0 3px rgba(247, 190, 0, 0.25);
   color: var(--adm-ink);
 }
@@ -2332,7 +2332,7 @@ textarea.pd-input,
 }
 
 .pd-title-input:focus-visible {
-  border-color: var(--adm-ink);
+  border-color: var(--adm-yellow);
   box-shadow: 0 0 0 3px rgba(247, 190, 0, 0.25);
 }
 
@@ -2511,7 +2511,7 @@ textarea.pd-cell {
 }
 
 .pd-cell:focus-visible {
-  border-color: var(--adm-ink);
+  border-color: var(--adm-yellow);
   background: #ffffff;
   box-shadow: 0 0 0 2px rgba(247, 190, 0, 0.25);
 }
@@ -3485,7 +3485,7 @@ textarea.pd-cell {
 }
 
 .pd-part-code:focus-visible {
-  border-color: var(--adm-ink);
+  border-color: var(--adm-yellow);
   box-shadow: 0 0 0 3px rgba(247, 190, 0, 0.25);
 }
 

@@ -48,12 +48,12 @@ export const NAV_GROUPS = [
         Icon: IconHome,
         keywords: "home page landing content hero homepage edit website",
       },
-      // {
-      //   to: "/admin/products",
-      //   label: "Products",
-      //   Icon: IconBox,
-      //   keywords: "fixture series high bay la1 ls1 rh1 catalogue upload add product",
-      // },
+      {
+        to: "/admin/products",
+        label: "Products",
+        Icon: IconBox,
+        keywords: "fixture series high bay la1 ls1 rh1 catalogue upload add product",
+      },
       // {
       //   to: "/admin/projects",
       //   label: "Projects",

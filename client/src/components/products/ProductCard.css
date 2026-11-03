@@ -11,6 +11,7 @@
    =============================================================== */
 
 .product-card {
+  position: relative; /* Featured ব্যাজ কোণায় বসানোর জন্য */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -78,6 +79,33 @@
   overflow-wrap: anywhere;
 }
 
+/* Featured ব্যাজ — সাইটের হলুদ (#f7be00) আর গাঢ় লেখা (#373a3c),
+   Contact বোতামের মতোই গোল pill. card এর উপরের বাঁ কোণে, ছবির উপরে */
+.product-card-badge {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px 5px 8px;
+  border-radius: 100px;
+  background: #f7be00;
+  color: #373a3c;
+  font-family: "Space Grotesk", var(--font-sans), sans-serif;
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  pointer-events: none; /* ব্যাজে ক্লিক করলেও card এর লিংকই চলবে */
+}
+
+.product-card-badge svg {
+  flex: none;
+}
+
 /* ছবি না থাকলে আঁকা ছবি — ছবির জায়গার মাঝখানে */
 .product-image--art {
   display: flex;
@@ -102,6 +130,19 @@
 
   .product-card-name {
     font-size: 15px;
+  }
+
+  .product-card-badge {
+    top: 8px;
+    left: 8px;
+    gap: 4px;
+    padding: 4px 8px 4px 6px;
+    font-size: 10px;
+  }
+
+  .product-card-badge svg {
+    width: 10px;
+    height: 10px;
   }
 }
 
