@@ -23,6 +23,49 @@ import { IconMenu, IconSun } from "./icons";
    এর নিচে পাশ থেকে বেরিয়ে আসা drawer */
 const WIDE = "(min-width: 1024px)";
 
+/* ---------------------------------------------------------------
+   বড় পর্দায় Figma র মতো আনুপাতিক বড় করা
+
+   1800px এর বেশি চওড়া পর্দায় পুরো shell এ zoom বসে
+   (পর্দার চওড়া / 1800, সর্বোচ্চ 2). যেমন 2560px এ zoom 1.42, তখন
+   ভেতরের জায়গা প্রায় 1800px এর মতো সাজে — লেখা বেশি বড় হয় না,
+   আবার টেনে লম্বাও হয় না.
+   1800px এর নিচে zoom = 1, কিছুই বদলায় না.
+
+   বড়/ছোট চাইলে শুধু DESIGN_WIDTH বদলান: সংখ্যা বাড়ালে লেখা ছোট,
+   কমালে লেখা বড় (1440 = Figma র মাপ, সবচেয়ে বড়).
+   --------------------------------------------------------------- */
+const DESIGN_WIDTH = 1800;
+const SCALE_FROM = DESIGN_WIDTH;
+const MAX_SCALE = 2;
+
+const readScale = () => {
+  const width = window.innerWidth;
+  if (width < SCALE_FROM) return 1;
+  return Math.min(MAX_SCALE, Math.round((width / DESIGN_WIDTH) * 100) / 100);
+};
+
+function useScreenScale() {
+  const [size, setSize] = useState(() => ({
+    zoom: readScale(),
+    width: window.innerWidth,
+    height: window.innerHeight,
+  }));
+
+  useEffect(() => {
+    const onResize = () =>
+      setSize({
+        zoom: readScale(),
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
+  return size;
+}
+
 // minimize অবস্থাটা মনে রাখা হয় — পরের বার খুললেও যেমন রেখেছিলেন
 const RAIL_KEY = "fil_admin_rail";
 
@@ -126,6 +169,18 @@ function AdminShell() {
 
   const title = pageTitle(location.pathname);
 
+  // বড় পর্দায় পুরো shell Figma র মাপে বড় হয় (ছোট পর্দায় style নেই)
+  const screen = useScreenScale();
+  const scaleStyle =
+    screen.zoom > 1
+      ? {
+          zoom: screen.zoom,
+          "--adm-zoom": screen.zoom,
+          "--adm-vh": `${screen.height / screen.zoom}px`,
+          "--adm-vw": `${screen.width / screen.zoom}px`,
+        }
+      : undefined;
+
   const shellClass = [
     "adm-app",
     railed ? "adm-app--rail" : "",
@@ -135,7 +190,7 @@ function AdminShell() {
     .join(" ");
 
   return (
-    <div className={shellClass}>
+    <div className={shellClass} style={scaleStyle}>
       <div className="adm-side-wrap">
         <AdminSidebar
           railed={railed}

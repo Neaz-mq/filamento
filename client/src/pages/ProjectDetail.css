@@ -274,6 +274,12 @@
   gap: 48px;
 }
 
+/* Key Features না থাকলে সংখ্যার বার আসে না, তখন Challenge/Highlights সরাসরি
+   hero র কিনারায় লেগে যেত — বারটা যে ফাঁক দেয় সেটা এখানে নিজে দেওয়া হলো */
+.pjd-inner > .pjd-columns:first-child {
+  padding-top: 48px;
+}
+
 /* সংখ্যার বার — Figma "Frame 386/62": padding 32 48, gap 48,
    মাঝে 2px দাগ (68 উঁচু) */
 .pjd-stats {

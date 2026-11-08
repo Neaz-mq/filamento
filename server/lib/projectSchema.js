@@ -64,20 +64,23 @@ export const PROJECT_ICONS = [
   "factory",
 ];
 
+/* ⚠️ solutionIntro আর solutionText বাড়ানো হয়েছে (500 → 1500, 200 → 600)
+   — main website এর আসল Solution লেখা এর চেয়ে বড়, কাটলে তথ্য হারায়.
+   projectCatalog.js তেও একই মান রাখুন */
 export const PROJECT_LIMITS = {
   title: 100,
   company: 100,
   shortDescription: 200,
   location: 100,
   story: 2000,
-  solutionIntro: 500,
+  solutionIntro: 1500,
   images: 12,
   videoUrls: 10,
   keyFeatures: 8,
   featureText: 40,
   solutionFeatures: 12,
   solutionTitle: 60,
-  solutionText: 200,
+  solutionText: 600,
   highlights: 12,
   highlight: 120,
   ctaText: 40,
@@ -371,6 +374,12 @@ const US_STATES = new Set(
     "south dakota", "tennessee", "texas", "utah", "vermont", "virginia",
     "washington", "west virginia", "wisconsin", "wyoming",
     "district of columbia", "washington dc", "washington, d.c.",
+    /* দুই অক্ষরের কোড — "Salem, OR", "Vacaville, CA" */
+    "al", "ak", "az", "ar", "ca", "co", "ct", "de", "fl", "ga", "hi", "id",
+    "il", "in", "ia", "ks", "ky", "la", "me", "md", "ma", "mi", "mn", "ms",
+    "mo", "mt", "ne", "nv", "nh", "nj", "nm", "ny", "nc", "nd", "oh", "ok",
+    "or", "pa", "ri", "sc", "sd", "tn", "tx", "ut", "vt", "va", "wa", "wv",
+    "wi", "wy", "dc",
   ],
 );
 

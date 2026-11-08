@@ -9,7 +9,7 @@ import "./Navbar.css";
 /* label নয়, translation key here — ভাষা বদলালে এই array অপরিবর্তিত
    থাকে, শুধু t() আলাদা লেখা ফেরত দেয় */
 const NAV_LINKS = [
-  // { key: "nav.products", to: "/products" },
+  { key: "nav.products", to: "/products" },
   // { key: "nav.projects", to: "/projects" },
   { key: "nav.application", to: "/application" },
   { key: "nav.company", to: "/company" },

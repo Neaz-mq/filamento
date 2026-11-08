@@ -22,3 +22,6 @@ Thumbs.db
 
 # vercel
 .vercel/
+
+# import script এর backup — পুরো DB ডেটা থাকে, commit করা যাবে না
+server/backups/

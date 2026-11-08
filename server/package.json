@@ -10,7 +10,8 @@
     "create-admin": "node scripts/create-admin.js",
     "seed-products": "node scripts/seed-products.js",
     "seed-projects": "node scripts/seed-projects.js",
-    "seed-representatives": "node scripts/seed-representatives.js"
+    "seed-representatives": "node scripts/seed-representatives.js",
+    "import-projects": "node scripts/import-filamento-projects.js"
   },
   "engines": {
     "node": "22.x"

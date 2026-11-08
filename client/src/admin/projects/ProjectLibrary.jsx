@@ -325,7 +325,7 @@ function ProjectLibrary() {
   const goNew = () => navigate("/admin/projects/new");
 
   return (
-    <div className="pd-page">
+    <div className="pd-page pj-page">
       {/* ---- মাথার সারি ---- */}
       <div className="pd-head">
         <h1 className="pd-title">Project Library</h1>

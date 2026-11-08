@@ -269,11 +269,24 @@
   color: var(--adm-ink-50);
 }
 
+/* ---------------------------------------------------------------
+   বড় পর্দায় Figma র মাপ ধরে রাখা
+
+   1800px এর বেশি চওড়া পর্দায় AdminProtected.jsx পুরো shell এ
+   zoom = পর্দার চওড়া / 1800 বসায়, তাই sidebar, header আর পাতা সব
+   একসাথে আনুপাতিক বড় হয়.
+
+   zoom এর ভেতরে vh / vw এর মাপ নির্ভরযোগ্য না, তাই AdminProtected.jsx
+   --adm-vh আর --adm-vw নিজেই px এ মেপে দেয় (zoom ভাগ করে). zoom না
+   থাকলে এই variable নেই, fallback 100dvh / 100vw কাজ করে — ছোট পর্দায়
+   আগের মতোই.
+   --------------------------------------------------------------- */
+
 /* ===============================================================
    বাইরের কাঠামো
    =============================================================== */
 .adm-app {
-  min-height: 100dvh;
+  min-height: var(--adm-vh, 100dvh);
   box-sizing: border-box;
   display: flex;
   align-items: flex-start;
@@ -288,7 +301,7 @@
   flex: none;
   position: sticky;
   top: 16px;
-  max-height: calc(100dvh - 32px);
+  max-height: calc(var(--adm-vh, 100dvh) - 32px);
 }
 
 
@@ -308,7 +321,7 @@
 .adm-side {
   box-sizing: border-box;
   height: 100%;
-  max-height: calc(100dvh - 32px);
+  max-height: calc(var(--adm-vh, 100dvh) - 32px);
   overflow-y: auto;
   overscroll-behavior: contain;
   /* scrollbar লুকানো, কিন্তু scroll চলে (mouse wheel, touchpad, আঙুল,
@@ -762,8 +775,8 @@
   left: 0;
   z-index: 45;
   width: max(100%, 360px);
-  max-width: calc(100vw - 24px);
-  max-height: min(520px, calc(100dvh - 120px));
+  max-width: calc(var(--adm-vw, 100vw) - 24px);
+  max-height: min(520px, calc(var(--adm-vh, 100dvh) - 120px));
   overflow-y: auto;
   box-sizing: border-box;
   padding: 8px;
@@ -881,7 +894,7 @@
    --------------------------------------------------------------- */
 .adm-notes {
   width: 360px;
-  max-width: calc(100vw - 24px);
+  max-width: calc(var(--adm-vw, 100vw) - 24px);
 }
 
 .adm-notes-head {

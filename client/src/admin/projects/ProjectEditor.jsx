@@ -472,7 +472,7 @@ function ProjectEditor() {
   /* ---------- পাতা আসার আগে / ভুল id ---------- */
   if (!ready) {
     return (
-      <div className="pd-page">
+      <div className="pd-page pj-page">
         <div className="pd-head">
           <h1 className="pd-title">{loadError ? "Project not found" : "Loading…"}</h1>
         </div>
@@ -525,7 +525,7 @@ function ProjectEditor() {
         : "Not saved yet";
 
   return (
-    <div className="pd-page" ref={topRef}>
+    <div className="pd-page pj-page" ref={topRef}>
       {/* ---- মাথার সারি ---- */}
       <div className="pd-head">
         <div className="pd-head-left">
