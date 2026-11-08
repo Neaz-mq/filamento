@@ -256,13 +256,19 @@
   flex-direction: column;
   gap: 10px;
   min-height: 0;
-  max-height: 542px;
+  /* ঠিক ৪টা ছবি: ছবি × ৪ + gap × ৩ + উপর-নিচের 2px padding. আগে এখানে
+     সরাসরি 542px ছিল, তাই ছবির মাপ বদলালে (--pd-side) কোনো ছবি
+     অর্ধেক কেটে যেত */
+  max-height: calc(4 * var(--pd-side) + 3 * 10px + 4px);
+  box-sizing: border-box;
   margin: 0;
   padding: 2px;
   list-style: none;
   overflow-y: auto;
   scrollbar-width: none;
-  scroll-snap-type: y proximity;
+  /* সবসময় ছবির কিনারায় থামে — মাঝপথে কাটা অবস্থায় না */
+  scroll-snap-type: y mandatory;
+  scroll-padding: 2px;
 }
 
 .pdp-album-list::-webkit-scrollbar {

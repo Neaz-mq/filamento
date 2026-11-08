@@ -33,10 +33,77 @@ import AdminSelect from "../AdminSelect";
    "warranty" → Warranty …), admin চাইলে বদলাতে পারে
    =============================================================== */
 
+/* লিংকের সর্বোচ্চ দৈর্ঘ্য — server/lib/productSchema.js এর LIMITS.url এর
+   সাথে মিলিয়ে রাখা */
+const URL_MAX = 600;
+
+/* লিংকের শেষে চেনা ফাইলের extension থাকলে সেটা (pdf, ies …), নাহলে
+   ফাঁকা. YouTube বা অন্য পাতার লিংকের শেষ অংশ থেকে ভুল "format"
+   (যেমন "watch" বা "ani_la1-fxx-") বানানো হবে না */
+const FILE_FORMATS = new Set([
+  "pdf", "ies", "ldt", "doc", "docx", "xls", "xlsx", "ppt", "pptx",
+  "txt", "csv", "rtf", "zip", "dwg", "dxf", "jpg", "jpeg", "png",
+  "webp", "avif", "svg", "mp4", "mov", "webm", "m4v",
+]);
+
+const formatFromUrl = (value) => {
+  try {
+    const match = /\.([a-z0-9]{2,5})$/i.exec(new URL(value).pathname);
+    const extension = match?.[1].toLowerCase();
+    return extension && FILE_FORMATS.has(extension) ? extension : "";
+  } catch {
+    return "";
+  }
+};
+
+/* ---------------------------------------------------------------
+   Edit Document — নাম, ধরন, আর (লিংক হলে) লিংকের ঠিকানা
+
+   • "add a link" দিয়ে যোগ করা document: ঠিকানা বদলানো যায়. ভুল ঠিকানা
+     বসালে আর মুছে নতুন করে যোগ করতে হয় না
+   • upload করা ফাইল (publicId আছে): ঠিকানা বদলানো যায় না — ওটা
+     Cloudinary র ফাইলের সাথে বাঁধা. ফাইল বদলাতে হলে মুছে নতুন upload
+   --------------------------------------------------------------- */
 function DocEditModal({ doc, onSave, onClose }) {
   const titleId = useId();
+  const urlId = useId();
   const [name, setName] = useState(doc.name);
   const [type, setType] = useState(doc.type);
+  const [url, setUrl] = useState(doc.url);
+  const [problem, setProblem] = useState("");
+
+  const uploaded = Boolean(doc.publicId);
+  const cleanUrl = url.trim();
+  const ready = Boolean(name.trim()) && (uploaded || Boolean(cleanUrl));
+
+  const submit = (event) => {
+    event.preventDefault();
+    if (!ready) return;
+
+    if (uploaded) {
+      onSave({ ...doc, name: name.trim(), type });
+      return;
+    }
+
+    if (!isHttpsUrl(cleanUrl)) {
+      setProblem("Paste a link that starts with https://");
+      return;
+    }
+    if (cleanUrl.length > URL_MAX) {
+      setProblem(`The link can be at most ${URL_MAX} characters.`);
+      return;
+    }
+
+    // ঠিকানা বদলালে তবেই format নতুন করে ধরা হয়; না বদলালে যেমন ছিল তেমন
+    const changed = cleanUrl !== doc.url;
+    onSave({
+      ...doc,
+      name: name.trim(),
+      type,
+      url: cleanUrl,
+      format: changed ? formatFromUrl(cleanUrl) : doc.format,
+    });
+  };
 
   return (
     <Modal
@@ -52,21 +119,14 @@ function DocEditModal({ doc, onSave, onClose }) {
             type="submit"
             form="pd-doc-form"
             className="pd-btn pd-btn--yellow"
-            disabled={!name.trim()}
+            disabled={!ready}
           >
             Save
           </button>
         </>
       }
     >
-      <form
-        id="pd-doc-form"
-        className="pd-modal-form"
-        onSubmit={(event) => {
-          event.preventDefault();
-          if (name.trim()) onSave({ ...doc, name: name.trim(), type });
-        }}
-      >
+      <form id="pd-doc-form" className="pd-modal-form" onSubmit={submit}>
         <div className="pd-modal-simple-head">
           <h2 id={titleId} className="pd-modal-title">
             Edit Document
@@ -85,6 +145,30 @@ function DocEditModal({ doc, onSave, onClose }) {
             onChange={(event) => setName(event.target.value)}
           />
         </label>
+
+        {uploaded ? (
+          <p className="pd-hint">
+            This is an uploaded file. To replace it, delete this row and upload the
+            new file.
+          </p>
+        ) : (
+          <label className="pd-field-wrap" htmlFor={urlId}>
+            <span className="pd-label">Link</span>
+            <input
+              id={urlId}
+              className="pd-input"
+              type="url"
+              value={url}
+              maxLength={URL_MAX}
+              placeholder="https://…"
+              onChange={(event) => {
+                setUrl(event.target.value);
+                setProblem("");
+              }}
+            />
+          </label>
+        )}
+
         <label className="pd-field-wrap">
           <span className="pd-label">Document Type</span>
           <AdminSelect
@@ -99,6 +183,12 @@ function DocEditModal({ doc, onSave, onClose }) {
             ))}
           </AdminSelect>
         </label>
+
+        {problem && (
+          <p className="pd-error" role="alert">
+            {problem}
+          </p>
+        )}
       </form>
     </Modal>
   );
@@ -202,7 +292,7 @@ function StepDocuments({ product, setProduct, canEdit }) {
       publicId: "",
       resourceType: "raw",
       bytes: null,
-      format: (fromUrl.split(".").pop() || "").toLowerCase().slice(0, 12),
+      format: formatFromUrl(link.url.trim()),
       uploadedAt: new Date().toISOString(),
     });
     setLink({ url: "", name: "" });

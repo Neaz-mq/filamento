@@ -100,6 +100,65 @@ const hostName = (url) => {
 };
 
 /* ---------------------------------------------------------------
+   Resources এর সারি — ফাইল নাকি লিংক?
+
+   admin এ "add a link" দিয়ে যেকোনো https ঠিকানা document হিসেবে
+   বসানো যায় (YouTube, অন্য সাইটের পাতা, redirect লিংক). সেগুলো
+   ডাউনলোড নয়, তাই:
+     • আসল ফাইল (upload করা, অথবা চেনা extension: pdf, ies …)
+         → Document আইকন + ফরম্যাট (PDF) + Download আইকন
+     • YouTube / Vimeo
+         → Play আইকন + সাইটের নাম + External আইকন
+     • অন্য যেকোনো ওয়েব লিংক
+         → Document আইকন + সাইটের নাম + External আইকন
+   আগে লিংকের শেষ অংশ থেকে ভুল করে "ANI_LA1-FXX-" এর মতো ট্যাগ
+   বানানো হতো — এখন শুধু চেনা ফাইলের extension ফরম্যাট ধরা হয়
+   --------------------------------------------------------------- */
+const FILE_EXTENSIONS = new Set([
+  "pdf", "ies", "ldt", "doc", "docx", "xls", "xlsx", "ppt", "pptx",
+  "txt", "csv", "rtf", "zip", "dwg", "dxf", "jpg", "jpeg", "png",
+  "webp", "avif", "svg", "mp4", "mov", "webm", "m4v",
+]);
+
+const VIDEO_SITES = [
+  { name: "YouTube", host: /(^|\.)(youtube\.com|youtu\.be|youtube-nocookie\.com)$/i },
+  { name: "Vimeo", host: /(^|\.)vimeo\.com$/i },
+];
+
+const videoSiteName = (url) => {
+  const host = hostName(url);
+  return VIDEO_SITES.find((site) => site.host.test(host))?.name ?? "";
+};
+
+// শুধু চেনা ফাইলের extension; না চিনলে ফাঁকা
+const knownFileFormat = (doc) => {
+  const stored = String(doc?.format ?? "").trim().toLowerCase();
+  if (FILE_EXTENSIONS.has(stored)) return stored.toUpperCase();
+  try {
+    const match = /\.([a-z0-9]{2,5})$/i.exec(new URL(doc?.url ?? "").pathname);
+    const extension = match?.[1].toLowerCase();
+    return extension && FILE_EXTENSIONS.has(extension) ? extension.toUpperCase() : "";
+  } catch {
+    return "";
+  }
+};
+
+const documentRow = (doc, index, fallbackName) => {
+  const site = videoSiteName(doc.url);
+  const format = site ? "" : knownFileFormat(doc);
+  // upload করা ফাইলের publicId থাকে — সেটা সবসময় আসল ফাইল
+  const isFile = !site && (Boolean(doc.publicId) || Boolean(format));
+  return {
+    key: `doc-${index}`,
+    name: doc.name || fallbackName,
+    url: doc.url,
+    format: isFile ? format || fileFormat(doc) : site || hostName(doc.url),
+    kind: isFile ? "doc" : "link",
+    icon: site ? "play" : "doc",
+  };
+};
+
+/* ---------------------------------------------------------------
    Specification এর group গুলো — ক্রমে, শুধু যেগুলোতে কিছু আছে
    --------------------------------------------------------------- */
 function specSections(product) {
@@ -353,13 +412,7 @@ function ResourcesPanel({ product }) {
   const rows = [
     ...(product.documents ?? [])
       .filter((doc) => doc?.url)
-      .map((doc, index) => ({
-        key: `doc-${index}`,
-        name: doc.name || t("productsPage.resources.document"),
-        url: doc.url,
-        format: fileFormat(doc),
-        kind: "doc",
-      })),
+      .map((doc, index) => documentRow(doc, index, t("productsPage.resources.document"))),
     ...(product.videos ?? [])
       .filter((video) => video?.url)
       .map((video, index) => ({
@@ -368,6 +421,7 @@ function ResourcesPanel({ product }) {
         url: video.url,
         format: fileFormat(video) || "MP4",
         kind: "video",
+        icon: "play",
       })),
     ...(product.videoUrls ?? [])
       .filter(Boolean)
@@ -380,6 +434,7 @@ function ResourcesPanel({ product }) {
         url,
         format: t("productsPage.resources.link"),
         kind: "link",
+        icon: "play",
       })),
   ];
 
@@ -401,7 +456,7 @@ function ResourcesPanel({ product }) {
               >
                 <span className="pdp-resource-name">
                   <span className="pdp-resource-icon">
-                    {row.kind === "doc" ? <DocIcon /> : <PlayIcon />}
+                    {row.icon === "play" ? <PlayIcon /> : <DocIcon />}
                   </span>
                   <span className="pdp-resource-text">{row.name}</span>
                 </span>
@@ -679,9 +734,27 @@ function ProductDetail() {
     // শুধু album এর ভেতরে সরে — পুরো পাতা নড়ে না
     const vertical = album.scrollHeight > album.clientHeight;
     if (vertical) {
-      const top = thumb.offsetTop - album.offsetTop;
-      if (top < album.scrollTop || top + thumb.offsetHeight > album.scrollTop + album.clientHeight) {
-        album.scrollTo({ top: top - (album.clientHeight - thumb.offsetHeight) / 2, behavior: "smooth" });
+      /* পুরো ছবির ধাপে সরে (ছবি + gap) — আগে ছবিকে ঠিক মাঝখানে আনতে
+         গিয়ে অর্ধেক সংখ্যায় থামত, তাই উপরের ছবির border কেটে যেত.
+         এখন সবসময় গোটা ছবিগুলোই দেখা যায়, gap ঠিক থাকে (Figma এর মতো) */
+      const style = window.getComputedStyle(album);
+      const gap = parseFloat(style.rowGap) || 0;
+      const pad = parseFloat(style.paddingTop) || 0;
+      const step = thumb.offsetHeight + gap;
+      const total = album.children.length;
+      const fit = Math.max(1, Math.floor((album.clientHeight - pad * 2 + gap) / step));
+
+      const start = activeIndex * step;
+      const fullyVisible =
+        start >= album.scrollTop - 1 &&
+        start + thumb.offsetHeight + pad * 2 <= album.scrollTop + album.clientHeight + 1;
+
+      if (!fullyVisible) {
+        const first = Math.min(
+          Math.max(0, total - fit),
+          Math.max(0, activeIndex - Math.floor((fit - 1) / 2)),
+        );
+        album.scrollTo({ top: first * step, behavior: "smooth" });
       }
     } else {
       const left = thumb.offsetLeft - album.offsetLeft;

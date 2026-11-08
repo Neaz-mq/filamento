@@ -151,6 +151,11 @@ function FilterMenu({ category, onChange }) {
   useEffect(() => {
     if (!open) return undefined;
     const onDown = (event) => {
+      /* AdminSelect এর তালিকা document.body তে (portal) বসে, তাই সেটা
+         wrapRef এর বাইরে গণ্য হয়. সেখানে চাপলে panel বন্ধ হয়ে তালিকা
+         সহ মুছে যেত — আর option এর click কখনো পৌঁছাত না. তাই ওই
+         তালিকার ভেতরের চাপ বাইরের চাপ ধরা হবে না */
+      if (event.target.closest?.(".as-menu")) return;
       if (!wrapRef.current?.contains(event.target)) setOpen(false);
     };
     const onKey = (event) => {
