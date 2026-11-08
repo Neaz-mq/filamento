@@ -782,6 +782,12 @@
   border-left: 0;
 }
 
+/* জোড়া লাগা label (rowSpan) এর নিচের সারি — প্রথম ঘরটা আসলে বাঁ কিনারায়
+   নেই, তাই label এর সাথে আলাদা করা বাঁ border থাকতে হবে */
+.pdp-table tr.is-spanned > :first-child {
+  border-left: 1px solid var(--pd-line);
+}
+
 .pdp-table thead tr:first-child > * {
   border-top: 0;
 }

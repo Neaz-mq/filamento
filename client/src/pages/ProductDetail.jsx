@@ -183,6 +183,29 @@ function specSections(product) {
 }
 
 /* ---------------------------------------------------------------
+   প্রথম কলামের label (যেমন CRI "80") শুধু প্রথম সারিতে লেখা থাকলে,
+   তার নিচের ফাঁকা সারিগুলো সেই ঘরের সাথে জোড়া লাগে (rowSpan) — একটাই
+   "80" পুরো গ্রুপ জুড়ে বসে. আগে নিচের ঘরগুলো ফাঁকা পড়ে থাকত, দেখতে
+   মনে হতো তথ্য নেই (আর screen reader এ ফাঁকা row header).
+
+   ফল: spans[i] = কতটা সারি জুড়বে (1 = একা), 0 = ওপরের ঘরের নিচে
+   ঢাকা পড়েছে. কোনো label ওঠার আগের ফাঁকা সারি যেমন আছে তেমনই থাকে
+   --------------------------------------------------------------- */
+const rowSpans = (rows) => {
+  const spans = rows.map(() => 1);
+  let start = -1;
+  rows.forEach((row, index) => {
+    if (String(row.label ?? "").trim()) {
+      start = index;
+    } else if (start > -1) {
+      spans[start] += 1;
+      spans[index] = 0;
+    }
+  });
+  return spans;
+};
+
+/* ---------------------------------------------------------------
    টেবিল — Figma: header #F8FAFC, ঘর 52 উঁচু, 12px, border #EBEBEC,
    radius 10. প্রথম কলাম (Watt/Type) 600
    --------------------------------------------------------------- */
@@ -190,6 +213,7 @@ function SpecTable({ table }) {
   const columns = table.columns ?? [];
   const rows = (table.rows ?? []).filter((row) => row.label || row.cells?.some(Boolean));
   const hasRowHeader = Boolean(table.rowHeader) || rows.some((row) => row.label);
+  const spans = rowSpans(rows);
 
   return (
     <div className="pdp-table-scroll">
@@ -206,8 +230,12 @@ function SpecTable({ table }) {
         </thead>
         <tbody>
           {rows.map((row, rowIndex) => (
-            <tr key={rowIndex}>
-              {hasRowHeader && <th scope="row">{row.label}</th>}
+            <tr key={rowIndex} className={spans[rowIndex] === 0 ? "is-spanned" : undefined}>
+              {hasRowHeader && spans[rowIndex] > 0 && (
+                <th scope="row" rowSpan={spans[rowIndex] > 1 ? spans[rowIndex] : undefined}>
+                  {row.label}
+                </th>
+              )}
               {columns.map((_, cellIndex) => (
                 <td key={cellIndex}>{row.cells?.[cellIndex] || "—"}</td>
               ))}
