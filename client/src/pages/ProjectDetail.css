@@ -175,12 +175,13 @@
   overflow-wrap: anywhere;
 }
 
-/* ছোট ছবির সারি — Figma "Frame 104": ‹ [100x72 ×3, gap 10] ›, gap 20 */
+/* ছোট ছবির সারি — Figma "Frame 104": ‹ [100x72 ×3, gap 10] ›
+   তীর আর ছবির মাঝের ফাঁক Figma র মাপ (≈24px কেন্দ্র থেকে) অনুযায়ী 12px */
 .pjd-gallery {
   display: flex;
   align-items: center;
   flex: none;
-  gap: 20px;
+  gap: 12px;
 }
 
 .pjd-gallery-arrow {
@@ -213,8 +214,10 @@
 .pjd-gallery-list {
   display: flex;
   gap: 10px;
-  /* ৩টা ছবি দেখায়, বাকিগুলো সরিয়ে দেখা যায় */
-  max-width: 320px;
+  /* ৩টা ছবি পুরো দেখায়, বাকিগুলো সরিয়ে দেখা যায়.
+     মাপ = ৩ x 100 (ছবি) + ২ x 10 (ফাঁক) + ২ x 2 (দুই পাশের padding) = 324.
+     আগে 320 ছিল, তাই শেষ ছবির ডান দিকের 4px কেটে যেত */
+  max-width: 324px;
   margin: 0;
   padding: 2px;
   list-style: none;
@@ -232,30 +235,44 @@
   scroll-snap-align: start;
 }
 
+/* বর্ডার ছবির উপরে আঁকা (Figma র inside stroke) — ছবি পুরো 100x72 ভরে থাকে.
+   আগে border + ভেতরে ছবি ছিল, তাই বাঁকা কোণায় দুটো কিনারা মিলে দাঁতের মতো
+   কাটা দেখাত */
 .pjd-thumb {
+  position: relative;
   display: block;
   width: 100px;
   height: 72px;
   padding: 0;
   overflow: hidden;
-  border: 1.5px solid #ebebec;
+  border: 0;
   border-radius: 20px;
   background: rgba(255, 255, 255, 0.1);
   cursor: pointer;
-  transition:
-    border-color 0.2s ease,
-    transform 0.2s ease;
+  transition: transform 0.2s ease;
+}
+
+.pjd-thumb::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  box-sizing: border-box;
+  border: 1.5px solid #ebebec;
+  border-radius: inherit;
+  pointer-events: none;
+  transition: border-color 0.2s ease;
 }
 
 .pjd-thumb:hover {
   transform: translateY(-2px);
 }
 
-.pjd-thumb.is-active {
+.pjd-thumb.is-active::after {
   border-color: #f7be00;
 }
 
 .pjd-thumb img {
+  display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -1141,5 +1158,77 @@
   .pjd-cta svg,
   .pjd-neighbour {
     transition: none;
+  }
+}
+
+
+/* ---------------------------------------------------------------
+   Project এর ভিডিও — Challenge/Highlights এর নিচে, পুরো চওড়ায়.
+   একটাই ভিডিও হলে বাঁ কলামের (760) সমান, একাধিক হলে পাশাপাশি গ্রিড.
+   --------------------------------------------------------------- */
+.pjd-videos {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding-bottom: 16px;
+}
+
+.pjd-videos-title {
+  margin: 0;
+  font-family: "Space Grotesk", var(--font-sans), sans-serif;
+  font-weight: 700;
+  font-size: 24px;
+  line-height: 110%;
+  text-transform: uppercase;
+  color: var(--pjd-ink);
+}
+
+.pjd-videos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
+  gap: 24px;
+  align-items: start;
+}
+
+.pjd-videos-grid.is-single {
+  grid-template-columns: minmax(0, 760px);
+}
+
+.pjd-video-frame {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: 30px;
+  background: var(--pjd-ink);
+}
+
+.pjd-video-frame iframe,
+.pjd-video-frame video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: #000000;
+  object-fit: contain;
+}
+
+/* player না হওয়া লিংকের বোতাম — বাকি .pjd-cta র মতো, কিন্তু পুরো চওড়া না */
+.pjd-video-link {
+  width: auto;
+  max-width: 320px;
+}
+
+@media (max-width: 760px) {
+  .pjd-videos-title {
+    font-size: 21px;
+  }
+
+  .pjd-video-frame {
+    border-radius: 24px;
+  }
+
+  .pjd-videos-grid.is-single {
+    grid-template-columns: minmax(0, 1fr);
   }
 }

@@ -248,13 +248,14 @@ function StepProjectInfo({ project, setProject, errors = {}, canEdit }) {
       </div>
 
       <aside className="pd-info-side">
-        <div className="pd-card pd-side-card">
+        <div className="pd-card pd-side-card pd-side-card--project">
           <ImagesCard
             product={project}
             setProduct={setProject}
             canEdit={canEdit}
             kind="project-image"
             label="Project Image"
+            variant="project"
           />
           {errors.images && <p className="pd-error">{errors.images}</p>}
           <VideoUrls product={project} setProduct={setProject} canEdit={canEdit} />

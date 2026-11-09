@@ -1053,3 +1053,115 @@ button.pj-place:hover {
   min-height: 64px;
   max-height: 200px;
 }
+
+
+/* ===============================================================
+   Project Image card — Figma "product-image-card"
+   Card 354.67 x 459: padding 20, gap 16, radius 20, border #EBEBEC
+     মাথা        14px / 500 / line 17px, রং #373A3C, trash 14px #EF4444
+     বড় ছবি     314.67 x 183, radius 20, ছবি পুরো ভরে (cover)
+     ছোট ছবি    48 x 48, radius 10, gap 10, বাছাইটার 1px #F7BE00 বর্ডার
+     plus tile   48 x 48, bg #F8FAFC, 1px #EBEBEC, radius 10, plus #C1C2C3
+   শুধু Project পাতায় — Product পাতার মাপ বদলায় না
+   =============================================================== */
+.pd-side-card--project {
+  gap: 16px;
+}
+
+.pd-image-block--project {
+  gap: 16px;
+}
+
+/* মাথা */
+.pd-image-block--project .pd-card-row {
+  min-height: 17px;
+}
+
+.pd-image-block--project .pd-card-title {
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 17px;
+  color: #373a3c;
+}
+
+/* trash — দেখতে 14px, চাপার জায়গা বড় (layout এ জায়গা নেয় না) */
+.pd-image-block--project .pd-card-row .pd-icon-btn {
+  position: relative;
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  color: #ef4444;
+}
+
+.pd-image-block--project .pd-card-row .pd-icon-btn::after {
+  content: "";
+  position: absolute;
+  inset: -8px;
+}
+
+/* বড় ছবি */
+.pd-image-block--project .pd-image-stage {
+  aspect-ratio: 314.67 / 183;
+  border-radius: 20px;
+  background: #f8fafc;
+}
+
+.pd-image-block--project .pd-image-stage > img {
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* ছোট ছবি */
+.pd-image-block--project .pd-thumbs {
+  gap: 10px;
+}
+
+.pd-image-block--project .pd-thumb-btn {
+  box-sizing: border-box;
+  width: 48px;
+  height: 48px;
+  border: 0;
+  border-radius: 10px;
+  background: #f8fafc;
+}
+
+.pd-image-block--project .pd-thumb-btn img {
+  object-fit: cover;
+  padding: 0;
+}
+
+.pd-image-block--project .pd-thumb-btn.is-on {
+  box-shadow: none;
+}
+
+/* বাছাই করা ছবির 1px হলুদ বর্ডার — ছবির উপরে আঁকা, তাই ছবি ঢাকে না */
+.pd-image-block--project .pd-thumb-btn.is-on::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  box-sizing: border-box;
+  border: 1px solid #f7be00;
+  border-radius: 10px;
+  pointer-events: none;
+}
+
+/* plus tile */
+.pd-image-block--project .pd-thumb-add {
+  border: 1px solid #ebebec;
+  background: #f8fafc;
+  color: #c1c2c3;
+}
+
+.pd-image-block--project .pd-thumb-add:hover {
+  border-color: var(--adm-ink);
+  color: var(--adm-ink);
+}
+
+/* "or paste an image link" — Figma তে নেই, কাজের জন্য রাখা; ছোট ছবির কাছে বসানো */
+.pd-image-block--project .pd-text-btn {
+  margin-top: -6px;
+}

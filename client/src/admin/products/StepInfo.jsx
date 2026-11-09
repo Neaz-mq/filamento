@@ -161,10 +161,34 @@ export function FeatureModal({
   );
 }
 
+/* ছোট "+" চিহ্ন — Figma র Project Image এর plus tile (16px, 2px রেখা, রং #C1C2C3).
+   রেখার মোটা 3 = 24 ঘরের হিসাবে, 16px এ আঁকলে ঠিক 2px হয় */
+function PlusMark() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="3"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path d="M12 5v14" />
+      <path d="M5 12h14" />
+    </svg>
+  );
+}
+
 /* ---------------------------------------------------------------
    Product Image. Project পাতাও এটাই ব্যবহার করে —
-     kind  — কোন ফোল্ডারে যাবে ("project-image")
-     label — মাথার লেখা ("Project Image")
+     kind    — কোন ফোল্ডারে যাবে ("project-image")
+     label   — মাথার লেখা ("Project Image")
+     variant — "product" (আগের মতো) বা "project" (Figma র project card:
+               ছবি পুরো চওড়া 314.67 x 183, radius 20, ছোট ছবি 48px)
    --------------------------------------------------------------- */
 export function ImagesCard({
   product,
@@ -172,6 +196,7 @@ export function ImagesCard({
   canEdit,
   kind = "image",
   label = "Product Image",
+  variant = "product",
 }) {
   const inputRef = useRef(null);
   const [selected, setSelected] = useState(0);
@@ -259,7 +284,10 @@ export function ImagesCard({
   };
 
   return (
-    <section className="pd-image-block" aria-labelledby="pd-image-title">
+    <section
+      className={`pd-image-block${variant === "project" ? " pd-image-block--project" : ""}`}
+      aria-labelledby="pd-image-title"
+    >
       <div className="pd-card-row">
         <h3 id="pd-image-title" className="pd-card-title pd-card-title--sm">
           {label} <span className="pd-required">*</span>
@@ -272,7 +300,7 @@ export function ImagesCard({
             aria-label="Delete this image"
             title="Delete this image"
           >
-            <IconTrash size={16} />
+            <IconTrash size={variant === "project" ? 14 : 16} />
           </button>
         )}
       </div>
@@ -355,7 +383,7 @@ export function ImagesCard({
             aria-label="Upload images"
             title="Upload images"
           >
-            <IconPlus size={18} />
+            {variant === "project" ? <PlusMark /> : <IconPlus size={18} />}
           </button>
         )}
       </div>

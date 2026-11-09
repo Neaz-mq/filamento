@@ -185,6 +185,108 @@ function StoryStep({ number, title, children, id }) {
   );
 }
 
+/* ---------------------------------------------------------------
+   Project এর ভিডিও — admin এর "Video URLs"
+     YouTube / Vimeo   → পেজের ভেতরেই চলা player (iframe)
+     .mp4 .webm …      → সরাসরি <video>
+     অন্য কোনো লিংক    → "Watch video" বোতাম (নতুন ট্যাবে)
+   শুধু https ঠিকানা নেওয়া হয়; বাকি সব বাদ
+   --------------------------------------------------------------- */
+const FILE_VIDEO = /\.(mp4|webm|ogg|mov|m4v)$/i;
+
+function videoSource(raw) {
+  let url;
+  try {
+    url = new URL(String(raw ?? "").trim());
+  } catch {
+    return null;
+  }
+  if (url.protocol !== "https:") return null;
+
+  const host = url.hostname.replace(/^www\./i, "").toLowerCase();
+  const parts = url.pathname.split("/").filter(Boolean);
+
+  /* YouTube — watch?v=ID · youtu.be/ID · /embed/ID · /shorts/ID · /live/ID */
+  if (host === "youtu.be" || host === "youtube.com" || host.endsWith(".youtube.com")) {
+    const id =
+      host === "youtu.be"
+        ? parts[0]
+        : parts[0] === "watch"
+          ? url.searchParams.get("v")
+          : ["embed", "shorts", "live", "v"].includes(parts[0])
+            ? parts[1]
+            : "";
+    if (/^[\w-]{11}$/.test(id ?? "")) {
+      return { kind: "embed", src: `https://www.youtube-nocookie.com/embed/${id}` };
+    }
+    return { kind: "link", href: url.href };
+  }
+
+  /* Vimeo — vimeo.com/ID · player.vimeo.com/video/ID */
+  if (host === "vimeo.com" || host === "player.vimeo.com") {
+    const id = parts.find((part) => /^\d+$/.test(part));
+    if (id) return { kind: "embed", src: `https://player.vimeo.com/video/${id}` };
+    return { kind: "link", href: url.href };
+  }
+
+  if (FILE_VIDEO.test(url.pathname)) return { kind: "file", src: url.href };
+
+  return { kind: "link", href: url.href };
+}
+
+function ProjectVideos({ urls }) {
+  const { t } = useTranslation();
+  const headingId = useId();
+  const items = (urls ?? []).map(videoSource).filter(Boolean);
+  if (!items.length) return null;
+
+  return (
+    <section className="pjd-videos" aria-labelledby={headingId}>
+      <h2 id={headingId} className="pjd-videos-title">
+        {t("projects.detail.video")}
+      </h2>
+      <div className={`pjd-videos-grid${items.length === 1 ? " is-single" : ""}`}>
+        {items.map((item, index) => {
+          const label = `${t("projects.detail.video")} ${index + 1}`;
+          if (item.kind === "embed") {
+            return (
+              <div key={index} className="pjd-video-frame">
+                <iframe
+                  src={item.src}
+                  title={label}
+                  loading="lazy"
+                  allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+                  allowFullScreen
+                  referrerPolicy="strict-origin-when-cross-origin"
+                />
+              </div>
+            );
+          }
+          if (item.kind === "file") {
+            return (
+              <div key={index} className="pjd-video-frame">
+                <video controls preload="metadata" playsInline src={item.src} aria-label={label} />
+              </div>
+            );
+          }
+          return (
+            <a
+              key={index}
+              href={item.href}
+              className="pjd-cta pjd-video-link"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {t("projects.detail.watchVideo")}
+              <ArrowRight />
+            </a>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
 function Paragraphs({ text }) {
   return paragraphs(text).map((part, index) =>
     isResultLine(part) ? (
@@ -382,6 +484,7 @@ function ProjectDetail() {
   ].filter(Boolean);
   const highlights = (project.highlights ?? []).filter(Boolean);
   const products = project.products ?? [];
+  const videoUrls = (project.videoUrls ?? []).filter(Boolean);
 
   /* Highlights এর বোতাম — admin এর Call to Action; না থাকলে Figma র
      "Plan a similar project" → Contact */
@@ -592,6 +695,9 @@ function ProjectDetail() {
                 )}
               </aside>
             </div>
+
+            {/* ------------------------ Project এর ভিডিও ------------------------ */}
+            <ProjectVideos urls={videoUrls} />
           </div>
         </div>
       </section>

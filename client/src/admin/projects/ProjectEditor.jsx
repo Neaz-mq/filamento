@@ -87,7 +87,8 @@ function ReviewModal({ project, saving, error, onClose, onSave }) {
   const drafts = project.products.filter((id) => project.items[id]?.status === "draft").length;
   const story = [
     project.challenge.trim() && "challenge",
-    project.solution.length && "solution",
+    // Solution এর summary লেখা থাকলেও "written" — শুধু feature কার্ড না
+    (project.solutionIntro?.trim() || project.solution.length) && "solution",
     project.results.trim() && "results",
   ].filter(Boolean);
 
