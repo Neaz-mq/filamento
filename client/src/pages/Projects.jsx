@@ -237,6 +237,58 @@ const prefersReducedMotion = () =>
   typeof window !== "undefined" &&
   window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+/* ---------------------------------------------------------------
+   "Window" পদ্ধতি (ফোনের বড় পর্দায়, 641px থেকে)
+
+   আগে rail নিজে scroll করত, তাই তীর/ক্লিকে card গুলো বাঁয়ে পাতার কিনারা
+   পর্যন্ত বেরিয়ে যেত আর ডানে ফাঁক পড়ত।
+
+   এখন rail scroll করে না। প্রথম দেখা card (start) সবসময় container এর বাঁ
+   কিনারায় বসে, তার আগের card গুলো কিনারার পেছনে চলে গিয়ে লুকায়, আর ডান
+   দিকে পরের card পাতার কিনারা পর্যন্ত উঁকি দেয়। layout সবসময় একই:
+       [বন্ধ] [বন্ধ] [খোলা] [বন্ধ ...]
+   ফোনে (≤640px) আগের মতো আঙুলে টানা scroll ই থাকে।
+   --------------------------------------------------------------- */
+const WINDOWED_QUERY = "(min-width: 641px)";
+
+function useMediaQuery(query) {
+  const [matches, setMatches] = useState(
+    () => typeof window !== "undefined" && window.matchMedia(query).matches
+  );
+  useEffect(() => {
+    const list = window.matchMedia(query);
+    const onChange = () => setMatches(list.matches);
+    list.addEventListener("change", onChange);
+    return () => list.removeEventListener("change", onChange);
+  }, [query]);
+  return matches;
+}
+
+/* rail এর মাপ: step = একটা বন্ধ card + gap, open = খোলা card, avail = বাঁ
+   কিনারা (container) থেকে rail এর ডান কিনারা পর্যন্ত জায়গা */
+function measureWindow(rail) {
+  const track = rail?.firstElementChild;
+  if (!rail || !track) return null;
+  const style = getComputedStyle(track);
+  const gutter = parseFloat(style.paddingLeft) || 0;
+  const gap = parseFloat(style.columnGap) || 0;
+  const closed = cssWidth(rail, "--pj-card-w");
+  const open = cssWidth(rail, "--pj-card-w-active");
+  return { step: closed + gap, open, avail: rail.clientWidth - gutter };
+}
+
+// index তম card খোলা হলে, `from` থেকে শুরু করা window তে পুরোটা ধরবে কি
+const opensInside = (index, from, m) => (index - from) * m.step + m.open <= m.avail + 1;
+
+/* সবচেয়ে ডানের window এর শুরু — যেখান থেকে বাকি সব card (একটা খোলা) পর্দায়
+   পুরো ধরে। এর পরে সরালে শুধু ফাঁকা জায়গা বাড়ত */
+function lastWindowStart(count, m) {
+  for (let from = 0; from < count; from += 1) {
+    if ((count - from - 1) * m.step + m.open <= m.avail + 1) return from;
+  }
+  return Math.max(0, count - 1);
+}
+
 /* card বড় হওয়ার transition এর সময় (ms) — Projects.css এর
    --pj-card-dur এর সাথে মেলাতে হবে */
 const CARD_TRANSITION_MS = 820;
@@ -279,6 +331,11 @@ function Projects() {
   // শুরুতে Figma র মতো তৃতীয় card টা খোলা; মাউস সরিয়ে নিলেও শেষ
   // card টাই বড় থাকে, যাতে rail লাফালাফি না করে
   const [activeIndex, setActiveIndex] = useState(DEFAULT_ACTIVE_INDEX);
+  // window পদ্ধতিতে (নিচে দেখুন) কোন card টা container এর বাঁ কিনারায় প্রথম
+  // দেখা যাচ্ছে, আর তার ডানের সব card পুরো ধরে এমন সর্বোচ্চ শুরু কোনটা
+  const [startIndex, setStartIndex] = useState(0);
+  const [maxStart, setMaxStart] = useState(0);
+  const windowed = useMediaQuery(WINDOWED_QUERY);
   // তীর/ক্লিকে card বদলানোর সময়টুকু (width transition) track এর
   // hover/click handler লক থাকে — carousel লাইব্রেরির industry-standard
   // প্যাটার্ন: animation চলাকালীন নতুন interaction ধরা হয় না, তাই
@@ -294,6 +351,9 @@ function Projects() {
   // handler যেন নতুন করে activeIndex পাল্টাতে না পারে
   const autoScrollAt = useRef(0);
   const hasMounted = useRef(false);
+  const swipeRef = useRef(null);
+  const wheelAt = useRef(0);
+  const stepRef = useRef(null);
   const hoverTimer = useRef(null);
   // rail কে scroll করানো হবে শুধু স্পষ্ট কাজে (তীর, ক্লিক/tap, কিবোর্ড
   // focus)। মাউস hover এ কখনোই নয় — hover এ card গুলো নিজের জায়গায় থাকে
@@ -321,6 +381,7 @@ function Projects() {
   // নতুন তালিকা/পাতা এলে rail শুরুতে ফিরে যায়, তৃতীয় card বড়
   function resetRail() {
     setActiveIndex(DEFAULT_ACTIVE_INDEX);
+    setStartIndex(0);
     railRef.current?.scrollTo({ left: 0 });
   }
 
@@ -411,7 +472,7 @@ function Projects() {
 
   const tabEdges = useScrollEdges(tabsRef);
   // rail এর দুই পাশের বড় তীর — শুরুতে বাঁ তীর, শেষে ডান তীর ধূসর
-  const railEdges = useScrollEdges(railRef, hasResults);
+  const railEdges = useScrollEdges(railRef, hasResults && !windowed);
 
   // পাতা/filter বদলে card কমে গেলে (যেমন শেষ পাতায় ২টা) activeIndex
   // নাগালের বাইরে থেকে যেত — উপরের `active` ঠিক দেখালেও state টা আলাদা
@@ -422,12 +483,24 @@ function Projects() {
     setActiveIndex(active);
   }
 
+  // window এর শুরু: খোলা card এর আগে, আর সর্বোচ্চ শুরুর (lastStart) পরে নয়
+  const lastStart = Math.min(maxStart, Math.max(visible.length - 1, 0));
+  const winStart = windowed ? Math.min(startIndex, active, lastStart) : 0;
+  if (windowed && startIndex !== winStart && visible.length > 0 && maxStart > 0) {
+    setStartIndex(winStart);
+  }
+
   // তীর/ক্লিক/focus এ card বদলালে, transition শেষে ডানে/বাঁয়ে কেটে থাকলে
   // rail কে সরিয়ে card টাকে content এর ভেতরে আনা। hover এ কখনো নয়,
   // আর প্রথমবার আঁকার সময়ও নয়
   useEffect(() => {
     if (!hasMounted.current) {
       hasMounted.current = true;
+      return undefined;
+    }
+    // window পদ্ধতিতে rail scroll করে না — card নিজে নিজের জায়গায় বসে
+    if (windowed) {
+      revealOnChange.current = false;
       return undefined;
     }
     if (!revealOnChange.current) return undefined;
@@ -455,13 +528,35 @@ function Projects() {
       }
     }, CARD_TRANSITION_MS);
     return () => clearTimeout(timer);
-  }, [active]);
+  }, [active, windowed]);
+
+  // window পদ্ধতি: কতদূর পর্যন্ত সরানো যাবে (সবচেয়ে ডানের window এর শুরু).
+  // পর্দার মাপ বদলালে (rail resize) নিজে আবার মাপে
+  useEffect(() => {
+    if (!windowed || !hasResults) return undefined;
+    const rail = railRef.current;
+    if (!rail) return undefined;
+    const count = visible.length;
+    const measure = () => {
+      const m = measureWindow(rail);
+      if (!m) return;
+      const next = lastWindowStart(count, m);
+      setMaxStart((prev) => (prev === next ? prev : next));
+    };
+    const observer = new ResizeObserver(measure);
+    observer.observe(rail);
+    return () => observer.disconnect();
+  }, [windowed, hasResults, visible.length]);
 
   // খুললে card টা (612) কি এখন দেখা যাওয়া এলাকার ভেতরেই ধরবে? উত্তর "না"
   // হলে (যেমন ডানে উঁকি দেওয়া card) hover এ খোলা হয় না — নাহলে বাড়তে
   // গিয়ে কেটে যেত, আর কাটা ঠেকাতে rail সরাতে হতো। ওই card তীর বা
   // ক্লিক দিয়ে খোলা যায়
   function fitsWhenOpen(index) {
+    if (windowed) {
+      const m = measureWindow(railRef.current);
+      return Boolean(m) && index >= winStart && opensInside(index, winStart, m);
+    }
     const rail = railRef.current;
     const track = rail?.firstElementChild;
     if (!rail || !track) return false;
@@ -499,16 +594,51 @@ function Projects() {
   }
 
   // ক্লিক/tap/কিবোর্ড focus — স্পষ্ট ইচ্ছা, তাই দরকারে rail সরবে
-  function openCard(index) {
+  function holdNavigation() {
     clearTimeout(hoverTimer.current);
-    if (index === active) return;
-    revealOnChange.current = true;
     autoScrollAt.current = now();
     setIsNavigating(true);
     clearTimeout(navigateLockTimer.current);
     navigateLockTimer.current = setTimeout(() => setIsNavigating(false), CARD_TRANSITION_MS);
+  }
+
+  function openCard(index) {
+    clearTimeout(hoverTimer.current);
+    if (index === active) return;
+
+    if (windowed) {
+      // card পুরো না ধরলে (যেমন ডানে উঁকি দেওয়া card) window টা ততটুকু
+      // সরে, যাতে খোলা card টা ঠিক ধরে — বাঁ কিনারা তখনও একই নিয়মে বসে
+      const m = measureWindow(railRef.current);
+      let nextStart = Math.min(winStart, index);
+      if (m) {
+        while (nextStart < index && !opensInside(index, nextStart, m)) nextStart += 1;
+      }
+      holdNavigation();
+      setStartIndex(nextStart);
+      setActiveIndex(index);
+      return;
+    }
+
+    revealOnChange.current = true;
+    holdNavigation();
     setActiveIndex(index);
   }
+
+  // তীর/swipe: window এক card ডানে/বাঁয়ে সরে, খোলা card ঠিক আগের slot এই থাকে
+  function stepWindow(direction) {
+    const nextStart = Math.max(0, Math.min(lastStart, winStart + direction));
+    if (nextStart === winStart) return;
+    const slot = active - winStart;
+    holdNavigation();
+    setStartIndex(nextStart);
+    setActiveIndex(Math.min(nextStart + slot, visible.length - 1));
+  }
+
+  // wheel/swipe এর হাতে-ধরা handler গুলো সবসময় সর্বশেষ stepWindow ডাকে
+  useEffect(() => {
+    stepRef.current = stepWindow;
+  });
 
   useEffect(
     () => () => {
@@ -522,6 +652,10 @@ function Projects() {
      48px গোল তীর, দুই পাশে). টানার মতোই hover এ card খোলা কিছুক্ষণ
      বন্ধ থাকে (scroll event থেকে), তাই সরার মাঝে card লাফায় না */
   function slideRail(direction) {
+    if (windowed) {
+      stepWindow(direction);
+      return;
+    }
     const rail = railRef.current;
     const track = rail?.firstElementChild;
     if (!rail || !track) return;
@@ -544,7 +678,7 @@ function Projects() {
   const dragMoved = useRef(false);
   useEffect(() => {
     const rail = railRef.current;
-    if (!hasResults || !rail) return undefined;
+    if (windowed || !hasResults || !rail) return undefined;
 
     let down = false;
     let startX = 0;
@@ -639,7 +773,44 @@ function Projects() {
       window.removeEventListener("pointercancel", onUp);
       isDragging.current = false;
     };
-  }, [hasResults]);
+  }, [hasResults, windowed]);
+
+  // window পদ্ধতিতে সরানোর হাত: আঙুল/মাউসে আড়াআড়ি টানা (swipe) আর
+  // trackpad এর আড়াআড়ি swipe — প্রতিবার এক card
+  function handleSwipeStart(event) {
+    if (!windowed || event.button !== 0) return;
+    swipeRef.current = { x: event.clientX, y: event.clientY };
+    dragMoved.current = false;
+  }
+
+  function handleSwipeEnd(event) {
+    const start = swipeRef.current;
+    swipeRef.current = null;
+    if (!windowed || !start) return;
+    const dx = event.clientX - start.x;
+    const dy = event.clientY - start.y;
+    if (Math.abs(dx) >= 50 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+      // টানার শেষে যে click ফায়ার হয় সেটা যেন কোনো card খুলে না ফেলে
+      dragMoved.current = true;
+      stepWindow(dx < 0 ? 1 : -1);
+    }
+  }
+
+  useEffect(() => {
+    const rail = railRef.current;
+    if (!windowed || !hasResults || !rail) return undefined;
+    const onWheel = (event) => {
+      if (Math.abs(event.deltaX) <= Math.abs(event.deltaY) || Math.abs(event.deltaX) < 12) return;
+      // browser এর পাতা-পেছনে-যাওয়া swipe আটকানো
+      event.preventDefault();
+      const time = now();
+      if (time - wheelAt.current < 700) return;
+      wheelAt.current = time;
+      stepRef.current?.(event.deltaX > 0 ? 1 : -1);
+    };
+    rail.addEventListener("wheel", onWheel, { passive: false });
+    return () => rail.removeEventListener("wheel", onWheel);
+  }, [windowed, hasResults]);
 
   const pageItems = useMemo(() => buildPageItems(safePage, pageCount), [safePage, pageCount]);
 
@@ -744,8 +915,13 @@ function Projects() {
           ) : hasResults ? (
             <div className="projects-stage">
               <div
-                className="projects-rail"
+                className={`projects-rail${windowed ? " is-windowed" : ""}`}
                 ref={railRef}
+                onPointerDown={handleSwipeStart}
+                onPointerUp={handleSwipeEnd}
+                onPointerCancel={() => {
+                  swipeRef.current = null;
+                }}
                 onClickCapture={(event) => {
                   // টেনে সরানোর পর ছাড়লে যে "click" ফায়ার হয় সেটা আটকানো,
                   // নাহলে টানার শেষে হঠাৎ একটা card খুলে যেত
@@ -758,7 +934,16 @@ function Projects() {
               >
                 <ul
                   key={`${safePage}-${category}`}
-                  className={`projects-track${isNavigating ? " is-navigating" : ""}`}
+                  className={`projects-track${windowed ? " is-windowed" : ""}${isNavigating ? " is-navigating" : ""}`}
+                  style={
+                    windowed
+                      ? {
+                          // window এর শুরু card টা container এর বাঁ কিনারায় বসে;
+                          // আগের card গুলো বাঁয়ে সরে গিয়ে কিনারার পেছনে লুকায়
+                          translate: `calc((var(--pj-card-w) + var(--pj-card-gap)) * ${-winStart}) 0`,
+                        }
+                      : undefined
+                  }
                 >
                   {visible.map((project, index) => (
                     <li
@@ -821,13 +1006,13 @@ function Projects() {
               {/* Figma "Button" — rail এর দুই পাশে 48px গোল তীর. ফোনে
                   লুকানো, সেখানে আঙুলে টেনে সরানো হয়. সব card একসাথে
                   দেখা গেলে (সরানোর কিছু নেই) তীরও নেই */}
-              {!(railEdges.atStart && railEdges.atEnd) && (
+              {(windowed ? lastStart > 0 : !(railEdges.atStart && railEdges.atEnd)) && (
                 <>
                   <button
                     type="button"
                     className="projects-rail-arrow is-prev"
                     onClick={() => slideRail(-1)}
-                    disabled={railEdges.atStart}
+                    disabled={windowed ? winStart <= 0 : railEdges.atStart}
                     aria-label={t("projects.railPrev")}
                   >
                     <Chevron direction="left" width={9} height={16} />
@@ -836,7 +1021,7 @@ function Projects() {
                     type="button"
                     className="projects-rail-arrow is-next"
                     onClick={() => slideRail(1)}
-                    disabled={railEdges.atEnd}
+                    disabled={windowed ? winStart >= lastStart : railEdges.atEnd}
                     aria-label={t("projects.railNext")}
                   >
                     <Chevron direction="right" width={9} height={16} />

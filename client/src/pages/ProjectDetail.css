@@ -32,9 +32,25 @@
 /* ---------------------------------------------------------------
    hero
    --------------------------------------------------------------- */
+/* ছবির চওড়া ÷ উচ্চতা. @property দিয়ে "সংখ্যা" হিসেবে চিনিয়ে দেওয়া হয়েছে, তাই
+   ছবি বদলালে ফ্রেমের মাপ হঠাৎ লাফায় না, নরমভাবে বদলায় */
+@property --pjd-ar {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 1.5;
+}
+
 .pjd-hero {
+  /* পাশের ফাঁক (বড় পর্দায় 1240 এর বাইরের অংশ) আর বাঁ দিকের লেখার কলামের চওড়া */
+  --pjd-edge: max(var(--section-pad-x), calc((100% - var(--content-max)) / 2));
+  --pjd-info-w: 400px;
+
   position: relative;
-  height: 540px;
+  /* আগে স্থির 540px ছিল. চওড়া পর্দায় ছবি পুরো চওড়ায় বসে, তাই উচ্চতা কম হলে
+     উপর-নিচ কেটে যায় (মেঝে হারায়). এখন পর্দার চওড়ার সাথে বাড়ে:
+     1280px → 563px, 1440px → 634px, বড় পর্দায় সর্বোচ্চ 640px.
+     মোবাইল/ট্যাবলেটে নিচের @media নিয়ম (height: auto) আগের মতোই কাজ করে */
+  height: var(--pjd-hero-h, clamp(540px, 44vw, 640px));
   overflow: hidden;
   border-radius: var(--section-radius);
   background: #0b121a;
@@ -46,42 +62,156 @@
   animation: pjd-pulse 1.4s ease-in-out infinite;
 }
 
-.pjd-hero-image {
+/* ---- পেছনের আভা ----
+   একই ছবি পুরো hero ঢেকে (cover), খুব ঝাপসা, রং একটু গাঢ়, আর একটু গাঢ়ও.
+   scale(1.3) দেওয়া হয় যাতে blur এ কিনারা ফ্যাকাশে/স্বচ্ছ না দেখায়.
+   ধীরে ধীরে একটু নড়ে (24s) — স্থির ছবির চেয়ে জীবন্ত লাগে */
+.pjd-hero-backdrop {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   max-width: none;
   object-fit: cover;
-  animation: pjd-fade 0.45s ease-out;
+  object-position: center;
+  filter: blur(46px) saturate(1.45) brightness(0.5);
+  transform: scale(1.3);
+  animation:
+    pjd-fade 0.7s ease-out,
+    pjd-drift 24s ease-in-out 0.7s infinite alternate;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* ---- সামনের ছবির মঞ্চ ----
+   বাঁ দিকের লেখার কলাম বাদ দিয়ে বাকি জায়গা. container-type: size দেওয়া হয়েছে যাতে
+   ভেতরের ফ্রেম এই জায়গার চওড়া/উচ্চতা (cqw / cqh) মেপে ছবির মাপে বসতে পারে */
+.pjd-hero-stage {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px var(--pjd-edge) 48px calc(var(--pjd-edge) + var(--pjd-info-w) + 40px);
+  container-type: size;
+  pointer-events: none;
+}
+
+/* ---- ফ্রেম ----
+   মাপ = ছবির নিজের অনুপাত (--pjd-ar), মঞ্চে যতটা ধরে ততটা বড়. তাই ছবি পুরোটাই
+   দেখা যায়, কোনো ফাঁক বা কাটা নেই. ছায়া + হালকা সাদা রিং দিয়ে "ভেসে থাকা"
+   পোস্টারের মতো লাগে */
+.pjd-hero-frame {
+  position: relative;
+  flex: none;
+  width: min(100cqw, calc(100cqh * var(--pjd-ar)));
+  aspect-ratio: var(--pjd-ar);
+  overflow: hidden;
+  border-radius: clamp(16px, 2vw, 28px);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.16),
+    0 44px 90px -26px rgba(0, 0, 0, 0.7),
+    0 18px 36px -18px rgba(0, 0, 0, 0.5);
+  animation: pjd-rise 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+  pointer-events: auto;
+}
+
+.pjd-hero-frame.is-morph {
+  transition: --pjd-ar 0.5s cubic-bezier(0.3, 0.7, 0.2, 1);
+}
+
+/* ছবি ফ্রেম ভরে থাকে. ফ্রেম ছবির অনুপাতেই, তাই cover এ কিছু কাটে না.
+   নামার পর ধীরে ফুটে ওঠে আর একটু ছোট হয়ে বসে */
+.pjd-hero-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+  opacity: 0;
+  transform: scale(1.04);
+  transition:
+    opacity 0.55s ease,
+    transform 0.9s cubic-bezier(0.2, 0.7, 0.2, 1);
   user-select: none;
 }
 
-/* Figma র নিচের কালো আভা (60% → 90%). উপরে হালকা একটু আভা বাড়তি —
-   সাদা ছাদের ছবিতেও "ALL PROJECTS" যেন পড়া যায় */
+.pjd-hero-image.is-ready {
+  opacity: 1;
+  transform: none;
+}
+
+/* ছবির কোণে "2 / 3" — কাচের ক্যাপসুল */
+.pjd-hero-count {
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
+  padding: 5px 12px;
+  border-radius: 100px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(11, 18, 26, 0.45);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  font-family: "Space Grotesk", var(--font-sans), sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: 0.04em;
+  color: #ffffff;
+  pointer-events: none;
+}
+
+/* কালো আভা — শুধু লেখা পড়ার জন্য, ছবি ঢাকার জন্য না.
+   এখন লেখা আছে ছবির পাশে (ছবির উপরে না), তাই বাঁ দিক একটু গাঢ় করা হয়েছে আর
+   চারকোণ হালকা কালো (vignette) যাতে ফ্রেমটা আলাদা করে ফুটে ওঠে.
+   এই shade ফ্রেমের নিচে বসে (ফ্রেমে z-index: 1), তাই ছবি কখনো অন্ধকার হয় না */
 .pjd-hero-shade {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(180deg, rgba(11, 18, 26, 0.35) 0%, rgba(11, 18, 26, 0) 22%),
-    linear-gradient(
-      180deg,
-      rgba(11, 18, 26, 0) 60%,
-      rgba(11, 18, 26, 0.75) 75%,
-      rgba(11, 18, 26, 0.9) 100%
+    linear-gradient(90deg, rgba(11, 18, 26, 0.5) 0%, rgba(11, 18, 26, 0) 58%),
+    linear-gradient(180deg, rgba(11, 18, 26, 0.32) 0%, rgba(11, 18, 26, 0) 24%),
+    radial-gradient(
+      90% 120% at 72% 50%,
+      rgba(11, 18, 26, 0) 45%,
+      rgba(11, 18, 26, 0.42) 100%
     );
   pointer-events: none;
+}
+
+/* ছবি হালকা হলে সাদা লেখা যেন হারিয়ে না যায় */
+.pjd-back,
+.pjd-location,
+.pjd-title {
+  text-shadow:
+    0 1px 2px rgba(11, 18, 26, 0.45),
+    0 2px 16px rgba(11, 18, 26, 0.5);
+}
+
+.pjd-back svg,
+.pjd-location svg {
+  filter: drop-shadow(0 1px 3px rgba(11, 18, 26, 0.6));
 }
 
 /* ভেতরের অংশ 1240 এ — বড় পর্দায় দুই পাশে সমান ফাঁক */
 .pjd-hero-inner {
   position: absolute;
   inset: 0;
+  z-index: 2;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   gap: 32px;
-  padding: 48px max(var(--section-pad-x), calc((100% - var(--content-max)) / 2));
+  padding: 48px var(--pjd-edge);
+  pointer-events: none;
+}
+
+/* inner পুরো hero ঢেকে থাকে বলে ক্লিক আটকে না দিতে ওটা "ফাঁপা", শুধু ভেতরের
+   লিংক/বোতামগুলো ক্লিক ধরে */
+.pjd-hero-inner > * {
+  pointer-events: auto;
 }
 
 .pjd-back {
@@ -113,11 +243,14 @@
   outline-offset: 3px;
 }
 
+/* বাঁ কলাম: উপরে ধরন + জায়গা + নাম, তার নিচে ছোট ছবির সারি */
 .pjd-hero-bottom {
   display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 24px 32px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 28px;
+  width: var(--pjd-info-w);
+  max-width: 100%;
 }
 
 .pjd-hero-info {
@@ -125,7 +258,7 @@
   flex-direction: column;
   gap: 12px;
   min-width: 0;
-  max-width: 634px;
+  max-width: 100%;
 }
 
 .pjd-hero-meta {
@@ -158,11 +291,20 @@
   font-weight: 400;
   font-size: 20px;
   line-height: 26px;
-  color: rgba(225, 229, 234, 0.75);
+  /* হালকা ছবির উপরেও যেন পড়া যায়: পুরো সাদা লেখা + ঝাপসা কালো "কাচের" ক্যাপসুল
+     (হলুদ badge এর মতো গোল). ক্যাপসুল ছাড়া 75% সাদা লেখা উজ্জ্বল টেবিলে হারিয়ে যেত */
+  padding: 6px 14px 6px 10px;
+  border-radius: 100px;
+  background: rgba(11, 18, 26, 0.45);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  color: #ffffff;
+  text-shadow: none;
 }
 
 .pjd-location svg {
   flex: none;
+  filter: none;
 }
 
 .pjd-title {
@@ -197,6 +339,7 @@
   background: none;
   color: var(--pjd-light);
   cursor: pointer;
+  filter: drop-shadow(0 1px 3px rgba(11, 18, 26, 0.6));
   transition:
     opacity 0.2s ease,
     transform 0.2s ease;
@@ -276,6 +419,80 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+/* ---------------------------------------------------------------
+   DESKTOP hero — Figma "Frame 468" (1408 x 540, radius 40)
+
+   ছবি পুরো hero জুড়ে (contain — কোনো দিক কাটে না). Figma র মতো চওড়া ছবিতে
+   ছবিই পুরো hero ভরে; বর্গ/লম্বা ছবিতে দুই পাশের ফাঁকা অংশ পেছনের ঝাপসা
+   আভা (একই ছবির blur) দিয়ে ভরা থাকে, তাই কোথাও কালো ফাঁক দেখায় না.
+
+     উপরে বাঁয়ে  ‹ ALL PROJECTS
+     নিচে বাঁয়ে  [Type] 📍 Location / নাম
+     নিচে ডানে   ‹ ছোট ছবির সারি ›
+   নিচে Figma র কালো আভা (60% → 90%) যাতে লেখা পড়া যায়
+   --------------------------------------------------------------- */
+@media (min-width: 1181px) {
+  .pjd-hero {
+    /* Figma 540 ÷ 1408 = 38.35% — পর্দার চওড়ার সাথে মাপ বাড়ে-কমে */
+    height: var(--pjd-hero-h, clamp(540px, 40vw, 640px));
+  }
+
+  .pjd-hero-stage {
+    padding: 0;
+    container-type: normal;
+  }
+
+  .pjd-hero-frame {
+    position: static;
+    width: 100%;
+    height: 100%;
+    aspect-ratio: auto;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    animation: none;
+  }
+
+  .pjd-hero-image {
+    object-fit: cover;
+    object-position: center 55%;
+  }
+
+  /* Figma "Frame 466": linear-gradient(180deg, 0 → 60%, .75 → 75%, .9 → 100%)
+     আর উপরে একটু হালকা আভা, যাতে "ALL PROJECTS" হালকা ছবিতেও পড়া যায় */
+  .pjd-hero-shade {
+    background:
+      linear-gradient(180deg, rgba(11, 18, 26, 0.35) 0%, rgba(11, 18, 26, 0) 22%),
+      linear-gradient(
+        180deg,
+        rgba(11, 18, 26, 0) 60%,
+        rgba(11, 18, 26, 0.75) 75%,
+        rgba(11, 18, 26, 0.9) 100%
+      );
+  }
+
+  /* নিচের সারি: বাঁয়ে লেখা, ডানে ছোট ছবির সারি (Figma "Frame 503") */
+  .pjd-hero-bottom {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 32px;
+    width: 100%;
+  }
+
+  .pjd-hero-info {
+    flex: 1 1 auto;
+    max-width: min(634px, 60%);
+  }
+
+  /* "4 / 5" — উপরে ডানে, নিচের ছোট ছবির সারির সাথে ধাক্কা লাগে না */
+  .pjd-hero-count {
+    top: 48px;
+    right: var(--pjd-edge);
+    bottom: auto;
+  }
 }
 
 /* ---------------------------------------------------------------
@@ -903,10 +1120,76 @@
   }
 }
 
+/* ফ্রেম নিচ থেকে হালকা উঠে আসে */
+@keyframes pjd-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.985);
+  }
+}
+
+/* পেছনের আভা খুব ধীরে একটু সরে (ছবি 1.3 → 1.38 গুণ) */
+@keyframes pjd-drift {
+  to {
+    transform: scale(1.38) translate3d(-1.2%, 0.8%, 0);
+  }
+}
+
 /* ---------------------------------------------------------------
    ছোট পর্দা
    --------------------------------------------------------------- */
 @media (max-width: 1180px) {
+  /* hero র ভেতর উপর থেকে নিচে সাজানো: ← All projects, ছবি, লেখা, ছোট ছবির সারি.
+     inner কে display: contents করা হয়েছে যাতে তার ভেতরের লিংক আর লেখা সরাসরি
+     hero র flex এর অংশ হয়ে ছবির আগে-পরে বসতে পারে */
+  .pjd-hero {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    height: auto;
+    padding: 24px var(--section-pad-x) 28px;
+  }
+
+  .pjd-hero-inner {
+    display: contents;
+  }
+
+  .pjd-back {
+    order: 1;
+    position: relative;
+    z-index: 2;
+  }
+
+  .pjd-hero-stage {
+    order: 2;
+    position: relative;
+    inset: auto;
+    padding: 0;
+    justify-content: center;
+    container-type: normal;
+  }
+
+  .pjd-hero-frame {
+    width: min(100%, calc(62vh * var(--pjd-ar)));
+  }
+
+  .pjd-hero-bottom {
+    order: 3;
+    position: relative;
+    z-index: 2;
+    width: 100%;
+  }
+
+  .pjd-hero-shade {
+    background: linear-gradient(
+      180deg,
+      rgba(11, 18, 26, 0.3) 0%,
+      rgba(11, 18, 26, 0) 28%,
+      rgba(11, 18, 26, 0) 62%,
+      rgba(11, 18, 26, 0.35) 100%
+    );
+  }
+
   .pjd-stats {
     gap: 28px;
     padding: 28px 32px;
@@ -951,13 +1234,16 @@
 
 @media (max-width: 760px) {
   .pjd-hero {
-    height: auto;
-    min-height: 520px;
+    gap: 16px;
+    padding-top: 20px;
   }
 
-  .pjd-hero-inner {
-    padding: 24px var(--section-pad-x);
-    gap: 24px;
+  .pjd-hero-count {
+    right: 10px;
+    bottom: 10px;
+    padding: 3px 10px;
+    font-size: 12px;
+    line-height: 18px;
   }
 
   .pjd-hero-bottom {
@@ -983,6 +1269,10 @@
 
   .pjd-badge {
     padding: 4px 10px;
+  }
+
+  .pjd-location {
+    padding: 4px 12px 4px 8px;
   }
 
   .pjd-location svg {
@@ -1146,9 +1436,19 @@
 
 @media (prefers-reduced-motion: reduce) {
   .pjd-hero.is-loading,
-  .pjd-hero-image,
+  .pjd-hero-backdrop,
+  .pjd-hero-frame,
   .pjd-skeleton {
     animation: none;
+  }
+
+  .pjd-hero-frame.is-morph,
+  .pjd-hero-image {
+    transition: none;
+  }
+
+  .pjd-hero-image {
+    transform: none;
   }
 
   .pjd-back,

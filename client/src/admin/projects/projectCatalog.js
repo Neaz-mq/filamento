@@ -2,7 +2,6 @@ import {
   IconArea,
   IconAward,
   IconBolt,
-  IconBox,
   IconBulb,
   IconChip,
   IconEllipsis,
@@ -13,55 +12,48 @@ import {
   IconLayers,
   IconLeaf,
   IconLens,
-  IconLink,
   IconSettings,
   IconShield,
+  IconSliders,
   IconSun,
   IconTimer,
-  IconUsersGroup,
+  IconUsers,
 } from "../icons";
 
 /* ===============================================================
-   Project এর নকশা — অবস্থা, Category, Project Type, icon, সীমা
+   admin এর Projects অংশের তালিকা আর সীমা
 
-   ⚠️ server/lib/projectSchema.js এর সাথে মিলিয়ে রাখা. একটায় কিছু
-   যোগ বা বদল করলে অন্যটাতেও করবেন
+   ⚠️ এটা শুধু ADMIN এর ফাইল. সাইটের (public) পাতার আলাদা ফাইল আছে:
+     client/src/pages/projectCatalog.js
+   দুটোকে এক করা যাবে না — এখানে icon component আছে (admin/icons),
+   আর ওখানে ছবি/API এর কোড. admin এর কোড সাইটের bundle এ ঢোকানো যাবে না.
 
-   ⚠️ এই ফাইলের প্রতিটা export একবারই থাকবে. পুরো লেখা দুইবার বসে
-   গেলে Vite "Duplicated export" দেখিয়ে থেমে যায়
+   ⚠️ নিচের তালিকা আর সীমা server এর সাথে মিলিয়ে রাখবেন:
+     server/lib/projectSchema.js      (PROJECT_STATUSES, PROJECT_CATEGORIES,
+                                        PROJECT_TYPES, PROJECT_ICONS, PROJECT_LIMITS)
+     pages/projectCatalog.js          (PROJECT_TYPES)
+     i18n/locales/*.json              (projects.categories.<key>)
    =============================================================== */
 
-export const PROJECT_LIMITS = {
-  title: 100,
-  company: 100,
-  shortDescription: 200,
-  location: 100,
-  story: 2000,
-  solutionIntro: 1500,
-  images: 12,
-  videoUrls: 10,
-  keyFeatures: 8,
-  featureText: 40,
-  solutionFeatures: 12,
-  solutionTitle: 60,
-  solutionText: 600,
-  highlights: 12,
-  highlight: 120,
-  ctaText: 40,
-  products: 40,
-};
-
-/* অবস্থা — draft সাইটে যায় না; In Progress আর Completed দুইটাই
-   সাইটে দেখায়. রং Figma র Project Overview এর মতো */
+/* ---------------------------------------------------------------
+   অবস্থা — draft সাইটে যায় না; in-progress আর completed published.
+   tone → CSS class (pj-status--green / yellow / grey)
+   color → ডোনাট আর বিন্দুর রং
+   --------------------------------------------------------------- */
 export const STATUSES = {
-  completed: { label: "Completed", tone: "green", color: "#22c55e" },
+  draft: { label: "Draft", tone: "grey", color: "#b6bac0" },
   "in-progress": { label: "In Progress", tone: "yellow", color: "#f7be00" },
-  draft: { label: "Draft", tone: "grey", color: "#c1c2c3" },
+  completed: { label: "Completed", tone: "green", color: "#22c55e" },
 };
 
-export const isLive = (status) => status === "completed" || status === "in-progress";
+// সাইটে যায় এমন অবস্থা (server এর LIVE_STATUSES)
+const LIVE_STATUSES = ["in-progress", "completed"];
 
-/* Category — বড় ভাগ (Figma র টেবিলের নীল pill) */
+export const isLive = (status) => LIVE_STATUSES.includes(status);
+
+/* ---------------------------------------------------------------
+   Category — বড় ভাগ (server এর PROJECT_CATEGORIES এর ক্রমে)
+   --------------------------------------------------------------- */
 export const CATEGORIES = [
   { key: "industrial", label: "Industrial" },
   { key: "commercial", label: "Commercial" },
@@ -74,8 +66,10 @@ export const CATEGORIES = [
   { key: "agriculture", label: "Agriculture" },
 ];
 
-/* Project Type — কোন ধরনের জায়গা. public Projects পাতার
-   "environment" filter এর key গুলোই, তাই সাইটের সাথে মিলে যায় */
+/* ---------------------------------------------------------------
+   Project Type — কোন ধরনের জায়গা (server এর PROJECT_TYPES এর ক্রমে).
+   public সাইটের Projects পাতার filter এর key গুলোই
+   --------------------------------------------------------------- */
 export const PROJECT_TYPES = [
   { key: "airport", label: "Airport" },
   { key: "automotiveDealership", label: "Automotive Dealership" },
@@ -93,37 +87,71 @@ export const PROJECT_TYPES = [
   { key: "other", label: "Other" },
 ];
 
-export const labelOf = (list, key) => list.find((item) => item.key === key)?.label ?? "";
+/* key থেকে লেখা — list হলো CATEGORIES বা PROJECT_TYPES.
+   না পেলে key টাই দেখায় (ফাঁকা বাক্স না) */
+export const labelOf = (list, key) => list.find((item) => item.key === key)?.label ?? key ?? "";
 
-/* Key Features আর The Solution এর icon — server এ শুধু নামটা যায় */
+/* ---------------------------------------------------------------
+   Key Features আর The Solution এর icon — নাম দিয়ে বাছা হয়, server এ শুধু
+   নামটা যায়. ⚠️ নামগুলো server এর PROJECT_ICONS (আর সাইটের
+   components/projects/ProjectIcons.jsx) এর সাথে একই রাখুন
+   --------------------------------------------------------------- */
 export const PROJECT_ICONS = {
   area: { label: "Area", Icon: IconArea },
-  gauge: { label: "Savings", Icon: IconGauge },
-  timer: { label: "Lifetime", Icon: IconTimer },
+  gauge: { label: "Performance", Icon: IconGauge },
+  timer: { label: "Time", Icon: IconTimer },
   bolt: { label: "Energy", Icon: IconBolt },
   leaf: { label: "Eco", Icon: IconLeaf },
   sun: { label: "Light", Icon: IconSun },
-  settings: { label: "Maintenance", Icon: IconSettings },
-  grid: { label: "Versatile", Icon: IconGrid },
-  shield: { label: "Safety", Icon: IconShield },
-  award: { label: "Award", Icon: IconAward },
-  users: { label: "People", Icon: IconUsersGroup },
+  settings: { label: "Settings", Icon: IconSettings },
+  grid: { label: "Layout", Icon: IconGrid },
+  shield: { label: "Warranty", Icon: IconShield },
+  award: { label: "Certified", Icon: IconAward },
+  users: { label: "People", Icon: IconUsers },
   factory: { label: "Industrial", Icon: IconFactory },
 };
 
+// নাম না মিললে (পুরোনো/ভুল data) bolt
 export const iconOf = (key) => (PROJECT_ICONS[key] ?? PROJECT_ICONS.bolt).Icon;
 
-/* Product Used এর বাঁ পাশের তালিকা — product এর category ধরে
-   (Figma র icon এর মতো). Home Page Content এর "Add 3 Fixtures"
-   modal ও এটা ব্যবহার করে */
+/* ---------------------------------------------------------------
+   Product বাছার তালিকার বাঁ পাশের ক্যাটাগরির icon.
+   key = admin/products/catalog.js এর CATEGORIES এর key; "" মানে "All Products".
+   না মিললে .other ব্যবহার হয়
+   --------------------------------------------------------------- */
 export const PRODUCT_GROUP_ICONS = {
-  "": IconGrid,
+  "": IconLayers,
   "lamp-fixture": IconBulb,
-  "luminaire-configurator": IconLayers,
-  "mounting-base": IconLampCeiling,
+  "luminaire-configurator": IconLampCeiling,
+  "mounting-base": IconGrid,
   reflector: IconLens,
   "control-cap": IconChip,
-  "lamp-accessory": IconLink,
-  "reflector-accessory": IconBox,
+  "lamp-accessory": IconSettings,
+  "reflector-accessory": IconSliders,
   other: IconEllipsis,
+};
+
+/* ---------------------------------------------------------------
+   লেখার সীমা — server এর PROJECT_LIMITS এর হুবহু একই.
+   ⚠️ server এ বদলালে এখানেও বদলান (solutionIntro 1500, solutionText 600)
+   --------------------------------------------------------------- */
+export const PROJECT_LIMITS = {
+  title: 100,
+  company: 100,
+  shortDescription: 200,
+  location: 100,
+  story: 2000,
+  solutionIntro: 1500,
+  images: 12,
+  videoUrls: 10,
+  keyFeatures: 8,
+  featureText: 40,
+  solutionFeatures: 12,
+  solutionTitle: 60,
+  solutionText: 600,
+  highlights: 12,
+  highlight: 120,
+  ctaText: 40,
+  url: 600,
+  products: 40,
 };

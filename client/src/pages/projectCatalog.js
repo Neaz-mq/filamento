@@ -88,10 +88,12 @@ export const projectPhotos = (project) => {
    --------------------------------------------------------------- */
 const CLOUDINARY_UPLOAD = /^(https:\/\/res\.cloudinary\.com\/[^/]+\/image\/upload\/)(v\d+\/.+)$/;
 
-export function photoUrl(url, width) {
+/* quality — Cloudinary র মান. সাধারণ ছবিতে "q_auto" (ছোট ফাইল), কিন্তু বড় hero
+   ছবিতে "q_auto:best" দেওয়া হয়, নইলে চাপ বেশি পড়ে ঝাপসা দেখায় */
+export function photoUrl(url, width, quality = "q_auto") {
   if (!url) return "";
   const cloud = CLOUDINARY_UPLOAD.exec(url);
-  if (cloud) return `${cloud[1]}c_limit,w_${width},f_auto,q_auto/${cloud[2]}`;
+  if (cloud) return `${cloud[1]}c_limit,w_${width},f_auto,${quality}/${cloud[2]}`;
   if (url.startsWith(UNSPLASH)) {
     try {
       const parsed = new URL(url);
@@ -106,9 +108,9 @@ export function photoUrl(url, width) {
   return url;
 }
 
-export function photoSrcSet(url, widths) {
+export function photoSrcSet(url, widths, quality) {
   if (!url || !(CLOUDINARY_UPLOAD.test(url) || url.startsWith(UNSPLASH))) return undefined;
-  return widths.map((width) => `${photoUrl(url, width)} ${width}w`).join(", ");
+  return widths.map((width) => `${photoUrl(url, width, quality)} ${width}w`).join(", ");
 }
 
 /* ---------------------------------------------------------------

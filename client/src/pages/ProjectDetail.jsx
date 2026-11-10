@@ -41,7 +41,11 @@ import "./ProjectDetail.css";
    বাকিগুলো ধরে আবার গোনা হয়
    =============================================================== */
 
-const HERO_WIDTHS = [800, 1200, 1600, 2000];
+/* hero পুরো চওড়ায় বসে, আর অনেকের পর্দা high-DPI (1440px পর্দা = ~2500 পিক্সেল).
+   আগে সর্বোচ্চ 2000 ছিল, তাই বড়/ধারালো পর্দায় ছবি টেনে বড় করা হতো → ঝাপসা.
+   Cloudinary র c_limit আসল ছবির চেয়ে বড় করে না, তাই 2560 চাইলেও ক্ষতি নেই */
+const HERO_WIDTHS = [800, 1200, 1600, 2000, 2560];
+const HERO_QUALITY = "q_auto:best";
 const THUMB_WIDTHS = [200, 300];
 
 /* ---------------------------------------------------------------
@@ -143,25 +147,68 @@ function Gallery({ photos, active, onChange, title }) {
 /* ---------------------------------------------------------------
    বড় ছবি — নামতে না পারলে type এর নমুনা ছবি
    --------------------------------------------------------------- */
-function HeroImage({ url, fallback, alt }) {
+function HeroImage({ url, fallback, alt, index, total }) {
   const [failed, setFailed] = useState("");
+  /* shown — কোন ছবি নেমেছে, তার চওড়া ÷ উচ্চতা (ratio), আর এ পর্যন্ত কয়টা নেমেছে (count).
+     ফ্রেম ছবির নিজের মাপে বসে বলে ছবির কোনো অংশ কাটে না */
+  const [shown, setShown] = useState({ src: "", ratio: 1.5, count: 0 });
   const src = failed === url ? fallback : url;
+  const ready = shown.src === src;
+
+  const onReady = (img) => {
+    if (!img.naturalWidth || !img.naturalHeight) return;
+    setShown((prev) => ({
+      src,
+      ratio: img.naturalWidth / img.naturalHeight,
+      count: prev.count + 1,
+    }));
+  };
 
   return (
-    <img
-      key={src}
-      className="pjd-hero-image"
-      src={photoUrl(src, 1600)}
-      srcSet={photoSrcSet(src, HERO_WIDTHS)}
-      sizes="100vw"
-      alt={alt}
-      fetchPriority="high"
-      decoding="async"
-      draggable="false"
-      onError={() => {
-        if (src !== fallback) setFailed(url);
-      }}
-    />
+    <>
+      {/* পেছনের আভা — একই ছবি, পুরো hero ঢাকে, খুব ঝাপসা আর একটু গাঢ়.
+          ছবির নিজের রঙ hero র চারপাশে ছড়িয়ে পড়ে, তাই প্রতিটা project এর hero
+          আলাদা রঙের হয় */}
+      <img
+        key={`bg-${src}`}
+        className="pjd-hero-backdrop"
+        src={photoUrl(src, 400)}
+        alt=""
+        aria-hidden="true"
+        decoding="async"
+        draggable="false"
+      />
+
+      {/* সামনের ফ্রেম — পুরো ছবি, গোল কোণ, ছায়া. ছবি বদলালে ফ্রেমের মাপও
+          নরমভাবে বদলায় (প্রথমবার বাদে) */}
+      <div className="pjd-hero-stage">
+        <div
+          className={`pjd-hero-frame${shown.count > 1 ? " is-morph" : ""}`}
+          style={{ "--pjd-ar": shown.ratio }}
+        >
+          <img
+            key={src}
+            className={`pjd-hero-image${ready ? " is-ready" : ""}`}
+            src={photoUrl(src, 2000, HERO_QUALITY)}
+            srcSet={photoSrcSet(src, HERO_WIDTHS, HERO_QUALITY)}
+            sizes="100vw"
+            alt={alt}
+            fetchPriority="high"
+            decoding="async"
+            draggable="false"
+            onLoad={(event) => onReady(event.currentTarget)}
+            onError={() => {
+              if (src !== fallback) setFailed(url);
+            }}
+          />
+          {total > 1 && (
+            <span className="pjd-hero-count" aria-hidden="true">
+              {index + 1} / {total}
+            </span>
+          )}
+        </div>
+      </div>
+    </>
   );
 }
 
@@ -503,6 +550,8 @@ function ProjectDetail() {
           <HeroImage
             url={photos[activePhoto]}
             fallback={fallback}
+            index={activePhoto}
+            total={photos.length}
             alt={t("projects.detail.imageAlt", {
               name: project.title,
               number: activePhoto + 1,

@@ -335,6 +335,35 @@
 }
 
 /* ---------------------------------------------------------------
+   window পদ্ধতি (641px থেকে বড় পর্দা) — Projects.jsx এর WINDOWED_QUERY এর সাথে মেলে
+
+   rail নিজে scroll করে না। track কে JS থেকে দেওয়া `translate` দিয়ে সরানো হয়,
+   তাই প্রথম দেখা card সবসময় container এর বাঁ কিনারায় বসে।
+   clip-path: বাঁ gutter এর অংশ কেটে দেয় — সরে যাওয়া card গুলো পাতার বাঁ কিনারা
+   পর্যন্ত বেরোয় না, container এর বাঁ কিনারার পেছনে গিয়ে লুকায়। ডান দিকে আগের
+   মতোই পরের card পাতার কিনারা পর্যন্ত উঁকি দেয়।
+   `translate` আলাদা property, তাই track এর ঢোকার animation (transform) এর সাথে
+   ধাক্কা লাগে না
+   --------------------------------------------------------------- */
+.projects-rail.is-windowed {
+  overflow: hidden;
+  clip-path: inset(0 0 0 var(--pj-gutter));
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.projects-track.is-windowed {
+  transition: translate var(--pj-card-dur) var(--pj-card-ease);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .projects-track.is-windowed {
+    transition: none;
+  }
+}
+
+/* ---------------------------------------------------------------
    project card
 
    বন্ধ  : 298 x 450, শুধু ছবি (radius 40)
