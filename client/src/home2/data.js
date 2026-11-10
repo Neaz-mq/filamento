@@ -33,6 +33,10 @@ export const IMAGES = {
   about: "v1790744118/64cb7316e357341446fb8640616b46d07cb742bd_qmwab6.jpg",
   choose: "v1790744695/aead608161404e4f651003717b88dd4cf0334878_ivsuxa.png",
   contact: "v1790744799/5a8af14873ef598ccc72026799a5bacff82681c2_eps9ww.jpg",
+  // /home/products এর hero (Figma "Desktop 1" — auditorium এর ছবি)
+  productsHero: "v1794300511/ed5b172ac5fcc16067a3728d5f0c0e94e1b1c9b0_wwqp08.jpg",
+  // header এর Products dropdown এর হলুদ card এর ছবি (Figma "Group 80")
+  productsMenu: "v1794303766/Group_80_gbq6st.png",
 };
 
 /* ---------- Hero র ডান-নিচের card এর স্তূপ ----------

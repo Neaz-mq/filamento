@@ -1,4 +1,6 @@
+import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { useLocaleLink } from "../i18n/useLocaleLink";
 import { DoubleChevron } from "./icons";
 
 /* ===============================================================
@@ -18,8 +20,25 @@ import { DoubleChevron } from "./icons";
    (data-shown) আগে শুরু হয় না
    =============================================================== */
 
-function NhLayoutCta() {
+/* contactTo — অন্য পাতায় (যেমন /home/products) বোতাম Home এর Contact
+   এ নেয় ("/home#contact"). না দিলে এই পাতার নিজের #contact */
+function NhLayoutCta({ contactTo }) {
   const { t } = useTranslation();
+  const localeLink = useLocaleLink();
+
+  const buttonProps = {
+    className: "nh-btn-layout",
+    "data-reveal": "",
+    style: { "--d": 3 },
+  };
+  const buttonBody = (
+    <>
+      <span className="nh-btn-quote-box">
+        <DoubleChevron />
+      </span>
+      <span>{t("home2.cta.button")}</span>
+    </>
+  );
 
   return (
     <section className="nh-section nh-cta" aria-labelledby="nh-cta-title">
@@ -45,12 +64,15 @@ function NhLayoutCta() {
             <p className="nh-cta-text" data-reveal="" style={{ "--d": 2 }}>
               {t("home2.cta.text")}
             </p>
-            <a href="#contact" className="nh-btn-layout" data-reveal="" style={{ "--d": 3 }}>
-              <span className="nh-btn-quote-box">
-                <DoubleChevron />
-              </span>
-              <span>{t("home2.cta.button")}</span>
-            </a>
+            {contactTo ? (
+              <Link to={localeLink(contactTo)} {...buttonProps}>
+                {buttonBody}
+              </Link>
+            ) : (
+              <a href="#contact" {...buttonProps}>
+                {buttonBody}
+              </a>
+            )}
           </div>
         </div>
       </div>

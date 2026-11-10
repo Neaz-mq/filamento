@@ -58,6 +58,16 @@ const lazyPage = (Page) => (
    দর্শকের browser এ এর কোড, CSS আর Manrope font কিছুই নামে না */
 const HomeTwo = lazy(() => import("./home2/HomeTwo"));
 
+/* নতুন Home এর Products পাতা (Figma র দ্বিতীয় Products নকশা) — /home/products.
+   মূল /products অক্ষত, এটা তার পাশাপাশি দ্বিতীয় সংস্করণ. এটাও lazy */
+const HomeTwoProducts = lazy(() => import("./home2/HomeTwoProducts"));
+
+/* /home/products এর কোড নামার ফাঁকের পর্দা — কালো, কারণ পাতার শুরুটা
+   (hero আর header) কালো; তাহলে সাদা ঝলক দেখা যায় না */
+function HomeTwoProductsBoot() {
+  return <div style={{ minHeight: "calc(100vh + 1px)", background: "#000" }} />;
+}
+
 /* নতুন Home এর কোড নামার ফাঁকের পর্দা — এরপর যা আসবে তার রঙেই:
      intro এখনো হয়নি → সাদা (intro র পর্দা সাদা)
      intro আগেই হয়েছে → কালো (hero কালো)
@@ -317,6 +327,17 @@ const router = createBrowserRouter([
         element: (
           <Suspense fallback={<HomeTwoBoot />}>
             <HomeTwo />
+          </Suspense>
+        ),
+      },
+      /* /home/products (/ja/home/products …) — নতুন Home এর Products.
+         "home" এর পাশে আলাদা route, MainLayout এর বাইরে (নিজের
+         header আর footer) */
+      {
+        path: "home/products",
+        element: (
+          <Suspense fallback={<HomeTwoProductsBoot />}>
+            <HomeTwoProducts />
           </Suspense>
         ),
       },

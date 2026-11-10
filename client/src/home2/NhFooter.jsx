@@ -34,8 +34,9 @@ const WORD = "Filamento";
 const NAV_LINKS = [
   { label: "home2.footer.nav.home", to: "/home" },
   { label: "home2.footer.nav.about", hash: "#about" },
+  // Products — এই সংস্করণের নিজের তালিকা (/home/products)
+  // { label: "nav.products", to: "/home/products" },
   // soft — এখন "#" (কোথাও যায় না). আসল পাতায় নিতে soft: true মুছে দিন
-  { label: "nav.products", to: "/products", soft: true },
   { label: "nav.projects", to: "/projects", soft: true },
   { label: "home2.footer.nav.contact", hash: "#contact" },
 ];
@@ -52,7 +53,7 @@ const SERVICE_LINKS = [
 
 /* একটা footer link — soft হলে "#" (SoftLink), to থাকলে route, নাহলে
    এই পাতার section (hash) */
-function FooterLink({ link }) {
+function FooterLink({ link, homePath }) {
   const { t } = useTranslation();
   const localeLink = useLocaleLink();
 
@@ -61,6 +62,11 @@ function FooterLink({ link }) {
   }
   if (link.to) {
     return <Link to={localeLink(link.to)}>{t(link.label)}</Link>;
+  }
+  /* homePath থাকলে (যেমন /home/products পাতায়) section টা Home এ —
+     সেখানে নিয়ে যায়; না থাকলে এই পাতার নিজের section */
+  if (homePath) {
+    return <Link to={localeLink(`${homePath}${link.hash}`)}>{t(link.label)}</Link>;
   }
   return <a href={link.hash}>{t(link.label)}</a>;
 }
@@ -132,7 +138,7 @@ function Newsletter() {
   );
 }
 
-function NhFooter() {
+function NhFooter({ homePath }) {
   const { t } = useTranslation();
   const localeLink = useLocaleLink();
   const year = new Date().getFullYear();
@@ -189,7 +195,7 @@ function NhFooter() {
             <ul className="nh-footer-list">
               {NAV_LINKS.map((link) => (
                 <li key={link.label}>
-                  <FooterLink link={link} />
+                  <FooterLink link={link} homePath={homePath} />
                 </li>
               ))}
             </ul>
@@ -200,7 +206,7 @@ function NhFooter() {
             <ul className="nh-footer-list">
               {SERVICE_LINKS.map((link) => (
                 <li key={link.label}>
-                  <FooterLink link={link} />
+                  <FooterLink link={link} homePath={homePath} />
                 </li>
               ))}
             </ul>

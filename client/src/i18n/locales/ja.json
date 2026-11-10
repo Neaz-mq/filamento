@@ -550,6 +550,23 @@
     }
   },
   "home2": {
+    "productsMenu": {
+      "label": "製品メニュー",
+      "title": "照明ソリューションをご覧ください",
+      "text": "あらゆる空間に向けて設計された、革新的で省エネな照明製品の全ラインアップをご覧ください。",
+      "viewAll": "すべての製品を見る"
+    },
+    "products": {
+      "metaTitle": "製品",
+      "breadcrumb": "パンくずリスト",
+      "heroTitle": "あらゆる空間を、私たちの照明ソリューションで照らす",
+      "heroText": "効率性・耐久性・信頼性に優れた高性能LED照明ソリューションを、あらゆる環境にお届けします。",
+      "category": "カテゴリー",
+      "viewAll": "すべて表示",
+      "showLess": "閉じる",
+      "version": "{{power}} モデル",
+      "showing": "全 <b>{{total}}</b> 件中 <b>{{from}}–{{to}}</b> 件を表示"
+    },
     "meta": {
       "title": "ホーム"
     },

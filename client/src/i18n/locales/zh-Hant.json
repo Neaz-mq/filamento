@@ -550,6 +550,23 @@
     }
   },
   "home2": {
+    "productsMenu": {
+      "label": "產品選單",
+      "title": "探索我們的照明方案",
+      "text": "探索專為各種空間設計、創新且節能的完整照明產品系列。",
+      "viewAll": "查看所有產品"
+    },
+    "products": {
+      "metaTitle": "產品",
+      "breadcrumb": "導覽路徑",
+      "heroTitle": "以我們的照明方案，點亮每一個空間",
+      "heroText": "探索專為效率、耐用性與穩定表現而設計的高效能 LED 照明方案，適用於各種環境。",
+      "category": "類別",
+      "viewAll": "查看全部",
+      "showLess": "收合",
+      "version": "{{power}} 版本",
+      "showing": "顯示第 <b>{{from}}–{{to}}</b> 項，共 <b>{{total}}</b> 項產品"
+    },
     "meta": {
       "title": "首頁"
     },

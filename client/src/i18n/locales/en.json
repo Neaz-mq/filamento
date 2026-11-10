@@ -553,6 +553,23 @@
     }
   },
   "home2": {
+    "productsMenu": {
+      "label": "Products menu",
+      "title": "Explore Our Lighting Solutions",
+      "text": "Discover our complete range of innovative, energy-efficient lighting products designed for every space.",
+      "viewAll": "View All Product"
+    },
+    "products": {
+      "metaTitle": "Products",
+      "breadcrumb": "Breadcrumb",
+      "heroTitle": "Illuminate Every Space with Our Lighting Solutions",
+      "heroText": "Discover high-performance LED lighting solutions engineered for efficiency, durability, and reliable performance across every environment.",
+      "category": "Category",
+      "viewAll": "View All",
+      "showLess": "Show Less",
+      "version": "{{power}} Version",
+      "showing": "Showing <b>{{from}}–{{to}}</b> of <b>{{total}}</b> Products"
+    },
     "meta": {
       "title": "Home"
     },

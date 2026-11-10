@@ -1,0 +1,338 @@
+/* ===============================================================
+   Header এর Products dropdown (NhProductsMenu.jsx) — সব class "nh-pm"
+
+   Figma: বাক্স 1280 x 416, সাদা, radius 20, ছায়া 0 20 80 /30%,
+   ভেতরে padding 20, ফাঁক 24 — দুই কলাম (405 করে) আর হলুদ card (382)
+   =============================================================== */
+
+.nh-pm {
+  display: contents; /* পাশের link এর মতোই flex এর অংশ */
+}
+
+/* ---------- "Products" বোতাম ---------- */
+.nh-nav .nh-pm-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 0;
+  background: none;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.nh-pm-chevron {
+  display: grid;
+  place-items: center;
+  transition: transform 0.3s var(--nh-ease);
+}
+
+.nh-nav .nh-pm-trigger.is-open,
+.nh-nav .nh-pm-trigger[aria-current="page"] {
+  color: var(--nh-yellow);
+  font-weight: 600;
+}
+
+/* underline শুধু hover/focus এ — আগে থেকে থাকে না (খোলা বা current হলেও না) */
+.nh-nav .nh-pm-trigger span:first-child {
+  text-decoration: none;
+  text-underline-offset: 3px;
+}
+
+.nh-nav .nh-pm-trigger:hover span:first-child,
+.nh-nav .nh-pm-trigger:focus-visible span:first-child {
+  text-decoration: underline;
+}
+
+.nh-pm-trigger.is-open .nh-pm-chevron {
+  transform: rotate(180deg);
+}
+
+/* ---------- বাক্স ---------- */
+.nh-pm-panel {
+  position: absolute; /* .nh-header-inner এর সাথে মাপা — একই 1280 চওড়া */
+  top: calc(100% + 18px);
+  left: 0;
+  right: 0;
+  z-index: 5;
+  opacity: 0;
+  visibility: hidden;
+  transform: translate3d(0, -8px, 0);
+  transition:
+    opacity 0.25s ease,
+    transform 0.4s var(--nh-ease),
+    visibility 0s linear 0.4s;
+}
+
+.nh-pm-panel.is-open {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition-delay: 0s;
+}
+
+.nh-pm-box {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(300px, 29.9vw, 382px);
+  align-items: stretch;
+  gap: 24px;
+  padding: 20px;
+  border-radius: 20px;
+  background: #ffffff;
+  color: #000000;
+  box-shadow: 0 20px 80px rgba(0, 0, 0, 0.3);
+}
+
+/* ছোট তীর — "Products" এর নিচে (JS --pm-arrow-x বসায়) */
+.nh-pm-box::before {
+  content: "";
+  position: absolute;
+  top: -7px;
+  left: var(--pm-arrow-x, 120px);
+  width: 16px;
+  height: 16px;
+  border-radius: 3px 0 0 0;
+  background: #ffffff;
+  transform: translateX(-50%) rotate(45deg);
+}
+
+/* ---------- বাঁ দিক: ৮টা product, দুই কলাম ---------- */
+.nh-pm-list-wrap {
+  min-width: 0;
+}
+
+.nh-pm-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: repeat(4, minmax(85px, auto));
+  grid-auto-flow: column; /* আগে বাঁ কলাম ভরে (১–৪), তারপর ডান (৫–৮) */
+  gap: 12px 24px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nh-pm-list > li {
+  min-width: 0;
+}
+
+.nh-pm-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 100%;
+  padding: 12px;
+  border-radius: 16px;
+  transition: background-color 0.2s ease;
+}
+
+.nh-pm-item:hover,
+.nh-pm-item:focus-visible {
+  background: var(--nh-gray);
+}
+
+.nh-pm-thumb {
+  position: relative;
+  flex: none;
+  width: 69px;
+  height: 60px;
+  overflow: hidden;
+  border-radius: 8px;
+  background: var(--nh-gray);
+  transition: background-color 0.2s ease;
+}
+
+.nh-pm-item:hover .nh-pm-thumb,
+.nh-pm-item:focus-visible .nh-pm-thumb {
+  background: #ffffff;
+}
+
+.nh-pm-thumb .product-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  padding: 9px 8px; /* Figma: ছবি 52 x 42, মাঝখানে */
+  object-fit: contain;
+}
+
+.nh-pm-thumb .product-image--art {
+  padding: 0;
+}
+
+.nh-pm-text {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.nh-pm-name {
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 1.2;
+  color: #000000;
+}
+
+.nh-pm-desc {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  max-width: 280px;
+  overflow: hidden;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 1.5;
+  color: rgba(0, 0, 0, 0.7);
+}
+
+.nh-pm-skeleton {
+  border-radius: 16px;
+  background: linear-gradient(100deg, #f3f3f3 30%, #fafafa 50%, #f3f3f3 70%) 0 0 / 200% 100%;
+  animation: nh-pm-shimmer 1.4s linear infinite;
+}
+
+@keyframes nh-pm-shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+.nh-pm-note {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  height: 100%;
+  min-height: 200px;
+  border-radius: 16px;
+  background: var(--nh-gray);
+  text-align: center;
+}
+
+.nh-pm-note p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--nh-muted);
+}
+
+.nh-pm-note button {
+  height: 40px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--nh-yellow);
+  font-family: inherit;
+  font-weight: 500;
+  font-size: 14px;
+  color: #000000;
+  cursor: pointer;
+}
+
+/* ---------- ডান দিক: হলুদ card (Figma 382 x 368) ---------- */
+.nh-pm-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: 368px;
+  padding: 24px;
+  overflow: hidden;
+  border-radius: 20px;
+  background: var(--nh-yellow);
+}
+
+/* Figma "Group 80": ছবিটা Figma থেকে card এর কিনারায় কেটে export করা (উপরের
+   38px আগেই বাদ), তাই card এর একদম উপর থেকে বসে — top: 0, আর নিজের
+   স্বাভাবিক অনুপাতে (height: auto) — জোর করে টানলে ছবি লম্বা হয়ে মাথা কাটা
+   পড়ত. ছবির নিচ (glow) card এর 211px এ শেষ, তার ঠিক নিচে লেখা (223px) */
+.nh-pm-card-img {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: min(317px, 83%);
+  height: auto;
+  transform: translateX(-50%);
+  pointer-events: none;
+  user-select: none;
+}
+
+.nh-pm-card-copy {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.nh-pm-card-copy h3 {
+  margin: 0 0 -14px; /* 20px ফাঁক − 14 = শিরোনাম আর লেখার মাঝে Figma র 6px */
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 1.2;
+  color: #000000;
+}
+
+.nh-pm-card-copy p {
+  margin: 0;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 1.5;
+  color: rgba(0, 0, 0, 0.7);
+}
+
+/* "View All Product" — Figma 164 x 40, সাদা, ভেতরে হলুদ ">>" বাক্স */
+.nh-pm-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 4px 16px 4px 4px;
+  border-radius: 12px;
+  background: #ffffff;
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 16px;
+  color: #000000;
+  white-space: nowrap;
+  transition: transform 0.3s var(--nh-ease);
+}
+
+.nh-pm-all:hover {
+  transform: translate3d(0, -2px, 0);
+}
+
+.nh-pm-all:hover .nh-dchev {
+  transform: translate3d(3px, 0, 0);
+}
+
+.nh-pm-all-box {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 32px;
+  border-radius: 10px;
+  background: var(--nh-yellow);
+}
+
+.nh-pm-all .nh-dchev svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* ছোট পর্দায় burger মেনু আছে — dropdown লাগে না */
+@media (max-width: 1099px) {
+  .nh-pm-panel {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nh-pm-panel,
+  .nh-pm-chevron,
+  .nh-pm-skeleton {
+    transition: none;
+    animation: none;
+  }
+}

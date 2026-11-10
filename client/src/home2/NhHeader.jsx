@@ -5,6 +5,7 @@ import LanguageSwitcher from "../components/LanguageSwitcher";
 import { useLocaleLink } from "../i18n/useLocaleLink";
 import logoLight from "../assets/logo/filamento-light.png";
 import { CloseIcon, MenuIcon } from "./icons";
+import NhProductsMenu from "./NhProductsMenu";
 
 /* ===============================================================
    নতুন Home এর header — Figma "Frame 2147237014"
@@ -19,7 +20,7 @@ import { CloseIcon, MenuIcon } from "./icons";
    =============================================================== */
 
 const NAV_LINKS = [
-  { key: "nav.products", to: "/products" },
+  // { key: "nav.products", to: "/products" },
   // { key: "nav.projects", to: "/projects" },
   { key: "nav.application", to: "/application" },
   { key: "nav.company", to: "/company" },
@@ -29,9 +30,29 @@ const NAV_LINKS = [
 // HomeTwo.css এর breakpoint এর সাথে মিলতে হবে
 const DESKTOP = "(min-width: 1100px)";
 
-function NhHeader({ sentinelRef }) {
+/* props (সবই ঐচ্ছিক — না দিলে /home আগের মতোই):
+     productsTo — "Products" link কোথায় যাবে (/home এ → /home/products)
+     contactTo  — Contact বোতাম অন্য পাতার section এ নিলে (যেমন "/home#contact");
+                  না দিলে এই পাতার নিজের #contact
+     current    — যে menu টা এই পাতা (nav.products …) — হলুদ হয়ে থাকে */
+function NhHeader({ sentinelRef, productsTo = "/products", contactTo, current }) {
   const { t } = useTranslation();
   const localeLink = useLocaleLink();
+
+  const links = NAV_LINKS.map((link) =>
+    link.key === "nav.products" ? { ...link, to: productsTo } : link,
+  );
+
+  const renderContact = (onClick) =>
+    contactTo ? (
+      <Link to={localeLink(contactTo)} className="nh-btn-contact" onClick={onClick}>
+        {t("actions.contact")}
+      </Link>
+    ) : (
+      <a href="#contact" className="nh-btn-contact" onClick={onClick}>
+        {t("actions.contact")}
+      </a>
+    );
 
   const [solid, setSolid] = useState(false);
   const [open, setOpen] = useState(false);
@@ -104,18 +125,26 @@ function NhHeader({ sentinelRef }) {
         </Link>
 
         <nav className="nh-nav" aria-label={t("a11y.mainNav")}>
-          {NAV_LINKS.map((link) => (
-            <Link key={link.to} to={localeLink(link.to)} className="nh-nav-link">
-              {t(link.key)}
-            </Link>
-          ))}
+          {links.map((link) =>
+            link.key === "nav.products" ? (
+              // Products — ক্লিক করলে dropdown (NhProductsMenu.jsx)
+              <NhProductsMenu key={link.key} productsTo={productsTo} current={current} />
+            ) : (
+              <Link
+                key={link.key}
+                to={localeLink(link.to)}
+                className="nh-nav-link"
+                aria-current={current === link.key ? "page" : undefined}
+              >
+                {t(link.key)}
+              </Link>
+            ),
+          )}
         </nav>
 
         <div className="nh-header-actions">
-          {/* এই পাতার নিজের Contact অংশে — অন্য পাতায় যায় না */}
-          <a href="#contact" className="nh-btn-contact">
-            {t("actions.contact")}
-          </a>
+          {/* contactTo না থাকলে এই পাতার নিজের Contact অংশে */}
+          {renderContact()}
 
           <div className="nh-lang">
             <LanguageSwitcher />
@@ -144,12 +173,13 @@ function NhHeader({ sentinelRef }) {
         inert={!open}
       >
         <nav className="nh-menu-links" aria-label={t("a11y.mainNav")}>
-          {NAV_LINKS.map((link, index) => (
+          {links.map((link, index) => (
             <Link
-              key={link.to}
+              key={link.key}
               to={localeLink(link.to)}
               onClick={close}
               style={{ "--i": index }}
+              aria-current={current === link.key ? "page" : undefined}
             >
               {t(link.key)}
             </Link>
@@ -157,9 +187,7 @@ function NhHeader({ sentinelRef }) {
         </nav>
 
         <div className="nh-menu-foot">
-          <a href="#contact" className="nh-btn-contact" onClick={close}>
-            {t("actions.contact")}
-          </a>
+          {renderContact(close)}
           <LanguageSwitcher variant="inline" onSelect={close} />
         </div>
       </div>
