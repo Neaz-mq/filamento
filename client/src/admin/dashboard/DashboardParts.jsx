@@ -234,15 +234,23 @@ export function ProductActivity({ views, today, loading }) {
    Add Product আর Add Project শুধু owner/admin পারেন (server এর
    নিয়ম). editor এর কাছে ঘর দুটো ধূসর, চাপলে কিছু হয় না, কারণটা
    mouse রাখলে লেখা আসে
+
+   প্রতিটা ঘর App.jsx র আসল route এ যায়:
+     Add Product     → category বাছাই (modal) → /admin/products/new
+     Add Project     → /admin/projects/new
+     Add Application → /admin/application   (পাতা তৈরি হলে নিজে থেকেই চালু)
+     Add Testimonial → /admin/testimonials  (একই)
+     Edit Homepage   → /admin/home
+     Upload Resource → /admin/media         (পাতা তৈরি হলে নিজে থেকেই চালু)
    --------------------------------------------------------------- */
 export function QuickActions({ canEdit, onAddProduct }) {
   const actions = [
     { label: "Add Product", Icon: IconBox, onClick: onAddProduct, needsEdit: true, primary: true },
-    { label: "Add Project", Icon: IconChartSuccess, to: "#", needsEdit: true },
-    { label: "Add Application", Icon: IconTickSquare, to: "#" },
-    { label: "Add Testimonial", Icon: IconHeartEdit, to: "#" },
-    { label: "Edit Homepage", Icon: IconEdit, to: "#" },
-    { label: "Upload Resource", Icon: IconUploadCloud, to: "#" },
+    { label: "Add Project", Icon: IconChartSuccess, to: "/admin/projects/new", needsEdit: true },
+    { label: "Add Application", Icon: IconTickSquare, to: "/admin/application" },
+    { label: "Add Testimonial", Icon: IconHeartEdit, to: "/admin/testimonials" },
+    { label: "Edit Homepage", Icon: IconEdit, to: "/admin/home" },
+    { label: "Upload Resource", Icon: IconUploadCloud, to: "/admin/media" },
   ];
 
   return (
