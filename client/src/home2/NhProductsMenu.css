@@ -321,15 +321,52 @@
   height: 16px;
 }
 
-/* ছোট পর্দায় burger মেনু আছে — dropdown লাগে না */
+/* ---------- পেছনের পাতা blur (Figma) ----------
+   header (z-index 50) এর ঠিক নিচে — তাই header আর সাদা বাক্স পরিষ্কার থাকে,
+   বাকি সব ঝাপসা. বন্ধ অবস্থায় pointer-events নেই, তাই কিছুতে বাধা দেয় না */
+.nh-pm-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 49;
+  background: rgba(0, 0, 0, 0.3);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity 0.3s ease,
+    visibility 0s linear 0.3s;
+}
+
+.nh-pm-overlay.is-open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition-delay: 0s;
+}
+
+/* ---------- বাক্স খোলা থাকলে "Home" আর হলুদ/দাগ-ওয়ালা থাকে না ----------
+   শুধু "Products" হলুদ. অন্য link এ মাউস নিলে আগের মতোই হলুদ হয় */
+.nh-header.is-pm-open .nh-nav-link:not(.nh-pm-trigger)[aria-current="page"]:not(:hover) {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.nh-header.is-pm-open .nh-nav-link--home[aria-current="page"] {
+  text-decoration: none;
+}
+
+/* ছোট পর্দায় burger মেনু আছে — dropdown আর blur লাগে না */
 @media (max-width: 1099px) {
-  .nh-pm-panel {
+  .nh-pm-panel,
+  .nh-pm-overlay {
     display: none;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .nh-pm-panel,
+  .nh-pm-overlay,
   .nh-pm-chevron,
   .nh-pm-skeleton {
     transition: none;

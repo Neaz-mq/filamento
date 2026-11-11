@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "../components/LanguageSwitcher";
@@ -81,6 +81,9 @@ function NhHeader({
 
   const [solid, setSolid] = useState(false);
   const [open, setOpen] = useState(false);
+  // Products dropdown খোলা আছে কিনা — খোলা থাকলে Home এর highlight সরে (CSS)
+  const [pmOpen, setPmOpen] = useState(false);
+  const handlePmOpen = useCallback((value) => setPmOpen(value), []);
   const burgerRef = useRef(null);
   const panelRef = useRef(null);
 
@@ -133,6 +136,7 @@ function NhHeader({
     "nh-header",
     solid && "is-solid",
     open && "is-open",
+    pmOpen && "is-pm-open",
   ]
     .filter(Boolean)
     .join(" ");
@@ -152,8 +156,13 @@ function NhHeader({
         <nav className="nh-nav" aria-label={t("a11y.mainNav")}>
           {links.map((link) =>
             link.key === "nav.products" ? (
-              // Products — ক্লিক করলে dropdown (NhProductsMenu.jsx)
-              <NhProductsMenu key={link.key} productsTo={productsTo} current={current} />
+              // Products — hover করলে dropdown (NhProductsMenu.jsx)
+              <NhProductsMenu
+                key={link.key}
+                productsTo={productsTo}
+                current={current}
+                onOpenChange={handlePmOpen}
+              />
             ) : (
               <Link
                 key={link.key}

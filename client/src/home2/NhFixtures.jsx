@@ -1,4 +1,5 @@
 import SoftLink from "../components/SoftLink";
+import { HOME2_PRODUCT_LINKS_LIVE } from "../lib/siteLinks";
 import { useTranslation } from "react-i18next";
 import { useLocaleLink } from "../i18n/useLocaleLink";
 import NhTag from "./NhTag";
@@ -66,7 +67,11 @@ function NhFixtures() {
               {/* গোটা card নয়, শুধু এই link টা চাপা যায় — কিন্তু CSS এ
                   এর ::after পুরো card ঢেকে দেয়, তাই card এর যেকোনো
                   জায়গায় চাপলেই যায় (screen reader এ একটাই link) */}
-              <SoftLink to={localeLink(fixture.to)} className="nh-more">
+              <SoftLink
+                to={localeLink(fixture.to)}
+                live={HOME2_PRODUCT_LINKS_LIVE}
+                className="nh-more"
+              >
                 <span className="nh-more-row">
                   {t("home2.fixtures.moreInfo")}
                   <ArrowRight size={18} strokeWidth={1.2} />

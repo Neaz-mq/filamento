@@ -2,6 +2,8 @@ import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Trans, useTranslation } from "react-i18next";
 import { useLocaleLink } from "../i18n/useLocaleLink";
+import SoftLink from "../components/SoftLink";
+import { HOME2_PRODUCT_LINKS_LIVE } from "../lib/siteLinks";
 import { ProductImage } from "../components/products/ProductCard";
 import { CategoryPicture } from "../components/products/CategoryArt";
 import {
@@ -475,7 +477,7 @@ function ProductTile({ product, to, eager }) {
   const subtitle = power ? t("home2.products.version", { power }) : product.series;
 
   return (
-    <Link to={to} className="np-card">
+    <SoftLink to={to} live={HOME2_PRODUCT_LINKS_LIVE} className="np-card">
       <div className="np-card-media">
         <ProductImage
           product={product}
@@ -493,7 +495,7 @@ function ProductTile({ product, to, eager }) {
           <ArrowUpRight size={16} />
         </span>
       </div>
-    </Link>
+    </SoftLink>
   );
 }
 

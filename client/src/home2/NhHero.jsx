@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import SoftLink from "../components/SoftLink";
+import { HOME2_PRODUCT_LINKS_LIVE } from "../lib/siteLinks";
 import { Trans, useTranslation } from "react-i18next";
 import { useLocaleLink } from "../i18n/useLocaleLink";
 import { IMAGES, cloud, srcSet } from "./data";
@@ -186,6 +187,7 @@ function CardStack({ scale = 1 }) {
           <SoftLink
             key={card.id}
             to={localeLink(card.to)}
+            live={HOME2_PRODUCT_LINKS_LIVE}
             className="nh-stack-card"
             data-slot={slot}
             /* পেছনের card গুলো চোখে দেখা যায়, কিন্তু চাপা বা Tab করা

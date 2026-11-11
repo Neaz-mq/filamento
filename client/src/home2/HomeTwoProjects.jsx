@@ -2,6 +2,8 @@ import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react"
 import { Link, useSearchParams } from "react-router-dom";
 import { Trans, useTranslation } from "react-i18next";
 import { useLocaleLink } from "../i18n/useLocaleLink";
+import SoftLink from "../components/SoftLink";
+import { HOME2_PROJECT_LINKS_LIVE } from "../lib/siteLinks";
 import { PageArrow, SearchIcon, SlidersIcon } from "../components/products/ProductIcons";
 import ProjectSelect from "../components/projects/ProjectSelect";
 import {
@@ -221,8 +223,9 @@ function ProjectTile({ project, to, eager }) {
   const { t } = useTranslation();
 
   return (
-    <Link
+    <SoftLink
       to={to}
+      live={HOME2_PROJECT_LINKS_LIVE}
       className="npj-card"
       aria-label={t("projects.viewProject", { name: project.name })}
     >
@@ -251,7 +254,7 @@ function ProjectTile({ project, to, eager }) {
           <ArrowUpRight size={16} />
         </span>
       </span>
-    </Link>
+    </SoftLink>
   );
 }
 

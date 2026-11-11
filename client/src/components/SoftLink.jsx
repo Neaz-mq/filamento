@@ -11,11 +11,14 @@ import { LINKS_LIVE } from "../lib/siteLinks";
    <Link to="#"> দিলে ScrollRestoration পাতা উপরে তুলে দিত — তাই
    preventDefault দিয়ে ক্লিকটাই থামানো হয়.
 
+   `live` prop দিলে সেটাই জেতে (শুধু ওই link এর জন্য) — না দিলে LINKS_LIVE.
+   যেমন: <SoftLink live={false} …> শুধু এই একটা link "#" হয়
+
    বাকি সব prop (className, tabIndex, aria-*, draggable …) যেমন আছে
    তেমন যায়, তাই আগের <Link> এর জায়গায় সরাসরি বসানো যায়
    --------------------------------------------------------------- */
-function SoftLink({ to, children, onClick, ...rest }) {
-  if (LINKS_LIVE) {
+function SoftLink({ to, children, onClick, live = LINKS_LIVE, ...rest }) {
+  if (live) {
     return (
       <Link to={to} onClick={onClick} {...rest}>
         {children}
