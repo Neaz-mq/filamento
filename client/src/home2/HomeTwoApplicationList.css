@@ -1,0 +1,678 @@
+/* ===============================================================
+   Application এর তালিকা — /home/application
+
+   HomeTwo.css এর উপর বসে (.nh-wrap, রঙ, font ওখান থেকে). সব class
+   "nal-" দিয়ে শুরু. মাপ Figma র 1440 frame থেকে: content 1280,
+   দুই পাশে 80px; উপরে-নিচে 100px, দুই block এর ফাঁক 60px.
+   =============================================================== */
+
+.nal {
+  background: #ffffff;
+  color: #000000;
+  padding: clamp(48px, 6.95vw, 100px) 0;
+}
+
+.nal-inner {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(36px, 4.17vw, 60px);
+}
+
+.nal-top {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+/* ---------- শিরোনাম + View All ---------- */
+.nal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+/* Figma: 30px / 110%, 600 */
+.nal-title {
+  margin: 0;
+  font-weight: 600;
+  font-size: clamp(24px, 2.08vw, 30px);
+  line-height: 1.1;
+}
+
+.nal-viewall {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 43px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--nh-gray);
+  font: inherit;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #000000;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.nal-viewall:hover:not(:disabled) {
+  background: #ececec;
+}
+
+/* কিছু ফিল্টার না থাকলে চাপার কিছু নেই — হালকা, কিন্তু জায়গা ছাড়ে না */
+.nal-viewall:disabled {
+  cursor: default;
+}
+
+.nal-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ---------- খোঁজার বার (Figma: 70px, #F6F6F6, radius 16, padding 12) ---------- */
+.nal-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 16px;
+  background: var(--nh-gray);
+}
+
+.nal-search {
+  display: flex;
+  flex: 1 1 0;
+  align-items: center;
+  gap: 13px;
+  min-width: 0;
+  height: 46px;
+  padding: 10px 0 10px 16px;
+  border-radius: 23px;
+  color: #4a4a4a;
+}
+
+.nal-search:focus-within {
+  outline: 2px solid var(--nh-yellow);
+  outline-offset: 2px;
+}
+
+.nal-search svg {
+  flex: none;
+}
+
+.nal-search input {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  font-size: 16px;
+  line-height: 1.6;
+  color: #000000;
+  outline: none;
+}
+
+.nal-search input::placeholder {
+  color: rgba(0, 0, 0, 0.7);
+  opacity: 1;
+}
+
+/* ব্রাউজারের নিজের ✕ বাদ — নিজের নকশার সাথে মেলে না */
+.nal-search input::-webkit-search-cancel-button {
+  appearance: none;
+}
+
+/* সাদা বোতাম — Figma "Frame 152" আর "Fill" (43px, radius 12) */
+.nal-white {
+  height: 43px;
+  border-radius: 12px;
+  background: #ffffff;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #000000;
+}
+
+/* Environment dropdown — NhSelect (HomeTwo.css) এর উপর Application এর মাপ/রঙ.
+   কালো/হলুদ border নেই; শুধু keyboard focus এ হলুদ outline (accessibility) */
+.nal-select {
+  position: relative;
+  flex: 0 0 242px;
+}
+
+.nal-bar .nal-select .nh-select-button {
+  height: 43px;
+  min-height: 43px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: none;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #000000;
+}
+
+.nal-bar .nal-select .nh-select-button svg {
+  color: #000000;
+}
+
+.nal-bar .nal-select[data-open] .nh-select-button {
+  border: 0;
+  box-shadow: none;
+  outline: none;
+}
+
+.nal-bar .nal-select .nh-select-button:focus-visible {
+  border: 0;
+  box-shadow: none;
+  outline: 2px solid var(--nh-yellow);
+  outline-offset: 2px;
+}
+
+/* তালিকা: Figma "Program Type popup" (সাদা, গোল, ধূসর বাছা সারি) */
+.nal-bar .nal-select .nh-select-list {
+  top: calc(100% + 8px);
+}
+
+.nal-bar .nal-select .nh-select-option {
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  line-height: 1.2;
+}
+
+/* iPhone 16px এর ছোট লেখায় focus করলে পুরো পাতা zoom করে */
+@media (pointer: coarse) {
+  .nal-bar .nal-select .nh-select-button {
+    font-size: 16px;
+  }
+}
+
+.nal-sort {
+  position: relative;
+  flex: none;
+}
+
+.nal-filters {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  border: 0;
+  font: inherit;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* সাজানো বদলানো থাকলে বোতামের কোণায় হলুদ বিন্দু */
+.nal-dot {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--nh-yellow);
+}
+
+.nal-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 200px;
+  padding: 8px;
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.14);
+}
+
+.nal-menu-title {
+  margin: 0;
+  padding: 6px 10px 8px;
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 1.2;
+  color: rgba(0, 0, 0, 0.7);
+}
+
+.nal-menu-option {
+  padding: 10px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  font: inherit;
+  font-weight: 500;
+  font-size: 14px;
+  text-align: left;
+  color: #000000;
+  cursor: pointer;
+}
+
+.nal-menu-option:hover {
+  background: var(--nh-gray);
+}
+
+.nal-menu-option[aria-pressed="true"] {
+  background: var(--nh-yellow);
+  font-weight: 600;
+}
+
+/* ---------- chip এর সারি (Figma: gap 16, উচ্চতা 43, ডানে সাদা ফিকে) ---------- */
+.nal-chips-wrap {
+  position: relative;
+}
+
+/* দুই পাশের ফিকে অংশ — শুধু যেদিকে আরও chip আছে সেদিকে */
+.nal-chips-wrap::before,
+.nal-chips-wrap::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 1;
+  width: clamp(56px, 9vw, 120px);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.nal-chips-wrap::before {
+  left: 0;
+  background: linear-gradient(270deg, rgba(255, 255, 255, 0) 0%, #ffffff 100%);
+}
+
+.nal-chips-wrap::after {
+  right: 0;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, #ffffff 100%);
+}
+
+.nal-chips-wrap[data-start="true"]::before,
+.nal-chips-wrap[data-end="true"]::after {
+  opacity: 1;
+}
+
+.nal-chips {
+  position: relative; /* li.offsetLeft এর হিসাবের জন্য */
+  display: flex;
+  gap: 16px;
+  margin: 0;
+  padding: 2px;
+  list-style: none;
+  overflow-x: auto;
+  scrollbar-width: none;
+  /* snap/smooth বন্ধ: স্লাইড JS (inertia + spring) চালায়, নইলে দুটো ঝগড়া করে */
+  scroll-behavior: auto;
+  overscroll-behavior-x: contain; /* সারির শেষে পেজ/browser back নড়ে না */
+  -webkit-overflow-scrolling: touch;
+  cursor: grab;
+}
+
+.nal-chips[data-drag="true"] {
+  cursor: grabbing;
+  user-select: none;
+}
+
+/* drag এর সময় chip এ hover/click এর ঝিলিক নেই */
+.nal-chips[data-drag="true"] .nal-chip {
+  pointer-events: none;
+}
+
+.nal-chips::-webkit-scrollbar {
+  display: none;
+}
+
+.nal-chips li {
+  flex: none;
+  /* সীমার বাইরে টানলে (rubber-band) সব chip একসাথে সরে, GPU তে */
+  transform: translate3d(var(--over, 0px), 0, 0);
+}
+
+.nal-chips[data-moving="true"] li {
+  will-change: transform;
+}
+
+.nal-chip {
+  display: inline-flex;
+  align-items: center;
+  height: 43px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--nh-gray);
+  font: inherit;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 1;
+  white-space: nowrap;
+  color: #000000;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.nal-chip:hover {
+  background: #ececec;
+}
+
+.nal-chip[aria-pressed="true"] {
+  background: var(--nh-yellow);
+  font-weight: 600;
+}
+
+.nal-chip-count {
+  margin-left: 4px;
+  font-weight: 400;
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.nal-chip[aria-pressed="true"] .nal-chip-count {
+  color: rgba(0, 0, 0, 0.7);
+}
+
+/* ---------- Card (Figma: 413 x 370, #F6F6F6, radius 20) ---------- */
+.nal-results {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  scroll-margin-top: calc(var(--nh-header-h) + 16px);
+}
+
+.nal-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nal-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border-radius: 20px;
+  background: var(--nh-gray);
+  overflow: hidden;
+  color: #000000;
+}
+
+/* ছবি: Figma 350 x 286, card এর উপরের অংশে, মাঝখানে */
+.nal-card-media {
+  position: relative;
+  aspect-ratio: 413 / 287;
+}
+
+.nal-card-media img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0 31px;
+  object-fit: contain;
+  transition: transform 0.45s var(--nh-ease);
+}
+
+.nal-card:hover .nal-card-media img {
+  transform: scale(1.03);
+}
+
+.nal-card-row {
+  display: flex;
+  flex: 1;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px;
+}
+
+.nal-card-text {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.nal-card-name {
+  margin: 0;
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 1.2;
+}
+
+.nal-card-sub {
+  font-size: 12px;
+  line-height: 1.1;
+  color: rgba(0, 0, 0, 0.7);
+}
+
+.nal-card-go {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 47px;
+  height: 43px;
+  border-radius: 12px;
+  background: #ffffff;
+  transition:
+    background-color 0.25s ease,
+    transform 0.3s var(--nh-ease);
+}
+
+.nal-card:hover .nal-card-go,
+.nal-card:focus-visible .nal-card-go {
+  background: var(--nh-yellow);
+}
+
+.nal-card:hover .nal-card-go {
+  transform: translate3d(2px, -2px, 0);
+}
+
+/* ---------- কিছু মেলেনি ---------- */
+.nal-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 64px 24px;
+  border-radius: 20px;
+  background: var(--nh-gray);
+  text-align: center;
+}
+
+.nal-empty-title {
+  margin: 0;
+  font-weight: 600;
+  font-size: 20px;
+}
+
+.nal-empty-hint {
+  margin: 0;
+  color: rgba(0, 0, 0, 0.7);
+}
+
+.nal-empty-action {
+  margin-top: 12px;
+  height: 43px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--nh-yellow);
+  font: inherit;
+  font-weight: 600;
+  font-size: 14px;
+  color: #000000;
+  cursor: pointer;
+}
+
+/* ---------- নিচের সারি: Showing … + পাতা ---------- */
+.nal-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 24px;
+  flex-wrap: wrap;
+  min-height: 43px;
+}
+
+.nal-showing {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: 16px;
+  line-height: 22px;
+  color: rgba(0, 0, 0, 0.7);
+}
+
+.nal-showing strong {
+  font-weight: 600;
+  color: #000000;
+}
+
+.nal-showing-dot {
+  flex: none;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--nh-yellow);
+}
+
+.nal-pager {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.nal-pages {
+  display: flex;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nal-page {
+  display: grid;
+  place-items: center;
+  width: 43px;
+  height: 43px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: var(--nh-gray);
+  font: inherit;
+  font-size: 14px;
+  line-height: 1.2;
+  color: #000000;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+button.nal-page:hover:not(:disabled):not(.is-active) {
+  background: #ececec;
+}
+
+.nal-page.is-active {
+  background: var(--nh-yellow);
+}
+
+.nal-page:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.nal-page--gap {
+  cursor: default;
+  font-weight: 500;
+}
+
+.nal-viewall:focus-visible,
+.nal-filters:focus-visible,
+.nal-menu-option:focus-visible,
+.nal-chip:focus-visible,
+.nal-card:focus-visible,
+.nal-page:focus-visible,
+.nal-empty-action:focus-visible {
+  outline: 2px solid var(--nh-yellow);
+  outline-offset: 2px;
+}
+
+/* ---------------------------------------------------------------
+   Responsive
+   --------------------------------------------------------------- */
+@media (max-width: 1099px) {
+  .nal-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 639px) {
+  .nal-top {
+    gap: 20px;
+  }
+
+  /* search উপরে পুরো চওড়া; নিচে environment আর Filters পাশাপাশি */
+  .nal-bar {
+    flex-wrap: wrap;
+    padding: 10px;
+  }
+
+  .nal-search {
+    flex: 1 1 100%;
+  }
+
+  .nal-select {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .nal-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .nal-card-name {
+    font-size: 18px;
+  }
+
+  .nal-foot {
+    justify-content: center;
+  }
+
+  .nal-menu {
+    right: 0;
+    left: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nal-chips {
+    scroll-behavior: auto;
+  }
+
+  .nal-chips-wrap::before,
+  .nal-chips-wrap::after {
+    transition: none;
+  }
+
+  .nal-card-media img,
+  .nal-card-go {
+    transition: none;
+  }
+
+  .nal-card:hover .nal-card-media img,
+  .nal-card:hover .nal-card-go {
+    transform: none;
+  }
+}

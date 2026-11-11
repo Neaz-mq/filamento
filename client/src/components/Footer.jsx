@@ -10,11 +10,11 @@ import "./Footer.css";
 
    সব পাতায় থাকে — MainLayout এ বসানো */
 
-/* মূল filamento.com এর light লোগো.
-   ⚠️ অন্য সাইট থেকে সরাসরি আনা — পরে Cloudinary তে তুলে link টা
-   এখানে বদলে দিলে ভালো (দ্রুত, আর ওই সাইট বদলালেও ভাঙবে না) */
-const LOGO_SRC =
-  "https://www.filamento.com/wp-content/plugins/Tot/images/filamento-logo-light.png";
+/* Footer এর লোগো — প্রজেক্টের নিজের ফাইল (public/brand-logos/filamento.png).
+   গাঢ় footer এ মানানসই সাদা লেখার লোগো. আগে অন্য সাইটের ঠিকানা থেকে
+   আনা হতো, সেটা ভেঙে গিয়েছিল — এখন নিজের ফাইল, তাই আর ভাঙবে না.
+   "/" দিয়ে শুরু — public ফোল্ডারের ফাইল সরাসরি এই ঠিকানায় মেলে */
+const LOGO_SRC = "/brand-logos/filamento.png";
 
 /* ---------------------------------------------------------------
    link এর কলাম — Figma র ক্রমে.

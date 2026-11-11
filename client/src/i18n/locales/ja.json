@@ -1,10 +1,12 @@
 {
   "nav": {
+    "home": "ホーム",
     "products": "製品",
     "projects": "導入事例",
     "application": "用途",
     "company": "会社概要",
-    "shop": "オンラインショップ"
+    "shop": "オンラインショップ",
+    "aboutUs": "会社概要"
   },
   "actions": {
     "contact": "お問い合わせ",
@@ -361,6 +363,13 @@
     "railPrev": "前のプロジェクト",
     "railNext": "次のプロジェクト"
   },
+  "megaMenu": {
+    "label": "製品メニュー",
+    "getQuote": "見積もり依頼",
+    "highBay": "高天井シリーズ",
+    "buildFixture": "器具の構成",
+    "accessories": "アクセサリー"
+  },
   "productsPage": {
     "categoriesLabel": "製品カテゴリー",
     "categoriesPrev": "前のカテゴリー",
@@ -567,6 +576,12 @@
       "version": "{{power}} モデル",
       "showing": "全 <b>{{total}}</b> 件中 <b>{{from}}–{{to}}</b> 件を表示"
     },
+    "projects": {
+      "oldest": "古い順",
+      "breadcrumb": "パンくずリスト",
+      "heroTitle": "革新的な照明プロジェクトの力をご覧ください",
+      "heroText": "先進の照明ソリューションが空間をどのように高め、体験を豊かにするのかを、導入事例の数々からご覧ください。"
+    },
     "meta": {
       "title": "ホーム"
     },
@@ -681,6 +696,120 @@
       "subscribe": "登録する",
       "subscribed": "ご登録ありがとうございます。",
       "subscribeError": "現在登録できません。もう一度お試しください。"
+    },
+    "applicationPage": {
+      "breadcrumb": "パンくずリスト",
+      "heroTitle": "あらゆる環境に対応する照明アプリケーションをご紹介",
+      "heroText": "商業・産業施設をはじめ、あらゆる環境で優れた性能、省エネ性、信頼性の高い照明を実現する、Filamentoの用途別ソリューションをご覧ください。",
+      "list": {
+        "title": "用途",
+        "viewAll": "すべて見る",
+        "searchLabel": "用途を検索",
+        "searchPlaceholder": "SKU、仕様、ワット数、演色性（CRI）、使用環境で検索…",
+        "envLabel": "使用環境",
+        "envAll": "すべての環境",
+        "env": {
+          "warehouse": "倉庫",
+          "retail": "小売店",
+          "outdoor": "屋外",
+          "office": "オフィス",
+          "manufacturing": "製造",
+          "sports": "スポーツ施設"
+        },
+        "filters": "絞り込み",
+        "sortTitle": "並び替え",
+        "sort": {
+          "default": "標準の順序",
+          "az": "名前（A–Z）",
+          "za": "名前（Z–A）"
+        },
+        "chipsLabel": "用途の種類",
+        "all": "すべての用途",
+        "version": "{{power}}モデル",
+        "showing": "全 <b>{{total}}</b> 件中 <b>{{from}}–{{to}}</b> 件を表示",
+        "empty": "条件に合う用途が見つかりません。",
+        "emptyHint": "キーワードを変えるか、絞り込みを解除してください。",
+        "clear": "絞り込みを解除",
+        "pager": {
+          "label": "ページ送り",
+          "previous": "前のページ",
+          "next": "次のページ",
+          "page": "{{page}}ページ"
+        },
+        "items": {
+          "la1": {
+            "name": "LA1 アイルライター",
+            "title": "LA1 アイルライター：倉庫通路向け第2世代LED"
+          },
+          "rh1": {
+            "name": "RH1-RFL ハイベイ",
+            "title": "RH1-RFL ハイベイ：小売倉庫向けLED照明"
+          },
+          "teardrop": {
+            "name": "ティアドロップ",
+            "title": "ティアドロップ"
+          },
+          "darksky": {
+            "name": "ダークスカイ対応ポールトップ",
+            "title": "ダークスカイ対応ポールトップ"
+          },
+          "recessed": {
+            "name": "埋め込み型",
+            "title": "埋め込み型"
+          },
+          "retail": {
+            "name": "小売店",
+            "title": "小売店"
+          },
+          "ballast": {
+            "name": "安定器互換",
+            "title": "安定器互換"
+          },
+          "sports": {
+            "name": "スポーツ施設",
+            "title": "スポーツ施設"
+          },
+          "manufacturing": {
+            "name": "製造",
+            "title": "製造現場"
+          }
+        }
+      }
+    },
+    "aboutPage": {
+      "breadcrumb": "パンくずリスト",
+      "heroTitle": "革新的な照明で、未来を照らす",
+      "heroText": "Filamentoは、革新性・効率性・信頼性を兼ね備えた高性能LED照明ソリューションをお届けすることに全力を尽くしています。",
+      "tag": "会社概要",
+      "intro": "Filamentoは、より明るい空間、低いエネルギー消費、そして長く続く価値を実現する高性能LED照明ソリューションを提供しています。私たちの使命は、商業・産業用照明をより効率的で信頼性が高く、持続可能なものにすることです。",
+      "stats": {
+        "savings": { "value": "60%+", "label": "想定される省エネ効果" },
+        "warranty": { "value": "5年", "label": "製品保証" },
+        "madeInUsa": { "value": "100%", "label": "米国製" }
+      },
+      "quote": "「カスタムレイアウトのプロセスのおかげで数千ドルを節約できました。器具が届く前に、何を設置するのか正確に把握できました。」",
+      "founderName": "Frank Shum",
+      "founderRole": "Filamento 創業者",
+      "cards": {
+        "efficiency": { "title": "省エネ性能", "value": "60%+", "text": "高効率LEDで、消費電力を削減。" },
+        "durability": { "title": "長寿命", "value": "5年", "text": "信頼できる照明を、長く。" }
+      },
+      "alt": {
+        "founder": "LEDランプを手にするFilamento創業者のFrank Shum",
+        "diagram": "Filamento LED照明器具の分解図",
+        "team": "ノートパソコンを囲んでLED器具を確認するFilamentoのチーム"
+      }
+    },
+    "shop": {
+      "breadcrumb": "パンくずリスト",
+      "heroTitle": "お近くのFilamento販売代理店を探す",
+      "heroText": "正規代理店にご連絡いただくと、照明製品のご紹介や専門的なアドバイスを受けられ、プロジェクトに最適なソリューションが見つかります。",
+      "directoryTitle": "地域の照明エキスパートを探す",
+      "totalTerritories_other": "全{{count}}エリア",
+      "filterMenuLabel": "代理店を絞り込む",
+      "filterAll": "すべての代理店",
+      "filterLocal": "選択したエリアのみ",
+      "filterNearby": "近隣のみ"
     }
   },
   "findRep": {

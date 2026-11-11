@@ -108,7 +108,7 @@ function HomeTwo() {
       )}
 
       <div className="nh-sentinel" ref={sentinelRef} aria-hidden="true" />
-      <NhHeader sentinelRef={sentinelRef} productsTo="/home/products" />
+      <NhHeader sentinelRef={sentinelRef} productsTo="/home/products" current="nav.home" />
 
       <main>
         <NhHero />

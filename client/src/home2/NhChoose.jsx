@@ -23,14 +23,16 @@ const ICONS = {
   roi: DollarIcon,
 };
 
-function NhChoose() {
+/* number — শুরুর চিহ্নের নম্বর: /home এ "4" (সেখানে চতুর্থ section),
+   /home/about-us এ "2" */
+function NhChoose({ number = "4" }) {
   const { t } = useTranslation();
 
   return (
     <section className="nh-section nh-choose" aria-labelledby="nh-choose-title">
       <div className="nh-wrap">
         <header className="nh-head">
-          <NhTag number="4" label={t("home2.choose.tag")} tone="black" data-reveal="" />
+          <NhTag number={number} label={t("home2.choose.tag")} tone="black" data-reveal="" />
           <h2 id="nh-choose-title" className="nh-h2" data-reveal="" style={{ "--d": 1 }}>
             {t("home2.choose.title")}
           </h2>

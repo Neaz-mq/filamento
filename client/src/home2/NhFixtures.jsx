@@ -2,7 +2,7 @@ import SoftLink from "../components/SoftLink";
 import { useTranslation } from "react-i18next";
 import { useLocaleLink } from "../i18n/useLocaleLink";
 import NhTag from "./NhTag";
-import { FIXTURES, cloud, srcSet } from "./data";
+import useFeaturedCards, { imageAt, imageSetAt } from "./useFeaturedCards";
 import { ArrowRight } from "./icons";
 
 /* ===============================================================
@@ -19,6 +19,7 @@ import { ArrowRight } from "./icons";
 function NhFixtures() {
   const { t } = useTranslation();
   const localeLink = useLocaleLink();
+  const cards = useFeaturedCards();
 
   return (
     <section className="nh-section nh-fixtures" aria-labelledby="nh-fixtures-title">
@@ -34,7 +35,7 @@ function NhFixtures() {
         </header>
 
         <ul className="nh-fixture-grid">
-          {FIXTURES.map((fixture, index) => (
+          {cards.map((fixture, index) => (
             <li
               key={fixture.id}
               className="nh-fixture"
@@ -43,12 +44,12 @@ function NhFixtures() {
             >
               <div className="nh-fixture-body">
                 <h3 className="nh-fixture-title">
-                  {t(`fixtures.items.${fixture.id}.title`)}
+                  {fixture.title}
                 </h3>
                 <div className="nh-fixture-media">
                   <img
-                    src={cloud(fixture.path, 600, fixture)}
-                    srcSet={srcSet(fixture.path, [300, 600, 900], fixture)}
+                    src={imageAt(fixture.image, 600)}
+                    srcSet={imageSetAt(fixture.image, [300, 600, 900])}
                     sizes="300px"
                     alt=""
                     width="300"
@@ -58,14 +59,14 @@ function NhFixtures() {
                   />
                 </div>
                 <p className="nh-fixture-text">
-                  {t(`fixtures.items.${fixture.id}.description`)}
+                  {fixture.description}
                 </p>
               </div>
 
               {/* গোটা card নয়, শুধু এই link টা চাপা যায় — কিন্তু CSS এ
                   এর ::after পুরো card ঢেকে দেয়, তাই card এর যেকোনো
                   জায়গায় চাপলেই যায় (screen reader এ একটাই link) */}
-              <SoftLink to={localeLink("/products")} className="nh-more">
+              <SoftLink to={localeLink(fixture.to)} className="nh-more">
                 <span className="nh-more-row">
                   {t("home2.fixtures.moreInfo")}
                   <ArrowRight size={18} strokeWidth={1.2} />
@@ -73,7 +74,7 @@ function NhFixtures() {
                 <span className="nh-more-bar" aria-hidden="true" />
                 <span className="sr-only">
                   {" "}
-                  — {t(`fixtures.items.${fixture.id}.title`)}
+                  — {fixture.title}
                 </span>
               </SoftLink>
             </li>

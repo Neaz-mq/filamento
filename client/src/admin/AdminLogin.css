@@ -1,0 +1,436 @@
+/* ===============================================================
+   /admin/login — Figma "Frame 2147236101" (1280 x 894)
+
+   বাইরে আধা-সাদা বড় বাক্স (padding 20, gap 20, radius 30):
+     বাঁয়ে  654 x 854 ছবির panel (radius 20) — logo, শিরোনাম, তিন stat
+     ডানে   ফর্ম (466px চওড়া), মাঝখানে বসা
+
+   সব class "al-" দিয়ে শুরু — admin.css এর .admin-input ইত্যাদি
+   AdminUsers এও চলে, তাই সেগুলো ছোঁয়া হয়নি
+   =============================================================== */
+.al-page {
+  --al-yellow: #fabf12;
+  --al-field: #f6f6f6;
+  min-height: 100dvh;
+  box-sizing: border-box;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: #f6f6f6;
+  color: #000000;
+  font-family: "Manrope Variable", "Manrope", ui-sans-serif, system-ui,
+    -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+.al-shell {
+  display: flex;
+  align-items: flex-end;
+  gap: 20px;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1280px;
+  height: min(894px, calc(100dvh - 48px));
+  min-height: 700px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 30px;
+}
+
+/* ---------- বাঁয়ের ছবির panel ---------- */
+.al-hero {
+  position: relative;
+  flex: none;
+  align-self: stretch;
+  width: 654px;
+  max-width: 50%;
+  overflow: hidden;
+  background: #ffffff;
+  border-radius: 20px;
+  isolation: isolate;
+}
+
+/* Figma তে ছবি 1299px চওড়া, বাঁয়ে -356px — মানে মাঝের একটু বাঁয়ের অংশ */
+.al-hero-img {
+  position: absolute;
+  inset: 0;
+  z-index: -3;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 52.6% 50%;
+}
+
+.al-hero::before,
+.al-hero::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: -2;
+  pointer-events: none;
+}
+
+.al-hero::before {
+  top: 0;
+  height: 149px;
+  background: linear-gradient(180deg, #000000 20.26%, rgba(0, 0, 0, 0) 100%);
+}
+
+.al-hero::after {
+  bottom: 0;
+  height: 402px;
+  background: linear-gradient(0deg, #000000 20.26%, rgba(0, 0, 0, 0) 100%);
+}
+
+.al-hero-logo {
+  position: absolute;
+  top: 50px;
+  left: 50%;
+  width: 170px;
+  height: auto;
+  transform: translateX(-50%);
+}
+
+.al-hero-info {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+  box-sizing: border-box;
+  width: min(510px, 100%);
+  padding: 60px 0 50px;
+  transform: translateX(-50%);
+}
+
+.al-hero-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  text-align: center;
+}
+
+.al-hero-title {
+  margin: 0;
+  font-weight: 600;
+  font-size: 38px;
+  line-height: 120%;
+  letter-spacing: -0.01em;
+  color: #ffffff;
+}
+
+.al-hero-text {
+  max-width: 508px;
+  margin: 0;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 160%;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.al-stats {
+  display: flex;
+  justify-content: center;
+  gap: 13.45px;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.al-stat {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  box-sizing: border-box;
+  height: 73px;
+  padding: 0 12px;
+  background: #f9f6f3;
+  border-radius: 14px;
+  text-align: center;
+}
+
+.al-stat-value {
+  font-weight: 600;
+  font-size: 18px;
+  line-height: 120%;
+  color: #000000;
+}
+
+.al-stat-label {
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 120%;
+  color: rgba(0, 0, 0, 0.7);
+}
+
+/* ---------- ডানের ফর্ম ---------- */
+.al-side {
+  flex: 1 1 0;
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-sizing: border-box;
+  min-width: 0;
+  padding: 30px 50px;
+}
+
+.al-form-box {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  width: 100%;
+  max-width: 466px;
+  margin: 0 auto;
+}
+
+.al-head {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.al-title {
+  margin: 0;
+  font-weight: 500;
+  font-size: 36px;
+  line-height: 130%;
+  letter-spacing: -0.01em;
+  color: #000000;
+}
+
+.al-sub {
+  margin: 0;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 160%;
+  color: rgba(0, 0, 0, 0.7);
+}
+
+.al-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.al-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.al-label {
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 160%;
+  color: #000000;
+}
+
+.al-req {
+  margin-left: 7px;
+  color: #d00000;
+}
+
+.al-input-wrap {
+  position: relative;
+}
+
+.al-input {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  height: 43px;
+  padding: 12px;
+  background: var(--al-field);
+  border: 1px solid transparent;
+  border-radius: 12px;
+  font-family: inherit;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 160%;
+  color: rgba(0, 0, 0, 0.7);
+  outline: none;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.al-input::placeholder {
+  color: rgba(0, 0, 0, 0.7);
+}
+
+.al-input:focus-visible {
+  background: #ffffff;
+  border-color: var(--al-yellow);
+}
+
+.al-input:disabled {
+  opacity: 0.6;
+}
+
+.al-input.has-button {
+  padding-right: 42px;
+}
+
+.al-reveal {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 43px;
+  padding: 0;
+  background: none;
+  border: 0;
+  border-radius: 12px;
+  color: rgba(0, 0, 0, 0.7);
+  cursor: pointer;
+}
+
+.al-reveal svg {
+  width: 14px;
+  height: 14px;
+}
+
+.al-reveal:focus-visible {
+  outline: 2px solid var(--al-yellow);
+  outline-offset: -2px;
+}
+
+.al-error {
+  margin: 0;
+  padding: 10px 12px;
+  background: #fdecec;
+  border-radius: 12px;
+  font-size: 12px;
+  line-height: 160%;
+  color: #b42318;
+}
+
+/* ফাঁকা থাকলে ফিকে হলুদ (Figma 40%), দুটো ঘর ভরলে পুরো হলুদ */
+.al-submit {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  width: 100%;
+  height: 52px;
+  padding: 18px 12px;
+  background: var(--al-yellow);
+  border: 0;
+  border-radius: 100px;
+  font-family: inherit;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 100%;
+  color: #000000;
+  cursor: pointer;
+  transition: background-color 0.25s ease, transform 0.2s ease;
+}
+
+.al-submit.is-idle {
+  background: rgba(250, 191, 18, 0.4);
+}
+
+.al-submit:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.al-submit:active:not(:disabled) {
+  transform: translateY(0) scale(0.99);
+}
+
+.al-submit:disabled {
+  cursor: progress;
+  opacity: 0.7;
+}
+
+.al-submit:focus-visible {
+  outline: 2px solid #000000;
+  outline-offset: 2px;
+}
+
+.al-note {
+  margin: 0;
+  font-size: 12px;
+  line-height: 160%;
+  color: rgba(0, 0, 0, 0.55);
+}
+
+/* ---------- ছোট পর্দা ---------- */
+@media (max-width: 960px) {
+  .al-page {
+    padding: 16px;
+    place-items: start center;
+  }
+
+  .al-shell {
+    flex-direction: column;
+    align-items: stretch;
+    height: auto;
+    min-height: 0;
+  }
+
+  .al-hero {
+    width: 100%;
+    max-width: none;
+    min-height: 520px;
+  }
+
+  .al-side {
+    padding: 20px 10px 24px;
+  }
+}
+
+@media (max-width: 560px) {
+  .al-shell {
+    padding: 12px;
+    border-radius: 22px;
+  }
+
+  .al-hero {
+    min-height: 480px;
+  }
+
+  .al-hero-info {
+    gap: 24px;
+    padding: 40px 16px 24px;
+  }
+
+  .al-hero-title {
+    font-size: 26px;
+  }
+
+  .al-hero-text {
+    font-size: 14px;
+  }
+
+  .al-stat {
+    padding: 0 6px;
+  }
+
+  .al-stat-value {
+    font-size: 16px;
+  }
+
+  .al-stat-label {
+    font-size: 10px;
+  }
+
+  .al-title {
+    font-size: 28px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .al-input,
+  .al-submit {
+    transition: none;
+  }
+}

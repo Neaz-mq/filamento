@@ -1,10 +1,12 @@
 {
   "nav": {
+    "home": "Home",
     "products": "Products",
     "projects": "Projects",
     "application": "Application",
     "company": "Company",
-    "shop": "Shop"
+    "shop": "Shop",
+    "aboutUs": "About Us"
   },
   "actions": {
     "contact": "Contact",
@@ -361,6 +363,13 @@
     "railPrev": "Previous projects",
     "railNext": "More projects"
   },
+  "megaMenu": {
+    "label": "Products menu",
+    "getQuote": "Get Quote",
+    "highBay": "High Bay Series",
+    "buildFixture": "Build Fixture",
+    "accessories": "Accessories"
+  },
   "productsPage": {
     "categoriesLabel": "Product categories",
     "categoriesPrev": "Previous categories",
@@ -570,6 +579,12 @@
       "version": "{{power}} Version",
       "showing": "Showing <b>{{from}}–{{to}}</b> of <b>{{total}}</b> Products"
     },
+    "projects": {
+      "oldest": "Oldest",
+      "breadcrumb": "Breadcrumb",
+      "heroTitle": "Discover the Power of Innovative Lighting Projects",
+      "heroText": "Explore our portfolio of innovative lighting projects, showcasing how our advanced lighting solutions enhance spaces, elevate experiences."
+    },
     "meta": {
       "title": "Home"
     },
@@ -684,6 +699,121 @@
       "subscribe": "Subscribe",
       "subscribed": "Thanks — you're on the list.",
       "subscribeError": "Couldn't subscribe right now. Please try again."
+    },
+    "applicationPage": {
+      "breadcrumb": "Breadcrumb",
+      "heroTitle": "Discover Lighting Applications for Every Environment",
+      "heroText": "Explore our comprehensive lighting applications, designed to deliver exceptional performance, energy efficiency, and reliable illumination across commercial and industrial environments.",
+      "list": {
+        "title": "Application",
+        "viewAll": "View All",
+        "searchLabel": "Search applications",
+        "searchPlaceholder": "Search by SKU, spec, wattage, CRI, environment...",
+        "envLabel": "Environment",
+        "envAll": "All environments",
+        "env": {
+          "warehouse": "Warehouse",
+          "retail": "Retail",
+          "outdoor": "Outdoor",
+          "office": "Office",
+          "manufacturing": "Manufacturing",
+          "sports": "Sports Facility"
+        },
+        "filters": "Filters",
+        "sortTitle": "Sort by",
+        "sort": {
+          "default": "Default order",
+          "az": "Name A–Z",
+          "za": "Name Z–A"
+        },
+        "chipsLabel": "Application types",
+        "all": "All Application",
+        "version": "{{power}} Version",
+        "showing": "Showing <b>{{from}}–{{to}}</b> of <b>{{total}}</b> Products",
+        "empty": "No applications match your search.",
+        "emptyHint": "Try a different keyword or clear the filters.",
+        "clear": "Clear filters",
+        "pager": {
+          "label": "Pagination",
+          "previous": "Previous page",
+          "next": "Next page",
+          "page": "Page {{page}}"
+        },
+        "items": {
+          "la1": {
+            "name": "LA1 Aisle Lighter",
+            "title": "LA1 Aisle Lighter: Gen 2 LED for Warehouse Aisles"
+          },
+          "rh1": {
+            "name": "RH1-RFL High Bay",
+            "title": "RH1-RFL High Bay: Retail Warehouse LED Lighting"
+          },
+          "teardrop": {
+            "name": "Tear Drop",
+            "title": "Tear Drop"
+          },
+          "darksky": {
+            "name": "Dark Sky Friendly Post Top",
+            "title": "Dark Sky Friendly Post Top"
+          },
+          "recessed": {
+            "name": "Recessed",
+            "title": "Recessed"
+          },
+          "retail": {
+            "name": "Retail",
+            "title": "Retail"
+          },
+          "ballast": {
+            "name": "Ballast Compatibility",
+            "title": "Ballast Compatibility"
+          },
+          "sports": {
+            "name": "Sports Facility",
+            "title": "Sports Facility"
+          },
+          "manufacturing": {
+            "name": "Manufacturing",
+            "title": "Manufacturing Operations"
+          }
+        }
+      }
+    },
+    "aboutPage": {
+      "breadcrumb": "Breadcrumb",
+      "heroTitle": "Illuminating the Future Through Innovative Lighting",
+      "heroText": "At Filamento, we are dedicated to delivering high-performance LED lighting solutions that combine innovation, efficiency, and reliability.",
+      "tag": "About Us",
+      "intro": "At Filamento, we create high-performance LED lighting solutions designed to deliver brighter spaces, lower energy use, and lasting value. Our mission is to make commercial and industrial lighting more efficient, reliable, and sustainable.",
+      "stats": {
+        "savings": { "value": "60%+", "label": "Potential Energy Savings" },
+        "warranty": { "value": "5 Years", "label": "Product Warranty" },
+        "madeInUsa": { "value": "100%", "label": "Made in USA" }
+      },
+      "quote": "“The custom layout process saved us thousands. We knew exactly what we were installing before a single fixture arrived.”",
+      "founderName": "Frank Shum",
+      "founderRole": "Founder, Filamento",
+      "cards": {
+        "efficiency": { "title": "Energy Efficiency", "value": "60%+", "text": "Efficient LED. Lower Energy." },
+        "durability": { "title": "Built to Last", "value": "5 Year", "text": "Reliable lighting. Built to last." }
+      },
+      "alt": {
+        "founder": "Frank Shum, founder of Filamento, holding an LED lamp",
+        "diagram": "Exploded technical drawing of a Filamento LED fixture",
+        "team": "The Filamento team reviewing an LED fixture around a laptop"
+      }
+    },
+    "shop": {
+      "breadcrumb": "Breadcrumb",
+      "heroTitle": "Discover Your Nearest Filamento Representative",
+      "heroText": "Connect with our authorized representatives to explore our lighting products, get expert guidance, and find the right solutions for your project.",
+      "directoryTitle": "Find Local Lighting Expertise",
+      "totalTerritories_one": "Total {{count}} Territory",
+      "totalTerritories_other": "Total {{count}} Territories",
+      "filterMenuLabel": "Filter representatives",
+      "filterAll": "All representatives",
+      "filterLocal": "Selected territory only",
+      "filterNearby": "Nearby only"
     }
   },
   "findRep": {

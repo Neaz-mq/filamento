@@ -167,7 +167,7 @@ export const ITEM_FORMS = {
 
   card: {
     title: "Featured Products",
-    subtitle: "Point visitors to a product category from the hero.",
+    subtitle: "Point visitors to a product category or a specific product page from the hero.",
     fields: [
       { key: "image", label: "Upload Image", type: "image", kind: "site-image", required: true },
       { key: "title", label: "Title", max: L.cardTitle, required: true, width: "half", placeholder: "High Bay Series" },
@@ -185,7 +185,7 @@ export const ITEM_FORMS = {
         type: "category-link",
         max: L.url,
         placeholder: "/products?category=lamp-fixture",
-        hint: "Where the card goes when clicked. Leave empty for the Products page.",
+        hint: "Where the card goes when clicked: a category, or the details page of one of your published products. Leave empty for the Products page.",
       },
     ],
   },

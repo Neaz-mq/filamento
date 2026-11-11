@@ -389,13 +389,16 @@ function Hero({ lightsOn = true }) {
     suppressClick.current = false;
     drag.current = {
       active: true,
+      captured: false,
       startX: event.clientX,
       startScroll: el.scrollLeft,
       moved: 0,
     };
 
-    el.setPointerCapture(event.pointerId);
-    el.classList.add("is-dragging");
+    /* ⚠️ pointer capture এখানে নেওয়া যাবে না. pointerdown এ নিলে মাউস ছাড়ার
+       পর click event card এর <a> এ না গিয়ে এই সারির উপর পড়ে — তখন card
+       চাপলে কোনো পাতায় যেত না. তাই টানা শুরু হয়েছে নিশ্চিত হলে
+       (৫px এর বেশি সরলে) তবেই নেওয়া হয় — নিচে handlePointerMove */
   };
 
   const handlePointerMove = (event) => {
@@ -404,6 +407,14 @@ function Hero({ lightsOn = true }) {
 
     const delta = event.clientX - drag.current.startX;
     drag.current.moved = Math.max(drag.current.moved, Math.abs(delta));
+
+    if (!drag.current.captured) {
+      if (drag.current.moved <= 5) return; // ছোট নড়াচড়া = সাধারণ click, card খুলবে
+      drag.current.captured = true;
+      el.setPointerCapture(event.pointerId);
+      el.classList.add("is-dragging");
+    }
+
     el.scrollLeft = drag.current.startScroll - delta;
   };
 

@@ -35,7 +35,7 @@ const NAV_LINKS = [
   { label: "home2.footer.nav.home", to: "/home" },
   { label: "home2.footer.nav.about", hash: "#about" },
   // Products — এই সংস্করণের নিজের তালিকা (/home/products)
-  // { label: "nav.products", to: "/home/products" },
+  { label: "nav.products", to: "/home/products" },
   // soft — এখন "#" (কোথাও যায় না). আসল পাতায় নিতে soft: true মুছে দিন
   { label: "nav.projects", to: "/projects", soft: true },
   { label: "home2.footer.nav.contact", hash: "#contact" },

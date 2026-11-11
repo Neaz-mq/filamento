@@ -86,6 +86,90 @@ async function fillDefaultFixtures(featured) {
   return { ...featured, fixtures: filled };
 }
 
+/* Hero র নিচের card — link যদি শুধু একটা category হয় (/products?category=lamp-fixture),
+   সাইটে সেটা ওই category র সবচেয়ে প্রথম published product এর details পাতায়
+   (/products/<slug>) নেয়. তালিকা database থেকেই আসে, তাই product যোগ/মোছা/publish
+   করলে হাতে কিছু বদলাতে হয় না.
+
+   • admin এ কোনো নির্দিষ্ট product বাছা থাকলে (/products/…) সেটা যেমন আছে তেমনই
+   • category তে কোনো published product না থাকলে আগের category তালিকাই
+   • শুধু সাইটের জন্য — admin এ (GET /admin/home) আসল বাছাই যেমন ছিল তেমনই দেখায় */
+async function resolveHeroLinks(hero) {
+  if (!Array.isArray(hero?.products)) return hero;
+
+  const byCategory = new Map();
+  const firstSlug = async (category) => {
+    if (!byCategory.has(category)) {
+      const [doc] = await products()
+        .find({ status: "published", category }, { projection: { slug: 1 } })
+        .sort({ featured: -1, createdAt: 1, _id: 1 })
+        .limit(1)
+        .toArray();
+      byCategory.set(category, doc?.slug || "");
+    }
+    return byCategory.get(category);
+  };
+
+  const cards = [];
+  for (const card of hero.products) {
+    const match = /^\/products\?category=([\w-]+)$/.exec(card?.link ?? "");
+    const slug = match ? await firstSlug(match[1]) : "";
+    cards.push(slug ? { ...card, link: `/products/${slug}` } : card);
+  }
+  return { ...hero, products: cards };
+}
+
+/* Hero র নিচের তিনটা card — এখন সরাসরি Products থেকে আসে (সাইটের জন্য).
+
+   কোন তিনটা: published product, যেগুলোর ছবি আছে — আগে "featured" চিহ্ন দেওয়া,
+   তারপর বেশি দেখা (views), তারপর পুরনো আগে. product যোগ/মোছা/publish বা
+   featured বদলালে card নিজে থেকে বদলায়.
+
+   প্রতিটা card: ছবি = product এর প্রথম ছবি, শিরোনাম = নাম (দুই লাইনে), লেখা =
+   ছোট বিবরণ, তীর/card = /products/<slug> (details পাতা).
+   কোনো published product না থাকলে নিচের পুরনো (admin এর) card ই থাকে */
+const HERO_CARD_COUNT = 3;
+
+// "RH1 High Efficiency High Bay (Without Refractor and Uplight)" → ["RH1", "High Bay"]
+function heroCardTitle(name) {
+  const clean = String(name ?? "")
+    .split(":")[0]
+    .replace(/\([^)]*\)/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  const words = clean.split(" ").filter(Boolean);
+  if (words.length <= 1) return [clean, ""];
+  if (words.length <= 3) return [words[0], words.slice(1).join(" ")];
+  return [words[0], words.slice(-2).join(" ")];
+}
+
+async function liveHeroCards() {
+  const docs = await products()
+    .find(
+      { status: "published", "images.0": { $exists: true } },
+      { projection: { name: 1, slug: 1, series: 1, shortDescription: 1, images: 1 } },
+    )
+    .sort({ featured: -1, views: -1, createdAt: 1, _id: 1 })
+    .limit(HERO_CARD_COUNT * 3)
+    .toArray();
+
+  return docs
+    .filter((doc) => doc.slug && doc.name && doc.images?.[0]?.url)
+    .slice(0, HERO_CARD_COUNT)
+    .map((doc) => {
+      const [titleTop, titleBottom] = heroCardTitle(doc.name);
+      return {
+        id: doc._id.toString(),
+        image: { url: doc.images[0].url, publicId: doc.images[0].publicId ?? "" },
+        title: doc.name,
+        titleTop,
+        titleBottom,
+        subtitle: String(doc.shortDescription || doc.series || "").trim(),
+        link: `/products/${doc.slug}`,
+      };
+    });
+}
+
 /* সব ধাপ একসাথে — save করা থাকলে সেটা, নাহলে default */
 async function loadHome() {
   const doc = await content().findOne({ _id: "home" });
@@ -118,6 +202,12 @@ router.get("/home", async (req, res, next) => {
     data.featured.fixtures = data.featured.fixtures
       .map((item) => ({ ...item, product: byId.get(item.productId) }))
       .filter((item) => item.product?.status === "published");
+
+    const liveCards = await liveHeroCards();
+    data.hero =
+      liveCards.length > 0
+        ? { ...data.hero, products: liveCards }
+        : await resolveHeroLinks(data.hero);
 
     /* no-cache = জমা রাখা যায়, কিন্তু ব্যবহারের আগে প্রতিবার server কে মিলিয়ে নিতে হয়।
        Express নিজেই ETag দেয়, তাই বদল না থাকলে শুধু ছোট 304 যায়।

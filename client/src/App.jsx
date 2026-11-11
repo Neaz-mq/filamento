@@ -62,6 +62,22 @@ const HomeTwo = lazy(() => import("./home2/HomeTwo"));
    মূল /products অক্ষত, এটা তার পাশাপাশি দ্বিতীয় সংস্করণ. এটাও lazy */
 const HomeTwoProducts = lazy(() => import("./home2/HomeTwoProducts"));
 
+/* নতুন Home এর Projects পাতা (Figma র দ্বিতীয় Projects নকশা) — /home/projects.
+   মূল /projects অক্ষত, এটা তার পাশাপাশি দ্বিতীয় সংস্করণ. এটাও lazy */
+const HomeTwoProjects = lazy(() => import("./home2/HomeTwoProjects"));
+
+/* নতুন Home এর Shop পাতা (Figma র দ্বিতীয় Shop নকশা) — /home/shop.
+   মূল /shop অক্ষত, এটা তার পাশাপাশি দ্বিতীয় সংস্করণ. এটাও lazy */
+const HomeTwoShop = lazy(() => import("./home2/HomeTwoShop"));
+
+/* নতুন Home এর About Us পাতা (Figma র দ্বিতীয় About Us নকশা) — /home/about-us.
+   মূল /about-us (Coming soon) অক্ষত, এটা তার পাশাপাশি দ্বিতীয় সংস্করণ. এটাও lazy */
+const HomeTwoAbout = lazy(() => import("./home2/HomeTwoAbout"));
+
+/* নতুন Home এর Application পাতা (Figma র দ্বিতীয় Application নকশা) — /home/application.
+   মূল /application (Coming soon) অক্ষত, এটা তার পাশাপাশি দ্বিতীয় সংস্করণ. এটাও lazy */
+const HomeTwoApplication = lazy(() => import("./home2/HomeTwoApplication"));
+
 /* /home/products এর কোড নামার ফাঁকের পর্দা — কালো, কারণ পাতার শুরুটা
    (hero আর header) কালো; তাহলে সাদা ঝলক দেখা যায় না */
 function HomeTwoProductsBoot() {
@@ -338,6 +354,47 @@ const router = createBrowserRouter([
         element: (
           <Suspense fallback={<HomeTwoProductsBoot />}>
             <HomeTwoProducts />
+          </Suspense>
+        ),
+      },
+      /* /home/projects (/ja/home/projects …) — নতুন Home এর Projects.
+         Products এর মতোই MainLayout এর বাইরে (নিজের header আর footer).
+         কালো ফাঁকের পর্দা Products এর টাই — দুই পাতার শুরু একই কালো */
+      {
+        path: "home/projects",
+        element: (
+          <Suspense fallback={<HomeTwoProductsBoot />}>
+            <HomeTwoProjects />
+          </Suspense>
+        ),
+      },
+      /* /home/shop (/ja/home/shop …) — নতুন Home এর Shop. Projects এর মতোই
+         MainLayout এর বাইরে, শুরুর কালো পর্দাও একই */
+      {
+        path: "home/shop",
+        element: (
+          <Suspense fallback={<HomeTwoProductsBoot />}>
+            <HomeTwoShop />
+          </Suspense>
+        ),
+      },
+      /* /home/about-us (/ja/home/about-us …) — নতুন Home এর About Us.
+         Shop এর মতোই MainLayout এর বাইরে, শুরুর কালো পর্দাও একই */
+      {
+        path: "home/about-us",
+        element: (
+          <Suspense fallback={<HomeTwoProductsBoot />}>
+            <HomeTwoAbout />
+          </Suspense>
+        ),
+      },
+      /* /home/application (/ja/home/application …) — নতুন Home এর Application.
+         About Us এর মতোই MainLayout এর বাইরে, শুরুর কালো পর্দাও একই */
+      {
+        path: "home/application",
+        element: (
+          <Suspense fallback={<HomeTwoProductsBoot />}>
+            <HomeTwoApplication />
           </Suspense>
         ),
       },

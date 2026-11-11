@@ -35,6 +35,20 @@ export const IMAGES = {
   contact: "v1790744799/5a8af14873ef598ccc72026799a5bacff82681c2_eps9ww.jpg",
   // /home/products এর hero (Figma "Desktop 1" — auditorium এর ছবি)
   productsHero: "v1794300511/ed5b172ac5fcc16067a3728d5f0c0e94e1b1c9b0_wwqp08.jpg",
+  // /home/projects এর hero (Figma "Desktop 1" — রাতের রাস্তার বাতির ছবি)
+  projectsHero: "v1794374280/5a8af14873ef598ccc72026799a5bacff82681c2_q8hgyv.jpg",
+  // /home/shop এর hero (Figma "Shop" frame — গুদামের তাকের ছবি)
+  shopHero: "v1794376303/99_ivtbbh.jpg",
+  // /home/about-us এর hero (Figma "Desktop 1" — রাতের রাস্তার বাতি; shopContact এর একই ছবি)
+  aboutHero: "v1794377299/5a8af14873ef598ccc72026799a5bacff82681c2_stvn1o.jpg",
+  // /home/about-us এর তিন ছবি (Figma): founder র ছবি, product এর নকশা (png), দলের ছবি
+  aboutPortrait: "v1794378177/a73e9b59e7a15dc477a605d52bd4add7b91a67a9_zby2fe.jpg",
+  aboutDiagram: "v1794378232/0dd479ccce5a0023e7b57fc54ee77cde3dce790b_dz106i.png",
+  aboutTeam: "v1794378372/64cb7316e357341446fb8640616b46d07cb742bd_khn61n.jpg",
+  // /home/application এর hero (Figma "Desktop 1" — McKenna BMW এর শোরুমের ছবি)
+  applicationHero: "v1794379769/b07f21662b03aa1147a0c35e23d04ac24e6343f7_wpyt91.jpg",
+  // /home/shop এর "Direct contact" card এর পটভূমি (রাতের রাস্তার বাতি)
+  shopContact: "v1794377299/5a8af14873ef598ccc72026799a5bacff82681c2_stvn1o.jpg",
   // header এর Products dropdown এর হলুদ card এর ছবি (Figma "Group 80")
   productsMenu: "v1794303766/Group_80_gbq6st.png",
 };

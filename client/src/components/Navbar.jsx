@@ -3,6 +3,7 @@ import { Link, NavLink, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import filamentoLogo from "../assets/logo/filamento.png";
 import LanguageSwitcher from "./LanguageSwitcher";
+import ProductsMegaMenu from "./ProductsMegaMenu";
 import { useLocaleLink } from "../i18n/useLocaleLink";
 import "./Navbar.css";
 
@@ -10,7 +11,7 @@ import "./Navbar.css";
    থাকে, শুধু t() আলাদা লেখা ফেরত দেয় */
 const NAV_LINKS = [
   { key: "nav.products", to: "/products" },
-  // { key: "nav.projects", to: "/projects" },
+  { key: "nav.projects", to: "/projects" },
   { key: "nav.application", to: "/application" },
   { key: "nav.company", to: "/company" },
   { key: "nav.shop", to: "/shop" },
@@ -129,11 +130,17 @@ function Navbar() {
           {/* NavLink — যে পাতায় আছি তার link এ aria-current="page" বসে
               (Figma: Products পাতায় "Products" গাঢ়). /products/la1… তেও
               Products গাঢ় থাকে */}
-          {NAV_LINKS.map((link) => (
-            <NavLink key={link.to} to={localeLink(link.to)}>
-              {t(link.key)}
-            </NavLink>
-          ))}
+          {NAV_LINKS.map((link) =>
+            link.key === "nav.products" ? (
+              /* Products — hover করলে mega menu, ক্লিক করলে Products পাতা
+                 (ProductsMegaMenu.jsx) */
+              <ProductsMegaMenu key={link.to} to={link.to} />
+            ) : (
+              <NavLink key={link.to} to={localeLink(link.to)}>
+                {t(link.key)}
+              </NavLink>
+            ),
+          )}
         </nav>
 
         <div className="navbar-actions">

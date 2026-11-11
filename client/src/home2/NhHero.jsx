@@ -2,7 +2,9 @@ import { useEffect, useRef, useState } from "react";
 import SoftLink from "../components/SoftLink";
 import { Trans, useTranslation } from "react-i18next";
 import { useLocaleLink } from "../i18n/useLocaleLink";
-import { HERO_CARDS, IMAGES, cloud, srcSet } from "./data";
+import { IMAGES, cloud, srcSet } from "./data";
+import useFeaturedCards, { imageAt } from "./useFeaturedCards";
+import { splitName } from "../pages/productCatalog";
 import { ArrowUpRight, DoubleChevron } from "./icons";
 import { isSwipe, useSwipe } from "./motion";
 
@@ -118,6 +120,7 @@ function useHeroScale() {
 function CardStack({ scale = 1 }) {
   const { t } = useTranslation();
   const localeLink = useLocaleLink();
+  const cards = useFeaturedCards();
 
   const [front, setFront] = useState(0);
   const stackRef = useRef(null);
@@ -158,13 +161,13 @@ function CardStack({ scale = 1 }) {
       throwTimer.current = setTimeout(() => {
         card.removeAttribute("data-thrown");
         card.style.removeProperty("--dx");
-        setFront((value) => (value + 1) % HERO_CARDS.length);
+        setFront((value) => (value + 1) % cards.length);
         throwingRef.current = false;
       }, THROW_MS);
     },
   });
 
-  const count = HERO_CARDS.length;
+  const count = cards.length;
 
   return (
     <div
@@ -174,17 +177,15 @@ function CardStack({ scale = 1 }) {
       role="group"
       aria-label={t("hero.cardsLabel")}
     >
-      {HERO_CARDS.map((card, index) => {
+      {cards.map((card, index) => {
         const slot = (index - front + count) % count;
         const isFront = slot === 0;
-        const title = `${t(`hero.cards.${card.id}.titleTop`)} ${t(
-          `hero.cards.${card.id}.titleBottom`,
-        )}`;
+        const title = splitName(card.title).title;
 
         return (
           <SoftLink
             key={card.id}
-            to={localeLink("/products")}
+            to={localeLink(card.to)}
             className="nh-stack-card"
             data-slot={slot}
             /* পেছনের card গুলো চোখে দেখা যায়, কিন্তু চাপা বা Tab করা
@@ -195,7 +196,7 @@ function CardStack({ scale = 1 }) {
           >
             <span className="nh-stack-media">
               <img
-                src={cloud(card.image, 320)}
+                src={imageAt(card.image, 320)}
                 alt=""
                 width="102"
                 height="102"
@@ -214,7 +215,7 @@ function CardStack({ scale = 1 }) {
               <span className="nh-stack-text">
                 <span className="nh-stack-title">{title}</span>
                 <span className="nh-stack-desc">
-                  {t(`hero.cards.${card.id}.text`)}
+                  {card.scope || card.description}
                 </span>
               </span>
             </span>

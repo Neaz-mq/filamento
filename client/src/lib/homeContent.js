@@ -222,8 +222,10 @@ export function buildHeroView(hero, { t, en, has }) {
 
         const cardTitle = typeof product.title === "string" ? product.title.trim() : "";
         const known = has(topKey) && has(bottomKey);
-        const [top, bottom] =
-          known && cardTitle === `${en(topKey)} ${en(bottomKey)}`
+        // product থেকে আসা card এ server আগেই শিরোনাম দুই লাইনে ভেঙে দেয় (titleTop/titleBottom)
+        const [top, bottom] = product.titleTop
+          ? [String(product.titleTop), String(product.titleBottom ?? "")]
+          : known && cardTitle === `${en(topKey)} ${en(bottomKey)}`
             ? [t(topKey), t(bottomKey)]
             : splitLastWord(cardTitle);
 

@@ -398,6 +398,13 @@ html:lang(zh-Hant) .nh-page {
   color: var(--nh-yellow);
 }
 
+/* Home — এই পাতায় থাকলে হলুদ + নিচে দাগ (Figma) */
+.nh-nav-link--home[aria-current="page"] {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-thickness: 1px;
+}
+
 .nh-header-actions {
   display: flex;
   align-items: center;
@@ -664,13 +671,13 @@ html:lang(zh-Hant) .nh-page {
   font-weight: 500;
   font-size: 12px;
   line-height: 16px;
-  letter-spacing: 0.1em;
 }
 
 .nh-hero-title {
   margin: 0;
   font-weight: 600;
-  font-size: clamp(38px, 5vw, 72px);
+  max-width: 783px; /* Figma: 783 x 132, 60px / 110% */
+  font-size: clamp(38px, 4.2vw, 60px);
   line-height: 1.1;
   color: #ffffff;
   text-wrap: balance;

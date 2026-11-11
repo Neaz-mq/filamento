@@ -212,22 +212,65 @@ const CATEGORY_OPTIONS = [
   ...PRODUCT_CATEGORIES.map((category) => ({
     value: categoryLink(category.key),
     label: category.label,
+    group: "Product category",
   })),
 ];
 
 function LinkPicker({ id, field, value, error, onChange }) {
   const current = String(value ?? "");
 
-  /* আগে হাতে লেখা বা অন্য ধরনের link থাকলে সেটা যেন হারিয়ে না যায়
-     (Edit খুললে Save এ চুপচাপ বদলে যাওয়া ঠেকাতে) — তালিকার মাথায় রাখা */
+  /* সাইটে এখন published যে product গুলো আছে — card সরাসরি সেই product এর
+     পাতায় (/products/<slug>) নিতে. undefined = এখনো আসছে, [] = নেই/আসেনি.
+     তালিকা database থেকেই আসে, তাই নতুন product publish করলে এখানে নিজেই আসে */
+  const [products, setProducts] = useState(undefined);
+
+  useEffect(() => {
+    let alive = true;
+    api
+      .getProducts()
+      .then((data) => {
+        if (alive) setProducts(Array.isArray(data?.products) ? data.products : []);
+      })
+      .catch(() => {
+        if (alive) setProducts([]);
+      });
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  const productOptions = (products ?? [])
+    .filter((product) => product?.slug && product?.name)
+    .map((product) => ({
+      value: `/products/${product.slug}`,
+      label: product.name,
+      group: "Specific product",
+    }));
+
+  const known = [...CATEGORY_OPTIONS, ...productOptions];
+
+  /* আগে হাতে লেখা বা অন্য ধরনের link (বা এখন আর published নয় এমন product)
+     থাকলে সেটা যেন হারিয়ে না যায় (Edit খুললে Save এ চুপচাপ বদলে যাওয়া
+     ঠেকাতে) — তালিকার মাথায় রাখা. product গুলো আসার পর মিলে গেলে এই
+     সারিটা নিজেই সরে গিয়ে আসল নাম দেখায় */
   const [legacy] = useState(() =>
     CATEGORY_OPTIONS.some((option) => option.value === current) ? "" : current,
   );
-  const options = legacy
-    ? [{ value: legacy, label: `Current: ${legacy}` }, ...CATEGORY_OPTIONS]
-    : CATEGORY_OPTIONS;
+  const options =
+    legacy && !known.some((option) => option.value === legacy)
+      ? [{ value: legacy, label: `Current: ${legacy}`, group: "Current link" }, ...known]
+      : known;
 
   const label = options.find((option) => option.value === current)?.label;
+
+  let hint;
+  if (current === "") {
+    hint = "Opens the Products page.";
+  } else if (current.startsWith("/products/")) {
+    hint = `Opens the ${label?.replace(/^Current: /, "") ?? current} product page.`;
+  } else {
+    hint = `Opens ${label ?? current} on the website.`;
+  }
 
   return (
     <div className="hc-link">
@@ -251,7 +294,8 @@ function LinkPicker({ id, field, value, error, onChange }) {
         </span>
       ) : (
         <p className="hc-icon-hint">
-          {current === "" ? "Opens the Products page." : `Opens ${label ?? current} on the website.`}
+          {hint}
+          {products === undefined ? " Loading products…" : ""}
         </p>
       )}
     </div>

@@ -1,0 +1,488 @@
+/* ===============================================================
+   About Us (দ্বিতীয় নকশা) — /home/about-us
+
+   HomeTwo.css এর উপর বসে (header, footer, .nh-wrap, রঙ, font সব
+   ওখান থেকেই) — তাই এই ফাইলে শুধু এই পাতার নিজের অংশ. সব class
+   "nab-" দিয়ে শুরু, অন্য কোনো পাতার class এর সাথে মেলে না.
+
+   মাপ Figma র 1440 frame থেকে: content 1280, দুই পাশে 80px.
+   =============================================================== */
+
+/* ---------------------------------------------------------------
+   Hero — Figma "Desktop 1" (1440 x 516)
+   --------------------------------------------------------------- */
+.nab-hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: #000000;
+  color: #ffffff;
+  /* header (30 + 46) + Figma র 80px ফাঁক */
+  padding: 156px 0 100px;
+}
+
+.nab-hero-media {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+}
+
+/* Figma: ছবি 1463 x 962, উপরে -32px — মানে ছবির উপরের দিকটা বেশি
+   দেখা যায়. 32 / (962 − 516) ≈ 7% */
+.nab-hero-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 7%;
+  transform: scale(1.08);
+  opacity: 0;
+  transition:
+    opacity 1s ease,
+    transform 2.4s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.nab-hero-media[data-loaded] img {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.nab-hero-shade {
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* Figma "Rectangle 34628996": উপরে 339px, #000 9.8% → স্বচ্ছ */
+.nab-hero-shade--top {
+  top: 0;
+  height: 339px;
+  background: linear-gradient(180deg, #000000 9.8%, rgba(0, 0, 0, 0) 100%);
+}
+
+/* Figma "Rectangle 34628997": নিচে 135px, #000 20.26% → স্বচ্ছ (উল্টো দিকে) */
+.nab-hero-shade--bottom {
+  bottom: 0;
+  height: 135px;
+  background: linear-gradient(0deg, #000000 20.26%, rgba(0, 0, 0, 0) 100%);
+}
+
+.nab-hero-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+/* Home > About Us — Figma "Frame 106" */
+.nab-crumb {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 16px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.nab-crumb a {
+  color: rgba(255, 255, 255, 0.5);
+  transition: color 0.2s ease;
+}
+
+.nab-crumb a:hover {
+  color: #ffffff;
+}
+
+.nab-crumb svg {
+  flex: none;
+}
+
+.nab-crumb [aria-current="page"] {
+  color: var(--nh-yellow);
+}
+
+/* Figma: 60px / 110%, Manrope 600, 817px চওড়া */
+.nab-hero-title {
+  max-width: 817px;
+  margin: 0;
+  font-weight: 600;
+  font-size: clamp(34px, 4.17vw, 60px);
+  line-height: 1.1;
+  color: #ffffff;
+}
+
+/* Figma: 20px / 160%, 808px চওড়া. 12px + 12px = Figma র 24px ফাঁক */
+.nab-hero-text {
+  max-width: 808px;
+  margin: 12px 0 0;
+  font-size: clamp(16px, 1.39vw, 20px);
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* ---------------------------------------------------------------
+   Responsive
+   --------------------------------------------------------------- */
+@media (max-width: 1099px) {
+  .nab-hero {
+    padding: calc(var(--nh-header-h) + 56px) 0 72px;
+  }
+}
+
+@media (max-width: 639px) {
+  .nab-hero {
+    padding-bottom: 56px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nab-hero-media img {
+    transition: none;
+    transform: none;
+  }
+}
+
+/* ---------------------------------------------------------------
+   Intro + ছবি — Figma "Frame 2147237492" (1280 x 1430, দুই block এর ফাঁক 62)
+   --------------------------------------------------------------- */
+.nab-intro {
+  background: #ffffff;
+  color: #000000;
+  padding: clamp(48px, 6.95vw, 100px) 0 clamp(48px, 6.95vw, 100px);
+}
+
+.nab-intro-inner {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(40px, 4.31vw, 62px);
+}
+
+/* উপরের সারি: বাঁয়ে ট্যাগ, ডানে লেখা (Figma: gap 180, ডানের অংশ 959) */
+.nab-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: clamp(24px, 12.5vw, 180px);
+}
+
+/* "1 · About Us" — Figma "Frame 2147227679" */
+.nab-tag {
+  flex: none;
+  display: flex;
+  align-items: center;
+  margin: 0;
+}
+
+.nab-tag-index {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 90px;
+  background: var(--nh-yellow);
+  font-size: 16px;
+  line-height: 1.2;
+  color: #000000;
+}
+
+.nab-tag-label {
+  display: inline-flex;
+  align-items: center;
+  height: 40px;
+  padding: 0 16px;
+  border: 1px solid var(--nh-yellow);
+  border-radius: 30px;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 1.2;
+  white-space: nowrap;
+  color: #121212;
+}
+
+.nab-top-body {
+  flex: 1 1 0;
+  max-width: 959px;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(40px, 5.07vw, 73px);
+}
+
+/* Figma: 26px / 140% */
+.nab-lead {
+  margin: 0;
+  font-size: clamp(20px, 1.81vw, 26px);
+  line-height: 1.4;
+}
+
+/* Figma: তিনটা সংখ্যা, দুই পাশে ছড়ানো; শেষটা ডানে মেলানো */
+.nab-stats {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 32px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nab-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.nab-stat:last-child {
+  align-items: flex-end;
+  text-align: right;
+}
+
+.nab-stat-value {
+  display: block;
+  font-weight: 600;
+  font-size: clamp(36px, 4.03vw, 58px);
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.nab-stat-label {
+  display: block;
+  font-size: clamp(15px, 1.25vw, 18px);
+  line-height: 1.6;
+  color: rgba(0, 0, 0, 0.7);
+}
+
+/* ---------- ছবির জায়গা (Figma: ফাঁক 30, উচ্চতা 523) ---------- */
+.nab-gallery {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.nab-pair {
+  display: grid;
+  grid-template-columns: 604fr 646fr;
+  gap: 30px;
+}
+
+.nab-founder,
+.nab-diagram,
+.nab-team {
+  position: relative;
+  height: clamp(380px, 36.32vw, 523px);
+  margin: 0;
+  border-radius: 30px;
+  overflow: hidden;
+}
+
+.nab-founder {
+  background: #000000;
+}
+
+.nab-founder > img,
+.nab-team > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.nab-founder > img {
+  object-position: 50% 20%;
+}
+
+/* Figma: নিচে 117px, #000 → স্বচ্ছ */
+.nab-founder-shade {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 117px;
+  background: linear-gradient(0deg, #000000 0%, rgba(0, 0, 0, 0) 100%);
+  pointer-events: none;
+}
+
+/* সাদা উদ্ধৃতির card — Figma: ডানে-বাঁয়ে 19px, নিচে 20px */
+.nab-quote {
+  position: absolute;
+  left: 19px;
+  right: 20px;
+  bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 16.44px;
+  border-radius: 16px;
+  background: #ffffff;
+}
+
+.nab-quote blockquote {
+  margin: 0;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 1.3;
+  color: #000000;
+}
+
+.nab-person {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nab-person img {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: 50% 18%;
+}
+
+.nab-person-name {
+  margin: 0 0 6px;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.nab-person-role {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1;
+  color: rgba(0, 0, 0, 0.7);
+}
+
+/* product এর নকশা — Figma: #F6F6F6, ভেতরে 468 x 441 */
+.nab-diagram {
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: #f6f6f6;
+}
+
+.nab-diagram img {
+  width: min(468px, 100%);
+  max-height: 100%;
+  object-fit: contain;
+}
+
+/* দলের ছবি — উপরের অংশ বেশি দেখা যায় (Figma: top -121 / (960 − 523) ≈ 28%) */
+.nab-team {
+  background: #ffffff;
+}
+
+.nab-team > img {
+  object-position: 50% 28%;
+}
+
+/* ছবির বাঁয়ে-নিচে দুটো সাদা card (Figma: বাঁ থেকে 41px, 288 চওড়া, ফাঁক 16) */
+.nab-team-cards {
+  position: absolute;
+  left: clamp(16px, 3.2vw, 41px);
+  bottom: clamp(16px, 1.8vw, 24px);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: min(288px, calc(100% - 32px));
+}
+
+.nab-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16.44px;
+  border-radius: 16px;
+  background: #ffffff;
+}
+
+.nab-card p {
+  margin: 0;
+}
+
+.nab-card-title {
+  font-size: 16px;
+  line-height: 1.6;
+  color: #000000;
+}
+
+.nab-card-value {
+  font-weight: 600;
+  font-size: 32px;
+  line-height: 1.2;
+  color: #000000;
+}
+
+.nab-card-text {
+  font-size: 14px;
+  line-height: 1.6;
+  color: rgba(0, 0, 0, 0.7);
+}
+
+@media (max-width: 1099px) {
+  .nab-top {
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .nab-top-body {
+    max-width: none;
+    width: 100%;
+  }
+
+  .nab-pair {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .nab-founder,
+  .nab-diagram {
+    height: clamp(380px, 72vw, 523px);
+  }
+
+  .nab-team {
+    height: clamp(420px, 60vw, 523px);
+  }
+}
+
+@media (max-width: 639px) {
+  .nab-stats {
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .nab-stat:last-child {
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .nab-gallery,
+  .nab-pair {
+    gap: 20px;
+  }
+
+  .nab-founder,
+  .nab-diagram {
+    border-radius: 24px;
+  }
+
+  .nab-team {
+    height: 560px;
+    border-radius: 24px;
+  }
+
+  .nab-team > img {
+    object-position: 62% 20%;
+  }
+}
+
+/* ---------------------------------------------------------------
+   header — এই পাতার menu (About Us) Figma তে হলুদ, bold আর underline
+   --------------------------------------------------------------- */
+.nab-root .nh-nav-link[aria-current="page"] {
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}

@@ -1,0 +1,328 @@
+/* ===============================================================
+   Navbar এর Products mega menu (ProductsMegaMenu.jsx) — সব class "mm"
+
+   Figma:
+     panel    1408 চওড়া, সাদা, নিচের radius 40, padding 64px 84px
+     overlay  rgba(55,58,60,.9), নিচের radius 40, header এর নিচ থেকে শুরু
+     product  কলাম 169, ফাঁক 48 x 32; ছবি 128 x 102.4;
+              নাম Inter 600 16/19; "Get Quote" হলুদ pill #F7BE00
+     ডান মেনু  165.67 চওড়া, 1px divider (#EBEBEC), group এর ফাঁক 32
+
+   ⚠️ এই সব menu ".navbar-links" এর ভেতরে বসে, আর Navbar.css এর
+   ".navbar-links a" সব <a> কে নিজের style দেয় — তাই এখানে link এর
+   selector গুলো "a.class" আকারে (specificity বেশি) যাতে জিতে যায়
+   =============================================================== */
+
+.mm {
+  position: relative;
+  display: flex;
+  align-items: center;
+  /* header এর পুরো উচ্চতা জুড়ে — "Products" থেকে নিচের বাক্স পর্যন্ত
+     মাউসের পথে কোনো ফাঁক থাকে না, তাই মাঝপথে বন্ধ হয় না */
+  height: var(--header-h);
+}
+
+/* ---------- "Products" ---------- */
+.mm .mm-trigger {
+  transition: color 0.2s ease;
+}
+
+.mm.is-open .mm-trigger {
+  color: #0b121a;
+}
+
+/* ---------- পেছনের কালো blur (Figma: Overlay Shape) ---------- */
+.mm-overlay {
+  position: fixed;
+  top: var(--header-h);
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1;
+  width: auto;
+  max-width: 1408px;
+  margin-inline: auto; /* 1408 র বেশি চওড়া পর্দায় মাঝখানে */
+  border-radius: 0 0 40px 40px;
+  background: rgba(55, 58, 60, 0.9);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity 0.25s ease,
+    visibility 0s linear 0.25s;
+}
+
+.mm.is-open .mm-overlay {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition-delay: 0s;
+}
+
+/* ---------- সাদা বাক্স (Figma: Frame 51) ---------- */
+.mm-panel {
+  position: fixed;
+  top: var(--header-h);
+  left: 0;
+  right: 0;
+  z-index: 2; /* overlay এর উপরে */
+  max-width: 1408px;
+  max-height: calc(100dvh - var(--header-h));
+  margin-inline: auto;
+  overflow-y: auto;
+  padding: 64px clamp(32px, 5.97vw, 84px);
+  box-sizing: border-box;
+  border-radius: 0 0 40px 40px;
+  background: #ffffff;
+  opacity: 0;
+  visibility: hidden;
+  transform: translate3d(0, -8px, 0);
+  transition:
+    opacity 0.25s ease,
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    visibility 0s linear 0.35s;
+}
+
+.mm.is-open .mm-panel {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition-delay: 0s;
+}
+
+.mm-inner {
+  display: grid;
+  grid-template-columns: minmax(0, 820px) 1px minmax(150px, 166px);
+  justify-content: center;
+  column-gap: clamp(32px, 4.6vw, 64px);
+  align-items: stretch;
+  font-family: "Inter", var(--font-sans), sans-serif;
+}
+
+/* ---------- বাঁ: product grid ---------- */
+.mm-products {
+  min-width: 0;
+}
+
+.mm-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 32px clamp(16px, 3.4vw, 48px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mm-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.mm-panel a.mm-card-link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  font-family: inherit;
+  white-space: normal;
+  text-decoration: none;
+  color: inherit;
+}
+
+.mm-card-media {
+  position: relative;
+  display: block;
+  width: min(128px, 100%);
+  aspect-ratio: 128 / 102.4;
+}
+
+.mm-card-media .product-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: transform 0.35s ease;
+}
+
+.mm-card-link:hover .product-image,
+.mm-card-link:focus-visible .product-image {
+  transform: scale(1.05);
+}
+
+.mm-card-media .product-image--art svg {
+  width: 56%;
+  max-width: 72px;
+  height: auto;
+}
+
+.mm-card-name {
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 19px;
+  text-align: center;
+  color: rgba(55, 58, 60, 0.75);
+  text-wrap: balance;
+  transition: color 0.2s ease;
+}
+
+.mm-card-link:hover .mm-card-name,
+.mm-card-link:focus-visible .mm-card-name {
+  color: #373a3c;
+}
+
+/* "Get Quote" pill — Figma 65 x 20, #F7BE00 */
+.mm-panel a.mm-quote {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 8px;
+  border-radius: 20px;
+  background: #f7be00;
+  font-family: inherit;
+  font-weight: 400;
+  font-size: 10px;
+  line-height: 12px;
+  white-space: nowrap;
+  text-decoration: none;
+  color: rgba(55, 58, 60, 0.75);
+  transition: filter 0.2s ease;
+}
+
+.mm-panel a.mm-quote:hover,
+.mm-panel a.mm-quote:focus-visible {
+  filter: brightness(0.95);
+}
+
+/* ---------- loading / error ---------- */
+.mm-skeleton {
+  height: 167px;
+  border-radius: 16px;
+  background: linear-gradient(100deg, #f3f3f3 30%, #fafafa 50%, #f3f3f3 70%) 0 0 / 200% 100%;
+  animation: mm-shimmer 1.4s linear infinite;
+}
+
+@keyframes mm-shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+.mm-note {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  height: 100%;
+  min-height: 200px;
+  border-radius: 16px;
+  background: #f6f6f7;
+  text-align: center;
+}
+
+.mm-note p {
+  margin: 0;
+  font-size: 14px;
+  color: rgba(55, 58, 60, 0.75);
+}
+
+.mm-note button {
+  height: 40px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 10px;
+  background: #f7be00;
+  font-family: inherit;
+  font-weight: 500;
+  font-size: 14px;
+  color: #373a3c;
+  cursor: pointer;
+}
+
+/* ---------- মাঝের দাগ (Figma: Rectangle 9) ---------- */
+.mm-divider {
+  display: block;
+  width: 1px;
+  background: #ebebec;
+}
+
+/* ---------- ডান: category মেনু ---------- */
+.mm-aside {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  min-width: 0;
+}
+
+.mm-group {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.mm-group-title {
+  margin: 0;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 17px;
+  letter-spacing: 0.01em;
+  color: rgba(55, 58, 60, 0.5);
+}
+
+.mm-group:first-child .mm-group-title {
+  color: rgba(55, 58, 60, 0.65);
+}
+
+.mm-links {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mm-panel a.mm-link {
+  display: block;
+  font-family: inherit;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 17px;
+  white-space: normal;
+  text-decoration: none;
+  color: #373a3c;
+  transition: color 0.2s ease;
+}
+
+.mm-panel a.mm-link:hover,
+.mm-panel a.mm-link:focus-visible {
+  color: #000000;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ছোট পর্দায় burger মেনু আছে — mega menu লাগে না */
+@media (max-width: 1099px) {
+  .mm {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mm-overlay,
+  .mm-panel,
+  .mm-card-media .product-image {
+    transition: none;
+  }
+
+  .mm-skeleton {
+    animation: none;
+  }
+}

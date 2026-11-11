@@ -20,11 +20,12 @@ import NhProductsMenu from "./NhProductsMenu";
    =============================================================== */
 
 const NAV_LINKS = [
-  // { key: "nav.products", to: "/products" },
-  // { key: "nav.projects", to: "/projects" },
+  { key: "nav.home", to: "/home" },
+  { key: "nav.products", to: "/products" },
+  { key: "nav.projects", to: "/projects" },
   { key: "nav.application", to: "/application" },
-  { key: "nav.company", to: "/company" },
   { key: "nav.shop", to: "/shop" },
+  { key: "nav.aboutUs", to: "/about-us" },
 ];
 
 // HomeTwo.css এর breakpoint এর সাথে মিলতে হবে
@@ -32,16 +33,40 @@ const DESKTOP = "(min-width: 1100px)";
 
 /* props (সবই ঐচ্ছিক — না দিলে /home আগের মতোই):
      productsTo — "Products" link কোথায় যাবে (/home এ → /home/products)
+     projectsTo — "Projects" link কোথায় যাবে. না দিলে productsTo "/home" দিয়ে
+                  শুরু হলে /home/projects, নাহলে /projects
+     shopTo     — "Shop" link কোথায় যাবে. না দিলে productsTo "/home" দিয়ে
+                  শুরু হলে /home/shop, নাহলে /shop
+     applicationTo — "Application" link কোথায় যাবে. না দিলে productsTo "/home" দিয়ে
+                  শুরু হলে /home/application, নাহলে /application
+     aboutTo    — "About Us" link কোথায় যাবে. না দিলে productsTo "/home" দিয়ে
+                  শুরু হলে /home/about-us, নাহলে /about-us
      contactTo  — Contact বোতাম অন্য পাতার section এ নিলে (যেমন "/home#contact");
                   না দিলে এই পাতার নিজের #contact
      current    — যে menu টা এই পাতা (nav.products …) — হলুদ হয়ে থাকে */
-function NhHeader({ sentinelRef, productsTo = "/products", contactTo, current }) {
+function NhHeader({
+  sentinelRef,
+  productsTo = "/products",
+  projectsTo = productsTo.startsWith("/home") ? "/home/projects" : "/projects",
+  shopTo = productsTo.startsWith("/home") ? "/home/shop" : "/shop",
+  applicationTo = productsTo.startsWith("/home") ? "/home/application" : "/application",
+  aboutTo = productsTo.startsWith("/home") ? "/home/about-us" : "/about-us",
+  contactTo,
+  current,
+}) {
   const { t } = useTranslation();
   const localeLink = useLocaleLink();
 
-  const links = NAV_LINKS.map((link) =>
-    link.key === "nav.products" ? { ...link, to: productsTo } : link,
-  );
+  const links = NAV_LINKS.map((link) => {
+    // /home এর বাইরের পাতায় (productsTo "/home" দিয়ে শুরু না হলে) মূল Home এ
+    if (link.key === "nav.home") return { ...link, to: productsTo.startsWith("/home") ? "/home" : "/" };
+    if (link.key === "nav.products") return { ...link, to: productsTo };
+    if (link.key === "nav.projects") return { ...link, to: projectsTo };
+    if (link.key === "nav.shop") return { ...link, to: shopTo };
+    if (link.key === "nav.application") return { ...link, to: applicationTo };
+    if (link.key === "nav.aboutUs") return { ...link, to: aboutTo };
+    return link;
+  });
 
   const renderContact = (onClick) =>
     contactTo ? (
@@ -133,7 +158,7 @@ function NhHeader({ sentinelRef, productsTo = "/products", contactTo, current })
               <Link
                 key={link.key}
                 to={localeLink(link.to)}
-                className="nh-nav-link"
+                className={`nh-nav-link${link.key === "nav.home" ? " nh-nav-link--home" : ""}`}
                 aria-current={current === link.key ? "page" : undefined}
               >
                 {t(link.key)}

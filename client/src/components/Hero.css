@@ -1027,3 +1027,20 @@
     transition: none;
   }
 }
+
+/* product থেকে আসা card — লম্বা নাম/বিবরণ card এর বাইরে উপচে পড়ে না:
+   শিরোনামের প্রতি লাইন এক লাইনে (… দিয়ে কাটা), বিবরণ সর্বোচ্চ দুই লাইন */
+.hero-card-title > span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hero-card-text {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}

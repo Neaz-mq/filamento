@@ -1,0 +1,1140 @@
+/* ===============================================================
+   Shop (দ্বিতীয় নকশা) — /home/shop
+
+   HomeTwo.css এর উপর বসে (header, footer, .nh-wrap, রঙ, font সব
+   ওখান থেকেই) — তাই এই ফাইলে শুধু এই পাতার নিজের অংশ. সব class
+   "nsh-" দিয়ে শুরু, অন্য কোনো পাতার class এর সাথে মেলে না.
+
+   মাপ Figma র 1440 frame থেকে: content 1280, দুই পাশে 80px.
+   =============================================================== */
+
+/* ---------------------------------------------------------------
+   Hero — Figma "Desktop 1" (1440 x 516)
+   --------------------------------------------------------------- */
+.nsh-hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: #000000;
+  color: #ffffff;
+  /* header (30 + 46) + Figma র 80px ফাঁক */
+  padding: 156px 0 100px;
+}
+
+.nsh-hero-media {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+}
+
+/* Figma: ছবি 1440 x 961, উপরে -153px — মানে ছবির উপরের দিকটা বেশি
+   দেখা যায় (তাক আর বাতি). 153 / (961 − 516) ≈ 34% */
+.nsh-hero-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 34%;
+  transform: scale(1.08);
+  opacity: 0;
+  transition:
+    opacity 1s ease,
+    transform 2.4s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.nsh-hero-media[data-loaded] img {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.nsh-hero-shade {
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* Figma: উপরে 352px, #000 9.8% → স্বচ্ছ */
+.nsh-hero-shade--top {
+  top: 0;
+  height: 352px;
+  background: linear-gradient(180deg, #000000 9.8%, rgba(0, 0, 0, 0) 100%);
+}
+
+/* Figma: নিচে 118px, #000 20.26% → স্বচ্ছ (উল্টো দিকে) */
+.nsh-hero-shade--bottom {
+  bottom: 0;
+  height: 118px;
+  background: linear-gradient(0deg, #000000 20.26%, rgba(0, 0, 0, 0) 100%);
+}
+
+.nsh-hero-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+/* Home > Shop — Figma "Frame 106" */
+.nsh-crumb {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 16px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.nsh-crumb a {
+  color: rgba(255, 255, 255, 0.5);
+  transition: color 0.2s ease;
+}
+
+.nsh-crumb a:hover {
+  color: #ffffff;
+}
+
+.nsh-crumb svg {
+  flex: none;
+}
+
+.nsh-crumb [aria-current="page"] {
+  color: var(--nh-yellow);
+}
+
+/* Figma: 60px / 110%, Manrope 600, 762px চওড়া */
+.nsh-hero-title {
+  max-width: 762px;
+  margin: 0;
+  font-weight: 600;
+  font-size: clamp(34px, 4.17vw, 60px);
+  line-height: 1.1;
+  color: #ffffff;
+}
+
+/* Figma: 20px / 160%, 808px চওড়া. 12px + 12px = Figma র 24px ফাঁক */
+.nsh-hero-text {
+  max-width: 808px;
+  margin: 12px 0 0;
+  font-size: clamp(16px, 1.39vw, 20px);
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* ---------------------------------------------------------------
+   Directory + Results — সাদা অংশ (Figma: content 1280, দুই block এর মাঝে ফাঁক 60)
+   --------------------------------------------------------------- */
+.nsh-main {
+  background: #ffffff;
+  padding: clamp(48px, 6.95vw, 100px) 0 clamp(40px, 4.17vw, 60px);
+}
+
+.nsh-inner {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(40px, 4.17vw, 60px);
+}
+
+.nsh-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Figma: 30px / 110%, 600 */
+.nsh-title {
+  margin: 0;
+  font-weight: 600;
+  font-size: clamp(24px, 2.08vw, 30px);
+  line-height: 1.1;
+  color: #000000;
+  overflow-wrap: anywhere;
+}
+
+.nsh-finder {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.nsh-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px 62px;
+}
+
+/* Figma "Fill": ধূসর, radius 12, 43px, হলুদ ফোঁটা + লেখা */
+.nsh-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 43px;
+  margin: 0;
+  padding: 0 12px;
+  border-radius: 12px;
+  background: var(--nh-gray);
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #000000;
+  white-space: nowrap;
+}
+
+.nsh-pill--white {
+  background: #ffffff;
+}
+
+.nsh-dot {
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--nh-yellow);
+}
+
+.nsh-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ---------- Search Bar (ধূসর, radius 16, padding 12) ---------- */
+.nsh-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 16px;
+  background: var(--nh-gray);
+}
+
+.nsh-search {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 13px;
+  min-width: 0;
+  height: 46px;
+  padding: 0 10px 0 16px;
+  border-radius: 23px;
+  color: #4a4a4a;
+  transition: box-shadow 0.2s ease;
+}
+
+.nsh-search:focus-within {
+  box-shadow: 0 0 0 2px var(--nh-yellow);
+}
+
+.nsh-search > svg {
+  flex: none;
+}
+
+.nsh-search input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: 0;
+  background: none;
+  font-family: inherit;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.6;
+  color: #000000;
+  outline: none;
+}
+
+.nsh-search input::placeholder {
+  color: rgba(0, 0, 0, 0.7);
+}
+
+/* ব্রাউজারের নিজের ✕ আর লাগে না — নিজের বোতাম আছে */
+.nsh-search input::-webkit-search-cancel-button {
+  display: none;
+}
+
+.nsh-search-clear {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: rgba(0, 0, 0, 0.55);
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.nsh-search-clear:hover {
+  color: #000000;
+}
+
+/* "Selected location" — সাদা, 242 x 43, radius 12 */
+.nsh-selector {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 242px;
+  height: 43px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 12px;
+  background: #ffffff;
+  font-family: inherit;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #000000;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.nsh-selector:hover {
+  background: #fafafa;
+}
+
+.nsh-selector-value {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nsh-selector svg,
+.nsh-fill svg:last-child {
+  flex: none;
+  transition: transform 0.3s var(--nh-ease);
+}
+
+.nsh-selector.is-open svg {
+  transform: rotate(180deg);
+}
+
+.nsh-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.nsh-panel[hidden] {
+  display: none;
+}
+
+/* ---------- Region tabs ---------- */
+.nsh-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.nsh-tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 43px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--nh-gray);
+  font-family: inherit;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 1;
+  color: #000000;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.nsh-tab:hover:not(.is-active) {
+  background: #ececec;
+}
+
+.nsh-tab.is-active {
+  background: var(--nh-yellow);
+  font-weight: 600;
+}
+
+/* ---------- Location options (ধূসর, radius 20, padding 20 24 24) ---------- */
+.nsh-options {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  padding: 20px 24px 24px;
+  border-radius: 20px;
+  background: var(--nh-gray);
+}
+
+.nsh-options-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px 62px;
+}
+
+.nsh-options-title {
+  margin: 0;
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 1.1;
+  color: #000000;
+}
+
+.nsh-territories {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nsh-territory {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 41px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 12px;
+  background: #ffffff;
+  font-family: inherit;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 1;
+  color: #000000;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.nsh-territory:hover:not(.is-selected) {
+  background: #fff4cc;
+}
+
+.nsh-territory.is-selected {
+  background: var(--nh-yellow);
+  font-weight: 600;
+}
+
+/* খোঁজার সময় যে territory তে মিল নেই */
+.nsh-territory.is-dimmed:not(.is-selected) {
+  opacity: 0.45;
+}
+
+.nsh-options-empty {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--nh-muted);
+}
+
+.nsh-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 72px 20px;
+  border-radius: 20px;
+  background: var(--nh-gray);
+  font-weight: 500;
+  font-size: 16px;
+  color: var(--nh-muted);
+}
+
+.nsh-loading-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--nh-yellow);
+  animation: nsh-pulse 1s ease-in-out infinite;
+}
+
+@keyframes nsh-pulse {
+  50% {
+    transform: scale(1.5);
+    opacity: 0.5;
+  }
+}
+
+/* ---------- Representatives for … ---------- */
+.nsh-results {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  scroll-margin-top: calc(var(--nh-header-h) + 16px);
+}
+
+.nsh-results-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px 62px;
+}
+
+.nsh-tools {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.nsh-sort {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nsh-sort-caption {
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #000000;
+  white-space: nowrap;
+}
+
+.nsh-menu-wrap {
+  position: relative;
+}
+
+/* Figma "Fill" — Sort বোতাম আর Filters বোতাম */
+.nsh-fill {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 43px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--nh-gray);
+  font-family: inherit;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #000000;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.nsh-fill:hover {
+  background: #ececec;
+}
+
+.nsh-fill.is-open svg:last-child {
+  transform: rotate(180deg);
+}
+
+/* Filters এ কিছু বাছা থাকলে ছোট হলুদ ফোঁটা */
+.nsh-fill-mark {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--nh-yellow);
+}
+
+.nsh-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 230px;
+  margin: 0;
+  padding: 8px;
+  list-style: none;
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.06),
+    0 16px 40px -8px rgba(0, 0, 0, 0.18);
+}
+
+.nsh-menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 10px;
+  background: none;
+  font-family: inherit;
+  font-weight: 500;
+  font-size: 14px;
+  color: #000000;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.nsh-menu-item:hover {
+  background: var(--nh-gray);
+}
+
+.nsh-menu-item.is-active {
+  background: #fff4cc;
+}
+
+.nsh-cards {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+/* Representative card — Figma 308 x 333: ধূসর, radius 20, padding 20, gap 24 */
+.nsh-card {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-width: 0;
+  padding: 20px;
+  border-radius: 20px;
+  background: var(--nh-gray);
+}
+
+.nsh-card-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.nsh-card-head {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* badge না থাকলেও 24px জায়গা থাকে — সব card এর নাম একই লাইনে */
+.nsh-card-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 24px;
+}
+
+.nsh-card-location {
+  font-weight: 500;
+  font-size: 10px;
+  line-height: 14px;
+  text-transform: uppercase;
+  color: #000000;
+}
+
+.nsh-card-badge {
+  flex: none;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: var(--nh-yellow);
+  font-weight: 500;
+  font-size: 10px;
+  line-height: 14px;
+  text-transform: uppercase;
+  color: #000000;
+}
+
+.nsh-card-names {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.nsh-card-company {
+  margin: 0;
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 1.2;
+  color: #000000;
+  overflow-wrap: anywhere;
+}
+
+.nsh-card-person {
+  margin: 0;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 22px;
+  color: rgba(0, 0, 0, 0.7);
+  overflow-wrap: anywhere;
+}
+
+.nsh-card-divider {
+  display: block;
+  height: 1px;
+  background: #ebebeb;
+}
+
+.nsh-card-details {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nsh-card-details li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 1.45;
+  color: rgba(0, 0, 0, 0.7);
+}
+
+/* আইকন প্রথম লাইনের মাঝখানে (20px লাইন, 16px আইকন) */
+.nsh-card-details svg {
+  flex: none;
+  margin-top: 2px;
+}
+
+.nsh-card-details a {
+  min-width: 0;
+  color: inherit;
+  overflow-wrap: anywhere;
+  transition: color 0.2s ease;
+}
+
+.nsh-card-details a:hover {
+  color: #000000;
+  text-decoration: underline;
+}
+
+.nsh-card-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* Figma "Action": 43px, radius 100, সাদা — বাছা card এর Email হলুদ */
+.nsh-card-action {
+  display: inline-flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 43px;
+  padding: 0 16px;
+  border-radius: 100px;
+  background: #ffffff;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 22px;
+  color: #000000;
+  transition: background-color 0.2s ease;
+}
+
+.nsh-card-action:hover {
+  background: #fff4cc;
+}
+
+.nsh-card-action.is-primary {
+  background: var(--nh-yellow);
+}
+
+.nsh-card-action.is-primary:hover {
+  background: #ffd24d;
+}
+
+.nsh-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 56px 20px;
+  border-radius: 20px;
+  background: var(--nh-gray);
+  text-align: center;
+}
+
+.nsh-empty p {
+  max-width: 560px;
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--nh-muted);
+}
+
+.nsh-empty-action {
+  height: 46px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--nh-yellow);
+  font-family: inherit;
+  font-weight: 500;
+  font-size: 16px;
+  color: #000000;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.nsh-empty-action:hover {
+  background: #ffd24d;
+}
+
+.nsh-selector:focus-visible,
+.nsh-tab:focus-visible,
+.nsh-territory:focus-visible,
+.nsh-fill:focus-visible,
+.nsh-menu-item:focus-visible,
+.nsh-card-action:focus-visible,
+.nsh-card-details a:focus-visible,
+.nsh-search-clear:focus-visible,
+.nsh-empty-action:focus-visible {
+  outline: 2px solid var(--nh-yellow);
+  outline-offset: 2px;
+}
+
+/* ---------------------------------------------------------------
+   Direct contact — Figma "Frame 2147228032" (1280 x 345, radius 30)
+   --------------------------------------------------------------- */
+.nsh-contact {
+  background: #ffffff;
+  padding: 0 0 clamp(40px, 4.17vw, 60px);
+}
+
+.nsh-contact-card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: 30px;
+  background: #000000;
+  color: #ffffff;
+}
+
+/* Figma: ছবি 1280 x 842, কার্ডের মাঝ থেকে 138px নিচে — মানে ছবির নিচের
+   দিকটা দেখা যায় (বাতি আর দেয়াল). 110 / (842 − 345) ≈ 22% */
+.nsh-contact-media {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 22%;
+}
+
+/* Figma: বাঁ থেকে ডানে কালো → স্বচ্ছ (827px, #000 9.8%) */
+.nsh-contact-shade {
+  position: absolute;
+  inset: 0 auto 0 0;
+  z-index: -1;
+  width: 65%;
+  background: linear-gradient(90deg, #000000 9.8%, rgba(0, 0, 0, 0) 100%);
+  pointer-events: none;
+}
+
+.nsh-contact-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 40px 123px;
+  min-height: 345px;
+  padding: 51px;
+}
+
+.nsh-contact-copy {
+  display: flex;
+  flex: 0 1 588px;
+  flex-direction: column;
+  gap: 36px;
+  min-width: 0;
+}
+
+.nsh-contact-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+/* "Direct contact" — হলুদ ধারের pill */
+.nsh-contact-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  padding: 0 16px;
+  border: 1px solid var(--nh-yellow);
+  border-radius: 30px;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 1.2;
+  color: #ffffff;
+}
+
+/* Figma: 40px / 100%, 700 */
+.nsh-contact-title {
+  margin: 0;
+  font-weight: 700;
+  font-size: clamp(28px, 2.78vw, 40px);
+  line-height: 1;
+  color: #ffffff;
+}
+
+.nsh-contact-desc {
+  max-width: 471px;
+  margin: 0;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.nsh-contact-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.nsh-contact-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 43px;
+  padding: 0 16px;
+  border-radius: 100px;
+  background: #ffffff;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 22px;
+  color: #000000;
+  white-space: nowrap;
+  transition: background-color 0.2s ease;
+}
+
+.nsh-contact-action:hover {
+  background: #fff4cc;
+}
+
+.nsh-contact-action.is-primary {
+  background: #f7be00;
+}
+
+.nsh-contact-action.is-primary:hover {
+  background: #ffd24d;
+}
+
+/* সাদা card — 468 x 206, radius 20, padding 16, gap 20 */
+.nsh-contact-details {
+  display: flex;
+  flex: 0 1 468px;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+  margin: 0;
+  padding: 16px;
+  list-style: none;
+  border-radius: 20px;
+  background: #ffffff;
+  color: #000000;
+}
+
+.nsh-contact-details li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+/* Figma "Detail icon": 34px, হলুদ, radius 8, সাদা আইকন */
+.nsh-contact-icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: var(--nh-yellow);
+  color: #ffffff;
+}
+
+.nsh-contact-detail {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.nsh-contact-label {
+  font-weight: 600;
+  font-size: 10px;
+  line-height: 14px;
+  color: #000000;
+}
+
+.nsh-contact-value {
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 1.4;
+  color: rgba(0, 0, 0, 0.7);
+  overflow-wrap: anywhere;
+  transition: color 0.2s ease;
+}
+
+.nsh-contact-value:hover {
+  color: #000000;
+  text-decoration: underline;
+}
+
+.nsh-contact-action:focus-visible,
+.nsh-contact-value:focus-visible {
+  outline: 2px solid var(--nh-yellow);
+  outline-offset: 2px;
+}
+
+/* ---------------------------------------------------------------
+   header — এই পাতার menu (Shop) Figma তে হলুদ, bold আর underline
+   --------------------------------------------------------------- */
+.nsh-root .nh-nav-link[aria-current="page"] {
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ---------------------------------------------------------------
+   Responsive
+   --------------------------------------------------------------- */
+@media (max-width: 1099px) {
+  .nsh-hero {
+    padding: calc(var(--nh-header-h) + 56px) 0 72px;
+  }
+
+  .nsh-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* সরু পর্দায় লেখা উপরে, সাদা card নিচে; ছবির উপর পুরো কালো পর্দা */
+  .nsh-contact-inner {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 32px;
+    padding: 32px;
+  }
+
+  .nsh-contact-copy,
+  .nsh-contact-details {
+    flex: none;
+  }
+
+  .nsh-contact-shade {
+    width: 100%;
+    background: linear-gradient(90deg, rgba(0, 0, 0, 0.85) 30%, rgba(0, 0, 0, 0.35) 100%);
+  }
+}
+
+@media (max-width: 639px) {
+  .nsh-hero {
+    padding-bottom: 56px;
+  }
+
+  .nsh-cards {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* search উপরে পুরো চওড়া, নিচে territory বোতাম */
+  .nsh-bar {
+    flex-wrap: wrap;
+    padding: 10px;
+  }
+
+  .nsh-search {
+    flex: 1 1 100%;
+    padding-left: 12px;
+  }
+
+  .nsh-selector {
+    flex: 1 1 100%;
+    width: auto;
+  }
+
+  .nsh-tabs {
+    gap: 8px;
+  }
+
+  .nsh-tab {
+    font-size: 14px;
+    padding: 0 14px;
+  }
+
+  .nsh-options {
+    gap: 20px;
+    padding: 16px;
+  }
+
+  .nsh-options-title {
+    font-size: 18px;
+  }
+
+  .nsh-territories {
+    gap: 8px;
+  }
+
+  .nsh-results-head {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .nsh-tools {
+    width: 100%;
+  }
+
+  .nsh-contact-card {
+    border-radius: 20px;
+  }
+
+  .nsh-contact-inner {
+    padding: 20px;
+  }
+
+  .nsh-contact-action {
+    flex: 1 1 auto;
+  }
+
+  .nsh-menu {
+    right: auto;
+    left: 0;
+    min-width: min(260px, calc(100vw - 2 * var(--nh-gutter)));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nsh-hero-media img {
+    transition: none;
+    transform: none;
+  }
+
+  .nsh-loading-dot {
+    animation: none;
+  }
+}

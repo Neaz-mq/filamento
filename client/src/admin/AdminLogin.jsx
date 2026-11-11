@@ -1,7 +1,18 @@
 import { useEffect, useRef, useState } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
-import filamentoLogo from "../assets/logo/filamento.png";
+import "@fontsource-variable/manrope";
 import { AdminLoading, useAdminAuth, useDocumentTitle } from "./AdminAuth";
+import "./AdminLogin.css";
+
+const CLOUD = "https://res.cloudinary.com/dzi3u164c/image/upload/";
+const HERO_IMAGE = `${CLOUD}c_limit,w_1400,f_auto,q_auto/v1794387399/H__4244-Edit-3-scaled_2_z2qzas.webp`;
+const LOGO = `${CLOUD}f_auto,q_auto/v1794387657/b355c68fb03d8618eec4ef427c5b14e1cf9a2a9e_w1fcix.png`;
+
+const STATS = [
+  { value: "60%+", label: "Potential Energy Savings" },
+  { value: "5 Years", label: "Product Warranty" },
+  { value: "100%", label: "Made in USA" },
+];
 
 /* ===============================================================
    /admin/login
@@ -130,92 +141,126 @@ function AdminLogin() {
   };
 
   return (
-    <main className="admin-auth">
-      <div className="admin-auth-card">
-        <img
-          className="admin-auth-logo"
-          src={filamentoLogo}
-          alt="Filamento"
-          width="175"
-          height="32"
-        />
+    <main className="al-page">
+      <div className="al-shell">
+        {/* ---------- বাঁয়ে: ছবি, শিরোনাম, তিন stat ---------- */}
+        <section className="al-hero" aria-label="Filamento">
+          <img className="al-hero-img" src={HERO_IMAGE} alt="" decoding="async" />
+          <img
+            className="al-hero-logo"
+            src={LOGO}
+            alt="Filamento"
+            width="170"
+            height="30"
+          />
 
-        <h1 className="admin-auth-title">Sign in</h1>
-        <p className="admin-auth-text">
-          Admin access to the Filamento website.
-        </p>
-
-        {/* noValidate — ব্রাউজারের নিজের bubble এর বদলে আমাদের বার্তা */}
-        <form className="admin-auth-form" onSubmit={handleSubmit} noValidate>
-          <div className="admin-field">
-            <label className="admin-label" htmlFor="admin-email">
-              Email
-            </label>
-            <input
-              id="admin-email"
-              ref={emailRef}
-              className="admin-input"
-              type="email"
-              name="email"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              placeholder="you@filamento.com"
-              autoComplete="username"
-              autoCapitalize="none"
-              spellCheck="false"
-              maxLength={200}
-              disabled={sending}
-            />
-          </div>
-
-          <div className="admin-field">
-            <label className="admin-label" htmlFor="admin-password">
-              Password
-            </label>
-            <div className="admin-input-wrap">
-              <input
-                id="admin-password"
-                className="admin-input has-button"
-                type={showPassword ? "text" : "password"}
-                name="password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                autoComplete="current-password"
-                maxLength={200}
-                disabled={sending}
-              />
-              <button
-                type="button"
-                className="admin-reveal"
-                onClick={() => setShowPassword((value) => !value)}
-                aria-label={showPassword ? "Hide password" : "Show password"}
-                disabled={sending}
-              >
-                {showPassword ? <EyeOffIcon /> : <EyeIcon />}
-              </button>
+          <div className="al-hero-info">
+            <div className="al-hero-copy">
+              <h2 className="al-hero-title">
+                Brighter Performance. Lower Costs. Lasting Value
+              </h2>
+              <p className="al-hero-text">
+                Improve your lighting performance and cut operating costs up to
+                50% with the LA1, LS1 and RH1 Series.
+              </p>
             </div>
+
+            <ul className="al-stats">
+              {STATS.map((stat) => (
+                <li className="al-stat" key={stat.label}>
+                  <span className="al-stat-value">{stat.value}</span>
+                  <span className="al-stat-label">{stat.label}</span>
+                </li>
+              ))}
+            </ul>
           </div>
+        </section>
 
-          {/* role="alert" — ভুল হলে screen reader সাথে সাথে পড়ে শোনায় */}
-          {error && (
-            <p className="admin-auth-error" role="alert">
-              {error}
+        {/* ---------- ডানে: ফর্ম ---------- */}
+        <section className="al-side">
+          <div className="al-form-box">
+            <header className="al-head">
+              <h1 className="al-title">Login Your Account</h1>
+              <p className="al-sub">
+                Welcome back! Log in to your Filamento account and get started
+                today.
+              </p>
+            </header>
+
+            {/* noValidate — ব্রাউজারের নিজের bubble এর বদলে আমাদের বার্তা */}
+            <form className="al-form" onSubmit={handleSubmit} noValidate>
+              <div className="al-field">
+                <label className="al-label" htmlFor="admin-email">
+                  Email Address<span className="al-req" aria-hidden="true">*</span>
+                </label>
+                <input
+                  id="admin-email"
+                  ref={emailRef}
+                  className="al-input"
+                  type="email"
+                  name="email"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  placeholder="Enter your mail..."
+                  autoComplete="username"
+                  autoCapitalize="none"
+                  spellCheck="false"
+                  maxLength={200}
+                  disabled={sending}
+                />
+              </div>
+
+              <div className="al-field">
+                <label className="al-label" htmlFor="admin-password">
+                  Password<span className="al-req" aria-hidden="true">*</span>
+                </label>
+                <div className="al-input-wrap">
+                  <input
+                    id="admin-password"
+                    className="al-input has-button"
+                    type={showPassword ? "text" : "password"}
+                    name="password"
+                    value={password}
+                    onChange={(event) => setPassword(event.target.value)}
+                    placeholder="Enter your password..."
+                    autoComplete="current-password"
+                    maxLength={200}
+                    disabled={sending}
+                  />
+                  <button
+                    type="button"
+                    className="al-reveal"
+                    onClick={() => setShowPassword((value) => !value)}
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    disabled={sending}
+                  >
+                    {showPassword ? <EyeOffIcon /> : <EyeIcon />}
+                  </button>
+                </div>
+              </div>
+
+              {/* role="alert" — ভুল হলে screen reader সাথে সাথে পড়ে শোনায় */}
+              {error && (
+                <p className="al-error" role="alert">
+                  {error}
+                </p>
+              )}
+
+              <button
+                type="submit"
+                className={`al-submit${email.trim() && password ? "" : " is-idle"}`}
+                disabled={sending}
+                aria-busy={sending}
+              >
+                {sending ? "Logging in…" : "Log In"}
+              </button>
+            </form>
+
+            <p className="al-note">
+              Authorised staff only. Ask an owner to create your account.
             </p>
-          )}
-
-          <button
-            type="submit"
-            className="admin-auth-submit"
-            disabled={sending}
-            aria-busy={sending}
-          >
-            {sending ? "Signing in…" : "Sign in"}
-          </button>
-        </form>
-
-        <p className="admin-auth-note">
-          Authorised staff only. Ask an owner to create your account.
-        </p>
+          </div>
+        </section>
       </div>
     </main>
   );

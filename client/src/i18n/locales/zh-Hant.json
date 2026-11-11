@@ -1,10 +1,12 @@
 {
   "nav": {
+    "home": "首頁",
     "products": "產品",
     "projects": "專案",
     "application": "應用類型",
     "company": "關於我們",
-    "shop": "線上商店"
+    "shop": "線上商店",
+    "aboutUs": "關於我們"
   },
   "actions": {
     "contact": "聯絡我們",
@@ -361,6 +363,13 @@
     "railPrev": "上一組專案",
     "railNext": "更多專案"
   },
+  "megaMenu": {
+    "label": "產品選單",
+    "getQuote": "取得報價",
+    "highBay": "高棚燈系列",
+    "buildFixture": "組合燈具",
+    "accessories": "配件"
+  },
   "productsPage": {
     "categoriesLabel": "產品類別",
     "categoriesPrev": "上一組類別",
@@ -567,6 +576,12 @@
       "version": "{{power}} 版本",
       "showing": "顯示第 <b>{{from}}–{{to}}</b> 項，共 <b>{{total}}</b> 項產品"
     },
+    "projects": {
+      "oldest": "最舊",
+      "breadcrumb": "導覽路徑",
+      "heroTitle": "探索創新照明專案的力量",
+      "heroText": "瀏覽我們的創新照明專案作品集，了解先進照明解決方案如何提升空間、豐富體驗。"
+    },
     "meta": {
       "title": "首頁"
     },
@@ -681,6 +696,120 @@
       "subscribe": "訂閱",
       "subscribed": "感謝訂閱！",
       "subscribeError": "目前無法訂閱，請稍後再試。"
+    },
+    "applicationPage": {
+      "breadcrumb": "導覽路徑",
+      "heroTitle": "探索適用於各種環境的照明應用",
+      "heroText": "探索我們完整的照明應用方案，為商業與工業等各種環境提供卓越效能、節能表現與可靠照明。",
+      "list": {
+        "title": "應用類型",
+        "viewAll": "查看全部",
+        "searchLabel": "搜尋應用",
+        "searchPlaceholder": "依 SKU、規格、瓦數、CRI、環境搜尋…",
+        "envLabel": "使用環境",
+        "envAll": "所有環境",
+        "env": {
+          "warehouse": "倉儲",
+          "retail": "零售",
+          "outdoor": "戶外",
+          "office": "辦公室",
+          "manufacturing": "製造",
+          "sports": "運動場館"
+        },
+        "filters": "篩選",
+        "sortTitle": "排序",
+        "sort": {
+          "default": "預設排序",
+          "az": "名稱 A–Z",
+          "za": "名稱 Z–A"
+        },
+        "chipsLabel": "應用類別",
+        "all": "全部應用",
+        "version": "{{power}} 版本",
+        "showing": "顯示第 <b>{{from}}–{{to}}</b> 項，共 <b>{{total}}</b> 項產品",
+        "empty": "找不到符合的應用。",
+        "emptyHint": "請嘗試其他關鍵字，或清除篩選。",
+        "clear": "清除篩選",
+        "pager": {
+          "label": "分頁",
+          "previous": "上一頁",
+          "next": "下一頁",
+          "page": "第 {{page}} 頁"
+        },
+        "items": {
+          "la1": {
+            "name": "LA1 通道燈",
+            "title": "LA1 通道燈：適用於倉庫通道的第二代 LED"
+          },
+          "rh1": {
+            "name": "RH1-RFL 高天井燈",
+            "title": "RH1-RFL 高天井燈：零售倉儲 LED 照明"
+          },
+          "teardrop": {
+            "name": "水滴型燈具",
+            "title": "水滴型燈具"
+          },
+          "darksky": {
+            "name": "友善暗空柱頂燈",
+            "title": "友善暗空柱頂燈"
+          },
+          "recessed": {
+            "name": "嵌入式",
+            "title": "嵌入式"
+          },
+          "retail": {
+            "name": "零售",
+            "title": "零售"
+          },
+          "ballast": {
+            "name": "安定器相容",
+            "title": "安定器相容"
+          },
+          "sports": {
+            "name": "運動場館",
+            "title": "運動場館"
+          },
+          "manufacturing": {
+            "name": "製造",
+            "title": "製造作業"
+          }
+        }
+      }
+    },
+    "aboutPage": {
+      "breadcrumb": "導覽路徑",
+      "heroTitle": "以創新照明，照亮未來",
+      "heroText": "在 Filamento，我們致力於提供兼具創新、效率與可靠性的高性能 LED 照明解決方案。",
+      "tag": "關於我們",
+      "intro": "在 Filamento，我們打造高效能 LED 照明解決方案，帶來更明亮的空間、更低的能源消耗與長久的價值。我們的使命，是讓商業與工業照明更高效、更可靠，也更永續。",
+      "stats": {
+        "savings": { "value": "60%+", "label": "潛在節能效益" },
+        "warranty": { "value": "5 年", "label": "產品保固" },
+        "madeInUsa": { "value": "100%", "label": "美國製造" }
+      },
+      "quote": "「客製化佈局流程為我們省下數千美元。在第一盞燈具送達之前，我們就清楚知道要安裝什麼。」",
+      "founderName": "Frank Shum",
+      "founderRole": "Filamento 創辦人",
+      "cards": {
+        "efficiency": { "title": "能源效率", "value": "60%+", "text": "高效 LED，更低能耗。" },
+        "durability": { "title": "經久耐用", "value": "5 年", "text": "可靠照明，持久耐用。" }
+      },
+      "alt": {
+        "founder": "Filamento 創辦人 Frank Shum 手持 LED 燈具",
+        "diagram": "Filamento LED 燈具分解結構圖",
+        "team": "Filamento 團隊圍著筆電檢視 LED 燈具"
+      }
+    },
+    "shop": {
+      "breadcrumb": "導覽路徑",
+      "heroTitle": "尋找離您最近的 Filamento 代表",
+      "heroText": "聯繫我們的授權代表，了解照明產品、獲得專業建議，為您的專案找到合適的解決方案。",
+      "directoryTitle": "尋找在地照明專家",
+      "totalTerritories_other": "共 {{count}} 個區域",
+      "filterMenuLabel": "篩選業務代表",
+      "filterAll": "所有業務代表",
+      "filterLocal": "僅限所選區域",
+      "filterNearby": "僅限鄰近區域"
     }
   },
   "findRep": {

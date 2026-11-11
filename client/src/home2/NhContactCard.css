@@ -1,0 +1,251 @@
+/* ===============================================================
+   Contact card — "Still deciding who to contact?" (/home/about-us)
+
+   Figma র কালো ছবির card (1280 x 345, radius 30): বাঁয়ে tag, শিরোনাম,
+   বিবরণ আর দুই বোতাম; ডানে সাদা card এ Filamento র নিজের যোগাযোগ.
+   নকশা /home/shop এর "Direct contact" card এর মতোই (সেখানকার CSS
+   থেকে নেওয়া) — আলাদা ফাইল যাতে About পাতায় পুরো Shop এর CSS না নামে.
+   সব class "ncc" দিয়ে শুরু.
+   =============================================================== */
+
+.ncc {
+  background: #ffffff;
+  padding: 0 0 clamp(40px, 4.17vw, 60px);
+}
+
+.ncc-card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: 30px;
+  background: #000000;
+  color: #ffffff;
+}
+
+/* Figma: ছবি 1280 x 842, কার্ডের মাঝ থেকে 138px নিচে — মানে ছবির নিচের
+   দিকটা দেখা যায় (বাতি আর দেয়াল). 110 / (842 − 345) ≈ 22% */
+.ncc-media {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 22%;
+}
+
+/* Figma: বাঁ থেকে ডানে কালো → স্বচ্ছ (827px, #000 9.8%) */
+.ncc-shade {
+  position: absolute;
+  inset: 0 auto 0 0;
+  z-index: -1;
+  width: 65%;
+  background: linear-gradient(90deg, #000000 9.8%, rgba(0, 0, 0, 0) 100%);
+  pointer-events: none;
+}
+
+.ncc-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 40px 123px;
+  min-height: 345px;
+  padding: 51px;
+}
+
+.ncc-copy {
+  display: flex;
+  flex: 0 1 588px;
+  flex-direction: column;
+  gap: 36px;
+  min-width: 0;
+}
+
+.ncc-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+/* "Direct contact" — হলুদ ধারের pill */
+.ncc-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  padding: 0 16px;
+  border: 1px solid var(--nh-yellow);
+  border-radius: 30px;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 1.2;
+  color: #ffffff;
+}
+
+/* Figma: 40px / 100%, 700 */
+.ncc-title {
+  margin: 0;
+  font-weight: 700;
+  font-size: clamp(28px, 2.78vw, 40px);
+  line-height: 1;
+  color: #ffffff;
+}
+
+.ncc-desc {
+  max-width: 471px;
+  margin: 0;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.ncc-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.ncc-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 43px;
+  padding: 0 16px;
+  border-radius: 100px;
+  background: #ffffff;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 22px;
+  color: #000000;
+  white-space: nowrap;
+  transition: background-color 0.2s ease;
+}
+
+.ncc-action:hover {
+  background: #fff4cc;
+}
+
+.ncc-action.is-primary {
+  background: #f7be00;
+}
+
+.ncc-action.is-primary:hover {
+  background: #ffd24d;
+}
+
+/* সাদা card — 468 x 206, radius 20, padding 16, gap 20 */
+.ncc-details {
+  display: flex;
+  flex: 0 1 468px;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+  margin: 0;
+  padding: 16px;
+  list-style: none;
+  border-radius: 20px;
+  background: #ffffff;
+  color: #000000;
+}
+
+.ncc-details li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+/* Figma "Detail icon": 34px, হলুদ, radius 8, সাদা আইকন */
+.ncc-icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: var(--nh-yellow);
+  color: #ffffff;
+}
+
+.ncc-detail {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.ncc-label {
+  font-weight: 600;
+  font-size: 10px;
+  line-height: 14px;
+  color: #000000;
+}
+
+.ncc-value {
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 1.4;
+  color: rgba(0, 0, 0, 0.7);
+  overflow-wrap: anywhere;
+  transition: color 0.2s ease;
+}
+
+.ncc-value:hover {
+  color: #000000;
+  text-decoration: underline;
+}
+
+.ncc-action:focus-visible,
+.ncc-value:focus-visible {
+  outline: 2px solid var(--nh-yellow);
+  outline-offset: 2px;
+}
+
+.ncc-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (max-width: 1099px) {
+  /* সরু পর্দায় লেখা উপরে, সাদা card নিচে; ছবির উপর পুরো কালো পর্দা */
+  .ncc-inner {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 32px;
+    padding: 32px;
+  }
+
+  .ncc-copy,
+  .ncc-details {
+    flex: none;
+  }
+
+  .ncc-shade {
+    width: 100%;
+    background: linear-gradient(90deg, rgba(0, 0, 0, 0.85) 30%, rgba(0, 0, 0, 0.35) 100%);
+  }
+}
+
+@media (max-width: 639px) {
+  .ncc-card {
+    border-radius: 20px;
+  }
+
+  .ncc-inner {
+    padding: 20px;
+  }
+
+  .ncc-action {
+    flex: 1 1 auto;
+  }
+}
