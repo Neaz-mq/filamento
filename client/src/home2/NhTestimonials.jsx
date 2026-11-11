@@ -77,7 +77,7 @@ function NhTestimonials() {
   return (
     <section className="nh-section nh-testi" aria-labelledby="nh-testi-title">
       <div className="nh-wrap">
-        <NhTag number="6" label={t("home2.testimonials.tag")} data-reveal="" />
+        <NhTag number={String(count)} label={t("home2.testimonials.tag")} data-reveal="" />
 
         <div className="nh-testi-head">
           <div className="nh-testi-copy">

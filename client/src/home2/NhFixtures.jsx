@@ -26,7 +26,7 @@ function NhFixtures() {
     <section className="nh-section nh-fixtures" aria-labelledby="nh-fixtures-title">
       <div className="nh-wrap">
         <header className="nh-head">
-          <NhTag number="2" label={t("home2.fixtures.tag")} data-reveal="" />
+          <NhTag number="3" label={t("home2.fixtures.tag")} data-reveal="" />
           <h2 id="nh-fixtures-title" className="nh-h2" data-reveal="" style={{ "--d": 1 }}>
             {t("home2.fixtures.title")}
           </h2>

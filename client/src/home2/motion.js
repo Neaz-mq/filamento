@@ -23,21 +23,25 @@ export const prefersReducedMotion = () =>
    (যেমন active হলে) হাতে যোগ করা class মুছে দিত, আর element টা আবার
    লুকিয়ে যেত. data-shown React চেনে না, তাই ছোঁয়ও না.
 
-   ⚠️ পাতা খোলার পরে নতুন [data-reveal] যোগ হলে (যেমন tab বদলে) সেটা
-   ধরা হয় না — এখনকার সব অংশ শুরু থেকেই পাতায় থাকে, তাই দরকার নেই
+   পাতা খোলার পরে নতুন [data-reveal] যোগ হলেও (server এর তথ্য এলে,
+   tab বদলালে) MutationObserver দিয়ে ধরা হয়
    --------------------------------------------------------------- */
 export function useReveal(rootRef) {
   useEffect(() => {
     const root = rootRef.current;
     if (!root) return undefined;
 
-    const targets = root.querySelectorAll("[data-reveal]");
     const show = (el) => el.setAttribute("data-shown", "");
+    const pending = (el) => !el.hasAttribute("data-shown");
 
     // পুরনো ব্রাউজার বা কম-নড়াচড়া চাওয়া দর্শক — সাথে সাথে সব দেখা
     if (typeof IntersectionObserver === "undefined" || prefersReducedMotion()) {
-      targets.forEach(show);
-      return undefined;
+      const showAll = () => root.querySelectorAll("[data-reveal]").forEach(show);
+      showAll();
+      if (typeof MutationObserver === "undefined") return undefined;
+      const mo = new MutationObserver(showAll);
+      mo.observe(root, { childList: true, subtree: true });
+      return () => mo.disconnect();
     }
 
     const observer = new IntersectionObserver(
@@ -53,8 +57,29 @@ export function useReveal(rootRef) {
       { rootMargin: "0px 0px -8% 0px", threshold: 0.05 },
     );
 
-    targets.forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
+    const watch = (scope) => {
+      if (scope.nodeType !== 1) return;
+      if (scope.matches("[data-reveal]") && pending(scope)) observer.observe(scope);
+      scope.querySelectorAll("[data-reveal]").forEach((el) => {
+        if (pending(el)) observer.observe(el);
+      });
+    };
+
+    watch(root);
+
+    /* ✅ server থেকে তথ্য এলে (যেমন Fixtures এর card) React নতুন element
+       বসায় — যেগুলো প্রথমবারের পরে যোগ হয়েছে. আগে এগুলো কখনো observe
+       হতো না, তাই opacity: 0 তেই আটকে থাকত (তিনটার একটা লুকিয়ে যেত).
+       এখন নতুন [data-reveal] এলেই observe করা হয় */
+    const mutations = new MutationObserver((records) => {
+      records.forEach((r) => r.addedNodes.forEach(watch));
+    });
+    mutations.observe(root, { childList: true, subtree: true });
+
+    return () => {
+      mutations.disconnect();
+      observer.disconnect();
+    };
   }, [rootRef]);
 }
 
