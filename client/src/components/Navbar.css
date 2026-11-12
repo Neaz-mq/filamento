@@ -19,11 +19,45 @@
   z-index: 50;
   width: 100%;
   height: var(--header-h);
-  background: #ffffff;
+  /* সাদা background এখন নিচের ::before তে — যাতে mega menu খুললে
+     header এর সাদা অংশ আলাদা করে overlay এর উপরে তোলা যায় */
   display: flex;
   align-items: center;
   padding-inline: var(--section-pad-x);
   box-sizing: border-box;
+}
+
+/* header এর সাদা পটভূমি. সাধারণ অবস্থায় পুরো চওড়া, সবার পেছনে (z -1) */
+.navbar::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: -1;
+  background: #ffffff;
+}
+
+/* Products mega menu খুললে (ProductsMegaMenu.css এর .mm-overlay এখন
+   পাতার একদম উপর থেকে শুরু): header এর সাদা অংশ overlay এর
+   উপরে ওঠে — ফলে header + panel মিলে একটাই সাদা আকৃতি (Figma). */
+/* Navbar বসে MainLayout এর .shell এর ভেতরে, যার দুই পাশে
+   --page-gutter (≈16px) padding — তাই navbar নিজে viewport থেকে ওই
+   পরিমাণ ভেতরে. সাদা অংশ ওই পর্যন্ত বাড়িয়ে নিচ্ছি যাতে panel এর
+   সাথে প্রান্ত মিলে যায় (নাহলে দুই পাশে কালো ফাঁক থাকে) */
+.navbar:has(.mm.is-open)::before {
+  z-index: 2;
+  left: calc(-1 * var(--page-gutter));
+  right: calc(-1 * var(--page-gutter));
+}
+
+/* logo, link আর button overlay (z 1) এর উপরে থাকতে হবে, নাহলে
+   header এর লেখাগুলোও কালচে হয়ে যেত */
+.navbar-logo,
+.navbar-actions {
+  position: relative;
+  z-index: 3;
 }
 
 /* section এর মতো একই padding আর content cap — তাই logo এর বাঁ প্রান্ত
@@ -70,6 +104,8 @@
   color: rgba(11, 18, 26, 0.5);
   text-decoration: none;
   white-space: nowrap;
+  position: relative;
+  z-index: 3;
   transition: color 0.2s ease;
 }
 

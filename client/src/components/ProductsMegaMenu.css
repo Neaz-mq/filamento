@@ -2,8 +2,8 @@
    Navbar এর Products mega menu (ProductsMegaMenu.jsx) — সব class "mm"
 
    Figma:
-     panel    1408 চওড়া, সাদা, নিচের radius 40, padding 64px 84px
-     overlay  rgba(55,58,60,.9), header এর নিচ থেকে পুরো পাতা জুড়ে (পুরো চওড়া, কোনো radius নেই)
+     panel    full width, সাদা, কোনো radius নেই, padding 64px 84px (Figma তে ছিল 1408 + radius 40)
+     overlay  rgba(55,58,60,.9), পাতার একদম উপর (navbar এর শুরু) থেকে পুরো পাতা জুড়ে (পুরো চওড়া, কোনো radius নেই)
      product  কলাম 169, ফাঁক 48 x 32; ছবি 128 x 102.4;
               নাম Inter 600 16/19; "Get Quote" হলুদ pill #F7BE00
      ডান মেনু  165.67 চওড়া, 1px divider (#EBEBEC), group এর ফাঁক 32
@@ -34,7 +34,8 @@
 /* ---------- পেছনের কালো blur (Figma: Overlay Shape) ---------- */
 .mm-overlay {
   position: fixed;
-  top: var(--header-h); /* header পরিষ্কার থাকে, বাকি পুরো পাতা ঝাপসা */
+  top: 0; /* navbar যেখান থেকে শুরু, blur ও সেখান থেকেই — header এর দুই পাশও ঢাকা.
+             সাদা header অংশ Navbar.css এ overlay এর উপরে তোলা আছে */
   bottom: 0;
   left: 0;
   right: 0;
@@ -67,13 +68,14 @@
   left: 0;
   right: 0;
   z-index: 2; /* overlay এর উপরে */
-  max-width: 1408px;
+  /* full width — max-width ও নিচের radius সরানো হয়েছে. content মাঝে
+     থাকে (.mm-inner এর justify-content: center). আগের মতো চাইলে:
+     max-width: 1408px; margin-inline: auto; border-radius: 0 0 40px 40px; */
   max-height: calc(100dvh - var(--header-h));
-  margin-inline: auto;
   overflow-y: auto;
   padding: 64px clamp(32px, 5.97vw, 84px);
   box-sizing: border-box;
-  border-radius: 0 0 40px 40px;
+  border-radius: 0;
   background: #ffffff;
   opacity: 0;
   visibility: hidden;
