@@ -49,16 +49,18 @@ const categoryImage = (path) => `${CLOUD}e_trim/c_limit,w_160,f_auto,q_auto/${pa
 /* ---------------------------------------------------------------
    Category — উপরের slider এর ঘর, ক্রম server এর CATEGORIES এর মতো
 
-   image — সাইটের নিজের ছবি. যেগুলোর এখনো নেই সেখানে art (হাতে
-           আঁকা ছবি, components/products/CategoryArt.jsx). designer
-           ছবি দিলে image বসালেই art আর দেখাবে না
+   image — সাইটের নিজের ছবি
+   art   — হাতে আঁকা ছবি (components/products/CategoryArt.jsx). image
+           থাকলে category slider এ এটা দেখায় না; তবু রাখা হয়েছে কারণ
+           image না নামলে (CategoryPicture) আর যে product এর ছবি নেই তার
+           জায়গায় এটাই কাজে লাগে
    watermark — Product Details এর বড় ছবির পেছনের হালকা লেখা
            (Figma: "FIXTURES")
    --------------------------------------------------------------- */
 export const ALL_CATEGORY = {
   key: "",
   labelKey: "productsPage.categories.all",
-  image: categoryImage("v1789471643/fix3_yeppeq.webp"),
+  image: categoryImage("v1794462910/253fea695f94d3c91305a43334702685cc83f1f6_nejov0.png"),
 };
 
 export const CATEGORIES = [
@@ -66,7 +68,7 @@ export const CATEGORIES = [
     key: "lamp-fixture",
     labelKey: "productsPage.categories.lampFixture",
     familyKey: "productsPage.families.lampFixture",
-    image: categoryImage("v1789621178/image_7_wqtldv.png"),
+    image: categoryImage("v1794463038/2_kyqmy1.png"),
     watermark: "Fixtures",
   },
   {
@@ -80,6 +82,7 @@ export const CATEGORIES = [
     key: "mounting-base",
     labelKey: "productsPage.categories.mountingBase",
     familyKey: "productsPage.families.mountingBase",
+    image: categoryImage("v1794463104/4_szkp7g.png"),
     art: "mounting",
     watermark: "Mounts",
   },
@@ -87,6 +90,7 @@ export const CATEGORIES = [
     key: "reflector",
     labelKey: "productsPage.categories.reflector",
     familyKey: "productsPage.families.reflector",
+    image: categoryImage("v1794463144/6_pbri20.png"),
     art: "reflector",
     watermark: "Optics",
   },
@@ -94,6 +98,7 @@ export const CATEGORIES = [
     key: "control-cap",
     labelKey: "productsPage.categories.controlCap",
     familyKey: "productsPage.families.controlCap",
+    image: categoryImage("v1794463181/9_dfqlau.png"),
     art: "cap",
     watermark: "Controls",
   },
@@ -101,13 +106,14 @@ export const CATEGORIES = [
     key: "lamp-accessory",
     labelKey: "productsPage.categories.lampAccessory",
     familyKey: "productsPage.families.lampAccessory",
-    image: categoryImage("v1789461212/card3_rcubwu.webp"),
+    image: categoryImage("v1794463260/12_mir6kv.webp"),
     watermark: "Parts",
   },
   {
     key: "reflector-accessory",
     labelKey: "productsPage.categories.reflectorAccessory",
     familyKey: "productsPage.families.reflectorAccessory",
+    image: categoryImage("v1794463376/55_jup5er.webp"),
     art: "lens",
     watermark: "Optics",
   },
@@ -115,6 +121,7 @@ export const CATEGORIES = [
     key: "other",
     labelKey: "productsPage.categories.other",
     familyKey: "productsPage.families.other",
+    image: categoryImage("v1794463431/SAD_default_1694809971_qsvhjp.webp"),
     art: "box",
     watermark: "Parts",
   },
