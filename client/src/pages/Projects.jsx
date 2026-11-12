@@ -21,7 +21,7 @@ import "./Projects.css";
 
      সার্চ বার (1240 x 70) ── gap 32 ── category pill এর সারি (দুইপাশে তীর)
         │ gap 48
-     card rail (450 উঁচু) ── gap 32 ── pagination (মাঝখানে)
+     card rail (450 উঁচু) — pagination নেই, সব project এক rail এ (তীর দিয়ে সরানো যায়)
 
    card এর আচরণ: সাধারণ অবস্থায় 298 x 450 শুধু ছবি। মাউস দিলে (hover)
    card টা 612 চওড়া হয়ে যায় — ছবি 358 উঁচুতে নামে, নিচে ধূসর অংশে নাম,
@@ -42,8 +42,6 @@ import "./Projects.css";
    অবস্থায় 298 x 450 (portrait) আর expanded অবস্থায় 612 x 358
    (landscape) এ object-fit: cover দিয়ে কাটা হয়।
    =============================================================== */
-
-const PAGE_SIZE = 10;
 
 /* শুরুতে কোন card টা খোলা থাকবে (0 থেকে গোনা) — Figma তে তৃতীয়টা।
    4 card এর পাতায় তৃতীয়টা খুললে 628 + 612 = 1240, অর্থাৎ ঠিক
@@ -149,22 +147,6 @@ function Chevron({ direction = "left", width = 8, height = 14 }) {
   );
 }
 
-/* pagination এর "← Previous" / "Next →" এর ছোট তীর */
-function PageArrow({ direction = "right" }) {
-  return (
-    <svg
-      width="10"
-      height="10"
-      viewBox="0 0 10 10"
-      fill="none"
-      aria-hidden="true"
-      style={{ transform: direction === "left" ? "scaleX(-1)" : undefined }}
-    >
-      <path d="M1 5h8M5.6 1.6 9 5 5.6 8.4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
 /* ট্যাবের শিরোনাম — ComingSoon.jsx এর মতোই প্যাটার্ন */
 function usePageMeta(title) {
   useEffect(() => {
@@ -209,28 +191,6 @@ function useScrollEdges(ref, enabled = true) {
   }, [ref, enabled]);
 
   return edges;
-}
-
-/* pagination এর সংখ্যা: শুরু, শেষ আর বর্তমান পাতার দুইপাশ।
-   মাঝে শুধু একটা পাতা বাদ পড়লে "…" না বসিয়ে সংখ্যাটাই দেখানো হয়।
-   ৫ পাতার প্রথম পাতায়:  1 2 … 5   (Figma র মতো) */
-function buildPageItems(current, total) {
-  if (total <= 4) return Array.from({ length: total }, (_, i) => i + 1);
-
-  const keep = [...new Set([1, total, current - 1, current, current + 1])]
-    .filter((p) => p >= 1 && p <= total)
-    .sort((a, b) => a - b);
-
-  const items = [];
-  keep.forEach((page, index) => {
-    if (index > 0) {
-      const gap = page - keep[index - 1];
-      if (gap === 2) items.push(page - 1);
-      else if (gap > 2) items.push(`ellipsis-${page}`);
-    }
-    items.push(page);
-  });
-  return items;
 }
 
 const prefersReducedMotion = () =>
@@ -326,7 +286,6 @@ function Projects() {
     PROJECT_TYPES.includes(initialCategory) ? initialCategory : "all"
   );
   const { status, projects: liveProjects, retry } = useProjectList();
-  const [page, setPage] = useState(1);
   // এই পাতার কোন card টা এখন বড় (expanded) — hover/focus/tap এ বদলায়।
   // শুরুতে Figma র মতো তৃতীয় card টা খোলা; মাউস সরিয়ে নিলেও শেষ
   // card টাই বড় থাকে, যাতে rail লাফালাফি না করে
@@ -387,18 +346,11 @@ function Projects() {
 
   function handleQueryChange(value) {
     setQuery(value);
-    setPage(1);
     resetRail();
   }
 
   function handleCategoryChange(id) {
     setCategory(id);
-    setPage(1);
-    resetRail();
-  }
-
-  function goToPage(nextPage) {
-    setPage(nextPage);
     resetRail();
   }
 
@@ -462,10 +414,9 @@ function Projects() {
     });
   }, [projects, query, category, t]);
 
-  const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  const safePage = Math.min(page, pageCount);
-  const visible = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
-  // পাতায় ৩টার কম card থাকলে (যেমন filter এর শেষ পাতা) DEFAULT_ACTIVE_INDEX
+  // pagination নেই — filter এর পরের সব project একটাই rail এ
+  const visible = filtered;
+  // তালিকায় ৩টার কম card থাকলে (যেমন filter এ অল্প project) DEFAULT_ACTIVE_INDEX
   // নাগালের বাইরে — তখন শেষ card টাই খোলা থাকে
   const active = Math.min(activeIndex, Math.max(visible.length - 1, 0));
   const hasResults = visible.length > 0;
@@ -812,8 +763,6 @@ function Projects() {
     return () => rail.removeEventListener("wheel", onWheel);
   }, [windowed, hasResults]);
 
-  const pageItems = useMemo(() => buildPageItems(safePage, pageCount), [safePage, pageCount]);
-
   return (
     <section className="section projects">
       <div className="container projects-inner">
@@ -933,7 +882,7 @@ function Projects() {
                 }}
               >
                 <ul
-                  key={`${safePage}-${category}`}
+                  key={category}
                   className={`projects-track${windowed ? " is-windowed" : ""}${isNavigating ? " is-navigating" : ""}`}
                   style={
                     windowed
@@ -1039,60 +988,12 @@ function Projects() {
                 onClick={() => {
                   setQuery("");
                   setCategory("all");
-                  goToPage(1);
+                  resetRail();
                 }}
               >
                 {t("projects.clearFilters")}
               </button>
             </div>
-          )}
-
-          {/* pagination — Figma "Group 5": মাঝখানে, gap 8. Figma র মতো
-              সবসময় দেখায় (এক পাতা হলেও) — তখন Previous/Next ধূসর */}
-          {status === "ready" && hasResults && (
-            <nav className="projects-pagination" aria-label={t("projects.pagination.ariaLabel")}>
-              <button
-                type="button"
-                className="projects-pagination-side"
-                disabled={safePage === 1}
-                onClick={() => goToPage(Math.max(1, safePage - 1))}
-              >
-                <PageArrow direction="left" />
-                <span>{t("projects.pagination.previous")}</span>
-              </button>
-
-              <ul className="projects-pagination-pages">
-                {pageItems.map((item) =>
-                  typeof item === "number" ? (
-                    <li key={item}>
-                      <button
-                        type="button"
-                        className={`projects-pagination-page${item === safePage ? " is-active" : ""}`}
-                        aria-current={item === safePage ? "page" : undefined}
-                        aria-label={t("projects.pagination.pageAriaLabel", { page: item })}
-                        onClick={() => goToPage(item)}
-                      >
-                        {item}
-                      </button>
-                    </li>
-                  ) : (
-                    <li key={item} className="projects-pagination-ellipsis" aria-hidden="true">
-                      …
-                    </li>
-                  )
-                )}
-              </ul>
-
-              <button
-                type="button"
-                className="projects-pagination-side"
-                disabled={safePage === pageCount}
-                onClick={() => goToPage(Math.min(pageCount, safePage + 1))}
-              >
-                <span>{t("projects.pagination.next")}</span>
-                <PageArrow direction="right" />
-              </button>
-            </nav>
           )}
         </div>
       </div>

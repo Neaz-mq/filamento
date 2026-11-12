@@ -8,7 +8,6 @@
        Frame 419    pill সারি, gap 16 — [তীর 24][pill, gap 8][তীর 24]
      Frame 404 (gallery)  gap 32
        rail         450 উঁচু, card 298 (খোলা: 612), gap 16, radius 40
-       pagination   40 উঁচু, মাঝখানে, gap 8
 
    32 + 140 + 48 + 450 + 32 + 40 = 742 ✓
    =============================================================== */
@@ -263,7 +262,7 @@
 }
 
 /* ---------------------------------------------------------------
-   gallery = rail + pagination, gap 32
+   gallery = rail (pagination নেই), gap 32
    --------------------------------------------------------------- */
 .projects-gallery {
   display: flex;
@@ -628,113 +627,6 @@
 
 .projects-empty-clear:hover {
   background: #000000;
-}
-
-/* ---------------------------------------------------------------
-   pagination — Figma "Group 5": মাঝখানে, gap 8
-   Previous (padding 13 18 12 19, 12/15 500) + 40x40 সংখ্যা + Next
-   --------------------------------------------------------------- */
-.projects-pagination {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.projects-pagination-side {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  height: 40px;
-  padding: 0 18px 0 19px;
-  background: #ffffff;
-  border: 0;
-  border-radius: 20px;
-  font-family: inherit;
-  font-weight: 500;
-  font-size: 12px;
-  line-height: 15px;
-  color: var(--pj-ink);
-  cursor: pointer;
-  transition:
-    background-color 0.3s ease,
-    opacity 0.3s ease,
-    transform 0.2s ease;
-}
-
-.projects-pagination-side:active:not(:disabled) {
-  transform: scale(0.95);
-}
-
-.projects-pagination-side:hover:not(:disabled) {
-  background: var(--pj-surface);
-}
-
-.projects-pagination-side:disabled {
-  opacity: 0.4;
-  cursor: default;
-}
-
-.projects-pagination-pages {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.projects-pagination-page {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  padding: 0;
-  background: #ffffff;
-  border: 0;
-  border-radius: 20px;
-  font-family: inherit;
-  font-weight: 500;
-  font-size: 12px;
-  line-height: 15px;
-  color: var(--pj-ink);
-  cursor: pointer;
-  transition:
-    background-color 0.3s ease,
-    color 0.3s ease,
-    transform 0.2s ease;
-}
-
-.projects-pagination-page:active {
-  transform: scale(0.92);
-}
-
-.projects-pagination-page:hover:not(.is-active) {
-  background: var(--pj-surface);
-}
-
-.projects-pagination-page.is-active {
-  background: var(--pj-ink);
-  color: #ffffff;
-}
-
-.projects-pagination-ellipsis {
-  min-width: 20px;
-  text-align: center;
-  font-weight: 500;
-  font-size: 12px;
-  color: var(--pj-ink-75);
-}
-
-@media (max-width: 640px) {
-  .projects-pagination-side span {
-    display: none;
-  }
-  .projects-pagination-side {
-    padding: 0 14px;
-  }
 }
 
 /* ---------------------------------------------------------------
