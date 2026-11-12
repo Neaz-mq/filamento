@@ -3,7 +3,7 @@
 
    Figma:
      panel    1408 চওড়া, সাদা, নিচের radius 40, padding 64px 84px
-     overlay  rgba(55,58,60,.9), নিচের radius 40, header এর নিচ থেকে শুরু
+     overlay  rgba(55,58,60,.9), header এর নিচ থেকে পুরো পাতা জুড়ে (পুরো চওড়া, কোনো radius নেই)
      product  কলাম 169, ফাঁক 48 x 32; ছবি 128 x 102.4;
               নাম Inter 600 16/19; "Get Quote" হলুদ pill #F7BE00
      ডান মেনু  165.67 চওড়া, 1px divider (#EBEBEC), group এর ফাঁক 32
@@ -34,15 +34,14 @@
 /* ---------- পেছনের কালো blur (Figma: Overlay Shape) ---------- */
 .mm-overlay {
   position: fixed;
-  top: var(--header-h);
+  top: var(--header-h); /* header পরিষ্কার থাকে, বাকি পুরো পাতা ঝাপসা */
   bottom: 0;
   left: 0;
   right: 0;
   z-index: 1;
   width: auto;
-  max-width: 1408px;
-  margin-inline: auto; /* 1408 র বেশি চওড়া পর্দায় মাঝখানে */
-  border-radius: 0 0 40px 40px;
+  /* আগে এখানে max-width: 1408px আর নিচের radius 40 ছিল — তাই শুধু মাঝের
+     অংশ ঝাপসা হত. এখন পাতার পুরো চওড়া আর পুরো উচ্চতা */
   background: rgba(55, 58, 60, 0.9);
   -webkit-backdrop-filter: blur(6px);
   backdrop-filter: blur(6px);
