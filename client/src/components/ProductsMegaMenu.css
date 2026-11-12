@@ -2,7 +2,7 @@
    Navbar এর Products mega menu (ProductsMegaMenu.jsx) — সব class "mm"
 
    Figma:
-     panel    full width, সাদা, কোনো radius নেই, padding 64px 84px (Figma তে ছিল 1408 + radius 40)
+     panel    full width, সাদা, নিচের radius = --section-radius (hero র মতো), padding 64px 84px
      overlay  rgba(55,58,60,.9), পাতার একদম উপর (navbar এর শুরু) থেকে পুরো পাতা জুড়ে (পুরো চওড়া, কোনো radius নেই)
      product  কলাম 169, ফাঁক 48 x 32; ছবি 128 x 102.4;
               নাম Inter 600 16/19; "Get Quote" হলুদ pill #F7BE00
@@ -68,14 +68,17 @@
   left: 0;
   right: 0;
   z-index: 2; /* overlay এর উপরে */
-  /* full width — max-width ও নিচের radius সরানো হয়েছে. content মাঝে
-     থাকে (.mm-inner এর justify-content: center). আগের মতো চাইলে:
-     max-width: 1408px; margin-inline: auto; border-radius: 0 0 40px 40px; */
+  /* full width — max-width সরানো হয়েছে. content মাঝে থাকে
+     (.mm-inner এর margin-inline: auto). নিচের দুই কোণা hero section
+     এর মতোই গোল: একই token --section-radius (index.css, 20px–40px) */
   max-height: calc(100dvh - var(--header-h));
   overflow-y: auto;
-  padding: 64px clamp(32px, 5.97vw, 84px);
+  /* পাশের ফাঁক = navbar এর পাশের ফাঁক (shell gutter + section padding).
+     এতে dropdown এর content এর বাঁ প্রান্ত logo এর সাথে, ডান প্রান্ত
+     Contact/language এর সাথে এক লাইনে থাকে — সব screen এ */
+  padding: 64px calc(var(--page-gutter) + var(--section-pad-x));
   box-sizing: border-box;
-  border-radius: 0;
+  border-radius: 0 0 var(--section-radius) var(--section-radius);
   background: #ffffff;
   opacity: 0;
   visibility: hidden;
@@ -95,8 +98,13 @@
 
 .mm-inner {
   display: grid;
-  grid-template-columns: minmax(0, 820px) 1px minmax(150px, 166px);
-  justify-content: center;
+  /* বাঁয়ের product grid বাকি জায়গা নেয়, ডানের মেনু 166px. পুরো চওড়া
+     navbar-inner এর মতোই (--content-max) আর মাঝে — তাই দুই প্রান্ত navbar এর
+     logo ও actions এর সাথে মেলে */
+  grid-template-columns: minmax(0, 1fr) 1px minmax(150px, 166px);
+  width: 100%;
+  max-width: var(--content-max);
+  margin-inline: auto;
   column-gap: clamp(32px, 4.6vw, 64px);
   align-items: stretch;
   font-family: "Inter", var(--font-sans), sans-serif;
